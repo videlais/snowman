@@ -38,5 +38,5 @@ Story.prototype.show = function (idOrName)
 
 Story.prototype.write = function (text)
 {
-	this.writeResult += window.marked(text) + ' ';
+	this.writeResult += text + ' ';
 };

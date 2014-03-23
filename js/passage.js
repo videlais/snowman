@@ -7,17 +7,18 @@ function Passage (id, name, source)
 
 Passage.prototype.render = function (el)
 {
-	var rendered = window.marked(this.source);
+	// run <<script>> first, so any output from story.write()
+	// is run through this same process
 
-	// run <<script>>
-
-	rendered = rendered.replace(/&lt;&lt;(.+?)&gt;&gt;/g,
+	var rendered = this.source.replace(/&lt;&lt;(.+?)&gt;&gt;/g,
 	function (match, paren1, offset, string)
 	{
 		window.story.writeResult = '';
 		eval(_.unescape(paren1));
 		return window.story.writeResult.trim();
 	});
+
+	rendered = window.marked(rendered);
 
 	// [[displayed text|target]] links
 
