@@ -21,8 +21,6 @@ function Story (el)
 	});
 
 	// TODO: set up stylesheet and script
-
-	this.show(this.startPassage);
 };
 
 Story.prototype.passage = function (idOrName)
@@ -36,4 +34,9 @@ Story.prototype.passage = function (idOrName)
 Story.prototype.show = function (idOrName)
 {
 	$('#passage').html(this.passage(idOrName).render());
+};
+
+Story.prototype.write = function (text)
+{
+	this.writeResult += window.marked(text) + ' ';
 };

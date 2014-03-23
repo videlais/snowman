@@ -14,7 +14,9 @@ Passage.prototype.render = function (el)
 	rendered = rendered.replace(/&lt;&lt;(.+?)&gt;&gt;/g,
 	function (match, paren1, offset, string)
 	{
-		return eval(_.unescape(paren1));
+		window.story.writeResult = '';
+		eval(_.unescape(paren1));
+		return window.story.writeResult.trim();
 	});
 
 	// [[displayed text|target]] links
