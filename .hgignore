@@ -1,0 +1,4 @@
+syntax: glob
+*.swp
+node_modules/*
+index.html

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title><!--(bake /placeholders/dev_name.txt _if="dev")--><!--(bake /placeholders/release_name.txt _if="!dev")--></title>
+</head>
+
+<body>
+
+<div id="passage"></div>
+
+<!--(bake /placeholders/dev_passages.html _if="dev")--><!--(bake /placeholders/release_passages.html _if="!dev")-->
+</body>
+
+<script src="lib/jquery.js"></script>
+<script src="lib/underscore.js"></script>
+<script src="lib/marked.js"></script>
+
+<script src="js/passage.js"></script>
+<script src="js/story.js"></script>
+<script src="js/init.js"></script>
+
+</html>

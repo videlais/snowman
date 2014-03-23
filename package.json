@@ -1,0 +1,12 @@
+{
+	"name": "snowman",
+	"version": "1.0.0",
+	"author": "Chris Klimas <chris@twinery.org>",
+	"description": "A minimal story format for Twine 2.",
+
+	"dependencies":
+	{
+		"grunt": "*",
+		"grunt-bake": "*"
+	}
+}
