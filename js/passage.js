@@ -5,13 +5,13 @@ function Passage (id, name, source)
 	this.source = source;
 };
 
-Passage.prototype.render = function (el)
+Passage.prototype.render = function()
 {
 	// run <<script>> first, so any output from story.write()
 	// is run through this same process
 
-	var rendered = this.source.replace(/&lt;&lt;(.+?)&gt;&gt;/g,
-	function (match, paren1, offset, string)
+	var rendered = this.source.replace(/&lt;&lt;((.|[\r\n])+?)&gt;&gt;/gm,
+	function (match, paren1, paren2, offset, string)
 	{
 		window.story.writeResult = '';
 		eval(_.unescape(paren1));

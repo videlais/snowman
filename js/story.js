@@ -40,3 +40,8 @@ Story.prototype.write = function (text)
 {
 	this.writeResult += text + ' ';
 };
+
+Story.prototype.embed = function (idOrName)
+{
+	this.writeResult += this.passage(idOrName).render() + ' ';
+};
