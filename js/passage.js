@@ -9,6 +9,14 @@ Passage.prototype.render = function (el)
 {
 	var rendered = window.marked(this.source);
 
+	// run <<script>>
+
+	rendered = rendered.replace(/&lt;&lt;(.+?)&gt;&gt;/g,
+	function (match, paren1, offset, string)
+	{
+		return eval(_.unescape(paren1));
+	});
+
 	// [[displayed text|target]] links
 
 	rendered = rendered.replace(/\[\[(.+?)\|(.+?)\]\]/g,
