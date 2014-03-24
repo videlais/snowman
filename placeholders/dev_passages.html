@@ -17,20 +17,22 @@ Maecenas eget lectus malesuada, dictum mauris ac, iaculis justo. Fusce molestie 
 * [[a destination&lt;-Another arrowed link]]
 * [An external link](http://twinery.org)
 
-&lt;&lt;console.log(&#x27;The first page says hi!&#x27;)&gt;&gt;
-&lt;&lt;story.write(&#x27;The first page says *hi*! Why not visit the [[second page->A link]]?&#x27;);
-story.embed(&#x27;Really, another link&#x27;);&gt;&gt;
+Two plus two is &lt;%= 2 + 2 %&gt;.
+
+&lt;%console.log(&#x27;The first page says hi!&#x27;)%&gt;
+&lt;%story.write(&#x27;The first page says *hi*! Why not visit the [[second page->A link]]?&#x27;);
+story.embed(&#x27;Really, another link&#x27;);%&gt;
 </script>
 <script data-role="passage" data-id="2" data-name="A link" type="text/twine" data-twine-position="212,197">
 This is another page.
-&lt;&lt;console.log(&#x27;Another page says hi!&#x27;)&gt;&gt;
+&lt;%console.log(&#x27;Another page says hi!&#x27;)%&gt;
 </script>
 <script data-role="passage" data-id="3" data-name="Really, another link" type="text/twine" data-twine-position="355,205">
 This is a second page.
-&lt;&lt;console.log(&#x27;A second page says hi!&#x27;)&gt;&gt;
+&lt;%console.log(&#x27;A second page says hi!&#x27;)%&gt;
 </script>
 <script data-role="passage" data-id="4" data-name="to somewhere else" type="text/twine" data-twine-position="512,213">
 This is a destination!
-&lt;&lt;console.log(&#x27;A destination says hi!&#x27;)&gt;&gt;
+&lt;%console.log(&#x27;A destination says hi!&#x27;)%&gt;
 </script>
 </div>

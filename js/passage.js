@@ -7,11 +7,17 @@ function Passage (id, name, source)
 
 Passage.prototype.render = function()
 {
-	// run <<script>> first, so any output from story.write()
-	// is run through this same process
+	// run <%= eval %> and <% script %> first,
+	// so any output from story.write() is run through this same process
 
-	var rendered = this.source.replace(/&lt;&lt;((.|[\r\n])+?)&gt;&gt;/gm,
-	function (match, paren1, paren2, offset, string)
+	var rendered = this.source.replace(/&lt;%=((.|[\r\n])+?)%&gt;/gm,
+	function (match, paren1)
+	{
+		return eval(_.unescape(paren1));
+	});
+
+	var rendered = rendered.replace(/&lt;%((.|[\r\n])+?)%&gt;/gm,
+	function (match, paren1)
 	{
 		window.story.writeResult = '';
 		eval(_.unescape(paren1));
