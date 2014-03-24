@@ -1,0 +1,33 @@
+/* give ourselves some decent defaults */
+
+body
+{
+	font: 24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #222;
+}
+
+#passage
+{
+	max-width: 38em;
+	margin: 0 auto;
+	line-height: 145%;
+}
+
+a
+{
+	color: #222;
+	text-decoration: none;
+	border-bottom: 1px solid #bbb;
+}
+
+a:hover
+{
+	color: #cc8929;
+	border-color: #cc8929;
+}
+
+a:active
+{
+	color: #ffb040;
+	border-color: #ffb040;
+}
