@@ -7,6 +7,10 @@ function Story (el)
 	this.startPassage = parseInt(el.attr('data-startnode'));
 	this.creator = el.attr('data-creator');
 	this.creatorVersion = el.attr('data-creator-version');
+	
+	// initialize history
+
+	this.history = [];
 
 	// create passage objects
 
@@ -33,7 +37,9 @@ Story.prototype.passage = function (idOrName)
 
 Story.prototype.show = function (idOrName)
 {
-	$('#passage').html(this.passage(idOrName).render());
+	var passage = this.passage(idOrName);
+	this.history.push(passage.id);
+	$('#passage').html(passage.render());
 };
 
 Story.prototype.write = function (text)
