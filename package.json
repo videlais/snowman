@@ -7,6 +7,7 @@
 	"dependencies":
 	{
 		"grunt": "*",
-		"grunt-bake": "*"
+		"grunt-bake": "*",
+		"grunt-contrib-watch": "*"
 	}
 }
