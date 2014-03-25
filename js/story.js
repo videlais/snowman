@@ -8,9 +8,12 @@ function Story (el)
 	this.creator = el.attr('data-creator');
 	this.creatorVersion = el.attr('data-creator-version');
 	
-	// initialize history
+	// initialize history and state
 
 	this.history = [];
+	this.state = {};
+	this.checkpointName = '';
+	this.atCheckpoint = true;
 
 	// create passage objects
 
@@ -21,7 +24,30 @@ function Story (el)
 	el.children('*[data-role="passage"]').each(function (el)
 	{
 		var $t = $(this);
-		p[$t.attr('data-id')] = new Passage($t.attr('data-id'), $t.attr('data-name'), $t.html());
+		var id = parseInt($t.attr('data-id'));
+		p[id] = new Passage(id, $t.attr('data-name'), $t.html());
+	});
+
+	var self = this;
+
+	$(window).on('popstate', function (event)
+	{
+		var state = event.originalEvent.state;
+
+		if (state)
+		{
+			self.state = state.state;
+			self.history = state.history;
+			self.checkpointName = state.checkpointName;
+			self.show(self.history[self.history.length - 1]);
+		}
+		else
+		{
+			self.state = {};
+			self.history = [];
+			self.checkpointName = '';
+			self.show(self.startPassage);
+		};
 	});
 
 	// TODO: set up stylesheet and script
@@ -39,6 +65,13 @@ Story.prototype.show = function (idOrName)
 {
 	var passage = this.passage(idOrName);
 	this.history.push(passage.id);
+
+	if (this.atCheckpoint)
+		window.history.pushState({ state: this.state, history: this.history, checkpointName: this.checkpointName });
+	else
+		window.history.replaceState({ state: this.state, history: this.history, checkpointName: this.checkpointName });
+
+	this.atCheckpoint = false;
 	$('#passage').html(passage.render());
 };
 
@@ -50,4 +83,11 @@ Story.prototype.write = function (text)
 Story.prototype.embed = function (idOrName)
 {
 	this.writeResult += this.passage(idOrName).render() + ' ';
+};
+
+Story.prototype.checkpoint = function (name)
+{
+	document.title = this.name + ': ' + name;
+	this.checkpointName = name;
+	this.atCheckpoint = true;
 };

@@ -1,8 +1,7 @@
-<div data-role="twinestory" data-name="Test" data-startnode="1" data-creator="Twine" data-creator-version="2.0p2">
-<style data-role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">
-</style>
-<script data-role="script" id="twine-user-script" type="text/twine-javascript"></script>
-<script data-role="passage" data-id="1" data-name="Untitled Passage" type="text/twine" data-twine-position="212,46">*Italic text.* **Bold text.**
+<div data-role="twinestory" data-name="Test" data-startnode="1" data-creator="Twine" data-creator-version="2.0p2"><style data-role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">
+
+</style><script data-role="script" id="twine-user-script" type="text/twine-javascript">
+</script><script data-role="passage" data-id="1" data-name="Untitled Passage" type="text/twine" data-twine-position="212,46">*Italic text.* **Bold text.**
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at nunc a sem venenatis posuere. Sed in tortor dui. Pellentesque rutrum est vel felis mattis consectetur. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel velit diam. Phasellus varius dolor sapien. Aenean rutrum euismod pulvinar. Praesent ultricies sem in augue ullamcorper venenatis.
 
@@ -20,19 +19,19 @@ Maecenas eget [[lectus malesuada]], dictum mauris ac, iaculis justo. Fusce moles
 Two plus two is &lt;%= 2 + 2 %&gt;.
 
 &lt;%console.log(&#x27;The first page says hi!&#x27;)%&gt;
-&lt;%story.write(&#x27;The first page says *hi*! Why not visit the [[second page->A link]]?&#x27;);
+&lt;%story.write(&#x27;The first page says *hi*! Why not visit the [[second page-&gt;A link]]?&#x27;);
 story.embed(&#x27;Really, another link&#x27;);%&gt;
-</script>
-<script data-role="passage" data-id="2" data-name="A link" type="text/twine" data-twine-position="212,197">
-This is another page.
-&lt;%console.log(&#x27;Another page says hi!&#x27;)%&gt;
-</script>
-<script data-role="passage" data-id="3" data-name="Really, another link" type="text/twine" data-twine-position="355,205">
+</script><script data-role="passage" data-id="2" data-name="A link" type="text/twine" data-twine-position="212,197">&lt;%console.log(&#x27;Another page says hi!&#x27;);
+story.checkpoint('A door presents a decision');
+%&gt;
+
+This is another page, ready for you to select a decision.
+
+* [[Open the door]]
+* [[Don&#x27;t]]</script><script data-role="passage" data-id="3" data-name="Really, another link" type="text/twine" data-twine-position="355,205">
 This is a second page.
 &lt;%console.log(&#x27;A second page says hi!&#x27;)%&gt;
-</script>
-<script data-role="passage" data-id="4" data-name="to somewhere else" type="text/twine" data-twine-position="512,213">
+</script><script data-role="passage" data-id="4" data-name="to somewhere else" type="text/twine" data-twine-position="512,213">
 This is a destination!
 &lt;%console.log(&#x27;A destination says hi!&#x27;)%&gt;
-</script>
-</div>
+</script><script data-role="passage" data-id="5" data-name="Open the door" type="text/twine" data-twine-position="212,347">There is a monster who [[says]]:</script><script data-role="passage" data-id="6" data-name="Don&#x27;t" type="text/twine" data-twine-position="362,347">Safe, so safe. [[But...]]</script><script data-role="passage" data-id="7" data-name="says" type="text/twine" data-twine-position="212,497">&quot;You have reached the end.&quot;</script><script data-role="passage" data-id="8" data-name="But..." type="text/twine" data-twine-position="362,497">There are always noises outside; always something that urges you to reconsider.</script></div>
