@@ -28,6 +28,16 @@ function Story (el)
 		p[id] = new Passage(id, $t.attr('data-name'), $t.html());
 	});
 
+	// run story script(s)
+	// stylesheets are already set by the HTML tags
+
+	el.children('*[data-role="script"]').each(function (el)
+	{
+		eval($(this).html());
+	});
+
+	// set up history event handler
+
 	var self = this;
 
 	$(window).on('popstate', function (event)
@@ -49,8 +59,6 @@ function Story (el)
 			self.show(self.startPassage);
 		};
 	});
-
-	// TODO: set up stylesheet and script
 };
 
 Story.prototype.passage = function (idOrName)
