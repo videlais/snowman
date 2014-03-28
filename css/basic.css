@@ -17,7 +17,7 @@ a
 {
 	color: #222;
 	text-decoration: none;
-	border-bottom: 1px solid #bbb;
+	border-bottom: 2px solid #bbb;
 }
 
 a:hover
@@ -30,4 +30,14 @@ a:active
 {
 	color: #ffb040;
 	border-color: #ffb040;
+}
+
+/* scale font sizes for phones */
+
+@media screen and (max-device-width: 480px)
+{
+	#passage
+	{
+		font-size: 70%;
+	}
 }
