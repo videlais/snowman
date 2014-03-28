@@ -75,9 +75,9 @@ Story.prototype.show = function (idOrName)
 	this.history.push(passage.id);
 
 	if (this.atCheckpoint)
-		window.history.pushState({ state: this.state, history: this.history, checkpointName: this.checkpointName });
+		window.history.pushState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
 	else
-		window.history.replaceState({ state: this.state, history: this.history, checkpointName: this.checkpointName });
+		window.history.replaceState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
 
 	this.atCheckpoint = false;
 	$('#passage').html(passage.render());
