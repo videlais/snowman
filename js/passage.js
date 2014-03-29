@@ -101,6 +101,7 @@ Passage.prototype.write = function (text)
 /**
  Writes an HTML rendering of a passage to the current passage being rendered,
  as part of a `<% %>` block. Outside of a `<% %>`, this does nothing.
+ If the passage does not exist, an exception is raised.
 
  @method embed
  @param idOrName {String or Number} ID or name of the passage
@@ -108,5 +109,10 @@ Passage.prototype.write = function (text)
 
 Passage.prototype.embed = function (idOrName)
 {
+	var passage = window.story.passage(idOrName);
+
+	if (! passage)
+		throw new Error('No passage with the ID or name ' + idOrName);
+
 	this.writeBuffer += window.story.passage(idOrName).render() + ' ';
 };

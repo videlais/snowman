@@ -241,7 +241,8 @@ Story.prototype.passage = function (idOrName)
 };
 
 /**
- Displays a passage on the page, replacing the current one.
+ Displays a passage on the page, replacing the current one. If
+ there is no passage by the name or ID passed, an exception is raised.
 
  @method show
  @param idOrName {String or Number} ID or name of the passage
@@ -251,6 +252,9 @@ Story.prototype.passage = function (idOrName)
 Story.prototype.show = function (idOrName, noHistory)
 {
 	var passage = this.passage(idOrName);
+
+	if (! passage)
+		throw new Error('There is no passage with the ID or name ' + idOrName);
 
 	if (! noHistory)
 	{
