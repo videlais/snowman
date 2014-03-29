@@ -94,6 +94,16 @@ function Story (el)
 	this.ignoreErrors = false;
 
 	/**
+	 The message shown to users when there is an error and ignoreErrors is not true.
+	 Any %s in the message will be interpolated as the actual error messsage.
+
+	 @propery errorMessage
+	 @type String
+	**/
+
+	this.errorMessage = 'Sorry, an error has occurred. %s';
+
+	/**
 	 Mainly for internal use, this records whether the current passage contains
 	 a checkpoint.
 
@@ -174,6 +184,9 @@ function Story (el)
 
 	window.onerror = function (message, url, line)
 	{
+		if (not self.errorMessage || typeof(self.errorMessage) != 'string'))
+			self.errorMessage = 'Sorry, an error has occurred. <em>%s</em>';
+
 		if (! self.ignoreErrors)
 		{
 			if (url)
@@ -186,7 +199,7 @@ function Story (el)
 				message += ')';
 			};
 
-			$('#passage').html('Sorry, an error has occurred: <em>' + message + '</em>');	
+			$('#passage').html(self.errorMessage.replace('%s', message));	
 		};
 	};
 };
