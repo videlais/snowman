@@ -8,6 +8,7 @@
 	{
 		"grunt": "*",
 		"grunt-bake": "*",
-		"grunt-contrib-watch": "*"
+		"grunt-contrib-watch": "*",
+		"grunt-contrib-yuidoc": "*"
 	}
 }

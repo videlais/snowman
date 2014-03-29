@@ -1,9 +1,45 @@
+/**
+ An object representing a single passage in the story. The passage currently
+ being displayed is available as `window.passage`.
+
+ @class Passage
+ @constructor
+**/
+
 function Passage (id, name, source)
 {
+	/**
+	 The numeric ID of the passage.
+	 @property name
+	 @type Number
+	 @readonly
+	**/
+
 	this.id = id;
+
+	/**
+	 The name of the passage.
+	 @property name
+	 @type String
+	**/
+
 	this.name = name;
+
+	/**
+	 The passage source code.
+	 @property source
+	 @type String
+	**/
+
 	this.source = source;
 };
+
+/**
+ Returns an HTML-rendered version of this passage's source.
+
+ @method render
+ @return HTML source
+**/
 
 Passage.prototype.render = function()
 {
@@ -19,9 +55,9 @@ Passage.prototype.render = function()
 	var rendered = rendered.replace(/&lt;%((.|[\r\n])+?)%&gt;/gm,
 	function (match, paren1)
 	{
-		window.story.writeResult = '';
+		this.writeBuffer = '';
 		eval(_.unescape(paren1));
-		return window.story.writeResult.trim();
+		return this.writeBuffer.trim();
 	});
 
 	rendered = window.marked(rendered);
@@ -47,4 +83,30 @@ Passage.prototype.render = function()
 	                            '<a href="javascript:void(0)" data-passage="$1">$1</a>');
 
 	return rendered;
+};
+
+/**
+ Writes HTML to the current passage being rendered, as part of a
+ `<% %>` block. Outside of a `<% %>`, this does nothing.
+
+ @method write
+ @param text {String} HTML text to write
+**/
+
+Passage.prototype.write = function (text)
+{
+	this.writeBuffer += text + ' ';
+};
+
+/**
+ Writes an HTML rendering of a passage to the current passage being rendered,
+ as part of a `<% %>` block. Outside of a `<% %>`, this does nothing.
+
+ @method embed
+ @param idOrName {String or Number} ID or name of the passage
+**/
+
+Passage.prototype.embed = function (idOrName)
+{
+	this.writeBuffer += window.story.passage(idOrName).render() + ' ';
 };
