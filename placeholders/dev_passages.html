@@ -11,7 +11,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam at nunc a sem v
 
 Maecenas eget [[lectus malesuada]], dictum mauris ac, iaculis justo. Fusce molestie ut lectus vel sodales. Aenean convallis, libero in mollis vulputate, ligula urna mollis mauris, non porttitor leo turpis vitae sapien. Aliquam vel risus augue. [[Curabitur porttitor]] purus eget lorem luctus rhoncus. Praesent in enim et augue ornare pellentesque. Nullam luctus risus id dictum imperdiet. Aliquam mattis purus orci, eget [[ultrices sem pharetra et]]. Praesent nec nisl ante. Praesent elementum vehicula neque quis commodo. Donec eget volutpat sem. Cras pellentesque consectetur tempor. Sed mauris tellus, pharetra nec dapibus et, venenatis et quam. Aliquam erat volutpat. Nunc gravida a ante molestie vehicula.
 
-* [[A link]]
+* [[Test checkpoints]]
+* [[Test errors]]
 * [[Another link|Really, another link]]
 * [[An arrowed link-&gt;to somewhere else]]
 * [[a destination&lt;-Another arrowed link]]
@@ -22,7 +23,7 @@ Two plus two is &lt;%= 2 + 2 %&gt;.
 &lt;%console.log(&#x27;The first page says hi!&#x27;)%&gt;
 &lt;%passage.write(&#x27;The first page says *hi*! Why not visit the [[second page-&gt;A link]]?&#x27;);
 passage.embed(&#x27;Really, another link&#x27;);%&gt;
-</script><script data-role="passage" data-id="2" data-name="A link" type="text/twine" data-twine-position="212,197">&lt;%console.log(&#x27;Another page says hi!&#x27;);
+</script><script data-role="passage" data-id="9" data-name="Test errors" type="text/twine">&lt;% a = a + 2 %&gt;</script><script data-role="passage" data-id="2" data-name="Test checkpoints" type="text/twine" data-twine-position="212,197">&lt;%console.log(&#x27;Another page says hi!&#x27;);
 story.checkpoint('A door presents a decision');
 %&gt;
 

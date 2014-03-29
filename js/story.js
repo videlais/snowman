@@ -84,6 +84,16 @@ function Story (el)
 	this.checkpointName = '';
 
 	/**
+	 If set to true, then any JavaScript errors are ignored -- normally, play would end
+	 with a message shown to the user. 
+
+	 @property ignoreErrors
+	 @type Boolean
+	**/
+
+	this.ignoreErrors = false;
+
+	/**
 	 Mainly for internal use, this records whether the current passage contains
 	 a checkpoint.
 
@@ -159,6 +169,26 @@ function Story (el)
 	{
 		self.restore(window.location.hash.replace('#', ''));	
 	});
+
+	// set up error handler
+
+	window.onerror = function (message, url, line)
+	{
+		if (! self.ignoreErrors)
+		{
+			if (url)
+			{
+				message += ' (' + url;
+
+				if (line)
+					message += ': ' + line;
+
+				message += ')';
+			};
+
+			$('#passage').html('Sorry, an error has occurred: <em>' + message + '</em>');	
+		};
+	};
 };
 
 /**
@@ -202,10 +232,10 @@ Story.prototype.passage = function (idOrName)
 
  @method show
  @param idOrName {String or Number} ID or name of the passage
- @param noHistory {Boolean} if true, then this will not be recorded in the story history
+ @param yoHistory {Boolean} if true, then this will not be recorded in the story history
 **/
 
-Story.prototype.show = function (idOrName, dontAddToHistory)
+Story.prototype.show = function (idOrName, noHistory)
 {
 	var passage = this.passage(idOrName);
 
