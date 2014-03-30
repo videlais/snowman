@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title><!--(bake /placeholders/dev_name.txt _if="dev")--><!--(bake /placeholders/release_name.txt _if="!dev")--></title>
-<link rel="stylesheet" href="css/basic.css">
+<!--(bake /placeholders/dev_css.html _if="dev")--><!--(bake /placeholders/release_css.html _if="!dev")-->
 </head>
 
 <body>
@@ -14,14 +14,6 @@
 <!--(bake /placeholders/dev_passages.html _if="dev")--><!--(bake /placeholders/release_passages.html _if="!dev")-->
 </body>
 
-<script src="lib/jquery.js"></script>
-<script src="lib/underscore.js"></script>
-<script src="lib/marked.js"></script>
-<script src="lib/json2.js"></script>
-<script src="lib/lz-string.js"></script>
-
-<script src="js/passage.js"></script>
-<script src="js/story.js"></script>
-<script src="js/init.js"></script>
+<!--(bake /placeholders/dev_js.html _if="dev")--><!--(bake /placeholders/release_js.html _if="!dev")-->
 
 </html>

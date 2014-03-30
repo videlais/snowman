@@ -15,7 +15,25 @@ module.exports = function (grunt)
 
 			release:
 			{
-				files: { 'index.html': 'format.html' }
+				files: { 'dist/format.html': 'format.html' }
+			}
+		},
+		clean:
+		{
+			release: ['dist/', 'build/']
+		},
+		cssmin:
+		{
+			release:
+			{
+				files: { 'build/min.css': 'css/*' }
+			}
+		},
+		uglify:
+		{
+			release:
+			{
+				files: { 'build/min.js': ['lib/*.js', 'js/*.js'] }
 			}
 		},
 		watch:
@@ -32,10 +50,13 @@ module.exports = function (grunt)
 		}
 	});
 
+	grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks('grunt-contrib-cssmin');
+	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-yuidoc');
 	grunt.loadNpmTasks('grunt-bake');
 	grunt.registerTask('default', ['bake:dev']);
 	grunt.registerTask('doc', ['yuidoc']);
-	grunt.registerTask('release', ['bake:release']);
+	grunt.registerTask('release', ['clean', 'cssmin', 'uglify', 'bake:release']);
 };

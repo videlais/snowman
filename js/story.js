@@ -184,7 +184,7 @@ function Story (el)
 
 	window.onerror = function (message, url, line)
 	{
-		if (not self.errorMessage || typeof(self.errorMessage) != 'string'))
+		if (! self.errorMessage || typeof(self.errorMessage) != 'string')
 			self.errorMessage = 'Sorry, an error has occurred. <em>%s</em>';
 
 		if (! self.ignoreErrors)
@@ -256,6 +256,25 @@ Story.prototype.show = function (idOrName, noHistory)
 	if (! passage)
 		throw new Error('There is no passage with the ID or name ' + idOrName);
 
+	/**
+	 Triggered whenever a passage is about to be replaced onscreen with another.
+	 The passage being hidden is stored in the passage property of the event.
+
+	 @event hidepassage
+	**/
+
+	$.event.trigger('hidepassage', { passage: window.passage });
+
+	/**
+
+	 Triggered whenever a passage is about to be shown onscreen.
+	 The passage being displayed is stored in the passage property of the event.
+
+	 @event hidepassage
+	**/
+
+	$.event.trigger('showpassage', { passage: passage });
+
 	if (! noHistory)
 	{
 		this.history.push(passage.id);
@@ -269,6 +288,16 @@ Story.prototype.show = function (idOrName, noHistory)
 	window.passage = passage;
 	this.atCheckpoint = false;
 	$('#passage').html(passage.render());
+
+	/**
+
+	 Triggered after a passage has been shown onscreen, and is .
+	 The passage being displayed is stored in the passage property of the event.
+
+	 @event showpassage:after
+	**/
+
+	$.event.trigger('showpassage:after', { passage: passage });
 };
 
 /**
@@ -285,6 +314,14 @@ Story.prototype.checkpoint = function (name)
 	document.title = this.name + ': ' + name;
 	this.checkpointName = name;
 	this.atCheckpoint = true;
+
+	/**
+	 Triggered whenever a checkpoint is set in the story.
+
+	 @event checkpoint
+	**/
+
+	$.event.trigger('checkpoint');
 };
 
 /**
@@ -300,7 +337,7 @@ Story.prototype.saveHash = function()
 };
 
 /**
- Sets the URL's hash property to the hash value 
+ Sets the URL's hash property to the hash value created by saveHash().
 
  @method save
  @return String hash
@@ -308,6 +345,13 @@ Story.prototype.saveHash = function()
 
 Story.prototype.save = function()
 {
+	/**
+	 Triggered whenever story progress is saved.
+
+	 @event save
+	**/
+
+	$.event.trigger('save');
 	window.location.hash = this.saveHash();
 };
 
@@ -320,9 +364,25 @@ Story.prototype.save = function()
 
 Story.prototype.restore = function (hash)
 {
+	/**
+	 Triggered before completing a restore from a hash.
+
+	 @event restore
+	**/
+
+	$.event.trigger('restore');
+
 	var save = JSON.parse(LZString.decompressFromBase64(hash));
 	this.state = save.state;
 	this.history = save.history;
 	this.checkpointName = save.checkpointName;
 	this.show(this.history[this.history.length - 1], true);
+
+	/**
+	 Triggered after completing a restore from a hash.
+
+	 @event restore:after
+	**/
+
+	$.event.trigger('restore:after');
 };
