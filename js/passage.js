@@ -52,12 +52,14 @@ Passage.prototype.render = function()
 		return eval(_.unescape(paren1));
 	});
 
+	var self = this;
+
 	var rendered = rendered.replace(/&lt;%((.|[\r\n])+?)%&gt;/gm,
 	function (match, paren1)
 	{
-		this.writeBuffer = '';
+		self.writeBuffer = '';
 		eval(_.unescape(paren1));
-		return this.writeBuffer.trim();
+		return self.writeBuffer.trim();
 	});
 
 	rendered = window.marked(rendered);
