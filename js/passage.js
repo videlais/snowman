@@ -6,6 +6,8 @@
  @constructor
 **/
 
+'use strict';
+
 function Passage (id, name, source)
 {
 	/**
@@ -31,90 +33,74 @@ function Passage (id, name, source)
 	 @type String
 	**/
 
-	this.source = source;
+	this.source = _.unescape(source);
 };
 
-/**
- Returns an HTML-rendered version of this passage's source.
-
- @method render
- @return HTML source
-**/
-
-Passage.prototype.render = function()
+_.extend(Passage.prototype,
 {
-	// run <%= eval %> and <% script %> first,
-	// so any output from story.write() is run through this same process
+	/**
+	 Returns an HTML-rendered version of this passage's source. This
+	 first runs the source code through the Underscore template parser,
+	 then runs the result through a Markdown renderer, and then finally
+	 converts bracketed links to passage links.
 
-	var rendered = this.source.replace(/&lt;%=((.|[\r\n])+?)%&gt;/gm,
-	function (match, paren1)
+	 @method render
+	 @return HTML source
+	**/
+
+	render: function()
 	{
-		return eval(_.unescape(paren1));
-	});
+		// we have to temporarily disable window.print, as it
+		// interferes with Underscore's template print function
 
-	var self = this;
+		var result = _.template(_.unescape(this.source), { s: window.story.state });
 
-	var rendered = rendered.replace(/&lt;%((.|[\r\n])+?)%&gt;/gm,
-	function (match, paren1)
-	{
-		self.writeBuffer = '';
-		eval(_.unescape(paren1));
-		return self.writeBuffer.trim();
-	});
+		result = result.replace(/\[\[(.*?)\]\]/g, function (match, target)
+		{
+			var display = target;
 
-	rendered = window.marked(rendered);
+			// display|target format
 
-	// [[displayed text|target]] links
+			var barIndex = target.indexOf('|');
 
-	rendered = rendered.replace(/\[\[(.+?)\|(.+?)\]\]/g,
-	                            '<a href="javascript:void(0)" data-passage="$2">$1</a>');
+			if (barIndex != -1)
+			{
+				display = target.substr(0, barIndex);
+				target = target.substr(barIndex + 1);
+			}
+			else
+			{
+				// display->target format
 
-	// [[displayed text->target]] links
+				var rightArrIndex = target.indexOf('->');
 
-	rendered = rendered.replace(/\[\[(.+?)-&gt;(.+?)\]\]/g,
-	                            '<a href="javascript:void(0)" data-passage="$2">$1</a>');
+				if (rightArrIndex != -1)
+				{
+					display = target.substr(0, rightArrIndex);
+					target = target.substr(rightArrIndex + 2);
+				}
+				else
+				{
+					// target<-display format
 
-	// [[target<-displayed text]] links
+					var leftArrIndex = target.indexOf('<-');
 
-	rendered = rendered.replace(/\[\[(.+?)&lt;-(.+?)\]\]/g,
-	                            '<a href="javascript:void(0)" data-passage="$1">$2</a>');
+					if (leftArrIndex != -1)
+					{
+						display = target.substr(leftArrIndex + 2);
+						target = target.substr(0, leftArrIndex);
+					}
+				};
+			};
 
-	// [[target]] links
+			// does this look like an external link? 
 
-	rendered = rendered.replace(/\[\[(.+?)\]\]/g,
-	                            '<a href="javascript:void(0)" data-passage="$1">$1</a>');
+			if (/^\w+:\/\/\/?\w/i.test(target))
+				return '<a href="' + target + '">' + display + '</a>';
+			else
+				return '<a href="javascript:void(0)" data-passage="' + target + '">' + display + '</a>';
+		});
 
-	return rendered;
-};
-
-/**
- Writes HTML to the current passage being rendered, as part of a
- `<% %>` block. Outside of a `<% %>`, this does nothing.
-
- @method write
- @param text {String} HTML text to write
-**/
-
-Passage.prototype.write = function (text)
-{
-	this.writeBuffer += text + ' ';
-};
-
-/**
- Writes an HTML rendering of a passage to the current passage being rendered,
- as part of a `<% %>` block. Outside of a `<% %>`, this does nothing.
- If the passage does not exist, an exception is raised.
-
- @method embed
- @param idOrName {String or Number} ID or name of the passage
-**/
-
-Passage.prototype.embed = function (idOrName)
-{
-	var passage = window.story.passage(idOrName);
-
-	if (! passage)
-		throw new Error('No passage with the ID or name ' + idOrName);
-
-	this.writeBuffer += window.story.passage(idOrName).render() + ' ';
-};
+		return marked(result);
+	}
+});

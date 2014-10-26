@@ -1,0 +1,10 @@
+{
+	"name": "Snowman",
+	"version": "1.0",
+	"description": "A minimal story format for authors experienced with HTML, CSS, and JavaScript.",
+	"author": "Chris Klimas",
+	"image": "icon.svg",
+	"url": "http://bitbucket.org/klembot/snowman",
+	"license": "MIT License", 
+	"proofing": false
+}

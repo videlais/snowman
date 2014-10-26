@@ -2,7 +2,7 @@
 
 body
 {
-	font: 24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 18px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #222;
 }
 
@@ -30,6 +30,11 @@ a:active
 {
 	color: #ffb040;
 	border-color: #ffb040;
+}
+
+tw-storydata
+{
+	display: none;
 }
 
 /* scale font sizes for phones */

@@ -6,6 +6,8 @@
  @constructor
 **/
 
+'use strict';
+
 function Story (el)
 {
 	// set up basic properties
@@ -19,7 +21,7 @@ function Story (el)
 	 @readonly
 	**/
 
-	this.name = el.attr('data-name');
+	this.name = el.attr('name');
 
 	/**
 	 The ID of the first passage to be displayed.
@@ -28,7 +30,7 @@ function Story (el)
 	 @readonly
 	**/
 
-	this.startPassage = parseInt(el.attr('data-startnode'));
+	this.startPassage = parseInt(el.attr('startnode'));
 
 	/**
 	 The program that created this story.
@@ -38,7 +40,7 @@ function Story (el)
 	 @readonly
 	**/
 
-	this.creator = el.attr('data-creator');
+	this.creator = el.attr('creator');
 
 	/**
 	 The version of the program used to create this story.
@@ -48,7 +50,7 @@ function Story (el)
 	 @readOnly
 	**/
 
-	this.creatorVersion = el.attr('data-creator-version');
+	this.creatorVersion = el.attr('creator-version');
 	
 	// initialize history and state
 
@@ -127,17 +129,17 @@ function Story (el)
 
 	var p = this.passages;
 
-	el.children('*[data-role="passage"]').each(function (el)
+	el.children('tw-passagedata').each(function (el)
 	{
 		var $t = $(this);
-		var id = parseInt($t.attr('data-id'));
-		p[id] = new Passage(id, $t.attr('data-name'), $t.html());
+		var id = parseInt($t.attr('pid'));
+		p[id] = new Passage(id, $t.attr('name'), $t.html());
 	});
 
 	// run story script(s)
 	// stylesheets are already set by the HTML tags
 
-	el.children('*[data-role="script"]').each(function (el)
+	el.children('*[type="twine-javascript"]').each(function (el)
 	{
 		eval($(this).html());
 	});
@@ -204,185 +206,188 @@ function Story (el)
 	};
 };
 
-/**
- Begins playing this story.
-
- @method start
-**/
-
-Story.prototype.start = function()
+_.extend(Story.prototype,
 {
-	if (window.location.hash == '')
-	{
-		// start the story; mark that we're at a checkpoint
-
-		this.show(this.startPassage);
-		this.atCheckpoint = true;
-	}
-	else
-		this.restore(window.location.hash.replace('#', ''));
-};
-
-/**
- Returns the Passage object corresponding to either an ID or name.
- If none exists, then it returns null.
-
- @method passage
- @param idOrName {String or Number} ID or name of the passage
- @return Passage object or null
-**/
-
-Story.prototype.passage = function (idOrName)
-{
-	if (_.isNumber(idOrName))
-		return this.passages[idOrName];
-	else if (_.isString(idOrName))
-		return _.findWhere(this.passages, { name: idOrName });
-};
-
-/**
- Displays a passage on the page, replacing the current one. If
- there is no passage by the name or ID passed, an exception is raised.
-
- @method show
- @param idOrName {String or Number} ID or name of the passage
- @param yoHistory {Boolean} if true, then this will not be recorded in the story history
-**/
-
-Story.prototype.show = function (idOrName, noHistory)
-{
-	var passage = this.passage(idOrName);
-
-	if (! passage)
-		throw new Error('There is no passage with the ID or name ' + idOrName);
-
 	/**
-	 Triggered whenever a passage is about to be replaced onscreen with another.
-	 The passage being hidden is stored in the passage property of the event.
+	 Begins playing this story.
 
-	 @event hidepassage
+	 @method start
 	**/
 
-	$.event.trigger('hidepassage', { passage: window.passage });
-
-	/**
-
-	 Triggered whenever a passage is about to be shown onscreen.
-	 The passage being displayed is stored in the passage property of the event.
-
-	 @event hidepassage
-	**/
-
-	$.event.trigger('showpassage', { passage: passage });
-
-	if (! noHistory)
+	start: function()
 	{
-		this.history.push(passage.id);
+		if (window.location.hash == '')
+		{
+			// start the story; mark that we're at a checkpoint
 
-		if (this.atCheckpoint)
-			window.history.pushState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
+			this.show(this.startPassage);
+			this.atCheckpoint = true;
+		}
 		else
-			window.history.replaceState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
-	};
-
-	window.passage = passage;
-	this.atCheckpoint = false;
-	$('#passage').html(passage.render());
+			this.restore(window.location.hash.replace('#', ''));
+	},
 
 	/**
+	 Returns the Passage object corresponding to either an ID or name.
+	 If none exists, then it returns null.
 
-	 Triggered after a passage has been shown onscreen, and is .
-	 The passage being displayed is stored in the passage property of the event.
-
-	 @event showpassage:after
+	 @method passage
+	 @param idOrName {String or Number} ID or name of the passage
+	 @return Passage object or null
 	**/
 
-	$.event.trigger('showpassage:after', { passage: passage });
-};
-
-/**
- Adds an entry in the browser history for the current story state.
- Remember, only variables set on this story's state variable are
- stored in the browser history.
-
- @method checkpoint
- @param name {String} checkpoint name, appears in history
-**/
-
-Story.prototype.checkpoint = function (name)
-{
-	document.title = this.name + ': ' + name;
-	this.checkpointName = name;
-	this.atCheckpoint = true;
+	passage: function (idOrName)
+	{
+		if (_.isNumber(idOrName))
+			return this.passages[idOrName];
+		else if (_.isString(idOrName))
+			return _.findWhere(this.passages, { name: idOrName });
+	},
 
 	/**
-	 Triggered whenever a checkpoint is set in the story.
+	 Displays a passage on the page, replacing the current one. If
+	 there is no passage by the name or ID passed, an exception is raised.
 
-	 @event checkpoint
+	 @method show
+	 @param idOrName {String or Number} ID or name of the passage
+	 @param noHistory {Boolean} if true, then this will not be recorded in the story history
 	**/
 
-	$.event.trigger('checkpoint');
-};
+	show: function (idOrName, noHistory)
+	{
+		var passage = this.passage(idOrName);
 
-/**
- Returns a hash value representing the current state of the story.
+		if (! passage)
+			throw new Error('There is no passage with the ID or name ' + idOrName);
 
- @method saveHash
- @return String hash
-**/
+		/**
+		 Triggered whenever a passage is about to be replaced onscreen with another.
+		 The passage being hidden is stored in the passage property of the event.
 
-Story.prototype.saveHash = function()
-{	
-	return LZString.compressToBase64(JSON.stringify({ state: this.state, history: this.history, checkpointName: this.checkpointName }));
-};
+		 @event hidepassage
+		**/
 
-/**
- Sets the URL's hash property to the hash value created by saveHash().
+		$.event.trigger('hidepassage', { passage: window.passage });
 
- @method save
- @return String hash
-**/
+		/**
 
-Story.prototype.save = function()
-{
-	/**
-	 Triggered whenever story progress is saved.
+		 Triggered whenever a passage is about to be shown onscreen.
+		 The passage being displayed is stored in the passage property of the event.
 
-	 @event save
-	**/
+		 @event hidepassage
+		**/
 
-	$.event.trigger('save');
-	window.location.hash = this.saveHash();
-};
+		$.event.trigger('showpassage', { passage: passage });
 
-/**
- Restores the story state from a hash value generated by saveHash().
+		if (! noHistory)
+		{
+			this.history.push(passage.id);
 
- @method restore
- @param hash {String} 
-**/
+			if (this.atCheckpoint)
+				window.history.pushState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
+			else
+				window.history.replaceState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
+		};
 
-Story.prototype.restore = function (hash)
-{
-	/**
-	 Triggered before completing a restore from a hash.
+		window.passage = passage;
+		this.atCheckpoint = false;
+		$('#passage').html(passage.render());
 
-	 @event restore
-	**/
+		/**
 
-	$.event.trigger('restore');
+		 Triggered after a passage has been shown onscreen, and is .
+		 The passage being displayed is stored in the passage property of the event.
 
-	var save = JSON.parse(LZString.decompressFromBase64(hash));
-	this.state = save.state;
-	this.history = save.history;
-	this.checkpointName = save.checkpointName;
-	this.show(this.history[this.history.length - 1], true);
+		 @event showpassage:after
+		**/
+
+		$.event.trigger('showpassage:after', { passage: passage });
+	},
 
 	/**
-	 Triggered after completing a restore from a hash.
+	 Adds an entry in the browser history for the current story state.
+	 Remember, only variables set on this story's state variable are
+	 stored in the browser history.
 
-	 @event restore:after
+	 @method checkpoint
+	 @param name {String} checkpoint name, appears in history
 	**/
 
-	$.event.trigger('restore:after');
-};
+	checkpoint: function (name)
+	{
+		document.title = this.name + ': ' + name;
+		this.checkpointName = name;
+		this.atCheckpoint = true;
+
+		/**
+		 Triggered whenever a checkpoint is set in the story.
+
+		 @event checkpoint
+		**/
+
+		$.event.trigger('checkpoint');
+	},
+
+	/**
+	 Returns a hash value representing the current state of the story.
+
+	 @method saveHash
+	 @return String hash
+	**/
+
+	saveHash: function()
+	{	
+		return LZString.compressToBase64(JSON.stringify({ state: this.state, history: this.history, checkpointName: this.checkpointName }));
+	},
+
+	/**
+	 Sets the URL's hash property to the hash value created by saveHash().
+
+	 @method save
+	 @return String hash
+	**/
+
+	save: function()
+	{
+		/**
+		 Triggered whenever story progress is saved.
+
+		 @event save
+		**/
+
+		$.event.trigger('save');
+		window.location.hash = this.saveHash();
+	},
+
+	/**
+	 Restores the story state from a hash value generated by saveHash().
+
+	 @method restore
+	 @param hash {String} 
+	**/
+
+	restore: function (hash)
+	{
+		/**
+		 Triggered before completing a restore from a hash.
+
+		 @event restore
+		**/
+
+		$.event.trigger('restore');
+
+		var save = JSON.parse(LZString.decompressFromBase64(hash));
+		this.state = save.state;
+		this.history = save.history;
+		this.checkpointName = save.checkpointName;
+		this.show(this.history[this.history.length - 1], true);
+
+		/**
+		 Triggered after completing a restore from a hash.
+
+		 @event restore:after
+		**/
+
+		$.event.trigger('restore:after');
+	}
+});

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title><!--(bake /data/name_test.txt _if="test")--><!--(bake /data/name_release.txt _if="!test")--></title>
+<meta charset="utf-8">
+<!--(bake /data/css_test.html _if="test")--><!--(bake /data/css_release.html _if="!test")-->
+</head>
+<body>
+<div id="passage"></div>
+<!--(bake /data/passages_test.html _if="test")--><!--(bake /data/passages_release.html _if="!test")-->
+<!--(bake /data/js_test.html _if="test")--><!--(bake /data/js_release.html _if="!test")-->
+</body>
+</html>
