@@ -10,15 +10,13 @@ Snowman includes [jQuery](http://jquery.com) and
 ## Big Changes From The Norm
 
 Snowman uses Markdown formatting in its passage syntax. Instead of invoking
-macros with `<<double angle brackets>>`, it uses ERB-style `<% %>` delimiters.
-Anything inside a `<% %>` pair is treated as JavaScript that is evaluted as-is
-when a passage is displayed. See `story.write()` for how code can dynamically
-set passage contents.
+macros with `<<double angle brackets>>`, it uses Underscore templating to
+provide interactivity. Specifically, passages are rendered onscreen with this
+process:
 
-As a shortcut, you can write `<%= expression %>` to have a particular expression
-interpolated into the passage, e.g. `The answer to the question is <%= 2 + 2 %>.`
-
-*n.b.* Although this syntax looks like Underscore templating, it is not.
+1. The passage source is run through Underscore's [_.template() method](http://underscorejs.org/#template).
+2. The result of this is rendered with the [Marked](https://github.com/chjj/marked/) Markdown parser.
+3. Finally, all double-bracketed links ([[passage]], [[displayed->passage]], and [[passage<-displayed]] are converted to functional links. 
 
 By default, clicking a passage link does not add an entry to the reader's
 browser history. See `story.checkpoint()` for how to do this.
