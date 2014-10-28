@@ -50,9 +50,6 @@ _.extend(Passage.prototype,
 
 	render: function()
 	{
-		// we have to temporarily disable window.print, as it
-		// interferes with Underscore's template print function
-
 		var result = _.template(_.unescape(this.source), { s: window.story.state });
 
 		result = result.replace(/\[\[(.*?)\]\]/g, function (match, target)
