@@ -274,7 +274,7 @@ _.extend(Story.prototype,
 		 Triggered whenever a passage is about to be shown onscreen.
 		 The passage being displayed is stored in the passage property of the event.
 
-		 @event hidepassage
+		 @event showpassage
 		**/
 
 		$.event.trigger('showpassage', { passage: passage });
@@ -294,9 +294,9 @@ _.extend(Story.prototype,
 		$('#passage').html(passage.render());
 
 		/**
-
-		 Triggered after a passage has been shown onscreen, and is .
-		 The passage being displayed is stored in the passage property of the event.
+		 Triggered after a passage has been shown onscreen, and is now
+		 displayed in the div with id passage. The passage being displayed is
+		 stored in the passage property of the event.
 
 		 @event showpassage:after
 		**/
