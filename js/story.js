@@ -137,11 +137,20 @@ function Story (el)
 	});
 
 	// run story script(s)
-	// stylesheets are already set by the HTML tags
 
-	el.children('*[type="twine-javascript"]').each(function (el)
+	el.children('*[type="text/twine-javascript"]').each(function (el)
 	{
 		eval($(this).html());
+	});
+
+	// duplicate story style(s) since their originals will
+	// not be interpreted directly by browsers
+
+	var $b = $('body');
+
+	el.children('*[type="text/twine-css"]').each(function (el)
+	{
+		$b.append('<style>' + $(this).html() + '</style>');
 	});
 
 	// set up history event handler
