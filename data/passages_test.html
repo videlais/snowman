@@ -67,6 +67,8 @@ One equals **one, bolded**.
 Zero equals one.
 &lt;% }; %&gt;
 
+[[Test embedding a passage in another->embed test]]
+
 </tw-passagedata>
 
 <tw-passagedata pid="2" name="Other Passage">
@@ -93,6 +95,14 @@ Aliquam lectus tellus, egestas a posuere bibendum, accumsan id nunc. Curabitur e
 ###### Heading 6
 
 Proin sagittis sem quis ullamcorper tempus. Nulla eget gravida dui. Aliquam ornare et eros eget vestibulum. Morbi vitae congue risus. Pellentesque porta sem a nunc aliquam, nec feugiat lacus lacinia. Praesent tristique, lectus eget posuere mollis, sem nisi sollicitudin mauris, at tristique est ligula id augue. Suspendisse vel arcu eget dui ornare ornare non et mi. Aliquam et elit ut sem viverra molestie. In hac habitasse platea dictumst. Etiam iaculis est nibh. Nam vehicula vel mi eget aliquet.
+</tw-passagedata>
+
+<tw-passagedata pid="3" name="embed test">
+&lt;%= story.render('embedded') %&gt;
+</tw-passagedata>
+
+<tw-passagedata pid="4" name="embedded">
+Embedding one passage inside another works.
 </tw-passagedata>
 
 </tw-storydata>

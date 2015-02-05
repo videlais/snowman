@@ -257,6 +257,9 @@ _.extend(Story.prototype,
 	 Displays a passage on the page, replacing the current one. If
 	 there is no passage by the name or ID passed, an exception is raised.
 
+	 Calling this immediately inside a passage (i.e. in its source code) will
+	 *not* display the other passage. Use Story.render() instead.
+
 	 @method show
 	 @param idOrName {String or Number} ID or name of the passage
 	 @param noHistory {Boolean} if true, then this will not be recorded in the story history
@@ -311,6 +314,26 @@ _.extend(Story.prototype,
 		**/
 
 		$.event.trigger('showpassage:after', { passage: passage });
+	},
+
+	/**
+	 Returns the HTML source for a passage. This is most often used when
+	 embedding one passage inside another. In this instance, make sure to
+	 use <%= %> instead of <%- %> to avoid incorrectly encoding HTML entities.
+
+	 @method render
+	 @param idOrName {String or Number} ID or name of the passage
+	 @return {String} HTML source code
+	**/
+
+	render: function (idOrName)
+	{
+		var passage = this.passage(idOrName);
+
+		if (! passage)
+			throw new Error('There is no passage with the ID or name ' + idOrName);
+
+		return passage.render();
 	},
 
 	/**
