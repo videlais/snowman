@@ -155,50 +155,48 @@ function Story (el)
 
 	// set up history event handler
 
-	var self = this;
-
 	$(window).on('popstate', function (event)
 	{
 		var state = event.originalEvent.state;
 
 		if (state)
 		{
-			self.state = state.state;
-			self.history = state.history;
-			self.checkpointName = state.checkpointName;
-			self.show(self.history[self.history.length - 1], true);
+			this.state = state.state;
+			this.history = state.history;
+			this.checkpointName = state.checkpointName;
+			this.show(this.history[this.history.length - 1], true);
 		}
-		else if (self.history.length > 1)
+		else if (this.history.length > 1)
 		{
-			self.state = {};
-			self.history = [];
-			self.checkpointName = '';
-			self.show(self.startPassage, true);
+			this.state = {};
+			this.history = [];
+			this.checkpointName = '';
+			this.show(this.startPassage, true);
 		};
-	});
+	}.bind(this));
 
 	// set up passage link handler
 
 	$('body').on('click', 'a[data-passage]', function()
 	{
-		self.show(_.unescape($(this).attr('data-passage')));
-	});
+		this.show(_.unescape($(this).attr('data-passage')));
+	}.bind(this));
 
 	// set up hash change handler for save/restore
 
 	$(window).on('hashchange', function()
 	{
-		self.restore(window.location.hash.replace('#', ''));	
-	});
+		this.restore(window.location.hash.replace('#', ''));	
+	}.bind(this));
 
 	// set up error handler
 
 	window.onerror = function (message, url, line)
 	{
-		if (! self.errorMessage || typeof(self.errorMessage) != 'string')
-			self.errorMessage = 'Sorry, an error has occurred. <em>%s</em>';
+		if (! this.errorMessage || typeof(self.errorMessage) != 'string')
+			this.errorMessage = 'Sorry, an error has occurred. <em>%s</em>';
 
-		if (! self.ignoreErrors)
+		if (! this.ignoreErrors)
 		{
 			if (url)
 			{
@@ -210,9 +208,9 @@ function Story (el)
 				message += ')';
 			};
 
-			$('#passage').html(self.errorMessage.replace('%s', message));	
+			$('#passage').html(this.errorMessage.replace('%s', message));	
 		};
-	};
+	}.bind(this);
 };
 
 _.extend(Story.prototype,
