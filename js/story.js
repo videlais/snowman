@@ -133,7 +133,9 @@ function Story (el)
 	{
 		var $t = $(this);
 		var id = parseInt($t.attr('pid'));
-		p[id] = new Passage(id, $t.attr('name'), $t.html());
+		var tags = $t.attr('tags');
+
+		p[id] = new Passage(id, $t.attr('name'), (tags === '') ? [] : tags.split(' '), $t.html());
 	});
 
 	/**

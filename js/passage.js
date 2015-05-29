@@ -8,7 +8,7 @@
 
 'use strict';
 
-function Passage (id, name, source)
+function Passage (id, name, tags, source)
 {
 	/**
 	 The numeric ID of the passage.
@@ -26,6 +26,14 @@ function Passage (id, name, source)
 	**/
 
 	this.name = name;
+
+	/**
+	 The tags of the passage.
+	 @property tags
+	 @type Array
+	**/
+
+	this.tags = tags;
 
 	/**
 	 The passage source code.
