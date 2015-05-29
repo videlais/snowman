@@ -136,81 +136,29 @@ function Story (el)
 		p[id] = new Passage(id, $t.attr('name'), $t.html());
 	});
 
-	// run story script(s)
+	/**
+	 An array of user-specific scripts to run when the story is begun.
 
-	el.children('*[type="text/twine-javascript"]').each(function (el)
+	 @property userScripts
+	 @type Array
+	**/
+
+	this.userScripts = _.map(el.children('*[type="text/twine-javascript"]'), function (el)
 	{
-		eval($(this).html());
+		return $(el).html();
 	});
 
-	// duplicate story style(s) since their originals will
-	// not be interpreted directly by browsers
+	/**
+	 An array of user-specific style declarations to add when the story is begun.
 
-	var $b = $('body');
+	 @property userStyles
+	 @type Array
+	**/
 
-	el.children('*[type="text/twine-css"]').each(function (el)
+	this.userStyles = _.map(el.children('*[type="text/twine-css"]'), function (el)
 	{
-		$b.append('<style>' + $(this).html() + '</style>');
+		return $(el).html();
 	});
-
-	// set up history event handler
-
-	$(window).on('popstate', function (event)
-	{
-		var state = event.originalEvent.state;
-
-		if (state)
-		{
-			this.state = state.state;
-			this.history = state.history;
-			this.checkpointName = state.checkpointName;
-			this.show(this.history[this.history.length - 1], true);
-		}
-		else if (this.history.length > 1)
-		{
-			this.state = {};
-			this.history = [];
-			this.checkpointName = '';
-			this.show(this.startPassage, true);
-		};
-	}.bind(this));
-
-	// set up passage link handler
-
-	$('body').on('click', 'a[data-passage]', function()
-	{
-		this.show(_.unescape($(this).attr('data-passage')));
-	}.bind(this));
-
-	// set up hash change handler for save/restore
-
-	$(window).on('hashchange', function()
-	{
-		this.restore(window.location.hash.replace('#', ''));	
-	}.bind(this));
-
-	// set up error handler
-
-	window.onerror = function (message, url, line)
-	{
-		if (! this.errorMessage || typeof(self.errorMessage) != 'string')
-			this.errorMessage = 'Sorry, an error has occurred. <em>%s</em>';
-
-		if (! this.ignoreErrors)
-		{
-			if (url)
-			{
-				message += ' (' + url;
-
-				if (line)
-					message += ': ' + line;
-
-				message += ')';
-			};
-
-			$('#passage').html(this.errorMessage.replace('%s', message));	
-		};
-	}.bind(this);
 };
 
 _.extend(Story.prototype,
@@ -223,6 +171,79 @@ _.extend(Story.prototype,
 
 	start: function()
 	{
+		// set up history event handler
+
+		$(window).on('popstate', function (event)
+		{
+			var state = event.originalEvent.state;
+
+			if (state)
+			{
+				this.state = state.state;
+				this.history = state.history;
+				this.checkpointName = state.checkpointName;
+				this.show(this.history[this.history.length - 1], true);
+			}
+			else if (this.history.length > 1)
+			{
+				this.state = {};
+				this.history = [];
+				this.checkpointName = '';
+				this.show(this.startPassage, true);
+			};
+		}.bind(this));
+
+		// set up passage link handler
+
+		$('body').on('click', 'a[data-passage]', function()
+		{
+			this.show(_.unescape($(this).attr('data-passage')));
+		}.bind(this));
+
+		// set up hash change handler for save/restore
+
+		$(window).on('hashchange', function()
+		{
+			this.restore(window.location.hash.replace('#', ''));	
+		}.bind(this));
+
+		// set up error handler
+
+		window.onerror = function (message, url, line)
+		{
+			if (! this.errorMessage || typeof(self.errorMessage) != 'string')
+				this.errorMessage = 'Sorry, an error has occurred. <em>%s</em>';
+
+			if (! this.ignoreErrors)
+			{
+				if (url)
+				{
+					message += ' (' + url;
+
+					if (line)
+						message += ': ' + line;
+
+					message += ')';
+				};
+
+				$('#passage').html(this.errorMessage.replace('%s', message));	
+			};
+		}.bind(this);
+
+		// activate user styles
+
+		_.each(this.userStyles, function (style)
+		{
+			$('body').append('<style>' + style + '</style>');
+		});
+
+		// run user scripts
+
+		_.each(this.userScripts, function (script)
+		{
+			eval(script);
+		});
+
 		// try to restore based on the window hash if possible	
 
 		if (window.location.hash == '' || ! this.restore(window.location.hash.replace('#', '')))
