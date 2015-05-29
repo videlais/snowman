@@ -244,6 +244,16 @@ _.extend(Story.prototype,
 			eval(script);
 		});
 
+		/**
+		 Triggered when the story is finished loading, and right before
+		 the first passage is displayed. The story property of this event
+		 contains the story.
+
+		 @event startstory
+		**/
+
+		$.event.trigger('startstory', { story: this });
+
 		// try to restore based on the window hash if possible	
 
 		if (window.location.hash == '' || ! this.restore(window.location.hash.replace('#', '')))
@@ -308,7 +318,7 @@ _.extend(Story.prototype,
 		 @event showpassage
 		**/
 
-		$.event.trigger('showpassage', { passage: passage });
+		$.event.trigger('showpassage', { passage: window.passage });
 
 		if (! noHistory)
 		{
