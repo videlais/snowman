@@ -181,7 +181,7 @@ function Story (el)
 
 	$('body').on('click', 'a[data-passage]', function()
 	{
-		self.show($(this).attr('data-passage'));
+		self.show(_.unescape($(this).attr('data-passage')));
 	});
 
 	// set up hash change handler for save/restore

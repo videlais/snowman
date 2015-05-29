@@ -50,6 +50,9 @@ _.extend(Passage.prototype,
 
 	render: function()
 	{
+		// we have to temporarily disable window.print, as it
+		// interferes with Underscore's template print function
+
 		var result = _.template(_.unescape(this.source), { s: window.story.state });
 
 		result = result.replace(/\[\[(.*?)\]\]/g, function (match, target)
@@ -95,7 +98,7 @@ _.extend(Passage.prototype,
 			if (/^\w+:\/\/\/?\w/i.test(target))
 				return '<a href="' + target + '">' + display + '</a>';
 			else
-				return '<a href="javascript:void(0)" data-passage="' + target + '">' + display + '</a>';
+				return '<a href="javascript:void(0)" data-passage="' + _.escape(target) + '">' + display + '</a>';
 		});
 
 		return marked(result);
