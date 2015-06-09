@@ -197,9 +197,9 @@ _.extend(Story.prototype,
 
 		// set up passage link handler
 
-		$('body').on('click', 'a[data-passage]', function()
+		$('body').on('click', 'a[data-passage]', function (e)
 		{
-			this.show(_.unescape($(this).attr('data-passage')));
+			this.show(_.unescape($(e.target).attr('data-passage')));
 		}.bind(this));
 
 		// set up hash change handler for save/restore
