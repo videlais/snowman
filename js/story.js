@@ -135,7 +135,7 @@ function Story (el)
 		var id = parseInt($t.attr('pid'));
 		var tags = $t.attr('tags');
 
-		p[id] = new Passage(id, $t.attr('name'), (tags === '') ? [] : tags.split(' '), $t.html());
+		p[id] = new Passage(id, $t.attr('name'), (tags !== '' && tags !== undefined) ? tags.split(' ') : [], $t.html());
 	});
 
 	/**
