@@ -103,7 +103,7 @@ function Story (el)
 	 @type String
 	**/
 
-	this.errorMessage = 'Sorry, an error has occurred. %s';
+	this.errorMessage = '\u26a0 %s';
 
 	/**
 	 Mainly for internal use, this records whether the current passage contains
@@ -213,8 +213,8 @@ _.extend(Story.prototype,
 
 		window.onerror = function (message, url, line)
 		{
-			if (! this.errorMessage || typeof(self.errorMessage) != 'string')
-				this.errorMessage = 'Sorry, an error has occurred. <em>%s</em>';
+			if (! this.errorMessage || typeof(this.errorMessage) != 'string')
+				this.errorMessage = Story.prototype.errorMessage;
 
 			if (! this.ignoreErrors)
 			{
@@ -301,7 +301,7 @@ _.extend(Story.prototype,
 		var passage = this.passage(idOrName);
 
 		if (! passage)
-			throw new Error('There is no passage with the ID or name ' + idOrName);
+			throw new Error('There is no passage with the ID or name "' + idOrName + '"');
 
 		/**
 		 Triggered whenever a passage is about to be replaced onscreen with another.
