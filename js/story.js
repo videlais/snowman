@@ -6,6 +6,9 @@
  @constructor
 **/
 
+/*jslint evil: true */
+// Yup, we're using eval() here and we know it's not the best idea
+
 'use strict';
 
 function Story (el)
@@ -99,7 +102,7 @@ function Story (el)
 	 The message shown to users when there is an error and ignoreErrors is not true.
 	 Any %s in the message will be interpolated as the actual error messsage.
 
-	 @propery errorMessage
+	 @property errorMessage
 	 @type String
 	**/
 
@@ -258,7 +261,7 @@ _.extend(Story.prototype,
 
 		// try to restore based on the window hash if possible	
 
-		if (window.location.hash == '' || ! this.restore(window.location.hash.replace('#', '')))
+		if (window.location.hash === '' || ! this.restore(window.location.hash.replace('#', '')))
 		{
 			// start the story; mark that we're at a checkpoint
 

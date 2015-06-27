@@ -18,7 +18,21 @@ gulp.task('jshint', function()
 {
 	gulp.src('js/*.js')
 	    .pipe(plumber())
-		.pipe(jshint())
+		.pipe(jshint({
+			globals:
+			{
+				$: true,
+				_: true,
+				marked: true,
+				LZString: true,
+				Passage: true,
+				Story: true
+			},
+			globalstrict: true, // OK to use 'use strict'; instead of function
+			"-W032": true, // Unnecessary semicolon
+			browser: true,
+			devel: true
+		}))
 		.pipe(jshint.reporter('jshint-stylish'));
 });
 
