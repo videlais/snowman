@@ -1,7 +1,7 @@
 <tw-storydata name="An Unreasonably Long Title That Tests The Limits of Everyone's Patience" startnode="1" creator="Twine" creator-version="2.0">
 
 <style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">
-*
+a:not([data-passage]):first-child
 {
 	color: green;
 }
@@ -12,6 +12,9 @@ console.log('User JavaScript is working.');
 </script>
 
 <tw-passagedata pid="1" name="Start">
+[[Test embedding a passage in another->embed test]]
+[[Test $ function]]
+
 Twine 2 follows Markdown syntax. This means *italics*, **bold**, and `code()`.
 
 &gt; Everything can change, but not the language that we carry inside us, like a
@@ -37,7 +40,7 @@ These are internal links: [[Other Passage]], [[foo|Other Passage]], [[bar-&gt;Ot
 
 * * * 
 
-These are external links: [[http://twinery.org]], [[foo|http://twinery.org]], [[bar-&gt;http://twinery.org]], [[http://twinery.org&lt;-baz]]
+These are external links, the first of which will be in green because of a user stylesheet: [[http://twinery.org]], [[foo|http://twinery.org]], [[bar-&gt;http://twinery.org]], [[http://twinery.org&lt;-baz]]
 
 * * *
 
@@ -49,7 +52,7 @@ Two plus two is &lt;%- 2 + 2 %&gt;.
 
 &lt;% print('The passage div currently contains ' + $('#passage').html()) %&gt;
 
-What's the name of this story? &lt;% print('This story\'s name is ' + story.name) %&gt;
+What's the name of this story? &lt;% print('This story\'s name is ' + story.name) %&gt
 
 What's the name of this passage? &lt;% print('This passage\'s name is ' + passage.name) %&gt;
 
@@ -67,7 +70,6 @@ One equals **one, bolded**.
 Zero equals one.
 &lt;% }; %&gt;
 
-[[Test embedding a passage in another->embed test]]
 
 </tw-passagedata>
 
@@ -103,6 +105,23 @@ Proin sagittis sem quis ullamcorper tempus. Nulla eget gravida dui. Aliquam orna
 
 <tw-passagedata pid="4" name="embedded">
 Embedding one passage inside another works.
+</tw-passagedata>
+
+<tw-passagedata pid="5" name="Test $ function">
+&lt;span class="highlighted"&gt;this should be highlighted in yellow, and fade in&lt;/span&gt;
+
+And the entire body should be blue.
+
+&lt;%
+$(function()
+{
+	this.find('.highlighted').css('background-color', 'yellow').hide().fadeIn();	
+});
+
+$('body').css('background-color', 'blue');
+
+%&gt;
+
 </tw-passagedata>
 
 </tw-storydata>
