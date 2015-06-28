@@ -16,7 +16,21 @@ Snowman uses Markdown formatting in its passage syntax. Instead of invoking macr
 	* `s`, which is a shorthand for `window.story.state`
 	* `$`, which acts like jQuery's `$` method but with one exception. If you pass it a single function, this function is run when the passage appears onscreen, with it bound to the passage DOM element.
 
-2. `<div>` elements are created from text formatted like this:
+2. Comments inside `/* inline blocks */` are removed, as are `// line comments`. `//` comments remove their line brak, so that:
+```
+The die comes up...
+
+// TODO: randomize this properly
+Three!
+```
+is rendered as:
+```
+The die comes up...
+
+Three!
+```
+
+3. `<div>` elements are created from text formatted like this:
 ```
 [
 This appears onscreen.
@@ -34,12 +48,12 @@ This message is hidden!
 ]{-.surprise}
 ```
 
-3. `<span>` elements are created from text `[formatted like
+4. `<span>` elements are created from text `[formatted like
 this]{#id.className}`. Apart from the brackets staying on the same line as the text, the same rules as for `<div>` elements apply.
 
-4. All double-bracketed links (`[[passage]]`, `[[displayed->passage]]`, and `[[passage<-displayed]]` are converted to functional links.
+5. All double-bracketed links (`[[passage]]`, `[[displayed->passage]]`, and `[[passage<-displayed]]` are converted to functional links.
 
-5. Finally, the result of this is rendered with the
+6. Finally, the result of this is rendered with the
 [Marked](https://github.com/chjj/marked/) Markdown parser.
 
 By default, clicking a passage link does not add an entry to the reader's browser history. See `story.checkpoint()` for how to do this.

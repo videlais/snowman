@@ -63,6 +63,14 @@ _.extend(Passage.prototype,
 
 		var result = _.template(_.unescape(this.source), { s: window.story.state, $: this._readyFunc });
 
+		// Remove /* comments */
+
+		result = result.replace(/\/\*.*\*\//g, '');
+
+		// Remove // comments
+
+		result = result.replace(/\/\/.*(\r\n?|\n)/g, '');
+
 		// [\ndiv\n]{.withClass#andID}
 
 		var divRegexp = /\[[\r\n+]([^\]]*?)[\r\n+]\]\{(.*?)\}/g;

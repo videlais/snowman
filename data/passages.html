@@ -14,7 +14,8 @@ console.log('User JavaScript is working.');
 <tw-passagedata pid="1" name="Start">
 [[Test embedding a passage in another->embed test]]   
 [[Test $ function]]   
-[[Test span and div syntax]]
+[[Test span and div syntax]]   
+[[Test comments]]
 
 Twine 2 follows Markdown syntax. This means *italics*, **bold**, and `code()`.
 
@@ -39,7 +40,7 @@ Twine 2 follows Markdown syntax. This means *italics*, **bold**, and `code()`.
 
 These are internal links: [[Other Passage]], [[foo|Other Passage]], [[bar-&gt;Other Passage]], [[Other Passage&lt;-baz]]
 
-* * * 
+* * *
 
 These are external links, the first of which will be in green because of a user stylesheet: [[http://twinery.org]], [[foo|http://twinery.org]], [[bar-&gt;http://twinery.org]], [[http://twinery.org&lt;-baz]]
 
@@ -116,7 +117,7 @@ And the entire body should be blue.
 &lt;%
 $(function()
 {
-	this.find('.highlighted').css('background-color', 'yellow').hide().fadeIn();	
+	this.find('.highlighted').css('background-color', 'yellow').hide().fadeIn();
 });
 
 $('body').css('background-color', 'blue');
@@ -176,6 +177,12 @@ divs
 as much as you like.
 ]{.hello}
 
+</tw-passagedata>
+
+<tw-passagedata pid="7" name="Test comments">
+This is a sentence /* with a comment inside it */ like any other.
+// this isn't shown
+This sentence trails off // into nothingness
 </tw-passagedata>
 
 </tw-storydata>
