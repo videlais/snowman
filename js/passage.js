@@ -61,7 +61,7 @@ _.extend(Passage.prototype,
 		// we have to temporarily disable window.print, as it
 		// interferes with Underscore's template print function
 
-		var result = _.template(_.unescape(this.source), { s: window.story.state });
+		var result = _.template(_.unescape(this.source), { s: window.story.state, $: this._readyFunc });
 
 		result = result.replace(/\[\[(.*?)\]\]/g, function (match, target)
 		{
@@ -110,5 +110,25 @@ _.extend(Passage.prototype,
 		});
 
 		return marked(result);
+	},
+
+	/**
+	 A helper function that is connected to passage templates as $. It acts
+	 like the jQuery $ function, running a script when the passage is ready in
+	 the DOM. The function passed is also bound to div#passage for convenience.
+
+	 If this is *not* passed a single function, then this acts as a passthrough
+	 to jQuery's native $ function.
+
+	 @method _readyFunc
+	 @private
+	**/
+
+	_readyFunc: function()
+	{
+		if (arguments.length == 1 && typeof arguments[0] == 'function')
+			return jQuery(window).one('showpassage:after', _.bind(arguments[0], jQuery('#passage')));
+		else
+			return jQuery.apply(window, arguments);
 	}
 });

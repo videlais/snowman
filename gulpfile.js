@@ -21,6 +21,7 @@ gulp.task('jshint', function()
 		.pipe(jshint({
 			globals:
 			{
+				jQuery: true,
 				$: true,
 				_: true,
 				marked: true,
@@ -114,6 +115,6 @@ gulp.task('default', ['jshint', 'bake', 'doc']);
 
 gulp.task('watch', function()
 {
-	gulp.watch(['js/*.js', 'format.html'], 'bake');
+	gulp.watch(['js/*.js', 'format.html', 'data/*'], ['bake']);
 	gulp.watch('js/*.js', ['jshint', 'doc']);
 });
