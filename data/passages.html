@@ -12,8 +12,9 @@ console.log('User JavaScript is working.');
 </script>
 
 <tw-passagedata pid="1" name="Start">
-[[Test embedding a passage in another->embed test]]
-[[Test $ function]]
+[[Test embedding a passage in another->embed test]]   
+[[Test $ function]]   
+[[Test span and div syntax]]
 
 Twine 2 follows Markdown syntax. This means *italics*, **bold**, and `code()`.
 
@@ -121,6 +122,59 @@ $(function()
 $('body').css('background-color', 'blue');
 
 %&gt;
+
+</tw-passagedata>
+
+<tw-passagedata pid="6" name="Test span and div syntax">
+[This is shown in brackets.]
+[]{.empty}
+[This is invisible.]{-}
+[This is invisible and has the class empty.]{-.empty}
+[This is invisible and has the id empty.]{-#empty}
+[This is invisible and has the class empty and the id empty2.]{-.empty#empty2}
+[This is a span with the class hello.]{.hello}
+[This is a span with the id hello.]{#hello}
+[This is a span with the class hello, and the id hello2.]{#hello2.hello}
+[You may [nest [spans]{.supernested}]{.nested} as much as you like.]{.hello}
+
+[
+This is shown in brackets.
+]
+
+[
+This is a div with class hello.
+]{.hello}
+
+[
+This is a div with id hello3.
+]{#hello3}
+
+[
+This is a div with the class hello, and the id hello4.
+]{.hello#hello4}
+
+[
+This is an invisible div with class hello.
+]{-.hello}
+
+[
+This is an invisible div with id hello5.
+]{-#hello5}
+
+[
+This is an invisible div with the class hello, and the id hello6.
+]{-.hello#hello6}
+
+[
+You may
+[
+nest
+[
+divs
+]{.supernested}
+]{.nested}
+as much as you like.
+]{.hello}
 
 </tw-passagedata>
 

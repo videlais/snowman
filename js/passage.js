@@ -63,6 +63,30 @@ _.extend(Passage.prototype,
 
 		var result = _.template(_.unescape(this.source), { s: window.story.state, $: this._readyFunc });
 
+		// [\ndiv\n]{.withClass#andID}
+
+		var divRegexp = /\[[\r\n+]([^\]]*?)[\r\n+]\]\{(.*?)\}/g;
+		var divRenderer = _.bind(function (wholeMatch, source, selector)
+		{
+			return this._renderEl('div', source, selector);
+		}, this);
+
+		while (divRegexp.test(result))
+			result = result.replace(divRegexp, divRenderer);
+
+		// [span]{.withClass#andID}
+
+		var spanRegexp = /\[(.*)\]\{(.*?)\}/g;
+		var spanRenderer = _.bind(function (wholeMatch, source, selector)
+		{
+			return this._renderEl('span', source, selector);
+		}, this);
+
+		while (spanRegexp.test(result))
+			result = result.replace(spanRegexp, spanRenderer);
+
+		// [[links]]
+
 		result = result.replace(/\[\[(.*?)\]\]/g, function (match, target)
 		{
 			var display = target;
@@ -121,6 +145,7 @@ _.extend(Passage.prototype,
 	 to jQuery's native $ function.
 
 	 @method _readyFunc
+	 @return jQuery object, as with jQuery()
 	 @private
 	**/
 
@@ -130,5 +155,68 @@ _.extend(Passage.prototype,
 			return jQuery(window).one('showpassage:after', _.bind(arguments[0], jQuery('#passage')));
 		else
 			return jQuery.apply(window, arguments);
+	},
+
+	/**
+	 A helper function that converts markup like [this]{#id.class} into HTML
+	 source for a DOM element.
+
+	 @method _renderEl
+	 @param {String} nodeName element's node name, e.g. 'div' or 'span'.
+	 @param {String} source inner source code of the element
+	 @param {String} selector a string selector, i.e. #myId.className. If the
+	                          first character of this is a dash (-), then
+							  this element will also be given the attribute 'style="display:none"'.
+	 @return {String} HTML source code
+	**/
+
+	_renderEl: function (nodeName, source, selector)
+	{
+		var result = '<' + nodeName;	
+
+		console.log('rendering', nodeName, source, selector);
+
+		if (selector)
+		{
+			if (selector[0] == '-')
+				result += ' style="display:none"';
+
+			var classes = [];
+			var id = null;
+			var classOrId = /([#\.])([^#\.]+)/g;
+			var matches = classOrId.exec(selector);
+
+			while (matches !== null)
+			{
+				switch (matches[1])
+				{
+					case '#':
+					id = matches[2];
+					break;
+
+					case '.':
+					classes.push(matches[2]);
+					break;
+
+					default:
+					throw new Error("Don't know how to apply selector " + matches[0]);
+				};
+
+				matches = classOrId.exec(selector);
+			};
+
+			if (id !== null)
+				result += ' id="' + id + '"';
+
+			if (classes.length > 0)
+				result += ' class="' + classes.join(' ') + '"';
+		};
+
+		result += '>';
+
+		if (source !== null)
+			result += source;
+
+		return result + '</' + nodeName + '>';
 	}
 });
