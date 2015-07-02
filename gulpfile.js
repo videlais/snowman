@@ -70,8 +70,8 @@ gulp.task('bake:release', function()
 {
 	return gulp.src('format.html')
 	            .pipe(plumber())
-		        .pipe(replace('//= include data/name_test.txt', '{{STORY_NAME}}'))
-		        .pipe(replace('//= include data/passages_test.html', '{{STORY_DATA}}'))
+		        .pipe(replace('//= include data/name.txt', '{{STORY_NAME}}'))
+		        .pipe(replace('//= include data/passages.html', '{{STORY_DATA}}'))
 		        .pipe(usemin({
 			    	css: [minifyCss()],
 			    	html: [minifyHtml()],
