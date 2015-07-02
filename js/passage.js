@@ -84,7 +84,7 @@ _.extend(Passage.prototype,
 
 		// [span]{.withClass#andID}
 
-		var spanRegexp = /\[(.*)\]\{(.*?)\}/g;
+		var spanRegexp = /\[(.*?)\]\{(.*?)\}/g;
 		var spanRenderer = _.bind(function (wholeMatch, source, selector)
 		{
 			return this._renderEl('span', source, selector);
