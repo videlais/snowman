@@ -16,7 +16,7 @@ Snowman uses Markdown formatting in its passage syntax. Instead of invoking macr
 	* `s`, which is a shorthand for `window.story.state`
 	* `$`, which acts like jQuery's `$` method but with one exception. If you pass it a single function, this function is run when the passage appears onscreen, with it bound to the passage DOM element.
 
-2. Comments inside `/* inline blocks */` are removed, as are `// line comments`. `//` comments remove their line brak, so that:
+2. Comments inside `/* inline blocks */` are removed, as are `// line comments`. `//` comments remove their line break, so that:
 ```
 The die comes up...
 
@@ -29,6 +29,7 @@ The die comes up...
 
 Three!
 ```
+Line comments (that is, ones that start with //) may be used at the very start of a line. This is to avoid problems when URLs appear in the text, which might otherwise accidentally trigger a comment.
 
 3. `<div>` elements are created from text formatted like this:
 ```
