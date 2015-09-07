@@ -346,7 +346,7 @@ _.extend(Story.prototype,
 				 @event checkpointfailed
 				**/
 
-				$.event.trigger('checkpointfailed');
+				$.event.trigger('checkpointfailed', { error: e });
 			};
 		};
 
@@ -412,7 +412,7 @@ _.extend(Story.prototype,
 		 @event checkpoint
 		**/
 
-		$.event.trigger('checkpoint');
+		$.event.trigger('checkpoint', { name: name });
 	},
 
 	/**
@@ -482,7 +482,7 @@ _.extend(Story.prototype,
 			 @event restorefailed
 			**/
 
-			$.event.trigger('restorefailed');
+			$.event.trigger('restorefailed', { error: e });
 			return false;
 		};
 
