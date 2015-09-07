@@ -68,8 +68,9 @@ _.extend(Passage.prototype,
 		result = result.replace(/\/\*.*\*\//g, '');
 
 		// Remove // comments
+		// to avoid clashes with URLs, lines must start with these
 
-		result = result.replace(/\/\/.*(\r\n?|\n)/g, '');
+		result = result.replace(/^\/\/.*(\r\n?|\n)/g, '');
 
 		// [\ndiv\n]{.withClass#andID}
 
