@@ -329,10 +329,25 @@ _.extend(Story.prototype,
 		{
 			this.history.push(passage.id);
 
-			if (this.atCheckpoint)
-				window.history.pushState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
-			else
-				window.history.replaceState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
+			try
+			{
+				if (this.atCheckpoint)
+					window.history.pushState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
+				else
+					window.history.replaceState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
+			}
+			catch (e)
+			{
+				// this may fail due to security restrictions in the browser
+
+				/**
+				 Triggered whenever a checkpoint fails to be saved to browser history.
+
+				 @event checkpointfailed
+				**/
+
+				$.event.trigger('checkpointfailed');
+			};
 		};
 
 		window.passage = passage;
@@ -371,18 +386,24 @@ _.extend(Story.prototype,
 	},
 
 	/**
-	 Adds an entry in the browser history for the current story state.
-	 Remember, only variables set on this story's state variable are
-	 stored in the browser history.
+	 Tries to add an entry in the browser history for the current story state.
+	 Remember, only variables set on this story's state variable are stored in
+	 the browser history.
 
 	 @method checkpoint
-	 @param name {String} checkpoint name, appears in history
+	 @param name {String} checkpoint name, appears in history, optional
 	**/
 
 	checkpoint: function (name)
 	{
-		document.title = this.name + ': ' + name;
-		this.checkpointName = name;
+		if (name !== undefined)
+		{
+			document.title = this.name + ': ' + name;
+			this.checkpointName = name;
+		}
+		else
+			this.checkpointName = '';
+
 		this.atCheckpoint = true;
 
 		/**
