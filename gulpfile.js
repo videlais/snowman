@@ -29,7 +29,7 @@ gulp.task('jshint', function()
 				Passage: true,
 				Story: true
 			},
-			globalstrict: true, // OK to use 'use strict'; instead of function
+			strict: 'global', // OK to use 'use strict'; instead of function
 			"-W032": true, // Unnecessary semicolon
 			browser: true,
 			devel: true

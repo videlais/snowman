@@ -1,10 +1,13 @@
 {
   "name": "Snowman",
-  "version": "1.1",
+  "version": "1.1.0",
   "description": "Chris Klimas <chris@twinery.org>",
   "author": "Chris Klimas <chris@twinery.org>",
-  "license": "MIT License",
+  "license": "MIT",
   "repository": "http://bitbucket.org/klembot/snowman-2",
+  "scripts": {
+    "start": "gulp"
+  },
   "dependencies": {
     "del": "^1.2.0",
     "gulp": "^3.9.0",
