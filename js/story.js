@@ -202,7 +202,7 @@ _.extend(Story.prototype,
 
 		$('body').on('click', 'a[data-passage]', function (e)
 		{
-			this.show(_.unescape($(e.target).attr('data-passage')));
+			this.show(_.unescape($(e.target).closest('[data-passage]').attr('data-passage')));
 		}.bind(this));
 
 		// set up hash change handler for save/restore
@@ -316,14 +316,13 @@ _.extend(Story.prototype,
 		$.event.trigger('hidepassage', { passage: window.passage });
 
 		/**
-
 		 Triggered whenever a passage is about to be shown onscreen.
 		 The passage being displayed is stored in the passage property of the event.
 
 		 @event showpassage
 		**/
 
-		$.event.trigger('showpassage', { passage: window.passage });
+		$.event.trigger('showpassage', { passage: passage });
 
 		if (! noHistory)
 		{
