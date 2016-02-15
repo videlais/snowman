@@ -1,48 +1,40 @@
 /* give ourselves some decent defaults */
 
-body
-{
+body {
 	font: 18px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #222;
 }
 
-#passage
-{
+#passage {
 	max-width: 38em;
 	margin: 0 auto;
 	line-height: 145%;
 }
 
-a
-{
+a {
 	color: #222;
 	text-decoration: none;
 	border-bottom: 2px solid #bbb;
 }
 
-a:hover
-{
+a:hover {
 	color: #cc8929;
 	border-color: #cc8929;
 }
 
-a:active
-{
+a:active {
 	color: #ffb040;
 	border-color: #ffb040;
 }
 
-tw-storydata
-{
+tw-storydata {
 	display: none;
 }
 
 /* scale font sizes for phones */
 
-@media screen and (max-device-width: 480px)
-{
-	#passage
-	{
+@media screen and (max-device-width: 480px) {
+	#passage {
 		font-size: 70%;
 	}
 }

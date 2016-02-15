@@ -7,9 +7,11 @@
 **/
 
 'use strict';
+var _ = require('underscore');
+var marked = require('marked');
+var jQuery = require('jquery');
 
-function Passage (id, name, tags, source)
-{
+var Passage = function(id, name, tags, source) {
 	/**
 	 The numeric ID of the passage.
 	 @property name
@@ -44,8 +46,7 @@ function Passage (id, name, tags, source)
 	this.source = _.unescape(source);
 };
 
-_.extend(Passage.prototype,
-{
+_.extend(Passage.prototype, {
 	/**
 	 Returns an HTML-rendered version of this passage's source. This
 	 first runs the source code through the Underscore template parser,
@@ -56,12 +57,13 @@ _.extend(Passage.prototype,
 	 @return HTML source
 	**/
 
-	render: function()
-	{
+	render: function() {
 		// we have to temporarily disable window.print, as it
 		// interferes with Underscore's template print function
 
-		var result = _.template(_.unescape(this.source), { s: window.story.state, $: this._readyFunc });
+		var result = _.template(_.unescape(this.source))(
+			{ s: window.story.state, $: this._readyFunc }
+		);
 
 		// Remove /* comments */
 
@@ -75,8 +77,7 @@ _.extend(Passage.prototype,
 		// [\ndiv\n]{.withClass#andID}
 
 		var divRegexp = /\[[\r\n+]([^\]]*?)[\r\n+]\]\{(.*?)\}/g;
-		var divRenderer = _.bind(function (wholeMatch, source, selector)
-		{
+		var divRenderer = _.bind(function(wholeMatch, source, selector) {
 			return this._renderEl('div', source, selector);
 		}, this);
 
@@ -86,60 +87,57 @@ _.extend(Passage.prototype,
 		// [span]{.withClass#andID}
 
 		var spanRegexp = /\[(.*?)\]\{(.*?)\}/g;
-		var spanRenderer = _.bind(function (wholeMatch, source, selector)
-		{
+		var spanRenderer = _.bind(function(wholeMatch, source, selector) {
 			return this._renderEl('span', source, selector);
 		}, this);
 
-		while (spanRegexp.test(result))
+		while (spanRegexp.test(result)) {
 			result = result.replace(spanRegexp, spanRenderer);
+		}
 
 		// [[links]]
 
-		result = result.replace(/\[\[(.*?)\]\]/g, function (match, target)
-		{
+		result = result.replace(/\[\[(.*?)\]\]/g, function(match, target) {
 			var display = target;
 
 			// display|target format
 
 			var barIndex = target.indexOf('|');
 
-			if (barIndex != -1)
-			{
+			if (barIndex != -1) {
 				display = target.substr(0, barIndex);
 				target = target.substr(barIndex + 1);
 			}
-			else
-			{
+			else {
 				// display->target format
 
 				var rightArrIndex = target.indexOf('->');
 
-				if (rightArrIndex != -1)
-				{
+				if (rightArrIndex != -1) {
 					display = target.substr(0, rightArrIndex);
 					target = target.substr(rightArrIndex + 2);
 				}
-				else
-				{
+				else {
 					// target<-display format
 
 					var leftArrIndex = target.indexOf('<-');
 
-					if (leftArrIndex != -1)
-					{
+					if (leftArrIndex != -1) {
 						display = target.substr(leftArrIndex + 2);
 						target = target.substr(0, leftArrIndex);
 					}
-				};
-			};
+				}
+			}
 
 			// does this look like an external link? 
 
-			if (/^\w+:\/\/\/?\w/i.test(target))
+			if (/^\w+:\/\/\/?\w/i.test(target)) {
 				return '<a href="' + target + '">' + display + '</a>';
-			else
-				return '<a href="javascript:void(0)" data-passage="' + _.escape(target) + '">' + display + '</a>';
+			}
+			else {
+				return '<a href="javascript:void(0)" data-passage="' +
+					_.escape(target) + '">' + display + '</a>';
+			}
 		});
 
 		return marked(result);
@@ -158,12 +156,16 @@ _.extend(Passage.prototype,
 	 @private
 	**/
 
-	_readyFunc: function()
-	{
-		if (arguments.length == 1 && typeof arguments[0] == 'function')
-			return jQuery(window).one('showpassage:after', _.bind(arguments[0], jQuery('#passage')));
-		else
+	_readyFunc: function() {
+		if (arguments.length == 1 && typeof arguments[0] == 'function') {
+			return jQuery(window).one(
+				'showpassage:after',
+				_.bind(arguments[0], jQuery('#passage'))
+			);
+		}
+		else {
 			return jQuery.apply(window, arguments);
+		}
 	},
 
 	/**
@@ -179,47 +181,44 @@ _.extend(Passage.prototype,
 	 @return {String} HTML source code
 	**/
 
-	_renderEl: function (nodeName, source, selector)
-	{
+	_renderEl: function (nodeName, source, selector) {
 		var result = '<' + nodeName;	
 
-		console.log('rendering', nodeName, source, selector);
-
-		if (selector)
-		{
-			if (selector[0] == '-')
+		if (selector) {
+			if (selector[0] == '-') {
 				result += ' style="display:none"';
+			}
 
 			var classes = [];
 			var id = null;
 			var classOrId = /([#\.])([^#\.]+)/g;
 			var matches = classOrId.exec(selector);
 
-			while (matches !== null)
-			{
-				switch (matches[1])
-				{
+			while (matches !== null) {
+				switch (matches[1]) {
 					case '#':
-					id = matches[2];
-					break;
+						id = matches[2];
+						break;
 
 					case '.':
-					classes.push(matches[2]);
-					break;
+						classes.push(matches[2]);
+						break;
 
 					default:
-					throw new Error("Don't know how to apply selector " + matches[0]);
-				};
+						throw new Error("Don't know how to apply selector " + matches[0]);
+				}
 
 				matches = classOrId.exec(selector);
-			};
+			}
 
-			if (id !== null)
+			if (id !== null) {
 				result += ' id="' + id + '"';
+			}
 
-			if (classes.length > 0)
+			if (classes.length > 0) {
 				result += ' class="' + classes.join(' ') + '"';
-		};
+			}
+		}
 
 		result += '>';
 
@@ -229,3 +228,5 @@ _.extend(Passage.prototype,
 		return result + '</' + nodeName + '>';
 	}
 });
+
+module.exports = Passage;

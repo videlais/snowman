@@ -42,7 +42,7 @@ Twine 2 follows Markdown syntax. This means *italics*, **bold**, and `code()`.
 
 ![A test image](http://placehold.it/200x200)
 
-These are internal links: [[Other Passage]], [[foo|Other Passage]], [[bar-&gt;Other Passage]], [[Other Passage&lt;-baz]]
+These are internal links: [[Other Passage]], [[foo|Other Passage]], [[bar-&gt;Other Passage]], [[Other Passage&lt;-baz]], [[*foo*|Other Passage]], [[well *foo*->Other Passage]], [[Other Passage<-well *foo*]]
 
 * * *
 
@@ -180,6 +180,18 @@ divs
 ]{.nested}
 as much as you like.
 ]{.hello}
+
+[
+Sub-header inside generated div
+-----
+]{#the-divs-id}
+
+[
+This should be wrapped in a paragraph.
+
+This also should be.
+
+]{#div-id}
 
 </tw-passagedata>
 

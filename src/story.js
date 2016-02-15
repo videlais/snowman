@@ -6,13 +6,12 @@
  @constructor
 **/
 
-/*jslint evil: true */
-// Yup, we're using eval() here and we know it's not the best idea
-
 'use strict';
+var $ = require('jquery');
+var _ = require('underscore');
+var LZString = require('lz-string');
 
-function Story (el)
-{
+var Story = function(el) {
 	// set up basic properties
 
 	this.el = el;
@@ -79,7 +78,8 @@ function Story (el)
 	this.state = {};
 
 	/**
-	 The name of the last checkpoint set. If none has been set, this is an empty string.
+	 The name of the last checkpoint set. If none has been set, this is an
+	 empty string.
 
 	 @property checkpointName
 	 @type String
@@ -89,8 +89,8 @@ function Story (el)
 	this.checkpointName = '';
 
 	/**
-	 If set to true, then any JavaScript errors are ignored -- normally, play would end
-	 with a message shown to the user. 
+	 If set to true, then any JavaScript errors are ignored -- normally, play
+	 would end with a message shown to the user. 
 
 	 @property ignoreErrors
 	 @type Boolean
@@ -99,8 +99,9 @@ function Story (el)
 	this.ignoreErrors = false;
 
 	/**
-	 The message shown to users when there is an error and ignoreErrors is not true.
-	 Any %s in the message will be interpolated as the actual error messsage.
+	 The message shown to users when there is an error and ignoreErrors is not
+	 true. Any %s in the message will be interpolated as the actual error
+	 messsage.
 
 	 @property errorMessage
 	 @type String
@@ -132,13 +133,17 @@ function Story (el)
 
 	var p = this.passages;
 
-	el.children('tw-passagedata').each(function (el)
-	{
+	el.children('tw-passagedata').each(function(el) {
 		var $t = $(this);
 		var id = parseInt($t.attr('pid'));
 		var tags = $t.attr('tags');
 
-		p[id] = new Passage(id, $t.attr('name'), (tags !== '' && tags !== undefined) ? tags.split(' ') : [], $t.html());
+		p[id] = new Passage(
+			id,
+			$t.attr('name'),
+			(tags !== '' && tags !== undefined) ? tags.split(' ') : [],
+			$t.html()
+		);
 	});
 
 	/**
@@ -148,10 +153,12 @@ function Story (el)
 	 @type Array
 	**/
 
-	this.userScripts = _.map(el.children('*[type="text/twine-javascript"]'), function (el)
-	{
-		return $(el).html();
-	});
+	this.userScripts = _.map(
+		el.children('*[type="text/twine-javascript"]'),
+		function(el) {
+			return $(el).html();
+		}
+	);
 
 	/**
 	 An array of user-specific style declarations to add when the story is begun.
@@ -160,92 +167,86 @@ function Story (el)
 	 @type Array
 	**/
 
-	this.userStyles = _.map(el.children('*[type="text/twine-css"]'), function (el)
-	{
-		return $(el).html();
-	});
+	this.userStyles = _.map(
+		el.children('*[type="text/twine-css"]'),
+		function(el) {
+			return $(el).html();
+		}
+	);
 };
 
-_.extend(Story.prototype,
-{
+_.extend(Story.prototype, {
 	/**
 	 Begins playing this story.
 
 	 @method start
 	**/
 
-	start: function()
-	{
+	start: function() {
 		// set up history event handler
 
-		$(window).on('popstate', function (event)
-		{
+		$(window).on('popstate', function(event) {
 			var state = event.originalEvent.state;
 
-			if (state)
-			{
+			if (state) {
 				this.state = state.state;
 				this.history = state.history;
 				this.checkpointName = state.checkpointName;
 				this.show(this.history[this.history.length - 1], true);
 			}
-			else if (this.history.length > 1)
-			{
+			else if (this.history.length > 1) {
 				this.state = {};
 				this.history = [];
 				this.checkpointName = '';
 				this.show(this.startPassage, true);
-			};
+			}
 		}.bind(this));
 
 		// set up passage link handler
 
-		$('body').on('click', 'a[data-passage]', function (e)
-		{
-			this.show(_.unescape($(e.target).closest('[data-passage]').attr('data-passage')));
+		$('body').on('click', 'a[data-passage]', function (e) {
+			this.show(_.unescape(
+				$(e.target).closest('[data-passage]').attr('data-passage')
+			));
 		}.bind(this));
 
 		// set up hash change handler for save/restore
 
-		$(window).on('hashchange', function()
-		{
+		$(window).on('hashchange', function() {
 			this.restore(window.location.hash.replace('#', ''));	
 		}.bind(this));
 
 		// set up error handler
 
-		window.onerror = function (message, url, line)
-		{
-			if (! this.errorMessage || typeof(this.errorMessage) != 'string')
+		window.onerror = function(message, url, line) {
+			if (! this.errorMessage || typeof(this.errorMessage) != 'string') {
 				this.errorMessage = Story.prototype.errorMessage;
+			}
 
-			if (! this.ignoreErrors)
-			{
-				if (url)
-				{
+			if (!this.ignoreErrors) {
+				if (url) {
 					message += ' (' + url;
 
-					if (line)
+					if (line) {
 						message += ': ' + line;
+					}
 
 					message += ')';
-				};
+				}
 
-				$('#passage').html(this.errorMessage.replace('%s', message));	
-			};
+				$('#passage').html(this.errorMessage.replace('%s', message));
+			}
 		}.bind(this);
 
 		// activate user styles
 
-		_.each(this.userStyles, function (style)
-		{
+		_.each(this.userStyles, function(style) {
 			$('body').append('<style>' + style + '</style>');
 		});
 
 		// run user scripts
 
-		_.each(this.userScripts, function (script)
-		{
+		_.each(this.userScripts, function(script) {
 			eval(script);
 		});
 
@@ -261,8 +262,8 @@ _.extend(Story.prototype,
 
 		// try to restore based on the window hash if possible	
 
-		if (window.location.hash === '' || ! this.restore(window.location.hash.replace('#', '')))
-		{
+		if (window.location.hash === '' ||
+			!this.restore(window.location.hash.replace('#', ''))) {
 			// start the story; mark that we're at a checkpoint
 
 			this.show(this.startPassage);
@@ -279,12 +280,13 @@ _.extend(Story.prototype,
 	 @return Passage object or null
 	**/
 
-	passage: function (idOrName)
-	{
-		if (_.isNumber(idOrName))
+	passage: function(idOrName) {
+		if (_.isNumber(idOrName)) {
 			return this.passages[idOrName];
-		else if (_.isString(idOrName))
+		}
+		else if (_.isString(idOrName)) {
 			return _.findWhere(this.passages, { name: idOrName });
+		}
 	},
 
 	/**
@@ -299,12 +301,14 @@ _.extend(Story.prototype,
 	 @param noHistory {Boolean} if true, then this will not be recorded in the story history
 	**/
 
-	show: function (idOrName, noHistory)
-	{
+	show: function(idOrName, noHistory) {
 		var passage = this.passage(idOrName);
 
-		if (! passage)
-			throw new Error('There is no passage with the ID or name "' + idOrName + '"');
+		if (!passage) {
+			throw new Error(
+				'There is no passage with the ID or name "' + idOrName + '"'
+			);
+		}
 
 		/**
 		 Triggered whenever a passage is about to be replaced onscreen with another.
@@ -324,19 +328,34 @@ _.extend(Story.prototype,
 
 		$.event.trigger('showpassage', { passage: passage });
 
-		if (! noHistory)
-		{
+		if (!noHistory) {
 			this.history.push(passage.id);
 
-			try
-			{
-				if (this.atCheckpoint)
-					window.history.pushState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
-				else
-					window.history.replaceState({ state: this.state, history: this.history, checkpointName: this.checkpointName }, '', '');
+			try {
+				if (this.atCheckpoint) {
+					window.history.pushState(
+						{
+							state: this.state,
+							history: this.history,
+							checkpointName: this.checkpointName
+						},
+						'',
+						''
+					);
+				}
+				else {
+					window.history.replaceState(
+						{
+							state: this.state,
+							history: this.history,
+							checkpointName: this.checkpointName
+						},
+						'',
+						''
+					);
+				}
 			}
-			catch (e)
-			{
+			catch (e) {
 				// this may fail due to security restrictions in the browser
 
 				/**
@@ -346,8 +365,8 @@ _.extend(Story.prototype,
 				**/
 
 				$.event.trigger('checkpointfailed', { error: e });
-			};
-		};
+			}
+		}
 
 		window.passage = passage;
 		this.atCheckpoint = false;
@@ -374,12 +393,12 @@ _.extend(Story.prototype,
 	 @return {String} HTML source code
 	**/
 
-	render: function (idOrName)
-	{
+	render: function(idOrName) {
 		var passage = this.passage(idOrName);
 
-		if (! passage)
+		if (!passage) {
 			throw new Error('There is no passage with the ID or name ' + idOrName);
+		}
 
 		return passage.render();
 	},
@@ -393,15 +412,14 @@ _.extend(Story.prototype,
 	 @param name {String} checkpoint name, appears in history, optional
 	**/
 
-	checkpoint: function (name)
-	{
-		if (name !== undefined)
-		{
+	checkpoint: function(name) {
+		if (name !== undefined) {
 			document.title = this.name + ': ' + name;
 			this.checkpointName = name;
 		}
-		else
+		else {
 			this.checkpointName = '';
+		}
 
 		this.atCheckpoint = true;
 
@@ -495,3 +513,5 @@ _.extend(Story.prototype,
 		return true;
 	}
 });
+
+module.exports = Story;
