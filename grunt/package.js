@@ -23,5 +23,5 @@ module.exports = function(grunt) {
 		);
 	});
 
-	grunt.registerTask('package', ['package:icon', 'package:format']);
+	grunt.registerTask('package', ['build:release', 'package:icon', 'package:format']);
 };
