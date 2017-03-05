@@ -61,4 +61,4 @@ By default, clicking a passage link does not add an entry to the reader's browse
 
 ## Building From Source
 
-Run `npm install` to install dependencies. `gulp` will create a testing version of the format at `index.html`, and `gulp release` will build a release version ready to be used in Twine under `dist/`.
+Run `npm install` to install dependencies. `grunt` will create a testing version of the format at `index.html`, and `grunt release` will build a release version ready to be used in Twine under `dist/`.
