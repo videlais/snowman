@@ -42,7 +42,7 @@ The opening bracket must be the only text on the line, and the closing bracket m
 [
 ]{.empty}
 ```
-And if you would like the `<div>` to start hidden, e.g. `display: none`, put a minus sign (-) as the first character after the curly brackets. i.e.
+And if you would like the `<div>` to start hidden (that is, with the CSS property `display: none`), put a minus sign (-) as the first character after the curly brackets. This can be useful if you'd like to manually control when the `<div>` is shown -- for example, making it visible after a delay or some other event has taken place. The syntax to do so looks like this:
 ```
 [
 This message is hidden!
