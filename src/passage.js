@@ -36,7 +36,7 @@ function render(source) {
 
 	// [\ndiv\n]{.withClass#andID}
 
-	var divRegexp = /\[([\r\n+])([^\]]*?)([\r\n+])\]\{(.*?)\}/g;
+	var divRegexp = /\[([\r\n+])([\s\S*?)([\r\n+])\]\{(.*?)\}/g;
 	var divRenderer = function(wholeMatch, startBr, source, endBr, selector) {
 		return renderEl(
 			'div',
