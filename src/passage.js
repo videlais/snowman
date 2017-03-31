@@ -14,7 +14,6 @@ var jQuery = require('jquery');
  Our rendering engine. This is available externally as Passage.render(),
  as well as on Passage instances.
  @method render
- @private
  @return HTML source
 **/
 

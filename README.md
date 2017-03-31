@@ -62,4 +62,4 @@ By default, clicking a passage link does not add an entry to the reader's browse
 
 Run `npm install` to install dependencies. `npm run build` will create a Twine 2-ready story format under dist/, as well as a guide to Snowman features at `dist/guide.html`. `npm start` will start a file watching process that updates the story format as changes are made under `src/`.
 
-To check for style errors, run `npm run lint`.
+To check for style errors, run `npm run lint`. To run unit tests, run `npm test`. Please ensure that both run cleanly before submitting a pull request.
