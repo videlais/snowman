@@ -1,7 +1,6 @@
 /**
  An object representing a single passage in the story. The passage currently
  being displayed is available as `window.passage`.
-
  @class Passage
  @constructor
 **/
@@ -14,27 +13,27 @@ var jQuery = require('jquery');
 /**
  Our rendering engine. This is available externally as Passage.render(),
  as well as on Passage instances.
-
  @method render
  @private
  @return HTML source
 **/
 
 function render(source) {
-	// See below for the definition of readyFunc.
+	/* See below for the definition of readyFunc. */
 
 	var result = _.template(source)({ s: window.story.state, $: readyFunc });
 
-	// Remove /* comments */
+	/* Remove /* comments. */
 
 	result = result.replace(/\/\*.*\*\//g, '');
 
-	// Remove // comments
-	// to avoid clashes with URLs, lines must start with these
+	/*
+	Remove // comments. To avoid clashes with URLs, lines must start with these.
+	*/
 
 	result = result.replace(/^\/\/.*(\r\n?|\n)/g, '');
 
-	// [\ndiv\n]{.withClass#andID}
+	/* [\ndiv\n]{.withClass#andID} */
 
 	var divRegexp = /\[([\r\n+])([\s\S*?)([\r\n+])\]\{(.*?)\}/g;
 	var divRenderer = function(wholeMatch, startBr, source, endBr, selector) {
@@ -49,7 +48,7 @@ function render(source) {
 		result = result.replace(divRegexp, divRenderer);
 	}
 
-	// [span]{.withClass#andID}
+	/* [span]{.withClass#andID} */
 
 	var spanRegexp = /\[(.*?)\]\{(.*?)\}/g;
 	var spanRenderer = function(wholeMatch, source, selector) {
@@ -60,12 +59,12 @@ function render(source) {
 		result = result.replace(spanRegexp, spanRenderer);
 	}
 
-	// [[links]]
+	/* [[links]] */
 
 	result = result.replace(/\[\[(.*?)\]\]/g, function(match, target) {
 		var display = target;
 
-		// display|target format
+		/* display|target format */
 
 		var barIndex = target.indexOf('|');
 
@@ -74,7 +73,7 @@ function render(source) {
 			target = target.substr(barIndex + 1);
 		}
 		else {
-			// display->target format
+			/* display->target format */
 
 			var rightArrIndex = target.indexOf('->');
 
@@ -83,7 +82,7 @@ function render(source) {
 				target = target.substr(rightArrIndex + 2);
 			}
 			else {
-				// target<-display format
+				/* target<-display format */
 
 				var leftArrIndex = target.indexOf('<-');
 
@@ -94,7 +93,7 @@ function render(source) {
 			}
 		}
 
-		// does this look like an external link? 
+		/* Does this look like an external link? */
 
 		if (/^\w+:\/\/\/?\w/i.test(target)) {
 			return '<a href="' + target + '">' + display + '</a>';
@@ -111,19 +110,19 @@ function render(source) {
 /**
  A helper function that converts markup like [this]{#id.class} into HTML
  source for a DOM element.
-
  @method renderEl
  @private
  @param {String} nodeName element's node name, e.g. 'div' or 'span'.
  @param {String} source inner source code of the element
  @param {String} selector a string selector, i.e. #myId.className. If the
 						  first character of this is a dash (-), then
-						  this element will also be given the attribute 'style="display:none"'.
+						  this element will also be given the attribute
+						  'style="display:none"'.
  @return {String} HTML source code
 **/
 
 function renderEl(nodeName, source, selector) {
-	var result = '<' + nodeName;	
+	var result = '<' + nodeName;
 
 	if (selector) {
 		if (selector[0] == '-') {
@@ -163,8 +162,9 @@ function renderEl(nodeName, source, selector) {
 
 	result += '>';
 
-	if (source !== null)
+	if (source !== null) {
 		result += render(source);
+	}
 
 	return result + '</' + nodeName + '>';
 }
@@ -230,8 +230,8 @@ var Passage = function(id, name, tags, source) {
 };
 
 /**
- Static renderer, which will render any string passed to it as HTML.
- See Passage.render()'s instance method for a description of what exactly it does.
+ Static renderer, which will render any string passed to it as HTML. See
+ Passage.render()'s instance method for a description of what exactly it does.
  @method render
  @static
  @return HTML source
@@ -244,7 +244,6 @@ _.extend(Passage.prototype, {
 	 first runs the source code through the Underscore template parser,
 	 then runs the result through a Markdown renderer, and then finally
 	 converts bracketed links to passage links.
-
 	 @method render
 	 @return HTML source
 	**/

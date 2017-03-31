@@ -10,9 +10,10 @@
 var $ = require('jquery');
 var _ = require('underscore');
 var LZString = require('lz-string');
+var Passage = require('./passage');
 
 var Story = function(el) {
-	// set up basic properties
+	/* Set up basic properties. */
 
 	this.el = el;
 
@@ -36,7 +37,6 @@ var Story = function(el) {
 
 	/**
 	 The program that created this story.
-
 	 @property creator
 	 @type String
 	 @readonly
@@ -46,7 +46,6 @@ var Story = function(el) {
 
 	/**
 	 The version of the program used to create this story.
-
 	 @property creatorVersion
 	 @type String
 	 @readOnly
@@ -54,12 +53,11 @@ var Story = function(el) {
 
 	this.creatorVersion = el.attr('creator-version');
 	
-	// initialize history and state
+	/* Initialize history and state. */
 
 	/**
 	 An array of passage IDs, one for each passage viewed during the current
 	 session.
-
 	 @property history
 	 @type Array
 	 @readOnly
@@ -70,7 +68,6 @@ var Story = function(el) {
 	/**
 	 An object that stores data that persists across a single user session.
 	 Any other variables will not survive the user pressing back or forward.
-
 	 @property state
 	 @type Object
 	**/
@@ -80,7 +77,6 @@ var Story = function(el) {
 	/**
 	 The name of the last checkpoint set. If none has been set, this is an
 	 empty string.
-
 	 @property checkpointName
 	 @type String
 	 @readonly
@@ -90,8 +86,7 @@ var Story = function(el) {
 
 	/**
 	 If set to true, then any JavaScript errors are ignored -- normally, play
-	 would end with a message shown to the user. 
-
+	 would end with a message shown to the user.
 	 @property ignoreErrors
 	 @type Boolean
 	**/
@@ -102,7 +97,6 @@ var Story = function(el) {
 	 The message shown to users when there is an error and ignoreErrors is not
 	 true. Any %s in the message will be interpolated as the actual error
 	 messsage.
-
 	 @property errorMessage
 	 @type String
 	**/
@@ -112,7 +106,6 @@ var Story = function(el) {
 	/**
 	 Mainly for internal use, this records whether the current passage contains
 	 a checkpoint.
-
 	 @property atCheckpoint
 	 @type Boolean
 	 @private
@@ -124,7 +117,6 @@ var Story = function(el) {
 
 	/**
 	 An array of all passages, indexed by ID.
-
 	 @property passages
 	 @type Array
 	**/
@@ -133,7 +125,7 @@ var Story = function(el) {
 
 	var p = this.passages;
 
-	el.children('tw-passagedata').each(function(el) {
+	el.children('tw-passagedata').each(function() {
 		var $t = $(this);
 		var id = parseInt($t.attr('pid'));
 		var tags = $t.attr('tags');
@@ -148,7 +140,6 @@ var Story = function(el) {
 
 	/**
 	 An array of user-specific scripts to run when the story is begun.
-
 	 @property userScripts
 	 @type Array
 	**/
@@ -161,8 +152,8 @@ var Story = function(el) {
 	);
 
 	/**
-	 An array of user-specific style declarations to add when the story is begun.
-
+	 An array of user-specific style declarations to add when the story is
+	 begun.
 	 @property userStyles
 	 @type Array
 	**/
@@ -178,12 +169,11 @@ var Story = function(el) {
 _.extend(Story.prototype, {
 	/**
 	 Begins playing this story.
-
 	 @method start
 	**/
 
 	start: function() {
-		// set up history event handler
+		/* Set up history event handler. */
 
 		$(window).on('popstate', function(event) {
 			var state = event.originalEvent.state;
@@ -202,7 +192,7 @@ _.extend(Story.prototype, {
 			}
 		}.bind(this));
 
-		// set up passage link handler
+		/* Set up passage link handler. */
 
 		$('body').on('click', 'a[data-passage]', function (e) {
 			this.show(_.unescape(
@@ -210,13 +200,13 @@ _.extend(Story.prototype, {
 			));
 		}.bind(this));
 
-		// set up hash change handler for save/restore
+		/* Set up hash change handler for save/restore. */
 
 		$(window).on('hashchange', function() {
-			this.restore(window.location.hash.replace('#', ''));	
+			this.restore(window.location.hash.replace('#', ''));
 		}.bind(this));
 
-		// set up error handler
+		/* Set up error handler. */
 
 		window.onerror = function(message, url, line) {
 			if (! this.errorMessage || typeof(this.errorMessage) != 'string') {
@@ -238,13 +228,13 @@ _.extend(Story.prototype, {
 			}
 		}.bind(this);
 
-		// activate user styles
+		/* Activate user styles. */
 
 		_.each(this.userStyles, function(style) {
 			$('body').append('<style>' + style + '</style>');
 		});
 
-		// run user scripts
+		/* Run user scripts. */
 
 		_.each(this.userScripts, function(script) {
 			eval(script);
@@ -254,17 +244,16 @@ _.extend(Story.prototype, {
 		 Triggered when the story is finished loading, and right before
 		 the first passage is displayed. The story property of this event
 		 contains the story.
-
 		 @event startstory
 		**/
 
 		$.event.trigger('startstory', { story: this });
 
-		// try to restore based on the window hash if possible	
+		/* Try to restore based on the window hash if possible. */
 
 		if (window.location.hash === '' ||
 			!this.restore(window.location.hash.replace('#', ''))) {
-			// start the story; mark that we're at a checkpoint
+			/* Start the story; mark that we're at a checkpoint. */
 
 			this.show(this.startPassage);
 			this.atCheckpoint = true;
@@ -274,7 +263,6 @@ _.extend(Story.prototype, {
 	/**
 	 Returns the Passage object corresponding to either an ID or name.
 	 If none exists, then it returns null.
-
 	 @method passage
 	 @param idOrName {String or Number} ID or name of the passage
 	 @return Passage object or null
@@ -290,15 +278,16 @@ _.extend(Story.prototype, {
 	},
 
 	/**
-	 Displays a passage on the page, replacing the current one. If
-	 there is no passage by the name or ID passed, an exception is raised.
+	 Displays a passage on the page, replacing the current one. If there is no
+	 passage by the name or ID passed, an exception is raised.
 
 	 Calling this immediately inside a passage (i.e. in its source code) will
 	 *not* display the other passage. Use Story.render() instead.
 
 	 @method show
 	 @param idOrName {String or Number} ID or name of the passage
-	 @param noHistory {Boolean} if true, then this will not be recorded in the story history
+	 @param noHistory {Boolean} if true, then this will not be recorded in the
+		story history
 	**/
 
 	show: function(idOrName, noHistory) {
@@ -311,18 +300,17 @@ _.extend(Story.prototype, {
 		}
 
 		/**
-		 Triggered whenever a passage is about to be replaced onscreen with another.
-		 The passage being hidden is stored in the passage property of the event.
-
+		 Triggered whenever a passage is about to be replaced onscreen with
+		 another. The passage being hidden is stored in the passage property of
+		 the event.
 		 @event hidepassage
 		**/
 
 		$.event.trigger('hidepassage', { passage: window.passage });
 
 		/**
-		 Triggered whenever a passage is about to be shown onscreen.
-		 The passage being displayed is stored in the passage property of the event.
-
+		 Triggered whenever a passage is about to be shown onscreen. The passage
+		 being displayed is stored in the passage property of the event.
 		 @event showpassage
 		**/
 
@@ -356,11 +344,11 @@ _.extend(Story.prototype, {
 				}
 			}
 			catch (e) {
-				// this may fail due to security restrictions in the browser
+				/* This may fail due to security restrictions in the browser. */
 
 				/**
-				 Triggered whenever a checkpoint fails to be saved to browser history.
-
+				 Triggered whenever a checkpoint fails to be saved to browser
+				 history.
 				 @event checkpointfailed
 				**/
 
@@ -376,7 +364,6 @@ _.extend(Story.prototype, {
 		 Triggered after a passage has been shown onscreen, and is now
 		 displayed in the div with id passage. The passage being displayed is
 		 stored in the passage property of the event.
-
 		 @event showpassage:after
 		**/
 
@@ -387,7 +374,6 @@ _.extend(Story.prototype, {
 	 Returns the HTML source for a passage. This is most often used when
 	 embedding one passage inside another. In this instance, make sure to
 	 use <%= %> instead of <%- %> to avoid incorrectly encoding HTML entities.
-
 	 @method render
 	 @param idOrName {String or Number} ID or name of the passage
 	 @return {String} HTML source code
@@ -407,7 +393,6 @@ _.extend(Story.prototype, {
 	 Tries to add an entry in the browser history for the current story state.
 	 Remember, only variables set on this story's state variable are stored in
 	 the browser history.
-
 	 @method checkpoint
 	 @param name {String} checkpoint name, appears in history, optional
 	**/
@@ -425,7 +410,6 @@ _.extend(Story.prototype, {
 
 		/**
 		 Triggered whenever a checkpoint is set in the story.
-
 		 @event checkpoint
 		**/
 
@@ -434,28 +418,27 @@ _.extend(Story.prototype, {
 
 	/**
 	 Returns a hash value representing the current state of the story.
-
 	 @method saveHash
 	 @return String hash
 	**/
 
-	saveHash: function()
-	{	
-		return LZString.compressToBase64(JSON.stringify({ state: this.state, history: this.history, checkpointName: this.checkpointName }));
+	saveHash: function() {
+		return LZString.compressToBase64(JSON.stringify({
+			state: this.state,
+			history: this.history,
+			checkpointName: this.checkpointName
+		}));
 	},
 
 	/**
 	 Sets the URL's hash property to the hash value created by saveHash().
-
 	 @method save
 	 @return String hash
 	**/
 
-	save: function()
-	{
+	save: function() {
 		/**
 		 Triggered whenever story progress is saved.
-
 		 @event save
 		**/
 
@@ -465,37 +448,32 @@ _.extend(Story.prototype, {
 
 	/**
 	 Tries to restore the story state from a hash value generated by saveHash().
-
 	 @method restore
-	 @param hash {String} 
+	 @param hash {String}
 	 @return {Boolean} whether the restore succeeded
 	**/
 
-	restore: function (hash)
-	{
+	restore: function(hash) {
 		/**
 		 Triggered before trying to restore from a hash.
-
 		 @event restore
 		**/
 
 		$.event.trigger('restore');
 
-		try
-		{
+		try {
 			var save = JSON.parse(LZString.decompressFromBase64(hash));
+			
 			this.state = save.state;
 			this.history = save.history;
 			this.checkpointName = save.checkpointName;
 			this.show(this.history[this.history.length - 1], true);
 		}
-		catch (e)
-		{
-			// swallow the error
+		catch (e) {
+			/* Swallow the error. */
 
 			/**
 			 Triggered if there was an error with restoring from a hash.
-
 			 @event restorefailed
 			**/
 
@@ -505,7 +483,6 @@ _.extend(Story.prototype, {
 
 		/**
 		 Triggered after completing a restore from a hash.
-
 		 @event restore:after
 		**/
 
