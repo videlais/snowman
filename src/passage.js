@@ -23,16 +23,6 @@ function render(source) {
 
 	var result = _.template(source)({ s: window.story.state, $: readyFunc });
 
-	/* Remove /* comments. */
-
-	result = result.replace(/\/\*.*\*\//g, '');
-
-	/*
-	Remove // comments. To avoid clashes with URLs, lines must start with these.
-	*/
-
-	result = result.replace(/^\/\/.*(\r\n?|\n)/g, '');
-
 	/* [\ndiv\n]{.withClass#andID} */
 
 	var divRegexp = /\[([\r\n+])([\s\S*?)([\r\n+])\]\{(.*?)\}/g;
