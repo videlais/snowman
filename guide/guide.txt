@@ -1,0 +1,6 @@
+:: Welcome
+<!--
+Are you reading this as a text file? That's OK, but it's more helpful to run
+`npm run build` to create an HTML version in the dist/ directory.
+-->
+Hi there! This is a very short guide to how Snowman works.
