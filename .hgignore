@@ -4,3 +4,4 @@ node_modules/*
 doc/*
 build/*
 dist/*
+test-coverage/*

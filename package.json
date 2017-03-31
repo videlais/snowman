@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "browserify": "^14.1.0",
+    "browserify-istanbul": "^2.0.0",
     "child-process-promise": "^2.2.1",
     "cpx": "^1.5.0",
     "cssnano-cli": "^1.0.5",
@@ -28,6 +29,7 @@
     "jasmine-core": "^2.5.2",
     "karma": "^1.5.0",
     "karma-browserify": "^5.1.1",
+    "karma-coverage": "^1.1.1",
     "karma-jasmine": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.4",
     "mkdirp": "^0.5.1",
