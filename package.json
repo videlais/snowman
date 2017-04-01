@@ -8,9 +8,9 @@
   "scripts": {
     "clean": "rimraf build/ dist/",
     "build": "node scripts/build-format.js && node scripts/build-guide.js",
-    "lint": "eslint src/**/*.js || exit 0",
+    "lint": "eslint 'src/**/*.js' || exit 0",
     "start": "onchange -iw 'src/**' 'guide/**' -- npm run build",
-    "test": "karma start"
+    "test": "karma start || exit 0"
   },
   "dependencies": {
     "jquery": "^3.2.1",

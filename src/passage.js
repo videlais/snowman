@@ -22,31 +22,37 @@ function render(source) {
 
 	var result = _.template(source)({ s: window.story.state, $: readyFunc });
 
-	/* [\ndiv\n]{.withClass#andID} */
+	/*
+	<.withClass#andId> on a line by itself opens a <div> tag. Handling div
+	markup needs to occur before spans, since the criteria is more specific.
+	*/
 
-	var divRegexp = /\[([\r\n+])([\s\S*?)([\r\n+])\]\{(.*?)\}/g;
-	var divRenderer = function(wholeMatch, startBr, source, endBr, selector) {
-		return renderEl(
-			'div',
-			startBr + source + endBr,
-			selector
-		);
-	};
+	result = result.replace(
+		/^<([-\.\#][^>]+?)>\s*$/gm,
+		function(match, selector) {
+			return renderOpenTag('div', selector);
+		}
+	);
 
-	while (divRegexp.test(result)) {
-		result = result.replace(divRegexp, divRenderer);
-	}
+	/*
+	</> on a line by itself closes a <div> tag.
+	*/
 
-	/* [span]{.withClass#andID} */
+	result = result.replace(/^<\/>\s*$/gm, '</div>');
 
-	var spanRegexp = /\[(.*?)\]\{(.*?)\}/g;
-	var spanRenderer = function(wholeMatch, source, selector) {
-		return renderEl('span', source, selector);
-	};
+	/*
+	Any remaining <.withClass#andId>s now open a <span> tag.
+	*/
 
-	while (spanRegexp.test(result)) {
-		result = result.replace(spanRegexp, spanRenderer);
-	}
+	result = result.replace(/<([-\.\#].+?)>/g, function(match, selector) {
+		return renderOpenTag('span', selector);
+	});
+
+	/*
+	And any </>s left now close a </span> stag.
+	*/
+
+	result = result.replace(/<\/>/g, '</span>');
 
 	/* [[links]] */
 
@@ -97,12 +103,11 @@ function render(source) {
 };
 
 /**
- A helper function that converts markup like [this]{#id.class} into HTML
- source for a DOM element.
- @method renderEl
+ A helper function that converts markup like #id.class into HTML
+ source for an HTML opening tag.
+ @method renderOpenTag
  @private
  @param {String} nodeName element's node name, e.g. 'div' or 'span'.
- @param {String} source inner source code of the element
  @param {String} selector a string selector, i.e. #myId.className. If the
 						  first character of this is a dash (-), then
 						  this element will also be given the attribute
@@ -110,7 +115,7 @@ function render(source) {
  @return {String} HTML source code
 **/
 
-function renderEl(nodeName, source, selector) {
+function renderOpenTag(nodeName, selector) {
 	var result = '<' + nodeName;
 
 	if (selector) {
@@ -149,13 +154,7 @@ function renderEl(nodeName, source, selector) {
 		}
 	}
 
-	result += '>';
-
-	if (source !== null) {
-		result += render(source);
-	}
-
-	return result + '</' + nodeName + '>';
+	return result + '>';
 }
 
 /**
