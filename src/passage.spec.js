@@ -126,47 +126,36 @@ describe('Passage', function() {
 		expect(Passage.render('<% print("Hello") %>')).toBe('<p>Hello</p>\n');
 	});
 
-	it('renders <.class#id>s on a line by itself as <div> tags', function() {
-		expect(Passage.render('<.class#id>\nInside\n</>'))
+	it('renders attribute shorthands', function() {
+		expect(Passage.render('<div.class#id>\nInside\n</div>'))
 			.toBe('<div id="id" class="class">\nInside\n</div>');
-
-		expect(Passage.render('<.class#id>\rInside\r</>'))
-			.toBe('<div id="id" class="class">\nInside\n</div>');
-	});
-
-	it('renders <.class#id>s in text as <span> tags', function() {
-		expect(Passage.render('<.class#id>Inside</>'))
-			.toBe('<p><span id="id" class="class">Inside</span></p>\n');
-	});
-
-	it('nests <div> shorthands properly', function() {
-		expect(Passage.render('<.class>\n<.subclass>\nInside\n</>\n</>'))
-			.toBe('<div class="class">\n<div class="subclass">\nInside\n</div>\n</div>');
-	});
-
-	it('nests <span> shorthands properly', function() {
-		expect(Passage.render('<.class><.subclass>Inside</></>'))
-			.toBe('<p><span class="class"><span class="subclass">Inside</span></span></p>\n');
-	});
-
-	it('nests <span> shorthands inside <div> shorthands properly', function () {
-		expect(Passage.render('<.class>\n<.subclass>Inside</>\n</>'))
-			.toBe('<div class="class">\n<span class="subclass">Inside</span>\n</div>');
 	});
 	
 	it('renders a shorthand starting with - as hidden', function() {
-		var $result = $(Passage.render('<-.class>Inside</>')).find('.class');
+		var $result = $(Passage.render('<span-.class>Inside</span>')).find('.class');
 
 		expect($result.length).toBe(1);
 		expect($result.css('display')).toBe('none');
-
-		/*
-		Don't need to search for the element as it will be at the very top.
-		*/
-
-		$result = $(Passage.render('<-.class>\nInside\n</>'));
-
-		expect($result.prop('nodeName')).toBe('DIV');
-		expect($result.css('display')).toBe('none');
 	});
+
+	it('renders a shorthand starting with 0 as a void href', function() {
+		var $result = $(Passage.render('<a0.class>Inside</span>')).find('.class');
+
+		expect($result.length).toBe(1);
+		expect($result.attr('href')).toBe('javascript:void(0)');
+	});
+
+	it('allows mixing - and 0 prefixes', function() {
+		var $result = $(Passage.render('<a-0.class>Inside</span>')).find('.class');
+
+		expect($result.length).toBe(1);
+		expect($result.attr('href')).toBe('javascript:void(0)');
+		expect($result.css('display')).toBe('none');
+
+		$result = $(Passage.render('<a0-.class>Inside</span>')).find('.class');
+
+		expect($result.length).toBe(1);
+		expect($result.attr('href')).toBe('javascript:void(0)');
+		expect($result.css('display')).toBe('none');
+	})
 });

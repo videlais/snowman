@@ -23,36 +23,18 @@ function render(source) {
 	var result = _.template(source)({ s: window.story.state, $: readyFunc });
 
 	/*
-	<.withClass#andId> on a line by itself opens a <div> tag. Handling div
-	markup needs to occur before spans, since the criteria is more specific.
+	Transform class, ID, hidden, and link shorthands in HTML tags.
+
+	<a-0.class#id>Hello</a> becomes
+	<a href="javascript:void(0)" style="display: none" class="class" id="id">Hello</a>
 	*/
 
 	result = result.replace(
-		/^<([-\.\#][^>]+?)>\s*$/gm,
-		function(match, selector) {
-			return renderOpenTag('div', selector);
+		/<([a-z]+)([\.#-0].+?)(?=[ >])/gi,
+		function(match, tagName, attrs) {
+			return '<' + tagName + ' ' + renderAttrs(attrs);
 		}
 	);
-
-	/*
-	</> on a line by itself closes a <div> tag.
-	*/
-
-	result = result.replace(/^<\/>\s*$/gm, '</div>');
-
-	/*
-	Any remaining <.withClass#andId>s now open a <span> tag.
-	*/
-
-	result = result.replace(/<([-\.\#].+?)>/g, function(match, selector) {
-		return renderOpenTag('span', selector);
-	});
-
-	/*
-	And any </>s left now close a </span> stag.
-	*/
-
-	result = result.replace(/<\/>/g, '</span>');
 
 	/* [[links]] */
 
@@ -104,57 +86,62 @@ function render(source) {
 
 /**
  A helper function that converts markup like #id.class into HTML
- source for an HTML opening tag.
- @method renderOpenTag
+ attributes.
+ @method renderAttrs
  @private
- @param {String} nodeName element's node name, e.g. 'div' or 'span'.
- @param {String} selector a string selector, i.e. #myId.className. If the
-						  first character of this is a dash (-), then
-						  this element will also be given the attribute
-						  'style="display:none"'.
+ @param {String} attrs an attribute shorthand, i.e. #myId.className. There are
+ 	two special leading prefixes: - (minus) will hide an element, and 0 will
+	give it a href property that does nothing.
  @return {String} HTML source code
 **/
 
-function renderOpenTag(nodeName, selector) {
-	var result = '<' + nodeName;
+function renderAttrs(attrs) {
+	var result = '';
+	var prefixIndex = 0;
 
-	if (selector) {
-		if (selector[0] == '-') {
-			result += ' style="display:none"';
-		}
+	for (var i = 0; attrs[i] === '-' || attrs[i] === '0'; i++) {
+		switch (attrs[i]) {
+			case '-':
+				result += 'style="display:none" ';
+				break;
 
-		var classes = [];
-		var id = null;
-		var classOrId = /([#\.])([^#\.]+)/g;
-		var matches = classOrId.exec(selector);
-
-		while (matches !== null) {
-			switch (matches[1]) {
-				case '#':
-					id = matches[2];
-					break;
-
-				case '.':
-					classes.push(matches[2]);
-					break;
-
-				default:
-					throw new Error("Don't know how to apply selector " + matches[0]);
-			}
-
-			matches = classOrId.exec(selector);
-		}
-
-		if (id !== null) {
-			result += ' id="' + id + '"';
-		}
-
-		if (classes.length > 0) {
-			result += ' class="' + classes.join(' ') + '"';
+			case '0':
+				result += 'href="javascript:void(0)" ';
+				break;
 		}
 	}
 
-	return result + '>';
+	var classes = [];
+	var id = null;
+	var classOrId = /([#\.])([^#\.]+)/g;
+	var matches = classOrId.exec(attrs);
+
+	while (matches !== null) {
+		switch (matches[1]) {
+			case '#':
+				id = matches[2];
+				break;
+
+			case '.':
+				classes.push(matches[2]);
+				break;
+
+			default:
+				throw new Error("Don't know how to apply selector " + matches[0]);
+		}
+
+		matches = classOrId.exec(attrs);
+	}
+
+	if (id !== null) {
+		result += 'id="' + id + '" ';
+	}
+
+	if (classes.length > 0) {
+		result += 'class="' + classes.join(' ') + '"';
+	}
+
+	return result.trim();
 }
 
 /**

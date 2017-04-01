@@ -39,6 +39,13 @@ describe('Story', function() {
 		expect(story.render(1)).toBe('<p>Hello world</p>\n');
 	});
 
+	it('sets ARIA attributes on the DOM element it renders to', function() {
+		var $el = $('<div></div>');
+
+		story.start($el);
+		expect($el.find('.passage').attr('aria-live')).toBe('polite');
+	});
+
 	it('renders a passage by ID with render()', function() {
 		window.story = { state: {} };
 		expect(story.render('Test Passage')).toBe('<p>Hello world</p>\n');

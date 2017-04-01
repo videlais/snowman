@@ -1,11 +1,11 @@
-/* give ourselves some decent defaults */
+/* Give ourselves some decent defaults. */
 
 body {
 	font: 18px "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #222;
 }
 
-#passage {
+#main {
 	max-width: 38em;
 	margin: 0 auto;
 	line-height: 145%;
