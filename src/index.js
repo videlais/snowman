@@ -9,5 +9,5 @@ var Passage = window.Passage = require('./passage');
 
 $(function() {
 	window.story = new Story($('tw-storydata'));
-	window.story.start();
+	window.story.start($('#passage'));
 });

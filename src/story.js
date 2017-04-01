@@ -12,10 +12,10 @@ var _ = require('underscore');
 var LZString = require('lz-string');
 var Passage = require('./passage');
 
-var Story = function(el) {
+var Story = function(dataEl) {
 	/* Set up basic properties. */
 
-	this.el = el;
+	this.dataEl = dataEl;
 
 	/**
 	 The name of the story.
@@ -24,7 +24,7 @@ var Story = function(el) {
 	 @readonly
 	**/
 
-	this.name = el.attr('name');
+	this.name = dataEl.attr('name');
 
 	/**
 	 The ID of the first passage to be displayed.
@@ -33,7 +33,7 @@ var Story = function(el) {
 	 @readonly
 	**/
 
-	this.startPassage = parseInt(el.attr('startnode'));
+	this.startPassage = parseInt(dataEl.attr('startnode'));
 
 	/**
 	 The program that created this story.
@@ -42,7 +42,7 @@ var Story = function(el) {
 	 @readonly
 	**/
 
-	this.creator = el.attr('creator');
+	this.creator = dataEl.attr('creator');
 
 	/**
 	 The version of the program used to create this story.
@@ -51,7 +51,7 @@ var Story = function(el) {
 	 @readOnly
 	**/
 
-	this.creatorVersion = el.attr('creator-version');
+	this.creatorVersion = dataEl.attr('creator-version');
 	
 	/* Initialize history and state. */
 
@@ -113,7 +113,7 @@ var Story = function(el) {
 
 	this.atCheckpoint = false;
 
-	// create passage objects
+	/* Create passage objects. */
 
 	/**
 	 An array of all passages, indexed by ID.
@@ -125,7 +125,7 @@ var Story = function(el) {
 
 	var p = this.passages;
 
-	el.children('tw-passagedata').each(function() {
+	dataEl.children('tw-passagedata').each(function() {
 		var $t = $(this);
 		var id = parseInt($t.attr('pid'));
 		var tags = $t.attr('tags');
@@ -145,7 +145,7 @@ var Story = function(el) {
 	**/
 
 	this.userScripts = _.map(
-		el.children('*[type="text/twine-javascript"]'),
+		dataEl.children('*[type="text/twine-javascript"]'),
 		function(el) {
 			return $(el).html();
 		}
@@ -159,7 +159,7 @@ var Story = function(el) {
 	**/
 
 	this.userStyles = _.map(
-		el.children('*[type="text/twine-css"]'),
+		dataEl.children('*[type="text/twine-css"]'),
 		function(el) {
 			return $(el).html();
 		}
@@ -170,9 +170,17 @@ _.extend(Story.prototype, {
 	/**
 	 Begins playing this story.
 	 @method start
+	 @param {DOMElement} el Element to show content in
 	**/
 
-	start: function() {
+	start: function(el) {
+		this.$el = $(el);
+
+		/* Create an element to show the passage. */
+
+		this.$passageEl = $('<div class="passage"></div>');
+		this.$el.append(this.$passageEl);
+
 		/* Set up history event handler. */
 
 		$(window).on('popstate', function(event) {
@@ -194,9 +202,9 @@ _.extend(Story.prototype, {
 
 		/* Set up passage link handler. */
 
-		$('body').on('click', 'a[data-passage]', function (e) {
+		this.$el.on('click', 'a[data-passage]', function (e) {
 			this.show(_.unescape(
-				$(e.target).closest('[data-passage]').attr('data-passage')
+				$(e.target).closest('[data-passage]').data('passage')
 			));
 		}.bind(this));
 
@@ -224,30 +232,30 @@ _.extend(Story.prototype, {
 					message += ')';
 				}
 
-				$('#passage').html(this.errorMessage.replace('%s', message));
+				this.$passageEl.html(this.errorMessage.replace('%s', message));
 			}
 		}.bind(this);
 
 		/* Activate user styles. */
 
 		_.each(this.userStyles, function(style) {
-			$('body').append('<style>' + style + '</style>');
-		});
+			this.$el.append('<style>' + style + '</style>');
+		}, this);
 
 		/* Run user scripts. */
 
 		_.each(this.userScripts, function(script) {
 			eval(script);
-		});
+		}, this);
 
 		/**
 		 Triggered when the story is finished loading, and right before
 		 the first passage is displayed. The story property of this event
 		 contains the story.
-		 @event startstory
+		 @event start.sm.story
 		**/
 
-		$.event.trigger('startstory', { story: this });
+		this.$el.trigger('start.sm.story', { story: this });
 
 		/* Try to restore based on the window hash if possible. */
 
@@ -303,10 +311,10 @@ _.extend(Story.prototype, {
 		 Triggered whenever a passage is about to be replaced onscreen with
 		 another. The passage being hidden is stored in the passage property of
 		 the event.
-		 @event hidepassage
+		 @event hide.sm.passage
 		**/
 
-		$.event.trigger('hidepassage', { passage: window.passage });
+		this.$passageEl.trigger('hide.sm.passage', { passage: window.passage });
 
 		/**
 		 Triggered whenever a passage is about to be shown onscreen. The passage
@@ -314,7 +322,7 @@ _.extend(Story.prototype, {
 		 @event showpassage
 		**/
 
-		$.event.trigger('showpassage', { passage: passage });
+		this.$passageEl.trigger('show.sm.passage', { passage: passage });
 
 		if (!noHistory) {
 			this.history.push(passage.id);
@@ -330,6 +338,8 @@ _.extend(Story.prototype, {
 						'',
 						''
 					);
+
+					$.event.trigger('added.sn.checkpoint', { name: name });
 				}
 				else {
 					window.history.replaceState(
@@ -349,25 +359,25 @@ _.extend(Story.prototype, {
 				/**
 				 Triggered whenever a checkpoint fails to be saved to browser
 				 history.
-				 @event checkpointfailed
+				 @event fail.sm.checkpoint
 				**/
 
-				$.event.trigger('checkpointfailed', { error: e });
+				this.$el.trigger('fail.sm.checkpoint', { error: e });
 			}
 		}
 
 		window.passage = passage;
 		this.atCheckpoint = false;
-		$('#passage').html(passage.render());
+		this.$passageEl.html(passage.render());
 
 		/**
 		 Triggered after a passage has been shown onscreen, and is now
-		 displayed in the div with id passage. The passage being displayed is
+		 displayed in the story's element The passage being displayed is
 		 stored in the passage property of the event.
-		 @event showpassage:after
+		 @event shown.sm.passage
 		**/
 
-		$.event.trigger('showpassage:after', { passage: passage });
+		this.$passageEl.trigger('shown.sm.passage', { passage: passage });
 	},
 
 	/**
@@ -390,9 +400,11 @@ _.extend(Story.prototype, {
 	},
 
 	/**
-	 Tries to add an entry in the browser history for the current story state.
-	 Remember, only variables set on this story's state variable are stored in
-	 the browser history.
+	 Records that the current story state should be added to the browser
+	 history. Actually saving it occurs once the user navigates to another
+	 passage -- otherwise, clicking the back button would cause the story to
+	 show the same passage twice. Remember, only variables set on this story's
+	 state variable are stored in the browser history.
 	 @method checkpoint
 	 @param name {String} checkpoint name, appears in history, optional
 	**/
@@ -410,10 +422,10 @@ _.extend(Story.prototype, {
 
 		/**
 		 Triggered whenever a checkpoint is set in the story.
-		 @event checkpoint
+		 @event add.sn.checkpoint.sn
 		**/
 
-		$.event.trigger('checkpoint', { name: name });
+		$.event.trigger('add.sn.checkpoint', { name: name });
 	},
 
 	/**
@@ -439,11 +451,11 @@ _.extend(Story.prototype, {
 	save: function() {
 		/**
 		 Triggered whenever story progress is saved.
-		 @event save
+		 @event save.sn.story
 		**/
 
-		$.event.trigger('save');
 		window.location.hash = this.saveHash();
+		this.$el.trigger('save.sn.story');
 	},
 
 	/**
@@ -459,7 +471,7 @@ _.extend(Story.prototype, {
 		 @event restore
 		**/
 
-		$.event.trigger('restore');
+		this.$el.trigger('restore.sn.story');
 
 		try {
 			var save = JSON.parse(LZString.decompressFromBase64(hash));
@@ -477,16 +489,16 @@ _.extend(Story.prototype, {
 			 @event restorefailed
 			**/
 
-			$.event.trigger('restorefailed', { error: e });
+			$.event.trigger('restorefail.sn.story', { error: e });
 			return false;
 		};
 
 		/**
 		 Triggered after completing a restore from a hash.
-		 @event restore:after
+		 @event restore.sn.story
 		**/
 
-		$.event.trigger('restore:after');
+		this.$el.trigger('restored.sn.story');
 		return true;
 	}
 });
