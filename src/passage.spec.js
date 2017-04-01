@@ -40,8 +40,15 @@ describe('Passage', function() {
 
 	it('sets source with its constructor', function() {
 		var p = new Passage(null, null, null, 'Hello world');
-		
+
 		expect(p.source).toBe('Hello world');
+	});
+
+	it('renders with render() method', function() {
+		var p = new Passage(null, null, null, 'Hello world');
+
+		expect(typeof p.render).toBe('function');
+		expect(p.render()).toBe('<p>Hello world</p>\n');
 	});
 
 	it('renders Markdown', function() {
