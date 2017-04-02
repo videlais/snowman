@@ -126,6 +126,25 @@ describe('Passage', function() {
 		expect(Passage.render('<% print("Hello") %>')).toBe('<p>Hello</p>\n');
 	});
 
+	it('passes window.story.state as a s property to EJS', function() {
+		window.story = { state: { color: 'red' }};
+		expect(Passage.render('<div><%= s.color %></div>')).toBe('<div>red</div>');
+	});
+
+	it('passes through jQuery to EJS', function() {
+		$('body').append('<div class="target">passed</div>');
+		expect(Passage.render('<div><%= $(".target").text() %></div>'))
+			.toBe('<div>passed</div>');
+	});
+
+	it('delays functions run via $ until a shown.sm.passage event is triggered', function() {
+		window.passed = false;
+
+		$('body').append(Passage.render('<% $(function() { window.passed = true; }) %>'));
+		$('body').trigger('shown.sm.passage');
+		expect(window.passed).toBe(true);
+	});
+
 	it('renders attribute shorthands', function() {
 		expect(Passage.render('<div.class#id>\nInside\n</div>'))
 			.toBe('<div id="id" class="class">\nInside\n</div>');

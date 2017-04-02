@@ -160,7 +160,7 @@ function renderAttrs(attrs) {
 function readyFunc() {
 	if (arguments.length == 1 && typeof arguments[0] == 'function') {
 		return jQuery(window).one(
-			'showpassage:after',
+			'shown.sm.passage',
 			_.bind(arguments[0], jQuery('#passage'))
 		);
 	}
