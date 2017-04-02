@@ -176,5 +176,5 @@ describe('Passage', function() {
 		expect($result.length).toBe(1);
 		expect($result.attr('href')).toBe('javascript:void(0)');
 		expect($result.css('display')).toBe('none');
-	})
+	});
 });

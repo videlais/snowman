@@ -25,8 +25,8 @@ function render(source) {
 	/*
 	Transform class, ID, hidden, and link shorthands in HTML tags.
 
-	<a-0.class#id>Hello</a> becomes
-	<a href="javascript:void(0)" style="display: none" class="class" id="id">Hello</a>
+	<a-0.class#id> becomes
+	<a href="javascript:void(0)" style="display: none" class="class" id="id">
 	*/
 
 	result = result.replace(
@@ -97,7 +97,6 @@ function render(source) {
 
 function renderAttrs(attrs) {
 	var result = '';
-	var prefixIndex = 0;
 
 	for (var i = 0; attrs[i] === '-' || attrs[i] === '0'; i++) {
 		switch (attrs[i]) {
