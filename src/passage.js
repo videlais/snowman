@@ -81,6 +81,7 @@ function render(source) {
 		}
 	});
 
+	marked.setOptions({ smartypants: true });
 	return marked(result);
 };
 

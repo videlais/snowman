@@ -56,6 +56,11 @@ describe('Passage', function() {
 			.toBe('<p>Hello <em>there</em>.</p>\n');
 	});
 
+	it('renders typographic quotes', function() {
+		expect(Passage.render('Hello "there."'))
+			.toBe('<p>Hello “there.”</p>\n');
+	});
+
 	it('renders [[basic links]]', function() {
 		var $out = $(Passage.render('[[A link]]'));
 		var $link = $out.find('a');
