@@ -30,7 +30,7 @@ function render(source) {
 	*/
 
 	result = result.replace(
-		/<([a-z]+)([\.#-0].+?)(?=[ >])/gi,
+		/<([a-z]+)([\.#\-0].*?)(?=[\s>])/gi,
 		function(match, tagName, attrs) {
 			return '<' + tagName + ' ' + renderAttrs(attrs);
 		}

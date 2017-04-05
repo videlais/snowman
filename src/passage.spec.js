@@ -163,23 +163,41 @@ describe('Passage', function() {
 	});
 
 	it('renders a shorthand starting with 0 as a void href', function() {
-		var $result = $(Passage.render('<a0.class>Inside</span>')).find('.class');
+		var $result = $(Passage.render('<a0.class>Inside</a>')).find('.class');
 
 		expect($result.length).toBe(1);
 		expect($result.attr('href')).toBe('javascript:void(0)');
 	});
 
 	it('allows mixing - and 0 prefixes', function() {
-		var $result = $(Passage.render('<a-0.class>Inside</span>')).find('.class');
+		var $result = $(Passage.render('<a-0.class>Inside</a>')).find('.class');
 
 		expect($result.length).toBe(1);
 		expect($result.attr('href')).toBe('javascript:void(0)');
 		expect($result.css('display')).toBe('none');
 
-		$result = $(Passage.render('<a0-.class>Inside</span>')).find('.class');
+		$result = $(Passage.render('<a0-.class>Inside</a>')).find('.class');
 
 		expect($result.length).toBe(1);
 		expect($result.attr('href')).toBe('javascript:void(0)');
 		expect($result.css('display')).toBe('none');
+	});
+
+	it('allows prefixes by themselves', function() {
+		expect(Passage.render('<a0>Inside</a>'))
+			.toBe('<p><a href="javascript:void(0)">Inside</a></p>\n');
+		expect(Passage.render('<a->Inside</a>'))
+			.toBe('<p><a style="display:none">Inside</a></p>\n');
+		expect(Passage.render('<li.class><a0>Inside A Tag</a></li>'))
+			.toBe('<li class="class"><a href="javascript:void(0)">Inside A Tag</a></li>');
+	});
+
+	it('renders shorthands next to each other correctly', function() {
+		var $result = $(Passage.render('<li.class><a.subclass>Inside</span></li>'));
+
+		expect($result.attr('class')).toBe('class');
+		expect($result.find('a').length).toBe(1);
+		expect($result.find('a').attr('class')).toBe('subclass');
+		expect($result.find('a').text()).toBe('Inside');
 	});
 });
