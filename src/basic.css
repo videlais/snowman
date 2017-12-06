@@ -13,18 +13,17 @@ body {
 
 a {
 	color: #222;
-	text-decoration: none;
-	border-bottom: 2px solid #bbb;
+	text-decoration-color: #bbb;
 }
 
 a:hover {
 	color: #cc8929;
-	border-color: #cc8929;
+	text-decoration-color: #cc8929;
 }
 
 a:active {
 	color: #ffb040;
-	border-color: #ffb040;
+	text-decoration-color: #cc8929;	
 }
 
 tw-storydata {
