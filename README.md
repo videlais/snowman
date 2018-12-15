@@ -1,5 +1,3 @@
-> I'm currently seeking new maintainers to take on this project. Please [contact me](https://chrisklimas.com/contact) if you're interested in taking on this responsibility. -- Chris
-
 # Snowman
 
 Snowman is a minimal Twine 2 story format designed for people who already know
