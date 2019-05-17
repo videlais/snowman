@@ -17,39 +17,4 @@ Download: <a href="snowman_looping_example.html" target="_blank">Live Example</a
 
 ## Twee Code
 
-```
-:: StoryTitle
-Looping in Snowman
-
-:: Start
-<%
-// An array of the strings "Bread", "Pan", "Book"
-s.arrayInventory = ["Bread", "Pan", "Book"];
-
-// An example using JavaScript
-for (var i = 0; i < s.arrayInventory.length; i++){
- %>You have <%= s.arrayInventory[i] %>.<br> <%
-}
-%>
-
-<hr>
-<%
-// An example using Underscore.js
-_.each(s.arrayInventory, function(item) {
-    %>You have <%= item %>.<br> <%
-});
-%>
-
-<hr>
-<%
-// An example using jQuery
-jQuery.each(s.arrayInventory, function( index, value ) {
-   %>You have <%= value %>.<br> <%
-});
-
-%>
-
-```
-
 Download: <a href="snowman_looping_twee.txt" target="_blank">Twee Code</a>
-

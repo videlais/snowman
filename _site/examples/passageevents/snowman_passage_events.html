@@ -888,35 +888,7 @@ Download: <a href="snowman_passage_events_example.html" target="_blank">Live Exa
 </section>
 
 <h2 id="twee-code">Twee Code</h2>
-<pre><code>:: StoryTitle
-Passage Events in Snowman
-
-:: UserScript[script]
-/*
-    Prepend the content of the passage &quot;Header&quot; to every passage.
-        Append the content of the passage &quot;Footer&quot; to every passage.
-*/
-$(document).on(&apos;showpassage:after&apos;, function (eventObject, passage) {
-        var headerContent = window.story.render(&quot;Header&quot;);
-        var currentContent = $(&apos;#passage&apos;).html();
-        var footerContent = window.story.render(&quot;Footer&quot;);
-
-        $(&apos;#passage&apos;).html(headerContent + currentContent + footerContent);  
-});
-
-
-:: Start
-[[Another Passage]]
-
-:: Header
-This is the header!
-
-:: Footer
-This is the footer!
-
-:: Another Passage
-[[Back to Beginning|Start]]
-</code></pre><p>Download: <a href="snowman_passage_events_twee.txt" target="_blank">Twee Code</a></p>
+<p>Download: <a href="snowman_passage_events_twee.txt" target="_blank">Twee Code</a></p>
 
                                 
                                 </section>
@@ -960,7 +932,7 @@ This is the footer!
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Passage Events","level":"4.1.11","depth":2,"next":{"title":"Player Statistics","level":"4.1.12","depth":2,"path":"examples/playerstatistics/snowman_player_statistics.md","ref":"examples/playerstatistics/snowman_player_statistics.md","articles":[]},"previous":{"title":"Looping","level":"4.1.10","depth":2,"path":"examples/looping/snowman_looping.md","ref":"examples/looping/snowman_looping.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"examples/passageevents/snowman_passage_events.md","mtime":"2019-05-17T09:00:24.761Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-17T03:07:58.761Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Passage Events","level":"4.1.11","depth":2,"next":{"title":"Player Statistics","level":"4.1.12","depth":2,"path":"examples/playerstatistics/snowman_player_statistics.md","ref":"examples/playerstatistics/snowman_player_statistics.md","articles":[]},"previous":{"title":"Looping","level":"4.1.10","depth":2,"path":"examples/looping/snowman_looping.md","ref":"examples/looping/snowman_looping.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"examples/passageevents/snowman_passage_events.md","mtime":"2019-05-17T09:53:46.586Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-17T09:56:30.515Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>

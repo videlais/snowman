@@ -16,49 +16,4 @@ Download: <a href="snowman_lockandkey_variable_example.html" target="_blank">Liv
 
 ## Twee Code
 
-```
-:: StoryTitle
-Lock and Key: Variable in Snowman
-
-:: Start
-Rooms:
-- [[Front Room]]
-- [[Back Room]]
-
-:: Front Room
-<% if (s.key) { %>
-[[Exit]]
-<% } else { %>
-*Locked Door*
-<% } %>
-
-Rooms:
-- [[Back Room]]
-
-:: Back Room
-<% if (!s.key) { %>
-Items:
-- <a href="javascript:void(0)" class="key-item">Pick up key</a>
-<% } else { %>
-There is nothing here.
-<% } %>
-
-<%
-$(function() {
-	$('.key-item').click(function() {
-		s.key = true;
-		$(this).replaceWith('<span>You have a key.</span>');
-	});
-});
-%>
-
-Rooms:
-- [[Front Room]]
-
-:: Exit
-You found the key and went through the door!
-
-
-```
-
 Download: <a href="snowman_lockandkey_variable_twee.txt" target="_blank">Twee Code</a>

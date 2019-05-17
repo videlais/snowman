@@ -15,33 +15,4 @@ Download: <a href="snowman_deletingvariables_example.html" target="_blank">Live 
 
 ## Twee Code
 
-```
-:: StoryTitle
-Snowman: Deleting Variables
-
-:: UserScript[script]
-window.story = {};
-
-window.story.example = "an example!";
-
-:: Start
-What is the value of the property "example" of the object window.story? <%= window.story.example %>
-
-[[Delete the value!]]
-
-:: Delete the value!
-<%
-
-// Delete the variable
-delete window.story.example;
-
-%>
-
-[[Test for value]]
-
-:: Test for value
-Does "example" still exist as part of the object window.story? <%= window.story.hasOwnProperty("example") %>
-
-```
-
 Download: <a href="snowman_deletingvariables_twee.txt" target="_blank">Twee Code</a>

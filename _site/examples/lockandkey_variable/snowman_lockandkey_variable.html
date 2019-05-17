@@ -887,47 +887,7 @@ Download: <a href="snowman_lockandkey_variable_example.html" target="_blank">Liv
 </section>
 
 <h2 id="twee-code">Twee Code</h2>
-<pre><code>:: StoryTitle
-Lock and Key: Variable in Snowman
-
-:: Start
-Rooms:
-- [[Front Room]]
-- [[Back Room]]
-
-:: Front Room
-&lt;% if (s.key) { %&gt;
-[[Exit]]
-&lt;% } else { %&gt;
-*Locked Door*
-&lt;% } %&gt;
-
-Rooms:
-- [[Back Room]]
-
-:: Back Room
-&lt;% if (!s.key) { %&gt;
-Items:
-- &lt;a href=&quot;javascript:void(0)&quot; class=&quot;key-item&quot;&gt;Pick up key&lt;/a&gt;
-&lt;% } else { %&gt;
-There is nothing here.
-&lt;% } %&gt;
-
-&lt;%
-$(function() {
-    $(&apos;.key-item&apos;).click(function() {
-        s.key = true;
-        $(this).replaceWith(&apos;&lt;span&gt;You have a key.&lt;/span&gt;&apos;);
-    });
-});
-%&gt;
-
-Rooms:
-- [[Front Room]]
-
-:: Exit
-You found the key and went through the door!
-</code></pre><p>Download: <a href="snowman_lockandkey_variable_twee.txt" target="_blank">Twee Code</a></p>
+<p>Download: <a href="snowman_lockandkey_variable_twee.txt" target="_blank">Twee Code</a></p>
 
                                 
                                 </section>
@@ -971,7 +931,7 @@ You found the key and went through the door!
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Lock and Key: Variable","level":"4.1.9","depth":2,"next":{"title":"Looping","level":"4.1.10","depth":2,"path":"examples/looping/snowman_looping.md","ref":"examples/looping/snowman_looping.md","articles":[]},"previous":{"title":"Limiting the range of a number","level":"4.1.8","depth":2,"path":"examples/clamping_numbers/snowman_clamping_numbers.md","ref":"examples/clamping_numbers/snowman_clamping_numbers.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"examples/lockandkey_variable/snowman_lockandkey_variable.md","mtime":"2019-05-17T09:00:03.417Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-17T03:07:58.761Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Lock and Key: Variable","level":"4.1.9","depth":2,"next":{"title":"Looping","level":"4.1.10","depth":2,"path":"examples/looping/snowman_looping.md","ref":"examples/looping/snowman_looping.md","articles":[]},"previous":{"title":"Limiting the range of a number","level":"4.1.8","depth":2,"path":"examples/clamping_numbers/snowman_clamping_numbers.md","ref":"examples/clamping_numbers/snowman_clamping_numbers.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"examples/lockandkey_variable/snowman_lockandkey_variable.md","mtime":"2019-05-17T09:53:06.890Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-17T09:56:30.515Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>

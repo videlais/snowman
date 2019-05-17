@@ -15,33 +15,4 @@ Download: <a href="snowman_timedpassages_example.html" target="_blank">Live Exam
 
 ## Twee Code
 
-```
-:: Start
-There are <span class="time-left">10</span> seconds left.
-
-<%
-$(function() {
-	var timeLeft = parseInt($('.time-left').text());
-
-	function tick() {
-		if (--timeLeft === 0) {
-			story.show('World End');
-		}
-		else {
-			$('.time-left').text(timeLeft);
-		}
-
-		_.delay(tick, 1000);
-	}
-
-	/* Start ticking. */
-
-	_.delay(tick, 1000);
-});
-%>
-
-:: World End
-The world ended.
-```
-
 Download: <a href="snowman_timedpassages_twee.txt" target="_blank">Twee Code</a>

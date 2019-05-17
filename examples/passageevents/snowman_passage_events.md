@@ -17,36 +17,4 @@ Download: <a href="snowman_passage_events_example.html" target="_blank">Live Exa
 
 ## Twee Code
 
-```
-:: StoryTitle
-Passage Events in Snowman
-
-:: UserScript[script]
-/*
-    Prepend the content of the passage "Header" to every passage.
-		Append the content of the passage "Footer" to every passage.
-*/
-$(document).on('showpassage:after', function (eventObject, passage) {
-		var headerContent = window.story.render("Header");
-		var currentContent = $('#passage').html();
-		var footerContent = window.story.render("Footer");
-
-		$('#passage').html(headerContent + currentContent + footerContent);  
-});
-
-
-:: Start
-[[Another Passage]]
-
-:: Header
-This is the header!
-
-:: Footer
-This is the footer!
-
-:: Another Passage
-[[Back to Beginning|Start]]
-
-```
-
 Download: <a href="snowman_passage_events_twee.txt" target="_blank">Twee Code</a>

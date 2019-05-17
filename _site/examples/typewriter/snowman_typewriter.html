@@ -885,56 +885,7 @@ Download: <a href="snowman_typewriter_example.html" target="_blank">Live Example
 </section>
 
 <h2 id="twee-code">Twee Code</h2>
-<pre><code>:: StoryTitle
-Typewriter Effect in Snowman
-
-:: UserScript[script]
-// Create a global setup object
-window.setup = window.setup || {};
-
-// Add a &apos;typewriter&apos; object
-setup.typewriter = {};
-
-// Save an index of the string.
-//     Start at -1 because it will be increased
-//  once (to 0) before the first chracter is shown.
-setup.typewriter.index = -1;
-
-// Allow users to set global text
-setup.typewriter.text = &quot;&quot;;
-
-// Save a reference to the setTimeout call
-setup.typewriter.timerReference = 0;
-
-// Write text character by character to an element
-//  with the ID &quot;typewriter&quot;
-setup.typewriter.write = function(){
-    // Test if the index is less than the text length
-        if(setup.typewriter.index &lt; setup.typewriter.text.length) {
-            // Update the current text character-by-character
-        $(&quot;#typewriter&quot;).html(
-            $(&quot;#typewriter&quot;).html() + setup.typewriter.text[setup.typewriter.index]
-        );
-            // Increase the index
-        setup.typewriter.index++;
-            // Save the timeout reference
-        setup.typewriter.timerReference = setTimeout(setup.typewriter.write, 1000);
-    } else {
-        // Clear out the timeout once index is greater than string length
-        clearTimeout(setup.typewriter.timerReference);
-        // Reset the index
-        setup.typewriter.index = -1;
-    }
-
-}
-
-:: Start
-&lt;div id=&quot;typewriter&quot;&gt;&lt;/div&gt;
-&lt;%
-    setup.typewriter.text = &quot;Hello, world!&quot;;
-    setup.typewriter.write();
-%&gt;
-</code></pre><p>Download: <a href="snowman_typewriter_twee.txt" target="_blank">Twee Code</a></p>
+<p>Download: <a href="snowman_typewriter_twee.txt" target="_blank">Twee Code</a></p>
 
                                 
                                 </section>
@@ -974,7 +925,7 @@ setup.typewriter.write = function(){
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Typewriter Effect","level":"4.1.17","depth":2,"previous":{"title":"Turn Counter","level":"4.1.16","depth":2,"path":"examples/turncounter/snowman_turncounter.md","ref":"examples/turncounter/snowman_turncounter.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"examples/typewriter/snowman_typewriter.md","mtime":"2019-05-17T09:01:22.706Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-17T03:07:58.761Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Typewriter Effect","level":"4.1.17","depth":2,"previous":{"title":"Turn Counter","level":"4.1.16","depth":2,"path":"examples/turncounter/snowman_turncounter.md","ref":"examples/turncounter/snowman_turncounter.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"examples/typewriter/snowman_typewriter.md","mtime":"2019-05-17T09:55:19.958Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-17T09:56:30.515Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>

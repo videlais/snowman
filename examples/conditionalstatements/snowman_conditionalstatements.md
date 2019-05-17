@@ -15,20 +15,4 @@ Download: <a href="snowman_conditionalstatements_example.html" target="_blank">L
 
 ## Twee Code
 
-```
-:: StoryTitle
-Conditional Statements in Snowman
-
-:: Start
-<%
-	s.animal = "horse";
-%>
-
-<% if(s.animal == "dog"){ %>
-It's a dog!
-<% } else { %>
-It's a horse!
-<% } %>
-```
-
 Download: <a href="snowman_conditionalstatements_twee.txt" target="_blank">Twee Code</a>

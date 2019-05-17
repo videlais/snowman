@@ -888,37 +888,7 @@ Download: <a href="snowman_looping_example.html" target="_blank">Live Example</a
 </section>
 
 <h2 id="twee-code">Twee Code</h2>
-<pre><code>:: StoryTitle
-Looping in Snowman
-
-:: Start
-&lt;%
-// An array of the strings &quot;Bread&quot;, &quot;Pan&quot;, &quot;Book&quot;
-s.arrayInventory = [&quot;Bread&quot;, &quot;Pan&quot;, &quot;Book&quot;];
-
-// An example using JavaScript
-for (var i = 0; i &lt; s.arrayInventory.length; i++){
- %&gt;You have &lt;%= s.arrayInventory[i] %&gt;.&lt;br&gt; &lt;%
-}
-%&gt;
-
-&lt;hr&gt;
-&lt;%
-// An example using Underscore.js
-_.each(s.arrayInventory, function(item) {
-    %&gt;You have &lt;%= item %&gt;.&lt;br&gt; &lt;%
-});
-%&gt;
-
-&lt;hr&gt;
-&lt;%
-// An example using jQuery
-jQuery.each(s.arrayInventory, function( index, value ) {
-   %&gt;You have &lt;%= value %&gt;.&lt;br&gt; &lt;%
-});
-
-%&gt;
-</code></pre><p>Download: <a href="snowman_looping_twee.txt" target="_blank">Twee Code</a></p>
+<p>Download: <a href="snowman_looping_twee.txt" target="_blank">Twee Code</a></p>
 
                                 
                                 </section>
@@ -962,7 +932,7 @@ jQuery.each(s.arrayInventory, function( index, value ) {
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Looping","level":"4.1.10","depth":2,"next":{"title":"Passage Events","level":"4.1.11","depth":2,"path":"examples/passageevents/snowman_passage_events.md","ref":"examples/passageevents/snowman_passage_events.md","articles":[]},"previous":{"title":"Lock and Key: Variable","level":"4.1.9","depth":2,"path":"examples/lockandkey_variable/snowman_lockandkey_variable.md","ref":"examples/lockandkey_variable/snowman_lockandkey_variable.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"examples/looping/snowman_looping.md","mtime":"2018-06-02T06:40:16.561Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-17T03:07:58.761Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Looping","level":"4.1.10","depth":2,"next":{"title":"Passage Events","level":"4.1.11","depth":2,"path":"examples/passageevents/snowman_passage_events.md","ref":"examples/passageevents/snowman_passage_events.md","articles":[]},"previous":{"title":"Lock and Key: Variable","level":"4.1.9","depth":2,"path":"examples/lockandkey_variable/snowman_lockandkey_variable.md","ref":"examples/lockandkey_variable/snowman_lockandkey_variable.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"examples/looping/snowman_looping.md","mtime":"2019-05-17T09:53:18.018Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-17T09:56:30.515Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>

@@ -877,7 +877,7 @@
                                 
                                 <h1 id="turn-counter-snowman-v130">&quot;Turn Counter&quot;: Snowman (v1.3.0)</h1>
 <h2 id="summary">Summary</h2>
-<p>&quot;Turn Counter&quot; demostrates the use of the <em>window.story.history</em> array in keeping track of &quot;turns&quot; (number of passages visited). The <em>window.story.render()</em> function is used to &quot;display&quot; or otherwise include another passage at the start of each.</p>
+<p>&quot;Turn Counter&quot; demonstrates the use of the <em>window.story.history</em> array in keeping track of &quot;turns&quot; (number of passages visited). The <em>window.story.render()</em> function is used to &quot;display&quot; or otherwise include another passage at the start of each.</p>
 <p>In this example, the <em>length</em> of the array <em>window.story.history</em> is compared to its modulo 24 value. Sometimes known as &quot;wrap around,&quot; the modulus operator (%) is used to get the remainder of the number of &quot;turns&quot; (passages) divided by 24. This creates a clock where its value shows one of a series of strings representing &quot;morning&quot;, &quot;mid-morning&quot;, &quot;afternoon&quot;, or &quot;night.&quot;</p>
 <p>By visiting other passages, the turn count is increased and the hour reaches 23 before being reset back to 0 before increasing again.</p>
 <h2 id="live-example">Live Example</h2>
@@ -889,69 +889,7 @@ Download: <a href="snowman_turncounter_example.html" target="_blank">Live Exampl
 </section>
 
 <h2 id="twee-code">Twee Code</h2>
-<pre><code>:: StoryTitle
-Turn Counter in Snowman
-
-:: Start
-&lt;%=    window.story.render(&quot;Turn Counter&quot;) %&gt; 
-Rooms:
-
-[[Back Room]]
-
-[[Left Room]]
-
-[[Right Room]]
-
-:: Back Room
-&lt;%=    window.story.render(&quot;Turn Counter&quot;) %&gt; 
-Rooms:
-
-[[Left Room]]
-
-[[Right Room]]
-
-[[Front Room|Start]]
-
-:: Left Room
-&lt;%=    window.story.render(&quot;Turn Counter&quot;) %&gt; 
-Rooms:
-
-[[Right Room]]
-
-[[Back Room]]
-
-[[Front Room|Start]]
-
-
-:: Right Room
-&lt;%=    window.story.render(&quot;Turn Counter&quot;) %&gt; 
-Rooms:
-
-[[Left Room]]
-
-[[Back Room]]
-
-[[Front Room|Start]]
-
-
-:: Turn Counter
-&lt;%
-    var hour = window.story.history.length % 24;
-
-    if(hour &lt;= 8){%&gt;
-        It is morning.
-    &lt;%}
-    if(hour &gt; 8 &amp;&amp; hour &lt;= 12){%&gt;
-        It is mid-morning.
-    &lt;%}
-    if(hour &gt; 12 &amp;&amp; hour &lt;= 16){%&gt;
-        It is afternoon.
-    &lt;%}
-    if(hour &gt; 16){%&gt;
-        It is night.
-    &lt;%}
-%&gt;
-</code></pre><p>Download: <a href="snowman_turncounter_twee.txt" target="_blank">Twee Code</a></p>
+<p>Download: <a href="snowman_turncounter_twee.txt" target="_blank">Twee Code</a></p>
 
                                 
                                 </section>
@@ -995,7 +933,7 @@ Rooms:
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Turn Counter","level":"4.1.16","depth":2,"next":{"title":"Typewriter Effect","level":"4.1.17","depth":2,"path":"examples/typewriter/snowman_typewriter.md","ref":"examples/typewriter/snowman_typewriter.md","articles":[]},"previous":{"title":"Timed Passages","level":"4.1.15","depth":2,"path":"examples/timedpassages/snowman_timedpassages.md","ref":"examples/timedpassages/snowman_timedpassages.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"examples/turncounter/snowman_turncounter.md","mtime":"2018-01-10T21:04:10.961Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-17T03:07:58.761Z"},"basePath":"../..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Turn Counter","level":"4.1.16","depth":2,"next":{"title":"Typewriter Effect","level":"4.1.17","depth":2,"path":"examples/typewriter/snowman_typewriter.md","ref":"examples/typewriter/snowman_typewriter.md","articles":[]},"previous":{"title":"Timed Passages","level":"4.1.15","depth":2,"path":"examples/timedpassages/snowman_timedpassages.md","ref":"examples/timedpassages/snowman_timedpassages.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"examples/turncounter/snowman_turncounter.md","mtime":"2019-05-17T09:55:09.290Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-05-17T09:56:30.515Z"},"basePath":"../..","book":{"language":""}});
         });
     </script>
 </div>

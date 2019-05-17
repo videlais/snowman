@@ -15,24 +15,4 @@ Download: <a href="snowman_storyandpassage_example.html" target="_blank">Live Ex
 
 ## Twee Code
 
-```
-:: StoryTitle
-Story and Passage API in Snowman
-
-:: Start
-The title of this story is "<%= window.story.name %>."
-
-<% 
-	window.setup = {};
-	window.setup.passage = window.story.passage("Storage");
-%>
-
-The name of the passage is "<%= setup.passage.name %>."
-
-The source of the passage is "<%= setup.passage.source %>"
-
-:: Storage
-This is content in the storage passage!
-
-```
 Download: <a href="snowman_storyandpassage_twee.txt" target="_blank">Twee Code</a>
