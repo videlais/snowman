@@ -2,9 +2,9 @@
   "name": "Snowman",
   "version": "2.0.0",
   "description": "A minimal story format for authors experienced with HTML, CSS, and JavaScript.",
-  "author": "Chris Klimas <chris@twinery.org>",
+  "author": "Dan Cox <dan.cox@videlais.com>",
   "license": "MIT",
-  "repository": "https://bitbucket.org/klembot/snowman-2",
+  "repository": "https://github.com/videlais/snowman/",
   "scripts": {
     "clean": "rimraf build/ dist/",
     "build": "node scripts/build-format.js && node scripts/build-guide.js",
