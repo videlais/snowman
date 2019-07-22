@@ -9,7 +9,7 @@ var twine = require('twine-utils');
 var encoding = { encoding: 'utf8' };
 
 Promise.all([
-	exec('cssnano src/*.css'),
+	exec('cssnano src/basic.css'),
 	exec('browserify -g uglifyify src/index.js', { maxBuffer: Infinity })
 ]).then(function(results) {
 	var distPath = 'dist/' + pkg.name.toLowerCase() + '-' + pkg.version;
