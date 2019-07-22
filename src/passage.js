@@ -36,9 +36,54 @@ function render(source) {
 		}
 	);
 
-	/* [[links]] */
+	/* [[links]] with extra markup {#id.class} */
 
-	result = result.replace(/\[\[(.*?)\]\]/g, function(match, target) {
+	result = result.replace(/\[\[(.*?)\]\]\{(.*?)\}/g, function(match, target, attrs) {
+		var display = target;
+
+		/* display|target format */
+
+		var barIndex = target.indexOf('|');
+
+		if (barIndex != -1) {
+			display = target.substr(0, barIndex);
+			target = target.substr(barIndex + 1);
+		}
+		else {
+			/* display->target format */
+
+			var rightArrIndex = target.indexOf('->');
+
+			if (rightArrIndex != -1) {
+				display = target.substr(0, rightArrIndex);
+				target = target.substr(rightArrIndex + 2);
+			}
+			else {
+				/* target<-display format */
+
+				var leftArrIndex = target.indexOf('<-');
+
+				if (leftArrIndex != -1) {
+					display = target.substr(leftArrIndex + 2);
+					target = target.substr(0, leftArrIndex);
+				}
+			}
+		}
+
+		/* Does this look like an external link? */
+
+		if (/^\w+:\/\/\/?\w/i.test(target)) {
+			return '<a href="' + target + '">' + display + '</a>';
+		}
+		else {
+			return '<a href="javascript:void(0)" data-passage="' +
+				_.escape(target) + '" ' + renderAttrs(attrs) +  '>' + display + '</a>';
+		}
+	});
+
+   /* Classic [[links]]  */
+
+  result = result.replace(/\[\[(.*?)\]\]/g, function(match, target) {
 		var display = target;
 
 		/* display|target format */
