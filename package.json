@@ -33,9 +33,9 @@
     "karma-jasmine": "^1.1.0",
     "karma-phantomjs-launcher": "^1.0.4",
     "karma-source-map-support": "^1.2.0",
-    "mkdirp": "^0.5.1",
     "onchange": "^3.3.0",
     "rimraf": "^2.6.1",
+    "shelljs": "^0.8.2",
     "twine-utils": "^1.2.4",
     "uglifyify": "^3.0.4",
     "watchify": "^3.9.0"

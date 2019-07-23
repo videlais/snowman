@@ -2,14 +2,26 @@ var cpx = require('cpx');
 var ejs = require('ejs');
 var exec = require('child-process-promise').exec;
 var fs = require('fs');
-var mkdirp = require('mkdirp');
 var pkg = require('../package.json');
 var twine = require('twine-utils');
+var shell = require('shelljs');
+var path = require('path');
 
 var encoding = { encoding: 'utf8' };
 
+function buildCSS() {
+	var tempPath = 'tmp';
+	var cssPath = path.join(tempPath, 'format.css');
+
+	shell.mkdir('-p', tempPath);
+	shell.rm('-f', cssPath);
+	shell.cat('src/*.css').to(cssPath);
+
+	return exec('cssnano ' + cssPath);
+}
+
 Promise.all([
-	exec('cssnano src/*.css'),
+	buildCSS(),
 	exec('browserify -g uglifyify src/index.js', { maxBuffer: Infinity })
 ]).then(function(results) {
 	var distPath = 'dist/' + pkg.name.toLowerCase() + '-' + pkg.version;
@@ -28,7 +40,7 @@ Promise.all([
 		version: pkg.version
 	};
 
-	mkdirp.sync(distPath);
+	shell.mkdir('-p', distPath);
 	fs.writeFileSync(
 		distPath + '/format.js',
 		'window.storyFormat(' + JSON.stringify(formatData) + ');'
