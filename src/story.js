@@ -52,7 +52,7 @@ var Story = function(dataEl) {
 	**/
 
 	this.creatorVersion = dataEl.attr('creator-version');
-	
+
 	/* Initialize history and state. */
 
 	/**
@@ -178,7 +178,7 @@ _.extend(Story.prototype, {
 
 		/* Create an element to show the passage. */
 
-		this.$passageEl = $('<div class="passage" aria-live="polite"></div>');
+		this.$passageEl = $('<tw-passage class="passage" aria-live="polite"></tw-passage>');
 		this.$el.append(this.$passageEl);
 
 		/* Set up history event handler. */
@@ -475,7 +475,7 @@ _.extend(Story.prototype, {
 
 		try {
 			var save = JSON.parse(LZString.decompressFromBase64(hash));
-			
+
 			this.state = save.state;
 			this.history = save.history;
 			this.checkpointName = save.checkpointName;

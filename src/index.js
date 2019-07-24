@@ -12,5 +12,5 @@ $(function() {
 	window.story = new Story($('tw-storydata'));
 	// Bind functions
 	var binding = new Window();
-	window.story.start($('#main'));
+	window.story.start($('tw-story'));
 });

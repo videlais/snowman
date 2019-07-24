@@ -16,6 +16,7 @@
     "jquery": "^3.4.1",
     "lz-string": "^1.4.4",
     "marked": "^0.7.0",
+    "normalize.css": "^8.0.1",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
