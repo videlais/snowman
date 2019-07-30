@@ -3,21 +3,17 @@ var ejs = require('ejs');
 var exec = require('child-process-promise').exec;
 var fs = require('fs');
 var pkg = require('../package.json');
-var twine = require('twine-utils');
 var shell = require('shelljs');
 var path = require('path');
 
 var encoding = { encoding: 'utf8' };
 
 function buildCSS() {
-	var tempPath = 'tmp';
-	var cssPath = path.join(tempPath, 'format.css');
 
-	shell.mkdir('-p', tempPath);
-	shell.rm('-f', cssPath);
-	shell.cat('src/*.css').to(cssPath);
+	shell.rm('-f', 'src/format.css');
+	shell.cat('src/*.css').to('src/format.css');
 
-	return exec('cssnano ' + cssPath);
+	return exec('cssnano ' + 'src/format.css');
 }
 
 Promise.all([

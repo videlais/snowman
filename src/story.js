@@ -339,7 +339,7 @@ _.extend(Story.prototype, {
 						''
 					);
 
-					$.event.trigger('added.sn.checkpoint', { name: name });
+					$.event.trigger('added.sm.checkpoint', { name: idOrName });
 				}
 				else {
 					window.history.replaceState(
