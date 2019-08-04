@@ -1,0 +1,41 @@
+{
+  "name": "Snowman",
+  "version": "2.0.0",
+  "description": "A minimal story format for authors more experienced with HTML, CSS, and JavaScript. See its <a href='https://videlais.github.io/snowman/' target='_blank' rel='noopener noreferrer'>documentation</a>.",
+  "license": "MIT",
+  "repository": "https://github.com/videlais/snowman/",
+  "scripts": {
+    "test": "nyc mocha test/index.js || exit 0",
+    "lint": "eslint lib/**/*.js  || exit 0",
+    "build": "node scripts/build-format.js"
+  },
+  "keywords": [
+    "twine",
+    "storyformat"
+  ],
+  "author": "Dan Cox",
+  "license": "MIT",
+  "dependencies": {
+    "babel-core": "^6.26.3",
+    "jquery": "^3.4.1",
+    "jsdom": "^15.1.1",
+    "lz-string": "^1.4.4",
+    "marked": "^0.7.0",
+    "underscore": "^1.9.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "babelify": "^10.0.0",
+    "browserify": "^16.3.0",
+    "chai": "^4.2.0",
+    "child-process-promise": "^2.2.1",
+    "clean-css": "^4.2.1",
+    "ejs": "^2.6.2",
+    "eslint": "^6.1.0",
+    "mocha": "^6.2.0",
+    "nyc": "^14.1.1",
+    "shelljs": "^0.8.3",
+    "uglifyify": "^5.0.1"
+  }
+}
