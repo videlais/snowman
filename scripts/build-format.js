@@ -13,6 +13,7 @@ function buildCSS() {
 	shell.cat('lib/src/*.css').to('lib/src/format.css');
   let file = fs.readFileSync('lib/src/format.css');
   const output = new CleanCSS({level: 2}).minify(file);
+	shell.rm('-f', 'lib/src/format.css');
 	return output.styles;
 
 }

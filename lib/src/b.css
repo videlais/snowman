@@ -1,15 +1,15 @@
 /* Give ourselves some decent defaults. */
 
 body {
-	font: 18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 1.5em "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #222;
-	margin-left: 2em;
+	margin: 0.5em;
 }
 
 tw-story {
-	max-width: 38em;
+	max-width: 35em;
 	margin: 0 auto;
-	line-height: 145%;
+	line-height: 150%;
 	display: block;
 }
 
@@ -19,7 +19,7 @@ tw-passage {
 
 a {
 	color: #222;
-	text-decoration-color: #bbb;
+	text-decoration-color: #ccc;
 }
 
 a:hover {
@@ -38,7 +38,7 @@ tw-storydata {
 
 /* scale font sizes for phones */
 
-@media screen and (max-device-width: 480px) {
+@media screen and (max-width: 480px) {
 	#passage {
 		font-size: 70%;
 	}

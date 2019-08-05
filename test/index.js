@@ -555,6 +555,48 @@ describe("Passage", function() {
 
     });
 
+    it("Should render in-line markdown: Emphasis", function() {
+
+      let p = new Passage();
+      expect( p.render('*Emphasis* or _Emphasis_.') ).to.equal('<em>Emphasis</em> or <em>Emphasis</em>.');
+
+    });
+
+    it("Should render in-line markdown: Strong Emphasis", function() {
+
+      let p = new Passage();
+      expect( p.render('**Strong emphasis** or __Strong emphasis__.') ).to.equal('<strong>Strong emphasis</strong> or <strong>Strong emphasis</strong>.');
+
+    });
+
+    it("Should render in-line markdown: Strikethrough", function() {
+
+      let p = new Passage();
+      expect( p.render('~~Strikethrough~~') ).to.equal('<del>Strikethrough</del>');
+
+    });
+
+    it("Should render in-line markdown: Header 5", function() {
+
+      let p = new Passage();
+      expect( p.render('##### Header 5') ).to.equal('<h5 id="header-5">Header 5</h5>\n');
+
+    });
+
+    it("Should render multi-line markdown: Ordered List", function() {
+
+      let p = new Passage();
+      expect (p.render('1. First ordered list item\n2. Another item') ).to.equal('<ol>\n<li>First ordered list item</li>\n<li>Another item</li>\n</ol>\n');
+
+    });
+
+    it("Should render multi-line links correctly", function() {
+
+      let p = new Passage();
+      expect (p.render('Rooms:\n- [[Front Room]]\n- [[Back Room]]') ).to.equal('<p>Rooms:</p>\n<ul>\n<li><a href="javascript:void(0)" data-passage="Front Room">Front Room</a></li>\n<li><a href="javascript:void(0)" data-passage="Back Room">Back Room</a></li>\n</ul>\n');
+
+    });
+
   });
 
 });
