@@ -13,7 +13,7 @@ Additional styling options are supplied through the inclusion of the [Marked](ht
 
 ## Want to learn more?
 
-The [official Snowman documentation](https://videlais.github.io/snowman/) has more details about Snowman including multiple examples of how to do various tasks.
+The [official Snowman documentation](https://videlais.github.io/snowman/2.0) has more details about Snowman including multiple examples of how to do various tasks.
 
 ## Building
 
@@ -22,4 +22,4 @@ Run `npm install` to install dependencies.
 `npm run build` will create a Twine 2-ready story format under `dist/`.
 
 To check for style errors, run `npm run lint`.
-To run unit tests, run `npm test`.
+To run unit tests, run `npm run test`.
