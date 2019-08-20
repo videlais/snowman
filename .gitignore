@@ -19,3 +19,6 @@ jspm_packages/
 
 # Build directory
 dist
+
+# MacOS X Indexing
+.DS_Store

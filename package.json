@@ -14,7 +14,6 @@
     "storyformat"
   ],
   "author": "Dan Cox",
-  "license": "MIT",
   "dependencies": {
     "babel-core": "^6.26.3",
     "jquery": "^3.4.1",
@@ -36,6 +35,6 @@
     "mocha": "^6.2.0",
     "nyc": "^14.1.1",
     "shelljs": "^0.8.3",
-    "uglifyify": "^5.0.1"
+    "uglifyify": "^5.0.2"
   }
 }
