@@ -3,14 +3,14 @@ var ejs = require('ejs');
 var exec = require('child-process-promise').exec;
 var fs = require('fs');
 var pkg = require('../package.json');
-var twine = require('twine-utils');
 var shell = require('shelljs');
 var path = require('path');
 
 var encoding = { encoding: 'utf8' };
+var tempPath = "";
 
 function buildCSS() {
-	var tempPath = 'tmp';
+	tempPath = 'tmp';
 	var cssPath = path.join(tempPath, 'format.css');
 
 	shell.mkdir('-p', tempPath);
@@ -46,4 +46,8 @@ Promise.all([
 		'window.storyFormat(' + JSON.stringify(formatData) + ');'
 	);
 	cpx.copySync('src/icon.svg', distPath);
+
+	// Clean up
+	shell.rm('-R', tempPath);
+
 });

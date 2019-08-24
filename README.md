@@ -1,7 +1,9 @@
-# Snowman 1.3
+# Snowman 1.4
 
-Snowman 1.3 is a minimal Twine 2 story format designed for people who already know
-JavaScript and CSS originally created by Chris Klimas. It is current maintained by Dan Cox.
+Snowman 1.4 is a minimal Twine 2 story format designed for people who already know
+JavaScript and CSS originally created by [Chris Klimas](https://github.com/klembot).
+
+It is currently maintained by [Dan Cox](https://github.com/videlais).
 
 ## What does Snowman offer?
 
@@ -13,10 +15,11 @@ Additional styling options are supplied through the inclusion of the [Marked](ht
 
 ## Want to learn more?
 
-The [official Snowman documentation](https://videlais.github.io/snowman/) has more details about Snowman including multiple examples of how to do various tasks.
+The [Snowman 1.X documentation](https://videlais.github.io/snowman/1/) has more details including examples of how to do various tasks.
 
-## Building
+## Scripts
 
-Run `npm install` to install dependencies. `npm run build` will create a Twine 2-ready story format under dist/, as well as a guide to Snowman features at `dist/guide.html`. `npm start` will start a file watching process that updates the story format as changes are made under `src/`.
-
-To check for style errors, run `npm run lint`. To run unit tests, run `npm test`. Please ensure that both run cleanly before submitting a pull request.
+* `npm install` to install dependencies.
+* `npm run build` will create a Twine 2-ready story format under `dist/`.
+* `npm run lint` to check for style errors.
+* `npm test` to run unit tests
