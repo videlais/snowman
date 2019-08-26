@@ -1,6 +1,6 @@
 var Story = require('./story');
 var $ = require('jquery');
-var $storyEl = $('<tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3"><tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">Hello world</tw-passagedata><tw-passagedata pid="2" name="Test Passage 2" tags="tag1 tag2">Hello world 2</tw-passagedata></tw-passagedata><script type="text/twine-javascript">window.scriptRan = true;</script><style type="text/twine-css">body { color: blue }</style></script></tw-storydata>');
+var $storyEl = $('<tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3"><tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">Hello world</tw-passagedata><tw-passagedata pid="2" name="Test Passage 2" tags="tag1 tag2">Hello world 2</tw-passagedata><tw-passagedata pid="3" name="Script" tags=""><div><script>console.log("Hello world")</script></div></tw-passagedata><script type="text/twine-javascript">window.scriptRan = true;</script><style type="text/twine-css">body { color: blue }</style></tw-storydata>');
 var story = new Story($storyEl);
 
 describe('Story', function() {
@@ -124,6 +124,11 @@ describe('Story', function() {
 		expect(eventListener.calls.mostRecent().args[1].passage).toBe(passage);
 	});
 
-	it('restores state stored in the location hash with start()');
-	it('restores a previous hash with restore()');
+	it('Should pass <script> tags', function() {
+		expect(story.render(3)).toBe('<div><script>console.log("Hello world")</script></div>');
+	});
+
+	//it('restores state stored in the location hash with start()');
+	//it('restores a previous hash with restore()');
+
 });

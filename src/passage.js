@@ -201,7 +201,7 @@ var Passage = function(id, name, tags, source) {
 	 @type String
 	**/
 
-	this.source = _.unescape(source);
+	this.source = source;
 };
 
 /**
