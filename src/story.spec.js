@@ -3,7 +3,8 @@ var $ = require('jquery');
 var $storyEl = $('<tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3"><tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">Hello world</tw-passagedata><tw-passagedata pid="2" name="Test Passage 2" tags="tag1 tag2">Hello world 2</tw-passagedata><tw-passagedata pid="3" name="Script" tags=""><div><script>console.log("Hello world")</script></div></tw-passagedata><script type="text/twine-javascript">window.scriptRan = true;</script><style type="text/twine-css">body { color: blue }</style></tw-storydata>');
 var story = new Story($storyEl);
 
-describe('Story', function() {
+describe('#Story()', function() {
+
 	it('sets the story name from the element attribute', function() {
 		expect(story.name).toBe('Test');
 	});
@@ -26,6 +27,10 @@ describe('Story', function() {
 		expect(story.userStyles[0]).toBe('body { color: blue }');
 	});
 
+});
+
+describe('#passage()', function() {
+
 	it('looks up a passage by ID with passage()', function() {
 		expect(story.passage(1).name).toBe('Test Passage');
 	});
@@ -33,6 +38,10 @@ describe('Story', function() {
 	it('looks up a passage by name with passage()', function () {
 		expect(story.passage('Test Passage').name).toBe('Test Passage');
 	});
+
+});
+
+describe('#render()', function() {
 
 	it('renders a passage by ID with render()', function() {
 		window.story = { state: {} };
@@ -51,11 +60,13 @@ describe('Story', function() {
 		expect(story.render('Test Passage')).toBe('<p>Hello world</p>\n');
 	});
 
-	it('saves the story\'s state to the location hash with save()', function() {
-		story.start($('nowhere'));
-		story.save();
-		expect(window.location.hash).not.toBe('');
+	it('Should pass <script> tags', function() {
+		expect(story.render(3)).toBe('<div><script>console.log("Hello world")</script></div>');
 	});
+
+});
+
+describe('#start()', function() {
 
 	it('runs story scripts with start()', function() {
 		window.scriptRan = false;
@@ -82,6 +93,20 @@ describe('Story', function() {
 		story.start($el);
 		expect(eventListener.calls.mostRecent().args[1].story).toBe(story);
 	});
+
+});
+
+describe('#save()', function() {
+
+	it('saves the story\'s state to the location hash with save()', function() {
+		story.start($('nowhere'));
+		story.save();
+		expect(window.location.hash).not.toBe('');
+	});
+
+});
+
+describe('#show()', function() {
 
 	it('displays content in a .passage element with show()', function() {
 		var $el = $('<div></div>');
@@ -124,11 +149,6 @@ describe('Story', function() {
 		expect(eventListener.calls.mostRecent().args[1].passage).toBe(passage);
 	});
 
-	it('Should pass <script> tags', function() {
-		expect(story.render(3)).toBe('<div><script>console.log("Hello world")</script></div>');
-	});
-
+});
 	//it('restores state stored in the location hash with start()');
 	//it('restores a previous hash with restore()');
-
-});
