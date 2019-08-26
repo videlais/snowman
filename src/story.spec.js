@@ -78,7 +78,7 @@ describe('Story', function() {
 		var $el = $('<div></div>');
 		var eventListener = jasmine.createSpy();
 
-		$el.on('start.sm.story', eventListener);
+		$(window).on('start.sm.story', eventListener);
 		story.start($el);
 		expect(eventListener.calls.mostRecent().args[1].story).toBe(story);
 	});
@@ -96,7 +96,7 @@ describe('Story', function() {
 		var eventListener = jasmine.createSpy();
 		var passage = story.passage('Test Passage');
 
-		$el.on('hide.sm.passage', eventListener);
+		$(window).on('hide.sm.passage', eventListener);
 		story.start($el);
 		story.show('Test Passage 2');
 		expect(eventListener.calls.mostRecent().args[1].passage).toBe(passage);
@@ -107,7 +107,7 @@ describe('Story', function() {
 		var eventListener = jasmine.createSpy();
 		var passage = story.passage('Test Passage 2');
 
-		$el.on('show.sm.passage', eventListener);
+		$(window).on('show.sm.passage', eventListener);
 		story.start($el);
 		story.show('Test Passage 2');
 		expect(eventListener.calls.mostRecent().args[1].passage).toBe(passage);
@@ -118,7 +118,7 @@ describe('Story', function() {
 		var eventListener = jasmine.createSpy();
 		var passage = story.passage('Test Passage 2');
 
-		$el.on('shown.sm.passage', eventListener);
+		$(window).on('shown.sm.passage', eventListener);
 		story.start($el);
 		story.show('Test Passage 2');
 		expect(eventListener.calls.mostRecent().args[1].passage).toBe(passage);

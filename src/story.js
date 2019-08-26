@@ -52,7 +52,7 @@ var Story = function(dataEl) {
 	**/
 
 	this.creatorVersion = dataEl.attr('creator-version');
-	
+
 	/* Initialize history and state. */
 
 	/**
@@ -255,7 +255,7 @@ _.extend(Story.prototype, {
 		 @event start.sm.story
 		**/
 
-		this.$el.trigger('start.sm.story', { story: this });
+		$.event.trigger('start.sm.story', { story: this });
 
 		/* Try to restore based on the window hash if possible. */
 
@@ -314,7 +314,7 @@ _.extend(Story.prototype, {
 		 @event hide.sm.passage
 		**/
 
-		this.$passageEl.trigger('hide.sm.passage', { passage: window.passage });
+		$.event.trigger('hide.sm.passage', { passage: window.passage });
 
 		/**
 		 Triggered whenever a passage is about to be shown onscreen. The passage
@@ -322,7 +322,7 @@ _.extend(Story.prototype, {
 		 @event showpassage
 		**/
 
-		this.$passageEl.trigger('show.sm.passage', { passage: passage });
+		$.event.trigger('show.sm.passage', { passage: passage });
 
 		if (!noHistory) {
 			this.history.push(passage.id);
@@ -339,7 +339,7 @@ _.extend(Story.prototype, {
 						''
 					);
 
-					$.event.trigger('added.sn.checkpoint', { name: name });
+					$.event.trigger('added.sm.checkpoint', { name: name });
 				}
 				else {
 					window.history.replaceState(
@@ -362,7 +362,7 @@ _.extend(Story.prototype, {
 				 @event fail.sm.checkpoint
 				**/
 
-				this.$el.trigger('fail.sm.checkpoint', { error: e });
+				$.event.trigger('fail.sm.checkpoint', { error: e });
 			}
 		}
 
@@ -377,7 +377,7 @@ _.extend(Story.prototype, {
 		 @event shown.sm.passage
 		**/
 
-		this.$passageEl.trigger('shown.sm.passage', { passage: passage });
+		$.event.trigger('shown.sm.passage', { passage: passage });
 	},
 
 	/**
@@ -422,10 +422,10 @@ _.extend(Story.prototype, {
 
 		/**
 		 Triggered whenever a checkpoint is set in the story.
-		 @event add.sn.checkpoint.sn
+		 @event add.sm.checkpoint
 		**/
 
-		$.event.trigger('add.sn.checkpoint', { name: name });
+		$.event.trigger('add.sm.checkpoint', { name: name });
 	},
 
 	/**
@@ -451,11 +451,11 @@ _.extend(Story.prototype, {
 	save: function() {
 		/**
 		 Triggered whenever story progress is saved.
-		 @event save.sn.story
+		 @event save.sm.story
 		**/
 
 		window.location.hash = this.saveHash();
-		this.$el.trigger('save.sn.story');
+		$.event.trigger('save.sm.story');
 	},
 
 	/**
@@ -471,11 +471,11 @@ _.extend(Story.prototype, {
 		 @event restore
 		**/
 
-		this.$el.trigger('restore.sn.story');
+		$.event.trigger('restore.sm.story');
 
 		try {
 			var save = JSON.parse(LZString.decompressFromBase64(hash));
-			
+
 			this.state = save.state;
 			this.history = save.history;
 			this.checkpointName = save.checkpointName;
@@ -489,16 +489,16 @@ _.extend(Story.prototype, {
 			 @event restorefailed
 			**/
 
-			$.event.trigger('restorefail.sn.story', { error: e });
+			$.event.trigger('restorefail.sm.story', { error: e });
 			return false;
 		};
 
 		/**
 		 Triggered after completing a restore from a hash.
-		 @event restore.sn.story
+		 @event restore.sm.story
 		**/
 
-		this.$el.trigger('restored.sn.story');
+		$.event.trigger('restored.sm.story');
 		return true;
 	}
 });
