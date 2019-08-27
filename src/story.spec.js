@@ -5,37 +5,77 @@ var story = new Story($storyEl);
 
 describe('#Story()', function() {
 
-	it('sets the story name from the element attribute', function() {
+	it('Should contain story name from the element attribute', function() {
 		expect(story.name).toBe('Test');
 	});
 
-	it('sets the story creator from the element attribute', function() {
+	it('Should contain the starting passage ID', function() {
+		expect(story.startPassage).toBe(1);
+	});
+
+	it('Should contain story creator from the element attribute', function() {
 		expect(story.creator).toBe('jasmine');
 	});
 
-	it('sets the story creator version from the element attribute', function() {
+	it('Should contain story creator version from the element attribute', function() {
 		expect(story.creatorVersion).toBe('1.2.3');
 	});
 
-	it('sets the story\'s scripts from the element', function() {
+	it('Should set the story scripts from the element', function() {
 		expect(story.userScripts.length).toBe(1);
 		expect(story.userScripts[0]).toBe('window.scriptRan = true;');
 	});
 
-	it('sets the story\'s styles from the element', function() {
+	it('Should set the story styles from the element', function() {
 		expect(story.userStyles.length).toBe(1);
 		expect(story.userStyles[0]).toBe('body { color: blue }');
+	});
+
+	it('Should have an empty history', function() {
+		expect(story.history.length).toBe(0);
+	});
+
+	it('Should have an empty state upon creation', function() {
+		expect(Object.keys(story.state).length ).toBe(0);
+	});
+
+	it('Should have an empty checkpointName', function() {
+		expect(story.checkpointName).toBe('');
+	});
+
+	it('Should have ignoreErrors set to false', function() {
+		expect(story.ignoreErrors).toBe(false);
+	});
+
+	it('Should set an initial error message', function() {
+		expect(story.errorMessage).toBe('\u26a0 %s');
+	});
+
+	it('Should set atCheckpoint to false on start', function() {
+		expect(story.atCheckpoint).toBe(false);
+	});
+
+	it('Should have correct number of passages', function() {
+		expect(story.passages.length).toBe(4);
+	});
+
+	it('Should have loaded user scripts', function() {
+		expect(story.userScripts.length).toBe(1);
+	});
+
+	it('Should have loaded user styles', function() {
+		expect(story.userStyles.length).toBe(1);
 	});
 
 });
 
 describe('#passage()', function() {
 
-	it('looks up a passage by ID with passage()', function() {
+	it('Should look up a passage by ID with passage()', function() {
 		expect(story.passage(1).name).toBe('Test Passage');
 	});
 
-	it('looks up a passage by name with passage()', function () {
+	it('Should look up a passage by name with passage()', function () {
 		expect(story.passage('Test Passage').name).toBe('Test Passage');
 	});
 
@@ -43,25 +83,25 @@ describe('#passage()', function() {
 
 describe('#render()', function() {
 
-	it('renders a passage by ID with render()', function() {
+	it('Should render a passage by ID with render()', function() {
 		window.story = { state: {} };
 		expect(story.render(1)).toBe('<p>Hello world</p>\n');
 	});
 
-	it('sets ARIA attributes on the DOM element it renders to', function() {
+	it('Should set ARIA attributes on the DOM element it renders to', function() {
 		var $el = $('<div></div>');
 
 		story.start($el);
 		expect($el.find('.passage').attr('aria-live')).toBe('polite');
 	});
 
-	it('renders a passage by ID with render()', function() {
+	it('Should render a passage by ID with render()', function() {
 		window.story = { state: {} };
 		expect(story.render('Test Passage')).toBe('<p>Hello world</p>\n');
 	});
 
 	it('Should pass <script> tags', function() {
-		expect(story.render(3)).toBe('<div><script>console.log("Hello world")</script></div>');
+		expect(story.render("Script")).toBe('<div><script>console.log("Hello world")</script></div>');
 	});
 
 });
@@ -70,7 +110,7 @@ describe('#start()', function() {
 
 	it('runs story scripts with start()', function() {
 		window.scriptRan = false;
-		story.start($('nowhere'));
+		story.start($('<div></div>'));
 		expect(window.scriptRan).toBe(true);
 	});
 
