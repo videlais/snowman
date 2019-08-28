@@ -263,7 +263,11 @@ _.extend(Story.prototype, {
 			!this.restore(window.location.hash.replace('#', ''))) {
 			/* Start the story; mark that we're at a checkpoint. */
 
-			this.show(this.startPassage);
+      // Verify there are passages before calling show()
+      if(this.passages.length > 1) {
+        this.show(this.startPassage);
+      }
+
 			this.atCheckpoint = true;
 		}
 	},

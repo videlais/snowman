@@ -108,14 +108,14 @@ describe('#render()', function() {
 
 describe('#start()', function() {
 
-	it('runs story scripts with start()', function() {
+	it('Should run story scripts with start()', function() {
 		window.scriptRan = false;
-		story.start($('<div></div>'));
+		story.start($('<div startnode="1"></div>'));
 		expect(window.scriptRan).toBe(true);
 	});
 
-	it('adds story styles with start()', function() {
-		var $el = $('<div></div>');
+	it('Should add story styles with start()', function() {
+		var $el = $('<div startnode="1"></div>');
 
 		story.start($el);
 
@@ -125,8 +125,8 @@ describe('#start()', function() {
 		expect($styles.eq(0).html()).toBe('body { color: blue }');
 	});
 
-	it('triggers a start.sm.story event with start()', function() {
-		var $el = $('<div></div>');
+	it('Should trigger a start.sm.story event with start()', function() {
+		var $el = $('<div startnode="1"></div>');
 		var eventListener = jasmine.createSpy();
 
 		$(window).on('start.sm.story', eventListener);
@@ -138,8 +138,8 @@ describe('#start()', function() {
 
 describe('#save()', function() {
 
-	it('saves the story\'s state to the location hash with save()', function() {
-		story.start($('nowhere'));
+	it('Should save the story\'s state to the location hash with save()', function() {
+		story.start($('<div startnode="1"></div>'));
 		story.save();
 		expect(window.location.hash).not.toBe('');
 	});
@@ -148,16 +148,16 @@ describe('#save()', function() {
 
 describe('#show()', function() {
 
-	it('displays content in a .passage element with show()', function() {
-		var $el = $('<div></div>');
+	it('Should display content in a .passage element with show()', function() {
+		var $el = $('<div startnode="1"></div>');
 
 		story.start($el);
 		story.show('Test Passage');
 		expect($el.find('.passage').html()).toBe('<p>Hello world</p>\n');
 	});
 
-	it('triggers a hide.sm.passage event when show() is called', function() {
-		var $el = $('<div></div>');
+	it('Should trigger a hide.sm.passage event when show() is called', function() {
+		var $el = $('<div startnode="1"></div>');
 		var eventListener = jasmine.createSpy();
 		var passage = story.passage('Test Passage');
 
@@ -167,8 +167,8 @@ describe('#show()', function() {
 		expect(eventListener.calls.mostRecent().args[1].passage).toBe(passage);
 	});
 
-	it('triggers a show.sm.passage event when show() is called', function () {
-		var $el = $('<div></div>');
+	it('Should trigger a show.sm.passage event when show() is called', function () {
+		var $el = $('<div startnode="1"></div>');
 		var eventListener = jasmine.createSpy();
 		var passage = story.passage('Test Passage 2');
 
@@ -178,8 +178,8 @@ describe('#show()', function() {
 		expect(eventListener.calls.mostRecent().args[1].passage).toBe(passage);
 	});
 
-	it('triggers a shown.sm.passage event when show() is called', function () {
-		var $el = $('<div></div>');
+	it('Should trigger a shown.sm.passage event when show() is called', function () {
+		var $el = $('<div startnode="1"></div>');
 		var eventListener = jasmine.createSpy();
 		var passage = story.passage('Test Passage 2');
 
@@ -190,5 +190,3 @@ describe('#show()', function() {
 	});
 
 });
-	//it('restores state stored in the location hash with start()');
-	//it('restores a previous hash with restore()');
