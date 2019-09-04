@@ -684,4 +684,42 @@ describe('Misc', function() {
 
   });
 
+  describe('#visited()', function() {
+
+    before(function() {
+      storyEl = $('tw-storydata');
+      story = new Story(storyEl);
+      window.story = story;
+    });
+
+    it('Should return number of passage visits for single id', function() {
+
+      window.story.history = [1,1];
+      expect(window.visited(1)).to.equal(2);
+
+    });
+
+    it('Should return number of passage visits for single name', function() {
+
+      window.story.history = [1,1];
+      expect(window.visited("Test Passage")).to.equal(2);
+
+    });
+
+    it('Should return lowest number of passage visits for multiple ids', function() {
+
+      window.story.history = [1,1,1,2,2];
+      expect(window.visited(1,2)).to.equal(2);
+
+    });
+
+    it('Should return lowest number of passage visits for multiple names', function() {
+
+      window.story.history = [1,1,1,2,2];
+      expect(window.visited("Test Passage", "Test Passage 2")).to.equal(2);
+
+    });
+
+  });
+
 });
