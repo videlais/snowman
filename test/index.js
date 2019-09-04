@@ -692,6 +692,13 @@ describe('Misc', function() {
       window.story = story;
     });
 
+    it('Should return 0 if passage does not exist', function() {
+
+      window.story.history = [1,1];
+      expect(window.visited(7)).to.equal(0);
+
+    });
+
     it('Should return number of passage visits for single id', function() {
 
       window.story.history = [1,1];
@@ -718,6 +725,33 @@ describe('Misc', function() {
       window.story.history = [1,1,1,2,2];
       expect(window.visited("Test Passage", "Test Passage 2")).to.equal(2);
 
+    });
+
+  });
+
+  describe('#renderToSelector()', function() {
+
+    before(function() {
+      storyEl = $('tw-storydata');
+      story = new Story(storyEl);
+      window.story = story;
+    });
+
+    it('Should do nothing when passed nothing', function() {
+      expect(window.renderToSelector() ).to.equal();
+    });
+
+    it('Should do nothing when selector does not exist', function() {
+      expect(window.renderToSelector(null) ).to.equal();
+    });
+
+    it('Should do nothing when selector and passage do not exist', function() {
+      expect(window.renderToSelector(null, null) ).to.equal();
+    });
+
+    it('Should overwrite HTML content with passage content', function() {
+      window.renderToSelector('[name="Test Passage 2"]', "Test Passage");
+      expect($('[name="Test Passage 2"]').html()).to.equal("Hello world");
     });
 
   });
