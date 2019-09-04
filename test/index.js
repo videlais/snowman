@@ -117,14 +117,6 @@ describe('Story', function() {
 		    expect(story.passage('Testing')).to.equal(null);
 	  });
 
-    it('Should throw error if requested passage ID is greater than number of passages', function () {
-		    expect( () => { story.passage(99) } ).to.throw();
-	  });
-
-    it('Should throw error if requested passage is not a number or string', function () {
-		    expect( () => { story.passage(true) } ).to.throw();
-	  });
-
   });
 
   describe("#start()", function() {
@@ -635,6 +627,58 @@ describe('Misc', function() {
     it('Should return one of the arguments passed to it with arrays', function() {
 
       expect(window.either("A", "B", "C", "D", ["E", "F"])).to.be.an('string');
+
+    });
+
+  });
+
+  describe('#hasVisited()', function() {
+
+    before(function() {
+      storyEl = $('tw-storydata');
+      story = new Story(storyEl);
+      window.story = story;
+    });
+
+    it('Should return true if passage id visited', function() {
+
+      window.story.history = [1];
+      expect(window.hasVisited(1)).to.equal(true);
+
+    });
+
+    it('Should return false if passage id not visited', function() {
+
+      window.story.history = [];
+      expect(window.hasVisited(1)).to.equal(false);
+
+    });
+
+    it('Should return false if passage name not visited', function() {
+
+      window.story.history = [];
+      expect(window.hasVisited("Random")).to.equal(false);
+
+    });
+
+    it('Should return true if passage name visited', function() {
+
+      window.story.history = [1];
+      expect(window.hasVisited("Test Passage")).to.equal(true);
+
+    });
+
+    it('Should return true if multiple passage names visited', function() {
+
+      window.story.history = [1,4];
+      expect(window.hasVisited("Test Passage", "Test Passage 4")).to.equal(true);
+
+    });
+
+    it('Should return false if any multiple passage names not visited', function() {
+
+      window.story.history = [1,4];
+      expect(window.hasVisited("Random", "Another")).to.equal(false);
 
     });
 
