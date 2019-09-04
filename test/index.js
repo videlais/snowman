@@ -1,4 +1,9 @@
-const expect = require("chai").expect;
+const chai = require("chai");
+const chaiAsPromised = require("chai-as-promised");
+chai.use(chaiAsPromised);
+
+const expect = chai.expect;
+
 const fs = require('fs');
 const LZString = require('lz-string');
 const exec = require('child-process-promise').exec;
@@ -752,6 +757,34 @@ describe('Misc', function() {
     it('Should overwrite HTML content with passage content', function() {
       window.renderToSelector('[name="Test Passage 2"]', "Test Passage");
       expect($('[name="Test Passage 2"]').html()).to.equal("Hello world");
+    });
+
+  });
+
+  describe('getStyles()', function() {
+
+    it('Should return Promise', function() {
+
+      expect(window.getStyles() ).to.be.a("Object");
+
+    });
+
+    it('Should fail on bad URL', function() {
+
+      expect(() => window.getStyles("./file") ).to.throw;
+
+    });
+
+    it('Should load single CSS file', function() {
+
+      expect(window.getStyles("https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css") ).to.eventually.be.fulfilled;
+
+    });
+
+    it('Should load multiple CSS files', function() {
+
+      expect(window.getStyles("https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css") ).to.eventually.be.fulfilled;
+
     });
 
   });
