@@ -1,0 +1,8 @@
+.book-summary ul.summary li a {
+  text-decoration: underline;
+}
+
+.book-summary ul.summary li span {
+  font-weight: 700;
+  font-size: 1.3em;
+}
