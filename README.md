@@ -13,7 +13,7 @@ Additional styling options are supplied through the inclusion of the [Marked](ht
 
 ## Want to learn more?
 
-The [official Snowman documentation](https://videlais.github.io/snowman/2.0) has more details about Snowman including multiple examples of how to do various tasks.
+The [official Snowman documentation](https://videlais.github.io/snowman/2/) has more details about Snowman including multiple examples of how to do various tasks.
 
 ## Building
 
