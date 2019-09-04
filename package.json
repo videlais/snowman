@@ -15,6 +15,7 @@
   ],
   "author": "Dan Cox",
   "dependencies": {
+    "@babel/polyfill": "^7.4.4",
     "babel-core": "^6.26.3",
     "jquery": "^3.4.1",
     "jsdom": "^15.1.1",
