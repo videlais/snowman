@@ -594,6 +594,18 @@ describe("Passage", function() {
 
     });
 
+    it("Should not trigger markdown code blocks", function() {
+
+      let p = new Passage();
+      window.setup = {};
+      window.setup.example = true;
+      let test = `<% if(window.setup.example) { %>
+        <div>Testing</div>
+      <% } %>`;
+      expect(p.render(test) ).to.equal('<div>Testing</div>');
+
+    });
+
   });
 
 });
