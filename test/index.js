@@ -600,9 +600,9 @@ describe("Passage", function() {
       window.setup = {};
       window.setup.example = true;
       let test = `<% if(window.setup.example) { %>
-        <div>Testing</div>
+        <div>[[Testing]]</div>
       <% } %>`;
-      expect(p.render(test) ).to.equal('<div>Testing</div>');
+      expect(p.render(test) ).to.equal(`    <div><a href="javascript:void(0)" data-passage="Testing">Testing</a></div>`);
 
     });
 
