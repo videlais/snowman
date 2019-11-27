@@ -299,7 +299,8 @@ describe('Story', function() {
     it('Should save the story\'s state to the location hash', function() {
 
       story.start($('nowhere'));
-      story.save();
+      let hash = story.saveHash();
+      story.save(hash);
       expect(window.location.hash).not.to.equal('');
 
     });
@@ -309,11 +310,16 @@ describe('Story', function() {
       let eventHappened = false;
       let $win = $(window);
       $win.on('sm.story.saved', () => { eventHappened = true; });
-      story.save();
+      let hash = story.saveHash();
+      story.save(hash);
       expect(eventHappened).to.equal(true);
 
 
     });
+
+  });
+
+  describe("#saveHash()", function() {
 
     it("Should return correct LZString", function() {
 
@@ -323,7 +329,7 @@ describe('Story', function() {
   			checkpointName: story.checkpointName
   		}));
 
-      expect( story.save() ).to.equal(testHash);
+      expect( story.saveHash() ).to.equal(testHash);
 
     });
 
@@ -349,7 +355,7 @@ describe('Story', function() {
 
     it('Should return true upon successful parsing', function() {
 
-      let hash = story.save();
+      let hash = story.saveHash();
       expect( story.restore(hash) ).to.equal(true);
 
     });
@@ -359,7 +365,7 @@ describe('Story', function() {
       let eventHappened = false;
       let $win = $(window);
       $win.on('sm.restore.success', () => { eventHappened = true; });
-      let hash = story.save();
+      let hash = story.saveHash();
       story.restore(hash);
       expect(eventHappened).to.equal(true);
 
