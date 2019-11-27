@@ -299,7 +299,8 @@ describe('Story', function() {
     it('Should save the story\'s state to the location hash', function() {
 
       story.start($('nowhere'));
-      story.save();
+      let hash = story.saveHash();
+      story.save(hash);
       expect(window.location.hash).not.to.equal('');
 
     });
@@ -309,11 +310,16 @@ describe('Story', function() {
       let eventHappened = false;
       let $win = $(window);
       $win.on('sm.story.saved', () => { eventHappened = true; });
-      story.save();
+      let hash = story.saveHash();
+      story.save(hash);
       expect(eventHappened).to.equal(true);
 
 
     });
+
+  });
+
+  describe("#saveHash()", function() {
 
     it("Should return correct LZString", function() {
 
@@ -323,7 +329,7 @@ describe('Story', function() {
   			checkpointName: story.checkpointName
   		}));
 
-      expect( story.save() ).to.equal(testHash);
+      expect( story.saveHash() ).to.equal(testHash);
 
     });
 
@@ -349,7 +355,7 @@ describe('Story', function() {
 
     it('Should return true upon successful parsing', function() {
 
-      let hash = story.save();
+      let hash = story.saveHash();
       expect( story.restore(hash) ).to.equal(true);
 
     });
@@ -359,7 +365,7 @@ describe('Story', function() {
       let eventHappened = false;
       let $win = $(window);
       $win.on('sm.restore.success', () => { eventHappened = true; });
-      let hash = story.save();
+      let hash = story.saveHash();
       story.restore(hash);
       expect(eventHappened).to.equal(true);
 
@@ -591,6 +597,18 @@ describe("Passage", function() {
 
       let p = new Passage();
       expect (p.render('Rooms:\n- [[Front Room]]\n- [[Back Room]]') ).to.equal('<p>Rooms:</p>\n<ul>\n<li><a href="javascript:void(0)" data-passage="Front Room">Front Room</a></li>\n<li><a href="javascript:void(0)" data-passage="Back Room">Back Room</a></li>\n</ul>\n');
+
+    });
+
+    it("Should not trigger markdown code blocks", function() {
+
+      let p = new Passage();
+      window.setup = {};
+      window.setup.example = true;
+      let test = `<% if(window.setup.example) { %>
+        <div>[[Testing]]</div>
+      <% } %>`;
+      expect(p.render(test) ).to.equal(`    <div><a href="javascript:void(0)" data-passage="Testing">Testing</a></div>`);
 
     });
 
