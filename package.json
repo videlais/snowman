@@ -32,7 +32,7 @@
     "chai": "^4.2.0",
     "child-process-promise": "^2.2.1",
     "clean-css": "^4.2.1",
-    "ejs": "^2.7.4",
+    "ejs": "^3.0.1",
     "eslint": "^6.8.0",
     "mocha": "^6.2.2",
     "nyc": "^14.1.1",
