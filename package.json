@@ -19,7 +19,7 @@
     "babel-core": "^6.26.3",
     "chai-as-promised": "^7.1.1",
     "jquery": "^3.4.1",
-    "jsdom": "^15.2.1",
+    "jsdom": "^16.0.0",
     "lz-string": "^1.4.4",
     "marked": "^0.8.0",
     "underscore": "^1.9.1"
