@@ -1,5 +1,5 @@
 {
-  "name": "Snowman",
+  "name": "snowman",
   "version": "2.0.3",
   "description": "A minimal story format for authors more experienced with HTML, CSS, and JavaScript. See its <a href='https://videlais.github.io/snowman/2/' target='_blank' rel='noopener noreferrer'>documentation</a>.",
   "license": "MIT",
@@ -25,13 +25,13 @@
     "underscore": "^1.9.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.8.3",
-    "@babel/preset-env": "^7.8.3",
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
     "chai": "^4.2.0",
     "child-process-promise": "^2.2.1",
-    "clean-css": "^4.2.2",
+    "clean-css": "^4.2.3",
     "ejs": "^3.0.1",
     "eslint": "^6.8.0",
     "mocha": "^7.0.1",
