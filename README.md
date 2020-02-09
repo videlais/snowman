@@ -1,3 +1,5 @@
+![Node.js CI](https://github.com/videlais/snowman/workflows/Node.js%20CI/badge.svg) [![codecov](https://codecov.io/gh/videlais/snowman/branch/master/graph/badge.svg)](https://codecov.io/gh/videlais/snowman)
+
 # Snowman 2.0.3
 
 Snowman is a minimal Twine 2 story format designed for people who already know JavaScript and CSS originally created by Chris Klimas. It is currently maintained by Dan Cox.
