@@ -7,7 +7,8 @@
   "scripts": {
     "test": "nyc mocha test/index.js",
     "lint": "eslint lib/**/*.js",
-    "build": "node scripts/build-format.js"
+    "build": "node scripts/build-format.js",
+    "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
   "keywords": [
     "twine",
