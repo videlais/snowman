@@ -5,8 +5,8 @@
   "license": "MIT",
   "repository": "https://github.com/videlais/snowman/",
   "scripts": {
-    "test": "nyc mocha test/index.js || exit 0",
-    "lint": "eslint lib/**/*.js  || exit 0",
+    "test": "nyc mocha test/index.js",
+    "lint": "eslint lib/**/*.js",
     "build": "node scripts/build-format.js"
   },
   "keywords": [
