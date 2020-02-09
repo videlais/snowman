@@ -12,17 +12,16 @@ jobs:
         node-version: [13.x]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@master
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@master
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
     - run: npm run lint
     - run: npm run test
     - run: npm run report-coverage
-    - uses: actions/checkout@master
-    - uses: codecov/codecov-action@v1
+    - uses: codecov/codecov-action@master
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         yml: ./codecov.yml
