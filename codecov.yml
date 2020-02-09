@@ -18,3 +18,7 @@ comment:
   layout: "reach,diff,flags,tree"
   behavior: default
   require_changes: no
+
+parsers:
+  javascript:
+    enable_partials: yes
