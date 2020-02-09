@@ -21,5 +21,8 @@ jobs:
     - run: npm run lint
     - run: npm run test
     - run: npm run build
+    - run: npm run report-coverage
+    - name: Codecov
+      uses: codecov/codecov-action@v1.0.5
       env:
         CI: true
