@@ -3,11 +3,14 @@
         "browser": true,
         "commonjs": true,
         "es6": true,
-        "node": true
+        "node": true,
+        "mocha": true
     },
     "extends": [
         "standard",
-        "plugin:jsdoc/recommended"
+        "plugin:jsdoc/recommended",
+        "plugin:mocha/recommended",
+        "plugin:@fintechstudios/chai-as-promised/recommended"
     ],
     "globals": {
         "Atomics": "readonly",
@@ -23,6 +26,8 @@
         "semi": ["error", "always"]
     },
     "plugins": [
-        "jsdoc"
+        "jsdoc",
+        "mocha",
+        "@fintechstudios/eslint-plugin-chai-as-promised"
     ]
 }
