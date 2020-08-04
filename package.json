@@ -29,7 +29,7 @@
     "@babel/preset-env": "^7.11.0",
     "@fintechstudios/eslint-plugin-chai-as-promised": "^3.0.2",
     "babelify": "^10.0.0",
-    "browserify": "^16.5.1",
+    "browserify": "^16.5.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "child-process-promise": "^2.2.1",
