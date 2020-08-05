@@ -25,7 +25,7 @@
     "underscore": "^1.9.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.0",
+    "@babel/core": "^7.11.1",
     "@babel/preset-env": "^7.11.0",
     "@fintechstudios/eslint-plugin-chai-as-promised": "^3.0.2",
     "babelify": "^10.0.0",
