@@ -30,7 +30,7 @@
     "@fintechstudios/eslint-plugin-chai-as-promised": "^3.0.2",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
-    "chai": "^4.2.0",
+    "chai": "^4.3.0",
     "chai-as-promised": "^7.1.1",
     "child-process-promise": "^2.2.1",
     "clean-css": "^5.0.1",
