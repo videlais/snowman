@@ -27,7 +27,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/preset-env": "^7.13.10",
-    "@fintechstudios/eslint-plugin-chai-as-promised": "^3.0.2",
+    "@fintechstudios/eslint-plugin-chai-as-promised": "^3.1.0",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
     "chai": "^4.3.4",
