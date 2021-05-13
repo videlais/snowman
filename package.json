@@ -33,7 +33,7 @@
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "child-process-promise": "^2.2.1",
-    "clean-css": "^5.0.1",
+    "clean-css": "^5.1.2",
     "ejs": "^3.1.6",
     "eslint": "^7.22.0",
     "eslint-config-standard": "^16.0.2",
