@@ -21,7 +21,7 @@
     "jquery": "^3.6.0",
     "jsdom": "^16.5.0",
     "lz-string": "^1.4.4",
-    "marked": "^2.0.3",
+    "marked": "^4.0.9",
     "underscore": "^1.13.1"
   },
   "devDependencies": {
