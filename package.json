@@ -36,7 +36,7 @@
     "clean-css": "^5.1.2",
     "ejs": "^3.1.6",
     "eslint": "^7.26.0",
-    "eslint-config-standard": "^16.0.2",
+    "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-jsdoc": "^37.6.3",
     "eslint-plugin-mocha": "^8.1.0",
