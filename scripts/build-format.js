@@ -24,7 +24,8 @@ function buildCSS () {
 
 Promise.all([
   buildCSS(),
-  exec('browserify -g uglifyify lib/index.js -t [ babelify --presets [ @babel/env ] ]', { maxBuffer: Infinity })
+  exec('browserify -g uglifyify lib/index.js -t [ babelify --presets [ @babel/env ] ]', { maxBuffer: Infinity }),
+  exec('browserify -g uglifyify lib/editor-extensions/index.js -t [ babelify --presets [ @babel/env ] ]', { maxBuffer: Infinity })
 ]).then(function (results) {
   var distPath = 'dist/' + pkg.name.toLowerCase() + '-' + pkg.version;
   var htmlTemplate = ejs.compile(fs.readFileSync('lib/src/index.ejs', encoding));
@@ -38,6 +39,7 @@ Promise.all([
       style: results[0],
       script: results[1].stdout
     }),
+    hydrate: JSON.stringify(results[2].stdout),
     url: pkg.repository,
     version: pkg.version
   };
