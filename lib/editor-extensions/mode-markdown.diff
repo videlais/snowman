@@ -1,0 +1,75 @@
+diff --git a/lib/editor-extensions/mode-markdown-original.js b/lib/editor-extensions/mode-markdown-ptemplate.js
+--- a/codemirror/mode/markdown/mode-markdown.js
++++ b/lib/editor-extensions/mode-markdown-ptemplate.js
+@@ -1,17 +1,20 @@
+ // Copyright (c) by Marijn Haverbeke and others
+ // Distributed under an MIT license: http://codemirror.net/LICENSE
+ 
++// adapted for story language of twine snowman
++
+ (function(mod) {
+   if (typeof exports == "object" && typeof module == "object") // CommonJS
+-    mod(require("../../lib/codemirror"), require("../xml/xml"), require("../meta"));
++    mod(require("codemirror"), require("codemirror/mode/xml/xml"), require("codemirror/mode/meta"));
+   else if (typeof define == "function" && define.amd) // AMD
+-    define(["../../lib/codemirror", "../xml/xml", "../meta"], mod);
++    define(["codemirror", "codemirror/mode/xml/xml", "codemirror/mode/meta"], mod);
+   else // Plain browser env
+     mod(CodeMirror);
+ })(function(CodeMirror) {
+ "use strict";
+ 
+-CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
++//CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
++var smMode = function(cmCfg, modeCfg) {
+ 
+   var htmlMode = CodeMirror.getMode(cmCfg, "text/html");
+   var htmlModeMissing = htmlMode.name == "null"
+@@ -89,7 +92,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
+   ,   atxHeaderRE = modeCfg.allowAtxHeaderWithoutSpace ? /^(#+)/ : /^(#+)(?: |$)/
+   ,   setextHeaderRE = /^ *(?:\={1,}|-{1,})\s*$/
+   ,   textRE = /^[^#!\[\]*_\\<>` "'(~:]+/
+-  ,   fencedCodeRE = /^(~~~+|```+)[ \t]*([\w+#-]*)[^\n`]*$/
++  ,   fencedCodeRE = /<%[=-]?)/ // start of snowman template // /^(~~~+|```+)[ \t]*([\w+#-]*)[^\n`]*$/
+   ,   linkDefRE = /^\s*\[[^\]]+?\]:\s*\S+(\s*\S*\s*)?$/ // naive link-definition
+   ,   punctuation = /[!\"#$%&\'()*+,\-\.\/:;<=>?@\[\\\]^_`{|}~—]/
+   ,   expandedTab = "    " // CommonMark specifies tab as 4 spaces
+@@ -218,9 +221,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
+       return getType(state);
+     } else if (firstTokenOnLine && state.indentation <= maxNonCodeIndentation && (match = stream.match(fencedCodeRE, true))) {
+       state.quote = 0;
+-      state.fencedEndRE = new RegExp(match[1] + "+ *$");
++      state.fencedEndRE = /%>/; // end of snowman template //       state.fencedEndRE = new RegExp(match[1] + "+ *$");
+       // try switching mode
+-      state.localMode = modeCfg.fencedCodeBlockHighlighting && getMode(match[2]);
++      state.localMode = modeCfg.fencedCodeBlockHighlighting && 'application/javascript' /*getMode(match[2])*/;
+       if (state.localMode) state.localState = CodeMirror.startState(state.localMode);
+       state.f = state.block = local;
+       if (modeCfg.highlightFormatting) state.formatting = "code-block";
+@@ -854,9 +857,23 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
+     fold: "markdown"
+   };
+   return mode;
+-}, "xml");
+-
+-CodeMirror.defineMIME("text/x-markdown", "markdown");
++//}, "xml");
++};
++
++//CodeMirror.defineMIME("text/x-markdown", "markdown");
++
++// export as module
++if (typeof module === 'object') {
++  module.exports = smMode;
++} else if (typeof define === 'function' && define.amd) {
++  define('mode', [], function () {
++    return smMode;
++  });
++} else {
++  // Loaded in TwineJS 2.4.
++  this.mode = smMode;
++  // TODO how to set "xml" to be used as 3rd argument of CodeMirror.defineMode()?
++}
+ 
+ });
+ // CodeMirror, copy
