@@ -5,8 +5,8 @@
   "license": "MIT",
   "repository": "https://github.com/videlais/snowman/",
   "scripts": {
-    "test": "jest test/Story.test.js",
-    "lint": "eslint lib/**/*.js test/index.js",
+    "test": "jest",
+    "lint": "eslint lib/**/*.js test/*.js --fix",
     "build": "node scripts/build-format.js",
     "report-coverage": "nyc report --reporter=text-lcov > coverage.lcov"
   },
@@ -32,6 +32,7 @@
     "eslint": "^7.26.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jest": "^26.1.5",
     "eslint-plugin-jsdoc": "^37.6.3",
     "eslint-plugin-mocha": "^8.1.0",
     "eslint-plugin-node": "^11.1.0",

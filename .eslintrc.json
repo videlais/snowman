@@ -4,20 +4,15 @@
         "commonjs": true,
         "es6": true,
         "node": true,
-        "mocha": true
+        "jest/globals": true
     },
     "extends": [
         "standard",
-        "plugin:jsdoc/recommended",
-        "plugin:mocha/recommended",
-        "plugin:@fintechstudios/chai-as-promised/recommended"
+        "plugin:jsdoc/recommended"
     ],
     "globals": {
         "Atomics": "readonly",
-        "SharedArrayBuffer": "readonly",
-        "_": "readonly",
-        "$": "readonly",
-        "marked": "readonly"
+        "SharedArrayBuffer": "readonly"
     },
     "parserOptions": {
         "ecmaVersion": 2018
@@ -27,7 +22,6 @@
     },
     "plugins": [
         "jsdoc",
-        "mocha",
-        "@fintechstudios/eslint-plugin-chai-as-promised"
+        "jest"
     ]
 }
