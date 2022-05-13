@@ -34,7 +34,7 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-jest": "^26.1.5",
     "eslint-plugin-jsdoc": "^37.6.3",
-    "eslint-plugin-mocha": "^8.1.0",
+    "eslint-plugin-mocha": "^10.0.4",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.3.0",
     "eslint-plugin-standard": "^5.0.0",
