@@ -30,7 +30,7 @@
     "eslint": "^7.26.0",
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-jest": "^26.1.5",
-    "eslint-plugin-jsdoc": "^37.6.3",
+    "eslint-plugin-jsdoc": "^39.3.2",
     "jest": "^28.1.0",
     "jest-environment-jsdom": "^28.1.0",
     "shelljs": "^0.8.5",
