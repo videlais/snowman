@@ -2,5 +2,6 @@
     "name": "Snowman",
     "version": "2.2.0",
     "description": "A minimal story format. See its <a href='https://videlais.github.io/snowman/2/' target='_blank' rel='noopener noreferrer'>documentation</a>.",
-    "proofing": false  
+    "proofing": false,
+    "setup": ""
 }

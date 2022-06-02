@@ -5,7 +5,8 @@ const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 module.exports = {
     mode: "production",
     entry: {
-        format: './src/index.js'
+        format: './src/index.js',
+        editor: './src/editor/index.js'
     },
     output: {
         path: path.resolve(__dirname, './build'),
