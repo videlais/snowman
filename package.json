@@ -21,7 +21,7 @@
   "devDependencies": {
     "@babel/core": "^7.16.12",
     "@babel/polyfill": "^7.12.1",
-    "@babel/preset-env": "^7.14.2",
+    "@babel/preset-env": "^7.18.2",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
     "clean-css": "^5.1.2",
