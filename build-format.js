@@ -1,0 +1,12 @@
+const fs = require('fs');
+const ejs = require('ejs');
+const storyFile = fs.readFileSync("story.json", {'encoding': 'utf8'});
+const story = JSON.parse(storyFile);
+const srcIndex = fs.readFileSync("src/story.ejs", {'encoding': 'utf8'});
+const formatSource = fs.readFileSync("build/format.bundle.js", {'encoding': 'utf8'});
+const storyCSS = fs.readFileSync("build/format.css", {'encoding': 'utf8'});
+const indexSource = ejs.render(srcIndex, {format: formatSource, story_css: storyCSS});
+fs.writeFileSync('build/index.html', indexSource);
+story.source = indexSource;
+let format = "window.storyFormat(" + JSON.stringify(story) + ");";
+fs.writeFileSync(`dist/${story.name}-${story.version}-format.js`, format);

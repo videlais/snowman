@@ -1,3 +1,7 @@
+// Require normalize.css
+import 'normalize.css';
+// Require local CSS
+import './story.css';
 // Require jQuery
 const $ = require('jquery');
 // Require Story
