@@ -43,7 +43,7 @@ class Markdown {
     ];
 
     rules.forEach(([rule, template]) => {
-      text = text.replace(rule, template);
+      text = text.replaceAll(rule, template);
     });
 
     return text;
@@ -60,7 +60,7 @@ class Markdown {
     ];
 
     unescapeSequences.forEach(([rule, template]) => {
-      text = text.replace(rule, template);
+      text = text.replaceAll(rule, template);
     });
 
     return text;

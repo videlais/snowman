@@ -12629,13 +12629,11 @@ class Markdown {
       [
         /!\[([^\]]+)\]\(([^)]+)\s"([^")]+)"\)/g,
         '<img src="$2" alt="$1" title="$3" />'
-      ],
-      // Break Rule
-      [/[\r\n\n]/g, '<br>']
+      ]
     ];
 
     rules.forEach(([rule, template]) => {
-      text = text.replace(rule, template);
+      text = text.replaceAll(rule, template);
     });
 
     return text;
@@ -12652,7 +12650,7 @@ class Markdown {
     ];
 
     unescapeSequences.forEach(([rule, template]) => {
-      text = text.replace(rule, template);
+      text = text.replaceAll(rule, template);
     });
 
     return text;
