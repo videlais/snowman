@@ -5,8 +5,8 @@
 const $ = require('jquery');
 const ejs = require('ejs');
 const Passage = require('./Passage.js');
-const History = require('./History.js');
 const Markdown = require('./Markdown.js');
+const State = require('./State.js');
 
 /**
  * An object representing the entire story. After the document has completed
@@ -52,11 +52,11 @@ class Story {
     this.creatorVersion = this.storyDataElement.attr('creator-version');
 
     /**
-     * @property {History} history - Instance of History
-     * @type {History}
+     * @property {string} state - Internal state for the story
+     * @type {State}
      * @readonly
      */
-    this.history = new History();
+    this.state = new State();
 
     /**
      * An array of all passages, indexed by ID.
@@ -127,10 +127,11 @@ class Story {
     this.storyElement = $('<tw-story />');
 
     // Catch all navigation events
-    this.storyElement.on('click', 'a[data-passage]', (e) => {
-      this.show(Markdown.unescape(
-        $(e.target).closest('[data-passage]').data('passage')
-      ));
+    this.storyElement.on('click', 'tw-link[data-passage]', (e) => {
+      // Pull destination passage name from the attribute.
+      const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
+      // Show the passage by name.
+      this.show(passageName);
     });
 
     /**
@@ -169,19 +170,11 @@ class Story {
     // Run user scripts.
     this.userScripts.forEach((script) => {
       try {
-        ejs.render(`<%${script}%>`, { s: window.story.state, $: $ });
+        ejs.render(`<%${script}%>`, { s: window.s, $: $ });
       } catch (error) {
         throw new Error(`User script error: ${error}`);
       }
     });
-
-    /**
-     * Triggered when the story is finished loading, and right before
-     * the first passage is displayed.
-     *
-     * @event sm.story.started
-     */
-    $.event.trigger('sm.story.started');
 
     // Retrieve Passage object matching starting passage id.
     const passage = this.getPassageById(this.startPassage);
@@ -269,34 +262,26 @@ class Story {
    *
    * @function show
    * @param {string} name - name of the passage
-   * @param {boolean} recordHistory - If true, records new passage in history
    */
-  show (name, recordHistory = true) {
+  show (name) {
     const passage = this.getPassageByName(name);
 
     if (passage === null) {
       throw new Error(`There is no passage with the name ${name}`);
     }
 
+    /**
+     * Triggered when navigation happened.
+     *
+     * @event navigation
+     */
+     this.state.events.emit('navigation', name);
+
     // Set the global passage to the one about to be shown.
     window.passage = passage;
 
     // Render and replace content of passageElement.
     this.passageElement.html(passage.render());
-
-    // Should we record the history?
-    if (recordHistory === true) {
-      // Add the passage's name to the history.
-      this.history.push(passage.name);
-    }
-
-    /**
-     * Triggered when a passage is now showing. The passage
-     * showing is stored in the passage property of the event.
-     *
-     * @event sm.passage.showing
-     */
-    $.event.trigger('sm.passage.showing', [passage]);
   }
 
   /**
@@ -346,12 +331,12 @@ class Story {
   }
 
   /**
-   * (Async) Applies external CSS files
+   * Applies external CSS files
    *
-   * @function getStyles
+   * @function applyExternalStyles
    * @param {Array} files - Array of one or more external files to load
    */
-  getStyles (files) {
+   applyExternalStyles (files) {
     if (Array.isArray(files)) {
       files.forEach(location => {
         $('<link/>', {

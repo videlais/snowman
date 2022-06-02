@@ -1,5 +1,5 @@
 const $ = require('jquery');
-const Story = require('../lib/Story.js');
+const Story = require('../src/Story.js');
 
 describe('Story', () => {
   beforeEach(() => {
@@ -16,8 +16,6 @@ describe('Story', () => {
     window.$ = $;
     // Create new Story instance
     window.story = new Story();
-    // Create story state
-    window.story.state = window.story.history.state;
   });
 
   describe('constructor()', () => {
@@ -100,7 +98,7 @@ describe('Story', () => {
 
   describe('render()', () => {
     it('Should return rendered content of named passage', () => {
-      expect(window.story.render('Test Passage 5')).toBe('<a role="link" data-passage="Test Passage">Test Passage</a>');
+      expect(window.story.render('Test Passage 5')).toBe('<tw-link role="link" data-passage="Test Passage">Test Passage</a>');
     });
 
     it('Should throw error if named passage does not exist', () => {
@@ -132,15 +130,6 @@ describe('Story', () => {
       expect(window.scriptRan).toBe(true);
     });
 
-    it('Should trigger sm.story.started', () => {
-      let tempStory = false;
-      $(window).on('sm.story.started', () => {
-        tempStory = true;
-      });
-      window.story.start();
-      expect(tempStory).toBe(true);
-    });
-
     it('Should throw error if any user scripts cause errors', () => {
       window.story.userScripts[0] = '!=;';
       expect(() => window.story.start()).toThrow();
@@ -150,6 +139,13 @@ describe('Story', () => {
       window.story.startPassage = 10;
       expect(() => window.story.start()).toThrow();
     });
+
+    it('Should listen for navigation (click) events', () => {
+      window.story.startPassage = 5;
+      window.story.start();
+      $('tw-link[data-passage]').trigger('click');
+      expect($('tw-story').html().includes('Hello world')).toBe(true);
+    });
   });
 
   describe('show()', () => {
@@ -158,30 +154,19 @@ describe('Story', () => {
       expect($('tw-passage').html()).toBe('Hello world');
     });
 
-    it('Should trigger sm.passage.showing', () => {
-      let result = false;
-
-      $(window).on('sm.passage.showing', (event, passage) => {
-        result = passage.name;
-      });
-
-      window.story.show('Test Passage');
-      expect(result).toBe('Test Passage');
-    });
-
     it('Should throw error if passage does not exist', () => {
       expect(() => window.story.show('Nope')).toThrow();
     });
   });
 
-  describe('getStyles()', () => {
+  describe('applyExternalStyles()', () => {
     it('Should append a remote CSS file', () => {
-      window.story.getStyles(['https://twinery.org/homepage/css/homepage.css', 'https://twinery.org/homepage/css/homepage-responsive.css']);
+      window.story.applyExternalStyles(['https://twinery.org/homepage/css/homepage.css', 'https://twinery.org/homepage/css/homepage-responsive.css']);
       expect($('link').length).toBe(2);
     });
 
     it('Should throw error if argument is not array', () => {
-      expect(() => window.story.getStyles(2)).toThrow();
+      expect(() => window.story.applyExternalStyles(2)).toThrow();
     });
   });
 });

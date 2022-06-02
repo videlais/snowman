@@ -1,4 +1,4 @@
-const Passage = require('../lib/Passage.js');
+const Passage = require('../src/Passage.js');
 
 describe('constructor()', () => {
   it('Should contain default values when initialized with no arguments', () => {
@@ -24,7 +24,7 @@ describe('render()', () => {
     const p = new Passage(1, 'Default', [], '<% if(window.setup.example) { %><div>[[Testing]]</div><% } %>');
     window.setup = {};
     window.setup.example = true;
-    expect(p.render()).toBe('<div><a role="link" data-passage="Testing">Testing</a></div>');
+    expect(p.render()).toBe('<div><tw-link role="link" data-passage="Testing">Testing</a></div>');
   });
 
   it('Should throw error if source rendering fails from EJS', () => {

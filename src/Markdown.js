@@ -2,13 +2,13 @@ class Markdown {
   static parse (text) {
     const rules = [
       // [[rename|destination]]
-      [/\[\[(.*?)\|(.*?)\]\]/g, '<a role="link" data-passage="$2">$1</a>'],
+      [/\[\[(.*?)\|(.*?)\]\]/g, '<tw-link role="link" data-passage="$2">$1</a>'],
       // [[rename->dest]]
-      [/\[\[(.*?)->(.*?)\]\]/g, '<a role="link" data-passage="$2">$1</a>'],
+      [/\[\[(.*?)->(.*?)\]\]/g, '<tw-link role="link" data-passage="$2">$1</a>'],
       // [[dest<-rename]]
-      [/\[\[(.*?)<-(.*?)\]\]/g, '<a role="link" data-passage="$1">$2</a>'],
+      [/\[\[(.*?)<-(.*?)\]\]/g, '<tw-link role="link" data-passage="$1">$2</a>'],
       // [[destination]]
-      [/\[\[(.*?)\]\]/g, '<a role="link" data-passage="$1">$1</a>'],
+      [/\[\[(.*?)\]\]/g, '<tw-link role="link" data-passage="$1">$1</a>'],
       // ##### Heading level 5
       [/#{5}\s?([^\n]+)/g, '<h5>$1</h5>'],
       // #### Heading level 4
