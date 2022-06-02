@@ -12,7 +12,10 @@ module.exports = {
         filename: "[name].bundle.js"
     },
     resolve: {
-        fallback: { "path": false, "fs": false }
+      fallback: { 
+        "path": false,
+        "fs": false
+      }
     },
     module: {
         rules: [

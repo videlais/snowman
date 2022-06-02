@@ -275,7 +275,7 @@ class Story {
      *
      * @event navigation
      */
-    this.state.events.emit('navigation', name);
+     this.state.events.emit('navigation', name);
 
     // Set the global passage to the one about to be shown.
     window.passage = passage;

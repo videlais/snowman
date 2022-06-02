@@ -17,9 +17,10 @@ tw-passage {
   display: block;
 }
 
-a {
+tw-link, tw-icon, a {
 	color: #222;
 	text-decoration-color: #ccc;
+	cursor: pointer;
 }
 
 a:hover {

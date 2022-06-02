@@ -13174,7 +13174,7 @@ class Story {
      *
      * @event navigation
      */
-    this.state.events.emit('navigation', name);
+     this.state.events.emit('navigation', name);
 
     // Set the global passage to the one about to be shown.
     window.passage = passage;
@@ -13322,8 +13322,6 @@ window.$ = $;
 window.passage = null;
 // Create new Story instance
 window.story = new Story();
-// Create story state
-window.story.state = {};
 // Start story
 window.story.start();
 

@@ -12,7 +12,5 @@ window.$ = $;
 window.passage = null;
 // Create new Story instance
 window.story = new Story();
-// Create story state
-window.story.state = {};
 // Start story
 window.story.start();
