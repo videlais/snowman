@@ -51,12 +51,14 @@ class Story {
      */
     this.creatorVersion = this.storyDataElement.attr('creator-version');
 
-    /**
-     * @property {string} state - Internal state for the story
-     * @type {State}
-     * @readonly
+    // Create internal events and storehouse for state.
+    State.createStore();
+
+     /**
+     * @property {string} state - State proxy; an object with mutation tracking
+     * @type {object}
      */
-    this.state = new State();
+    this.state = State.proxy;
 
     /**
      * An array of all passages, indexed by ID.
@@ -124,7 +126,7 @@ class Story {
      * @type {Element}
      * @readonly
      */
-    this.storyElement = $('<tw-story />');
+    this.storyElement = $('tw-story');
 
     // Catch all navigation events
     this.storyElement.on('click', 'tw-link[data-passage]', (e) => {
@@ -140,13 +142,7 @@ class Story {
      * @property {Element} passageElement - Passage element
      * @type {Element}
      */
-    this.passageElement = $('<tw-passage class="passage" aria-live="polite" />');
-
-    // Append the passage element to the story element
-    this.storyElement.append(this.passageElement);
-
-    // Append the story element to the body
-    $(document.body).append(this.storyElement);
+    this.passageElement = $('tw-passage');
   }
 
   /**
@@ -275,7 +271,7 @@ class Story {
      *
      * @event navigation
      */
-     this.state.events.emit('navigation', name);
+     State.events.emit('navigation', name);
 
     // Set the global passage to the one about to be shown.
     window.passage = passage;

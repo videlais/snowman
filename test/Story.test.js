@@ -3,15 +3,23 @@ const Story = require('../src/Story.js');
 
 describe('Story', () => {
   beforeEach(() => {
-    $(document.body).html(`<tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3">
-    <tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">Hello world</tw-passagedata>
-    <tw-passagedata pid="2" name="Test Passage 2" tags="tag2">Hello world 2</tw-passagedata>
-    <tw-passagedata pid="3" name="Test Passage 3" tags=""><div><p><span>Test</span><p></div></tw-passagedata>
-    <tw-passagedata pid="4" name="Test Passage 4" tags=""><% print(; %></tw-passagedata>
-    <tw-passagedata pid="5" name="Test Passage 5" tags="">[[Test Passage]]</tw-passagedata>
-    <script type="text/twine-javascript">window.scriptRan = true;</script>
-    <style type="text/twine-css">body { color: blue }</style>
-   </tw-storydata>`);
+    $(document.body).html(`
+    <tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3">
+      <tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">Hello world</tw-passagedata>
+      <tw-passagedata pid="2" name="Test Passage 2" tags="tag2">Hello world 2</tw-passagedata>
+      <tw-passagedata pid="3" name="Test Passage 3" tags=""><div><p><span>Test</span><p></div></tw-passagedata>
+      <tw-passagedata pid="4" name="Test Passage 4" tags=""><% print(; %></tw-passagedata>
+      <tw-passagedata pid="5" name="Test Passage 5" tags="">[[Test Passage]]</tw-passagedata>
+      <script type="text/twine-javascript">window.scriptRan = true;</script>
+      <style type="text/twine-css">body { color: blue }</style>
+   </tw-storydata>
+   <tw-story>
+			<tw-passage class="passage" aria-live="polite">
+				<tw-sidebar>
+					<tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+				</tw-sidebar>
+			</tw-passage>
+		</tw-story>`);
     // Setup global jQuery
     window.$ = $;
     // Create new Story instance
