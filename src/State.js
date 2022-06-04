@@ -1,12 +1,15 @@
 const EventEmitter = require('events');
 
 class State {
-  constructor () {
+  static createStore () {
     // Public event emitter
     this.events = new EventEmitter();
 
     // Internal array of visited passages
     this.history = [];
+
+    // Internal position of history stack
+    this.position = 0;
 
     // Internal store
     this.store = {};
@@ -25,18 +28,20 @@ class State {
     };
 
     // Create a global 's' that acts like an object
-    window.s = new Proxy(this.store, handler);
+    this.proxy = new Proxy(this.store, handler);
 
     // Listen for all navigation events.
     // These happen when a user clicks on a link
     this.events.on('navigation', dest => {
       this.history.push(dest);
+      this.position++;
     });
 
-    // Listen for all navigation events.
-    // These happen when a user clicks on a link
-    this.events.on('showing', dest => {
-      this.history.push(dest);
+    this.events.on("undo", () => {
+      if(this.position > 0) {
+        this.position--;
+      }
+      window.story.show(this.history[this.position]);
     });
   }
 
@@ -45,7 +50,7 @@ class State {
    *
    * @function clear
    */
-  clear () {
+  static clear () {
     localStorage.clear();
   }
 
@@ -56,7 +61,7 @@ class State {
    * @param {string} save - Name of save string
    * @returns {boolean} - True if save string exists (is not null)
    */
-  exists (save = 'default') {
+  static exists (save = 'default') {
     let history = null;
     let store = null;
     let result = true;
@@ -78,7 +83,7 @@ class State {
    * @param {string} save - Optional name of save string
    * @returns {boolean} - Returns true if save was successful
    */
-  save (save = 'default') {
+  static save (save = 'default') {
     let result = true;
 
     try {
@@ -97,7 +102,7 @@ class State {
    * @param {string} save - Optional name of save string
    * @returns {boolean} - Returns true if restore was successful
    */
-  restore (save = 'default') {
+  static restore (save = 'default') {
     let history = null;
     let store = null;
     let result = true;
@@ -127,7 +132,7 @@ class State {
    * @param {string | Array} passageName - Name(s) of passage to check
    * @returns {boolean} - True if passage(s) in history; false otherwise
    */
-  hasVisited (passageName) {
+  static hasVisited (passageName) {
     let result = false;
 
     if (Array.isArray(passageName)) {
