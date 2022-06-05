@@ -49,19 +49,18 @@ class Passage {
    */
 
   render () {
-    // Set a default value
     let result = '';
 
     // Try to render the template code, if any.
     try {
       // Send in s and $.
-      result = Ejs.render(this.source, { s: window.story.state, $: $ });
+      result = ejs.render(this.source, { s: window.story.state, $: $}, {outputFunctionName: "print"});
     } catch (e) {
       // Throw error is rendering fails.
-      throw new Error(`Error compiling template code in passage "${this.name}": ${e}`);
+      throw new Error(`Error compiling template code in passage: ${e}`);
     }
 
-    // Return rendered and parsed source.
+    // Return parsed source.
     return Markdown.parse(result);
   }
 }

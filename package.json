@@ -8,7 +8,8 @@
     "test": "jest --coverage",
     "lint": "eslint src/**/*.js test/*.js --fix",
     "build": "webpack --config webpack.config.js",
-    "package": "npm run build && node build-format.js"
+    "package": "npm run build && node build-format.js",
+    "visual-test": "npm run build && node visual_testing/build-test.js && extwee -s visual_testing/snowman-2.2.0-format.js -i visual_testing/index.twee -c -o visual_testing/index.html && open-cli visual_testing/index.html"
   },
   "keywords": [
     "twine",
@@ -27,9 +28,12 @@
     "eslint-config-standard": "^16.0.2",
     "eslint-plugin-jest": "^26.4.6",
     "eslint-plugin-jsdoc": "^37.6.3",
+    "extwee": "^2.0.3",
     "jest": "^28.1.0",
     "jest-environment-jsdom": "^28.1.0",
     "mini-css-extract-plugin": "^2.6.0",
+    "open": "^8.4.0",
+    "open-cli": "^7.0.1",
     "shelljs": "^0.8.5",
     "style-loader": "^3.3.1",
     "webpack": "^5.73.0",

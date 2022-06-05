@@ -14,12 +14,10 @@ describe('Story', () => {
       <style type="text/twine-css">body { color: blue }</style>
    </tw-storydata>
    <tw-story>
-			<tw-passage class="passage" aria-live="polite">
-				<tw-sidebar>
-					<tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
-				</tw-sidebar>
-			</tw-passage>
-		</tw-story>`);
+   <tw-sidebar>
+      <tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+    </tw-sidebar>
+    <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
     // Setup global jQuery
     window.$ = $;
     // Create new Story instance
@@ -128,8 +126,8 @@ describe('Story', () => {
   describe('start()', () => {
     it('Should add story styles with start()', () => {
       window.story.start();
-      const storyStyles = $('tw-story > style');
-      expect(storyStyles.length).toBe(1);
+      const storyStyles = $('style');
+      expect(storyStyles.length).toBe(2);
     });
 
     it('Should run story scripts with start()', () => {

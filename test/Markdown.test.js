@@ -54,10 +54,6 @@ describe('Markdown', () => {
       expect(Markdown.parse('\n+text\n+text')).toBe('<ul><li>text</li></ul><ul><li>text</li></ul>');
     });
 
-    it('Should produce in-line code', () => {
-      expect(Markdown.parse('`code`')).toBe('<code>code</code>');
-    });
-
     it('Should produce <hr> - hyphen', () => {
       expect(Markdown.parse('---')).toBe('<hr>');
     });

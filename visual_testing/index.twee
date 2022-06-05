@@ -1,0 +1,20 @@
+:: StoryData
+{
+    "ifid": "51989D33-C87D-4C94-A365-03368F828957",
+    "format": "Snowman",
+    "format-version": "2.2.0"
+}
+
+:: Start
+<% s.key = false; %>
+[[Another]]
+
+:: Another
+<p>Something</p>
+<%
+    let test = "Hi";
+    print(`String interpolation? ${test}`);
+%>
+
+:: StoryTitle
+Testing

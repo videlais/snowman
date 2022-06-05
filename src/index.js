@@ -6,6 +6,10 @@ import './story.css';
 const $ = require('jquery');
 // Require Story
 const Story = require('./Story.js');
+// Require State
+const State = require('./State.js');
+// Setup global State store
+window.State = State;
 // Setup global jQuery
 window.$ = $;
 // Create window.passage

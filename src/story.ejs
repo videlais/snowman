@@ -4,21 +4,16 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="utf-8">
 		<title>{{STORY_NAME}}</title>
-		<style>
 		<%- story_css %>
-		</style>
 	</head>
 	<body>
 		{{STORY_DATA}}
 		<tw-story>
-			<tw-passage class="passage" aria-live="polite">
-				<tw-sidebar>
-					<tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
-				</tw-sidebar>
-			</tw-passage>
+			<tw-sidebar>
+				<tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+			</tw-sidebar>
+			<tw-passage class="passage" aria-live="polite"></tw-passage>
 		</tw-story>
-		<script>
 		<%- format %>
-		</script>
 	</body>
 </html>

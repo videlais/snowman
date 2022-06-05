@@ -11,6 +11,7 @@ const srcIndex = fs.readFileSync("src/story.ejs", {'encoding': 'utf8'});
 const formatSource = fs.readFileSync("build/format.bundle.js", {'encoding': 'utf8'});
 // Read bundled CSS
 const storyCSS = fs.readFileSync("build/format.css", {'encoding': 'utf8'});
+
 // Replace the bundles in the format HTML template
 const indexSource = ejs.render(srcIndex, {
     format: `<script>${formatSource}</script>`,
@@ -28,11 +29,4 @@ story.source = indexSource;
 
 // Generate format.js
 let format = "window.storyFormat(" + JSON.stringify(story) + ");";
-fs.writeFileSync(`dist/${story.name}-${story.version}-format.js`, format);
-
-// Re-read format.js, replacing the editor code to create a malformed JSON
-let compiledFormat = fs.readFileSync(`dist/${story.name}-${story.version}-format.js`, {'encoding': 'utf8'});
-compiledFormat = compiledFormat.replace("\"setup\":\"\"", `\"setup\": function(){${editorSource}}`);
-
-// Re-write the format.js with editor code additions
-fs.writeFileSync(`dist/${story.name}-${story.version}-format.js`, compiledFormat);
+fs.writeFileSync(`visual_testing/${story.name}-${story.version}-format.js`, format);

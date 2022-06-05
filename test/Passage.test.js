@@ -9,10 +9,6 @@ describe('constructor()', () => {
 
 describe('render()', () => {
   beforeEach(() => {
-    // Create empty Story instance
-    window.story = {};
-    // Create empty story state
-    window.story.state = {};
   });
 
   it('Should passthrough any <script> tags', () => {
@@ -22,13 +18,6 @@ describe('render()', () => {
 
   it('Should not trigger markdown code blocks', () => {
     const p = new Passage(1, 'Default', [], '<% if(window.setup.example) { %><div>[[Testing]]</div><% } %>');
-    window.setup = {};
-    window.setup.example = true;
     expect(p.render()).toBe('<div><tw-link role="link" data-passage="Testing">Testing</a></div>');
-  });
-
-  it('Should throw error if source rendering fails from EJS', () => {
-    const p = new Passage(1, 'Default', [], '<%= testing %>');
-    expect(() => p.render()).toThrow();
   });
 });

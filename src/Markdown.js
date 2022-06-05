@@ -31,15 +31,11 @@ class Markdown {
       [/\n([\*|\-|\+])(.*)/g, '<ul><li>$2</li></ul>'], // eslint-disable-line
       // Horizontal Line
       [/(=|-){3}/g, '<hr>'],
-      // Code block
-      [/`(.*?)`/g, '<code>$1</code>'],
       // Image
       [
         /!\[([^\]]+)\]\(([^)]+)\s"([^")]+)"\)/g,
         '<img src="$2" alt="$1" title="$3" />'
-      ],
-      // Break Rule
-      [/[\r\n\n]/g, '<br>']
+      ]
     ];
 
     rules.forEach(([rule, template]) => {

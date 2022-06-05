@@ -8,9 +8,6 @@ class State {
     // Internal array of visited passages
     this.history = [];
 
-    // Internal position of history stack
-    this.position = 0;
-
     // Internal store
     this.store = {};
 
@@ -27,22 +24,8 @@ class State {
       }
     };
 
-    // Create a global 's' that acts like an object
+    // Create a proxy that acts like an object.
     this.proxy = new Proxy(this.store, handler);
-
-    // Listen for all navigation events.
-    // These happen when a user clicks on a link
-    this.events.on('navigation', dest => {
-      this.history.push(dest);
-      this.position++;
-    });
-
-    this.events.on("undo", () => {
-      if(this.position > 0) {
-        this.position--;
-      }
-      window.story.show(this.history[this.position]);
-    });
   }
 
   /**

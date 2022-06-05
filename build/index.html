@@ -4,14 +4,17 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="utf-8">
 		<title>{{STORY_NAME}}</title>
-		<style>
-		/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */html{-webkit-text-size-adjust:100%;line-height:1.15}body{margin:0}main{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}[hidden],template{display:none}body{color:#222;font:1.5em Helvetica Neue,Helvetica,Arial,sans-serif;margin:.5em}tw-story{line-height:150%;margin:0 auto;max-width:35em}tw-passage,tw-story{display:block}a,tw-icon,tw-link{color:#222;cursor:pointer;text-decoration-color:#ccc}a:hover{color:#cc8929}a:active,a:hover{text-decoration-color:#cc8929}a:active{color:#ffb040}tw-storydata{display:none}@media screen and (max-width:480px){#passage{font-size:70%}}
-		</style>
+		<style>/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */html{-webkit-text-size-adjust:100%;line-height:1.15}body{margin:0}main{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}[hidden],template{display:none}body{color:#222;font:1.5em Helvetica Neue,Helvetica,Arial,sans-serif}tw-story{box-sizing:border-box;display:flex;flex-direction:row;font-size:1.5em;line-height:1.5em;margin-top:1em;min-height:100%;width:100%}tw-passage{display:block;width:90%}a,tw-icon,tw-link{color:#222;cursor:pointer;text-decoration-color:#ccc}a:hover,tw-icon:hover,tw-link:hover{text-decoration:underline}tw-sidebar{margin-left:1em;width:10%}a:hover{color:#cc8929}a:active,a:hover{text-decoration-color:#cc8929}a:active{color:#ffb040}tw-storydata{display:none}@media screen and (max-width:480px){#passage{font-size:70%}}</style>
 	</head>
 	<body>
 		{{STORY_DATA}}
-		<script>
-		/******/ (() => { // webpackBootstrap
+		<tw-story>
+			<tw-sidebar>
+				<tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+			</tw-sidebar>
+			<tw-passage class="passage" aria-live="polite"></tw-passage>
+		</tw-story>
+		<script>/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 83:
@@ -12613,38 +12616,7 @@ class Markdown {
       // [[dest<-rename]]
       [/\[\[(.*?)<-(.*?)\]\]/g, '<tw-link role="link" data-passage="$1">$2</a>'],
       // [[destination]]
-      [/\[\[(.*?)\]\]/g, '<tw-link role="link" data-passage="$1">$1</a>'],
-      // ##### Heading level 5
-      [/#{5}\s?([^\n]+)/g, '<h5>$1</h5>'],
-      // #### Heading level 4
-      [/#{4}\s?([^\n]+)/g, '<h4>$1</h4>'],
-      // ### Heading level 3
-      [/#{3}\s?([^\n]+)/g, '<h3>$1</h3>'],
-      // ## Heading level 2
-      [/#{2}\s?([^\n]+)/g, '<h2>$1</h2>'],
-      // # Heading level 1
-      [/#{1}\s?([^\n]+)/g, '<h1>$1</h1>'],
-      // **bold text**
-      [/\*\*\s?([^\n]+)\*\*/g, '<strong>$1</strong>'],
-      // __bold text__
-      [/__([^_]+)__/g, '<strong>$1</strong>'],
-      // *italic text*
-      [/\*\s?([^\n]+)\*/g, '<em>$1</em>'],
-      // _italic text_
-      [/_([^_`]+)_/g, '<em>$1</em>'],
-      // Line Item (*/+/-)
-      [/\n([\*|\-|\+])(.*)/g, '<ul><li>$2</li></ul>'], // eslint-disable-line
-      // Horizontal Line
-      [/(=|-){3}/g, '<hr>'],
-      // Code block
-      [/`(.*?)`/g, '<code>$1</code>'],
-      // Image
-      [
-        /!\[([^\]]+)\]\(([^)]+)\s"([^")]+)"\)/g,
-        '<img src="$2" alt="$1" title="$3" />'
-      ],
-      // Break Rule
-      [/[\r\n\n]/g, '<br>']
+      [/\[\[(.*?)\]\]/g, '<tw-link role="link" data-passage="$1">$1</a>']
     ];
 
     rules.forEach(([rule, template]) => {
@@ -12731,19 +12703,18 @@ class Passage {
    */
 
   render () {
-    // Set a default value
     let result = '';
 
     // Try to render the template code, if any.
     try {
       // Send in s and $.
-      result = Ejs.render(this.source, { s: window.story.state, $: $ });
+      result = ejs.render(this.source, { s: window.story.state, $: $}, {outputFunctionName: "print"});
     } catch (e) {
       // Throw error is rendering fails.
-      throw new Error(`Error compiling template code in passage "${this.name}": ${e}`);
+      throw new Error(`Error compiling template code in passage: ${e}`);
     }
 
-    // Return rendered and parsed source.
+    // Return parsed source.
     return Markdown.parse(result);
   }
 }
@@ -12759,7 +12730,7 @@ module.exports = Passage;
 const EventEmitter = __webpack_require__(187);
 
 class State {
-  constructor () {
+  static createStore () {
     // Public event emitter
     this.events = new EventEmitter();
 
@@ -12782,20 +12753,8 @@ class State {
       }
     };
 
-    // Create a global 's' that acts like an object
-    window.s = new Proxy(this.store, handler);
-
-    // Listen for all navigation events.
-    // These happen when a user clicks on a link
-    this.events.on('navigation', dest => {
-      this.history.push(dest);
-    });
-
-    // Listen for all navigation events.
-    // These happen when a user clicks on a link
-    this.events.on('showing', dest => {
-      this.history.push(dest);
-    });
+    // Create a proxy that acts like an object.
+    this.proxy = new Proxy(this.store, handler);
   }
 
   /**
@@ -12803,7 +12762,7 @@ class State {
    *
    * @function clear
    */
-  clear () {
+  static clear () {
     localStorage.clear();
   }
 
@@ -12814,7 +12773,7 @@ class State {
    * @param {string} save - Name of save string
    * @returns {boolean} - True if save string exists (is not null)
    */
-  exists (save = 'default') {
+  static exists (save = 'default') {
     let history = null;
     let store = null;
     let result = true;
@@ -12836,7 +12795,7 @@ class State {
    * @param {string} save - Optional name of save string
    * @returns {boolean} - Returns true if save was successful
    */
-  save (save = 'default') {
+  static save (save = 'default') {
     let result = true;
 
     try {
@@ -12855,7 +12814,7 @@ class State {
    * @param {string} save - Optional name of save string
    * @returns {boolean} - Returns true if restore was successful
    */
-  restore (save = 'default') {
+  static restore (save = 'default') {
     let history = null;
     let store = null;
     let result = true;
@@ -12885,7 +12844,7 @@ class State {
    * @param {string | Array} passageName - Name(s) of passage to check
    * @returns {boolean} - True if passage(s) in history; false otherwise
    */
-  hasVisited (passageName) {
+  static hasVisited (passageName) {
     let result = false;
 
     if (Array.isArray(passageName)) {
@@ -12963,12 +12922,14 @@ class Story {
      */
     this.creatorVersion = this.storyDataElement.attr('creator-version');
 
-    /**
-     * @property {string} state - Internal state for the story
-     * @type {State}
-     * @readonly
+    // Create internal events and storehouse for state.
+    State.createStore();
+
+     /**
+     * @property {string} state - State proxy; an object with mutation tracking
+     * @type {object}
      */
-    this.state = new State();
+    this.state = State.proxy;
 
     /**
      * An array of all passages, indexed by ID.
@@ -13036,15 +12997,32 @@ class Story {
      * @type {Element}
      * @readonly
      */
-    this.storyElement = $('<tw-story />');
+    this.storyElement = $('tw-story');
 
-    // Catch all navigation events
+    // Listen for all navigation events.
+    // These happen when a user clicks on a link.
+    State.events.on('navigation', dest => {
+      // Add to the state's history.
+      State.history.push(dest);
+      // Check if undo icon should be shown or not.
+      if(State.history.length >= 1) {
+        this.undoIcon.show();
+      }
+    });
+
+    // Catch user clicking on links and create navigation event
     this.storyElement.on('click', 'tw-link[data-passage]', (e) => {
       // Pull destination passage name from the attribute.
       const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
-      // Show the passage by name.
-      this.show(passageName);
-    });
+        /**
+        * Triggered when user initiates passage navigation.
+        *
+        * @event navigation
+        */
+        State.events.emit('navigation', passageName);
+        // Show the passage by name.
+        this.show(passageName);
+      });
 
     /**
      * Passage element
@@ -13052,13 +13030,39 @@ class Story {
      * @property {Element} passageElement - Passage element
      * @type {Element}
      */
-    this.passageElement = $('<tw-passage class="passage" aria-live="polite" />');
+    this.passageElement = $('tw-passage');
 
-    // Append the passage element to the story element
-    this.storyElement.append(this.passageElement);
+    /**
+     * Reference to undo icon
+     *
+     * @property {Element} undoIcon - Undo element
+     * @type {Element}
+     */
+    this.undoIcon = $('tw-icon[title="Undo"]');
+    
+    // Start the story with it hidden.
+    this.undoIcon.hide();
 
-    // Append the story element to the body
-    $(document.body).append(this.storyElement);
+    // Listen for user click interactions
+    this.undoIcon.on('click', () => {
+      /**
+        * Triggered when user clicks on the undo button.
+        *
+        * @event undo
+        */
+      State.events.emit('undo');
+    });
+
+    // Listen for undo events
+    State.events.on('undo', () => {
+      State.history.pop();
+      if(State.history.length === 0) {
+        // Hide the undo button.
+        this.undoIcon.hide();
+        // Show the starting passage again.
+        this.show(this.getPassageById(this.startPassage).name);
+      }
+    });
   }
 
   /**
@@ -13074,20 +13078,26 @@ class Story {
    */
 
   start () {
-    // Apply user styles.
-    this.userStyles.forEach((style) => {
-      this.storyElement.append(`<style>${style}</style>`);
-    });
-
-    // Run user scripts.
-    this.userScripts.forEach((script) => {
-      try {
-        ejs.render(`<%${script}%>`, { s: window.s, $: $ });
-      } catch (error) {
-        throw new Error(`User script error: ${error}`);
-      }
-    });
-
+    // Are there any user styles to parse?
+    if(this.userStyles.length > 0) {
+      // For each, add them to the body as extra style elements
+      this.userStyles.forEach((style) => {
+        $(document.body).append(`<style>${style}</style>`);
+      });
+    }
+    
+    // Are there any user scripts to parse?
+    if(this.userScripts.length > 0) {
+      // For each, render them as JavaScript inside EJS
+      this.userScripts.forEach((script) => {
+        try {
+          ejs.render(`<%${script}%>`, { s: window.story.state, $: $ });
+        } catch (error) {
+          throw new Error(`User script error: ${error}`);
+        }
+      });
+    }
+    
     // Retrieve Passage object matching starting passage id.
     const passage = this.getPassageById(this.startPassage);
 
@@ -13182,17 +13192,10 @@ class Story {
       throw new Error(`There is no passage with the name ${name}`);
     }
 
-    /**
-     * Triggered when navigation happened.
-     *
-     * @event navigation
-     */
-     this.state.events.emit('navigation', name);
-
     // Set the global passage to the one about to be shown.
     window.passage = passage;
 
-    // Render and replace content of passageElement.
+    // Overwrite the parsed with the rendered.
     this.passageElement.html(passage.render());
   }
 
@@ -13329,6 +13332,10 @@ var __webpack_exports__ = {};
 const $ = __webpack_require__(755);
 // Require Story
 const Story = __webpack_require__(213);
+// Require State
+const State = __webpack_require__(780);
+// Setup global State store
+window.State = State;
 // Setup global jQuery
 window.$ = $;
 // Create window.passage
@@ -13341,7 +13348,6 @@ window.story.start();
 })();
 
 /******/ })()
-;
-		</script>
+;</script>
 	</body>
 </html>

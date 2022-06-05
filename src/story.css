@@ -3,24 +3,37 @@
 body {
 	font: 1.5em "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #222;
-	margin: 0.5em;
 }
 
 tw-story {
-	max-width: 35em;
-	margin: 0 auto;
-	line-height: 150%;
-	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	min-height: 100%;
+	font-size: 1.5em;
+	line-height: 1.5em;
+	display: flex;
+	flex-direction: row;
+	margin-top: 1em;
 }
 
 tw-passage {
-  display: block;
+	width: 90%;
+	display: block;
 }
 
 tw-link, tw-icon, a {
 	color: #222;
 	text-decoration-color: #ccc;
 	cursor: pointer;
+}
+
+tw-link:hover, tw-icon:hover, a:hover {
+	text-decoration: underline;
+}
+
+tw-sidebar {
+	width: 10%;
+	margin-left: 1em;
 }
 
 a:hover {

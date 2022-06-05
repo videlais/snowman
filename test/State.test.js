@@ -7,7 +7,10 @@ describe('State', () => {
   });
 
   describe('constructor()', () => {
-    it('Should update history in navigation events', () => {
+    it('Should provide event emitter for use of navigation and other events', () => {
+      State.events.on('navigation', () => {
+        State.history.push('Test');
+      });
       State.events.emit('navigation', 'new');
       expect(State.history.length).toBe(1);
     });

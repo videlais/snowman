@@ -128,13 +128,30 @@ class Story {
      */
     this.storyElement = $('tw-story');
 
-    // Catch all navigation events
+    // Listen for all navigation events.
+    // These happen when a user clicks on a link.
+    State.events.on('navigation', dest => {
+      // Add to the state's history.
+      State.history.push(dest);
+      // Check if undo icon should be shown or not.
+      if(State.history.length >= 1) {
+        this.undoIcon.show();
+      }
+    });
+
+    // Catch user clicking on links and create navigation event
     this.storyElement.on('click', 'tw-link[data-passage]', (e) => {
       // Pull destination passage name from the attribute.
       const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
-      // Show the passage by name.
-      this.show(passageName);
-    });
+        /**
+        * Triggered when user initiates passage navigation.
+        *
+        * @event navigation
+        */
+        State.events.emit('navigation', passageName);
+        // Show the passage by name.
+        this.show(passageName);
+      });
 
     /**
      * Passage element
@@ -143,6 +160,38 @@ class Story {
      * @type {Element}
      */
     this.passageElement = $('tw-passage');
+
+    /**
+     * Reference to undo icon
+     *
+     * @property {Element} undoIcon - Undo element
+     * @type {Element}
+     */
+    this.undoIcon = $('tw-icon[title="Undo"]');
+    
+    // Start the story with it hidden.
+    this.undoIcon.hide();
+
+    // Listen for user click interactions
+    this.undoIcon.on('click', () => {
+      /**
+        * Triggered when user clicks on the undo button.
+        *
+        * @event undo
+        */
+      State.events.emit('undo');
+    });
+
+    // Listen for undo events
+    State.events.on('undo', () => {
+      State.history.pop();
+      if(State.history.length === 0) {
+        // Hide the undo button.
+        this.undoIcon.hide();
+        // Show the starting passage again.
+        this.show(this.getPassageById(this.startPassage).name);
+      }
+    });
   }
 
   /**
@@ -158,20 +207,26 @@ class Story {
    */
 
   start () {
-    // Apply user styles.
-    this.userStyles.forEach((style) => {
-      this.storyElement.append(`<style>${style}</style>`);
-    });
-
-    // Run user scripts.
-    this.userScripts.forEach((script) => {
-      try {
-        ejs.render(`<%${script}%>`, { s: window.s, $: $ });
-      } catch (error) {
-        throw new Error(`User script error: ${error}`);
-      }
-    });
-
+    // Are there any user styles to parse?
+    if(this.userStyles.length > 0) {
+      // For each, add them to the body as extra style elements
+      this.userStyles.forEach((style) => {
+        $(document.body).append(`<style>${style}</style>`);
+      });
+    }
+    
+    // Are there any user scripts to parse?
+    if(this.userScripts.length > 0) {
+      // For each, render them as JavaScript inside EJS
+      this.userScripts.forEach((script) => {
+        try {
+          ejs.render(`<%${script}%>`, { s: window.story.state, $: $ });
+        } catch (error) {
+          throw new Error(`User script error: ${error}`);
+        }
+      });
+    }
+    
     // Retrieve Passage object matching starting passage id.
     const passage = this.getPassageById(this.startPassage);
 
@@ -266,17 +321,10 @@ class Story {
       throw new Error(`There is no passage with the name ${name}`);
     }
 
-    /**
-     * Triggered when navigation happened.
-     *
-     * @event navigation
-     */
-     State.events.emit('navigation', name);
-
     // Set the global passage to the one about to be shown.
     window.passage = passage;
 
-    // Render and replace content of passageElement.
+    // Overwrite the parsed with the rendered.
     this.passageElement.html(passage.render());
   }
 
