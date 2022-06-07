@@ -30,7 +30,7 @@
     "eslint-plugin-jsdoc": "^37.6.3",
     "extwee": "^2.0.3",
     "jest": "^28.1.0",
-    "jest-environment-jsdom": "^28.1.0",
+    "jest-environment-jsdom": "^28.1.1",
     "mini-css-extract-plugin": "^2.6.0",
     "open": "^8.4.0",
     "open-cli": "^7.0.1",
