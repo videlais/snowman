@@ -5,6 +5,11 @@ body {
 	color: #222;
 }
 
+tw-icon {
+	font-size: 2em;
+	cursor: pointer;
+}
+
 tw-story {
 	width: 100%;
 	box-sizing: border-box;
@@ -21,10 +26,11 @@ tw-passage {
 	display: block;
 }
 
-tw-link, tw-icon, a {
+tw-link, a {
 	color: #222;
 	text-decoration-color: #ccc;
 	cursor: pointer;
+	text-decoration: underline;
 }
 
 tw-link:hover, tw-icon:hover, a:hover {

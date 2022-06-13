@@ -11,10 +11,6 @@
 
 :: Another
 <p>Something</p>
-<%
-    let test = "Hi";
-    print(`String interpolation? ${test}`);
-%>
 
 :: StoryTitle
 Testing

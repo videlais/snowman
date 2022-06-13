@@ -12600,7 +12600,34 @@ class Markdown {
       // [[dest<-rename]]
       [/\[\[(.*?)<-(.*?)\]\]/g, '<tw-link role="link" data-passage="$1">$2</a>'],
       // [[destination]]
-      [/\[\[(.*?)\]\]/g, '<tw-link role="link" data-passage="$1">$1</a>']
+      [/\[\[(.*?)\]\]/g, '<tw-link role="link" data-passage="$1">$1</a>'],
+      // ##### Heading level 5
+      [/#{5}\s?([^\n]+)/g, '<h5>$1</h5>'],
+      // #### Heading level 4
+      [/#{4}\s?([^\n]+)/g, '<h4>$1</h4>'],
+      // ### Heading level 3
+      [/#{3}\s?([^\n]+)/g, '<h3>$1</h3>'],
+      // ## Heading level 2
+      [/#{2}\s?([^\n]+)/g, '<h2>$1</h2>'],
+      // # Heading level 1
+      [/#{1}\s?([^\n]+)/g, '<h1>$1</h1>'],
+      // **bold text**
+      [/\*\*\s?([^\n]+)\*\*/g, '<strong>$1</strong>'],
+      // __bold text__
+      [/__([^_]+)__/g, '<strong>$1</strong>'],
+      // *italic text*
+      [/\*\s?([^\n]+)\*/g, '<em>$1</em>'],
+      // _italic text_
+      [/_([^_`]+)_/g, '<em>$1</em>'],
+      // Line Item (*/+/-)
+      [/\n([\*|\-|\+])(.*)/g, '<ul><li>$2</li></ul>'], // eslint-disable-line
+      // Horizontal Line
+      [/(=|-){3}/g, '<hr>'],
+      // Image
+      [
+        /!\[([^\]]+)\]\(([^)]+)\s"([^")]+)"\)/g,
+        '<img src="$2" alt="$1" title="$3" />'
+      ]
     ];
 
     rules.forEach(([rule, template]) => {
@@ -12637,7 +12664,7 @@ module.exports = Markdown;
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const $ = __webpack_require__(755);
-const Ejs = __webpack_require__(83);
+const ejs = __webpack_require__(83);
 const Markdown = __webpack_require__(456);
 
 /**
@@ -12692,7 +12719,7 @@ class Passage {
     // Try to render the template code, if any.
     try {
       // Send in s and $.
-      result = ejs.render(this.source, { s: window.story.state, $: $}, {outputFunctionName: "print"});
+      result = ejs.render(this.source, { s: window.story.state, $ }, { outputFunctionName: 'print' });
     } catch (e) {
       // Throw error is rendering fails.
       throw new Error(`Error compiling template code in passage: ${e}`);
@@ -12714,6 +12741,11 @@ module.exports = Passage;
 const EventEmitter = __webpack_require__(187);
 
 class State {
+  /**
+   * Creates internal event emitter and store proxy
+   *
+   * @function createStore
+   */
   static createStore () {
     // Public event emitter
     this.events = new EventEmitter();
@@ -12742,12 +12774,22 @@ class State {
   }
 
   /**
-   * Resets the localStorage
+   * Remove save by name from the localStorage
    *
-   * @function clear
+   * @function remove
+   * @param {string} save - Name of save string
+   * @returns {boolean} - True if remove was successful
    */
-  static clear () {
-    localStorage.clear();
+  static remove (save = 'default') {
+    let result = false;
+
+    if (window.localStorage !== null) {
+      window.localStorage.removeItem(`${save}.snowman.history`);
+      window.localStorage.removeItem(`${save}.snowman.store`);
+      result = true;
+    }
+
+    return result;
   }
 
   /**
@@ -12760,16 +12802,13 @@ class State {
   static exists (save = 'default') {
     let history = null;
     let store = null;
-    let result = true;
 
-    try {
-      history = localStorage.getItem(`${save}.snowman.history`);
-      store = localStorage.getItem(`${save}.snowman.store`);
-    } catch (e) {
-      result = false;
+    if (window.localStorage !== null) {
+      history = window.localStorage.getItem(`${save}.snowman.history`);
+      store = window.localStorage.getItem(`${save}.snowman.store`);
     }
 
-    return (history !== null) && (store !== null) && result;
+    return (history !== null) && (store !== null);
   }
 
   /**
@@ -12780,14 +12819,14 @@ class State {
    * @returns {boolean} - Returns true if save was successful
    */
   static save (save = 'default') {
-    let result = true;
+    let result = false;
 
-    try {
-      localStorage.setItem(`${save}.snowman.history`, JSON.stringify(this.history));
-      localStorage.setItem(`${save}.snowman.store`, JSON.stringify(this.store));
-    } catch (e) {
-      result = false;
+    if (window.localStorage !== null) {
+      window.localStorage.setItem(`${save}.snowman.history`, JSON.stringify(this.history));
+      window.localStorage.setItem(`${save}.snowman.store`, JSON.stringify(this.store));
+      result = true;
     }
+
     return result;
   }
 
@@ -12801,13 +12840,12 @@ class State {
   static restore (save = 'default') {
     let history = null;
     let store = null;
-    let result = true;
+    let result = false;
 
-    try {
-      history = localStorage.getItem(`${save}.snowman.history`);
-      store = localStorage.getItem(`${save}.snowman.store`);
-    } catch (e) {
-      result = false;
+    if (window.localStorage !== null) {
+      history = window.localStorage.getItem(`${save}.snowman.history`);
+      store = window.localStorage.getItem(`${save}.snowman.store`);
+      result = true;
     }
 
     if (history !== null) {
@@ -12909,7 +12947,7 @@ class Story {
     // Create internal events and storehouse for state.
     State.createStore();
 
-     /**
+    /**
      * @property {string} state - State proxy; an object with mutation tracking
      * @type {object}
      */
@@ -12989,7 +13027,7 @@ class Story {
       // Add to the state's history.
       State.history.push(dest);
       // Check if undo icon should be shown or not.
-      if(State.history.length >= 1) {
+      if (State.history.length >= 1) {
         this.undoIcon.show();
       }
     });
@@ -12998,15 +13036,15 @@ class Story {
     this.storyElement.on('click', 'tw-link[data-passage]', (e) => {
       // Pull destination passage name from the attribute.
       const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
-        /**
-        * Triggered when user initiates passage navigation.
-        *
-        * @event navigation
-        */
-        State.events.emit('navigation', passageName);
-        // Show the passage by name.
-        this.show(passageName);
-      });
+      /**
+       * Triggered when user initiates passage navigation.
+       *
+       * @event navigation
+       */
+      State.events.emit('navigation', passageName);
+      // Show the passage by name.
+      this.show(passageName);
+    });
 
     /**
      * Passage element
@@ -13023,24 +13061,24 @@ class Story {
      * @type {Element}
      */
     this.undoIcon = $('tw-icon[title="Undo"]');
-    
+
     // Start the story with it hidden.
     this.undoIcon.hide();
 
     // Listen for user click interactions
     this.undoIcon.on('click', () => {
       /**
-        * Triggered when user clicks on the undo button.
-        *
-        * @event undo
-        */
+       * Triggered when user clicks on the undo button.
+       *
+       * @event undo
+       */
       State.events.emit('undo');
     });
 
     // Listen for undo events
     State.events.on('undo', () => {
       State.history.pop();
-      if(State.history.length === 0) {
+      if (State.history.length === 0) {
         // Hide the undo button.
         this.undoIcon.hide();
         // Show the starting passage again.
@@ -13063,25 +13101,25 @@ class Story {
 
   start () {
     // Are there any user styles to parse?
-    if(this.userStyles.length > 0) {
+    if (this.userStyles.length > 0) {
       // For each, add them to the body as extra style elements
       this.userStyles.forEach((style) => {
         $(document.body).append(`<style>${style}</style>`);
       });
     }
-    
+
     // Are there any user scripts to parse?
-    if(this.userScripts.length > 0) {
+    if (this.userScripts.length > 0) {
       // For each, render them as JavaScript inside EJS
       this.userScripts.forEach((script) => {
         try {
-          ejs.render(`<%${script}%>`, { s: window.story.state, $: $ });
+          ejs.render(`<%${script}%>`, { s: window.story.state, $ });
         } catch (error) {
           throw new Error(`User script error: ${error}`);
         }
       });
     }
-    
+
     // Retrieve Passage object matching starting passage id.
     const passage = this.getPassageById(this.startPassage);
 

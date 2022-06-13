@@ -54,7 +54,7 @@ class Story {
     // Create internal events and storehouse for state.
     State.createStore();
 
-     /**
+    /**
      * @property {string} state - State proxy; an object with mutation tracking
      * @type {object}
      */
@@ -134,7 +134,7 @@ class Story {
       // Add to the state's history.
       State.history.push(dest);
       // Check if undo icon should be shown or not.
-      if(State.history.length >= 1) {
+      if (State.history.length >= 1) {
         this.undoIcon.show();
       }
     });
@@ -143,15 +143,15 @@ class Story {
     this.storyElement.on('click', 'tw-link[data-passage]', (e) => {
       // Pull destination passage name from the attribute.
       const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
-        /**
-        * Triggered when user initiates passage navigation.
-        *
-        * @event navigation
-        */
-        State.events.emit('navigation', passageName);
-        // Show the passage by name.
-        this.show(passageName);
-      });
+      /**
+       * Triggered when user initiates passage navigation.
+       *
+       * @event navigation
+       */
+      State.events.emit('navigation', passageName);
+      // Show the passage by name.
+      this.show(passageName);
+    });
 
     /**
      * Passage element
@@ -168,24 +168,24 @@ class Story {
      * @type {Element}
      */
     this.undoIcon = $('tw-icon[title="Undo"]');
-    
+
     // Start the story with it hidden.
     this.undoIcon.hide();
 
     // Listen for user click interactions
     this.undoIcon.on('click', () => {
       /**
-        * Triggered when user clicks on the undo button.
-        *
-        * @event undo
-        */
+       * Triggered when user clicks on the undo button.
+       *
+       * @event undo
+       */
       State.events.emit('undo');
     });
 
     // Listen for undo events
     State.events.on('undo', () => {
       State.history.pop();
-      if(State.history.length === 0) {
+      if (State.history.length === 0) {
         // Hide the undo button.
         this.undoIcon.hide();
         // Show the starting passage again.
@@ -208,25 +208,25 @@ class Story {
 
   start () {
     // Are there any user styles to parse?
-    if(this.userStyles.length > 0) {
+    if (this.userStyles.length > 0) {
       // For each, add them to the body as extra style elements
       this.userStyles.forEach((style) => {
         $(document.body).append(`<style>${style}</style>`);
       });
     }
-    
+
     // Are there any user scripts to parse?
-    if(this.userScripts.length > 0) {
+    if (this.userScripts.length > 0) {
       // For each, render them as JavaScript inside EJS
       this.userScripts.forEach((script) => {
         try {
-          ejs.render(`<%${script}%>`, { s: window.story.state, $: $ });
+          ejs.render(`<%${script}%>`, { s: window.story.state, $ });
         } catch (error) {
           throw new Error(`User script error: ${error}`);
         }
       });
     }
-    
+
     // Retrieve Passage object matching starting passage id.
     const passage = this.getPassageById(this.startPassage);
 

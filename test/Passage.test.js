@@ -1,4 +1,5 @@
 const Passage = require('../src/Passage.js');
+const Story = require('../src/Story.js');
 
 describe('constructor()', () => {
   it('Should contain default values when initialized with no arguments', () => {
@@ -9,6 +10,7 @@ describe('constructor()', () => {
 
 describe('render()', () => {
   beforeEach(() => {
+    window.story = new Story();
   });
 
   it('Should passthrough any <script> tags', () => {
@@ -17,7 +19,12 @@ describe('render()', () => {
   });
 
   it('Should not trigger markdown code blocks', () => {
-    const p = new Passage(1, 'Default', [], '<% if(window.setup.example) { %><div>[[Testing]]</div><% } %>');
+    const p = new Passage(1, 'Default', [], '<% if(true) { %><div>[[Testing]]</div><% } %>');
     expect(p.render()).toBe('<div><tw-link role="link" data-passage="Testing">Testing</a></div>');
+  });
+
+  it('Should throw when user script are broken', () => {
+    const p = new Passage(1, 'Default', [], '<% if(window.setup.example) { %><div>[[Testing]]</div><% } %>');
+    expect(() => p.render()).toThrow();
   });
 });

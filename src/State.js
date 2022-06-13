@@ -1,6 +1,11 @@
 const EventEmitter = require('events');
 
 class State {
+  /**
+   * Creates internal event emitter and store proxy
+   *
+   * @function createStore
+   */
   static createStore () {
     // Public event emitter
     this.events = new EventEmitter();
@@ -29,12 +34,22 @@ class State {
   }
 
   /**
-   * Resets the localStorage
+   * Remove save by name from the localStorage
    *
-   * @function clear
+   * @function remove
+   * @param {string} save - Name of save string
+   * @returns {boolean} - True if remove was successful
    */
-  static clear () {
-    localStorage.clear();
+  static remove (save = 'default') {
+    let result = false;
+
+    if (window.localStorage !== null) {
+      window.localStorage.removeItem(`${save}.snowman.history`);
+      window.localStorage.removeItem(`${save}.snowman.store`);
+      result = true;
+    }
+
+    return result;
   }
 
   /**
@@ -47,16 +62,13 @@ class State {
   static exists (save = 'default') {
     let history = null;
     let store = null;
-    let result = true;
 
-    try {
-      history = localStorage.getItem(`${save}.snowman.history`);
-      store = localStorage.getItem(`${save}.snowman.store`);
-    } catch (e) {
-      result = false;
+    if (window.localStorage !== null) {
+      history = window.localStorage.getItem(`${save}.snowman.history`);
+      store = window.localStorage.getItem(`${save}.snowman.store`);
     }
 
-    return (history !== null) && (store !== null) && result;
+    return (history !== null) && (store !== null);
   }
 
   /**
@@ -67,14 +79,14 @@ class State {
    * @returns {boolean} - Returns true if save was successful
    */
   static save (save = 'default') {
-    let result = true;
+    let result = false;
 
-    try {
-      localStorage.setItem(`${save}.snowman.history`, JSON.stringify(this.history));
-      localStorage.setItem(`${save}.snowman.store`, JSON.stringify(this.store));
-    } catch (e) {
-      result = false;
+    if (window.localStorage !== null) {
+      window.localStorage.setItem(`${save}.snowman.history`, JSON.stringify(this.history));
+      window.localStorage.setItem(`${save}.snowman.store`, JSON.stringify(this.store));
+      result = true;
     }
+
     return result;
   }
 
@@ -88,13 +100,12 @@ class State {
   static restore (save = 'default') {
     let history = null;
     let store = null;
-    let result = true;
+    let result = false;
 
-    try {
-      history = localStorage.getItem(`${save}.snowman.history`);
-      store = localStorage.getItem(`${save}.snowman.store`);
-    } catch (e) {
-      result = false;
+    if (window.localStorage !== null) {
+      history = window.localStorage.getItem(`${save}.snowman.history`);
+      store = window.localStorage.getItem(`${save}.snowman.store`);
+      result = true;
     }
 
     if (history !== null) {

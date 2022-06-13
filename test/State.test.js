@@ -15,6 +15,11 @@ describe('State', () => {
       expect(State.history.length).toBe(1);
     });
 
+    it('Should act as proxy to store', () => {
+      State.proxy.a = 'Hi';
+      expect(State.proxy.a).toBe('Hi');
+    });
+
     it('Should provide access to proxy as if store', () => {
       State.proxy.a = 'Hi';
       expect(State.store.a).toBe('Hi');
@@ -56,23 +61,39 @@ describe('State', () => {
     });
   });
 
-  describe('clear()', () => {
-    it('Should clear all saved local storage', () => {
+  describe('remove()', () => {
+    it('Should saved data using defaults from localStorage', () => {
       State.save();
-      State.clear();
+      State.remove();
       const test = localStorage.getItem('default.snowman.store');
+      expect(test).toBe(null);
+    });
+
+    it('Should saved data by name from localStorage', () => {
+      State.save('test');
+      State.remove('test');
+      const test = localStorage.getItem('test.snowman.store');
       expect(test).toBe(null);
     });
   });
 
   describe('exists()', () => {
-    it('Should return true if save string exists', () => {
+    it('Should return true if named save string exists', () => {
       State.save('test');
       expect(State.exists('test')).toBe(true);
     });
 
-    it('Should return false if save string exists', () => {
+    it('Should return false if named save string does not exist', () => {
       expect(State.exists('test')).toBe(false);
+    });
+
+    it('Should return true if default save string exists', () => {
+      State.save();
+      expect(State.exists()).toBe(true);
+    });
+
+    it('Should return false if default save string does not exist', () => {
+      expect(State.exists()).toBe(false);
     });
   });
 
@@ -90,6 +111,14 @@ describe('State', () => {
       State.save('test');
       State.store = {};
       State.restore('test');
+      expect(State.store.a).toBe('Hi');
+    });
+
+    it('Should restore store using default prefix', () => {
+      State.store.a = 'Hi';
+      State.save();
+      State.store = {};
+      State.restore();
       expect(State.store.a).toBe('Hi');
     });
   });
@@ -114,5 +143,38 @@ describe('State', () => {
       State.history = ['1', '2'];
       expect(State.hasVisited(['1', '3'])).toBe(false);
     });
+  });
+});
+
+describe('localStorage turned off', () => {
+  let temp = null;
+
+  beforeEach(() => {
+    // Mimic how Firefox turns off dom.storage
+    temp = window._localStorage;
+    window._localStorage = null;
+  });
+
+  afterAll(() => {
+    // Restore localStorage after testing block
+    window._localStorage = temp;
+  });
+
+  it('save() should return false if localStorage is turned off', () => {
+    expect(State.save('test')).toBe(false);
+  });
+
+  it('exists() should return false if localStorage is turned off', () => {
+    State.save('test');
+    expect(State.exists('test')).toBe(false);
+  });
+
+  it('load() should return false if localStorage is turned off', () => {
+    State.save('test');
+    expect(State.restore('test')).toBe(false);
+  });
+
+  it('remove() should return false if localStorage is turned off', () => {
+    expect(State.remove('test')).toBe(false);
   });
 });

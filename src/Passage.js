@@ -1,5 +1,5 @@
 const $ = require('jquery');
-const Ejs = require('ejs');
+const ejs = require('ejs');
 const Markdown = require('./Markdown.js');
 
 /**
@@ -54,7 +54,7 @@ class Passage {
     // Try to render the template code, if any.
     try {
       // Send in s and $.
-      result = ejs.render(this.source, { s: window.story.state, $: $}, {outputFunctionName: "print"});
+      result = ejs.render(this.source, { s: window.story.state, $ }, { outputFunctionName: 'print' });
     } catch (e) {
       // Throw error is rendering fails.
       throw new Error(`Error compiling template code in passage: ${e}`);

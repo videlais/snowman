@@ -1,4 +1,7 @@
-const {defaults} = require('jest-config');
-module.exports = {
-    testEnvironment: "jsdom"
+const config = {
+    verbose: true,
+    testEnvironment: "jsdom",
+    preset: "jest-puppeteer"
 };
+  
+module.exports = config;
