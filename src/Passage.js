@@ -1,7 +1,3 @@
-const $ = require('jquery');
-const ejs = require('ejs');
-const Markdown = require('./Markdown.js');
-
 /**
  * An object representing a passage. The current passage will be `window.passage`.
  *
@@ -36,32 +32,7 @@ class Passage {
      * @type {string}
      */
 
-    this.source = Markdown.unescape(source);
-  }
-
-  /**
-   * Produces HTML from Markdown input.
-   * 1. Tries to run Ejs.render() on source.
-   * 2. Throws error if template rendering fails.
-   * 3. Returns Markdown.parse()'d source content.
-   *
-   * @function render
-   */
-
-  render () {
-    let result = '';
-
-    // Try to render the template code, if any.
-    try {
-      // Send in s and $.
-      result = ejs.render(this.source, { s: window.story.state, $ }, { outputFunctionName: 'print' });
-    } catch (e) {
-      // Throw error is rendering fails.
-      throw new Error(`Error compiling template code in passage: ${e}`);
-    }
-
-    // Return parsed source.
-    return Markdown.parse(result);
+    this.source = source;
   }
 }
 

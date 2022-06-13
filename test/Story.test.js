@@ -118,8 +118,8 @@ describe('Story', () => {
       expect($('tw-passage').html()).toBe('Hello world');
     });
 
-    it('Should throw an error if passage does not exist', () => {
-      expect(() => window.story.renderToSelector('Nope', '<test>')).toThrow();
+    it('Should throw if selector does not exist', () => {
+      expect(() => window.story.renderToSelector(':yeah', '<test>')).toThrow();
     });
   });
 
