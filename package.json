@@ -6,8 +6,8 @@
   "repository": "https://github.com/videlais/snowman/",
   "scripts": {
     "test": "jest --coverage",
-    "lint": "eslint src/**/*.js test/*.js --fix",
-    "build": "webpack --config webpack.config.js",
+    "lint": "eslint src/*.js test/*.js --fix",
+    "build": "webpack",
     "package": "npm run build && node build-format.js",
     "visual-test": "npm run build && node visual_testing/build-test.js && extwee -s visual_testing/snowman-2.2.0-format.js -i visual_testing/index.twee -c -o visual_testing/index.html && open-cli visual_testing/index.html"
   },
@@ -22,6 +22,9 @@
     "normalize.css": "^8.0.1"
   },
   "devDependencies": {
+    "@types/expect-puppeteer": "^5.0.0",
+    "@types/jest-environment-puppeteer": "^5.0.2",
+    "@types/puppeteer": "^5.4.6",
     "css-loader": "^6.7.1",
     "css-minimizer-webpack-plugin": "^4.0.0",
     "eslint": "^8.17.0",

@@ -12661,11 +12661,7 @@ module.exports = Markdown;
 /***/ }),
 
 /***/ 67:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-const $ = __webpack_require__(755);
-const ejs = __webpack_require__(83);
-const Markdown = __webpack_require__(456);
+/***/ ((module) => {
 
 /**
  * An object representing a passage. The current passage will be `window.passage`.
@@ -12701,32 +12697,7 @@ class Passage {
      * @type {string}
      */
 
-    this.source = Markdown.unescape(source);
-  }
-
-  /**
-   * Produces HTML from Markdown input.
-   * 1. Tries to run Ejs.render() on source.
-   * 2. Throws error if template rendering fails.
-   * 3. Returns Markdown.parse()'d source content.
-   *
-   * @function render
-   */
-
-  render () {
-    let result = '';
-
-    // Try to render the template code, if any.
-    try {
-      // Send in s and $.
-      result = ejs.render(this.source, { s: window.story.state, $ }, { outputFunctionName: 'print' });
-    } catch (e) {
-      // Throw error is rendering fails.
-      throw new Error(`Error compiling template code in passage: ${e}`);
-    }
-
-    // Return parsed source.
-    return Markdown.parse(result);
+    this.source = source;
   }
 }
 
@@ -12981,7 +12952,7 @@ class Story {
         id,
         elementReference.attr('name'),
         tags,
-        elementReference.html()
+        Markdown.unescape(elementReference.html())
       ));
     });
 
@@ -13218,13 +13189,17 @@ class Story {
     window.passage = passage;
 
     // Overwrite the parsed with the rendered.
-    this.passageElement.html(passage.render());
+    this.passageElement.html(this.render(passage.name));
   }
 
   /**
    * Returns the HTML source for a passage. This is most often used when
    * embedding one passage inside another. In this instance, make sure to
    * use <%= %> instead of <%- %> to avoid incorrectly encoding HTML entities.
+   *
+   * 1. Find passage by name
+   * 2. Run EJS rendering for possible template tags
+   * 3. Run Markdown parsing
    *
    * @function render
    * @param {string} name - name of the passage
@@ -13241,8 +13216,30 @@ class Story {
       throw new Error('There is no passage with name ' + name);
     }
 
-    // Return the rendered passage source.
-    return passage.render();
+    let result = '';
+
+    try {
+      // Send in state, jQuery, renderToSelector, and either
+      result = ejs.render(passage.source,
+        {
+          s: window.story.state,
+          $,
+          renderToSelector: this.renderToSelector
+        },
+        {
+          outputFunctionName: 'print'
+        }
+      );
+    } catch (e) {
+      // Throw error is rendering fails.
+      throw new Error(`Error compiling template code in passage: ${e}`);
+    }
+
+    // Parse the resulting text
+    result = Markdown.parse(result);
+
+    // Return the rendered and parsed passage source.
+    return result;
   }
 
   /**
@@ -13253,18 +13250,13 @@ class Story {
    * @param {string} selector - jQuery selector
    */
   renderToSelector (passageName, selector) {
-    // Search for passage by name
-    const passage = this.getPassageByName(passageName);
-
-    // Does this passage exist?
-    if (passage === null) {
-      // It does not exist.
-      // Throw error.
-      throw new Error('There is no passage with name ' + passageName);
-    }
-
     // Render content to a specific selector.
-    $(selector).html(passage.render());
+    try {
+      $(selector).html(this.render(passageName));
+    } catch (e) {
+      // Throw error if selector does not exist.
+      throw new Error('Error with selector when using renderToSelector()');
+    }
   }
 
   /**
