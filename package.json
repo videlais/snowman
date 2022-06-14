@@ -19,7 +19,8 @@
   "dependencies": {
     "ejs": "^3.1.8",
     "jquery": "^3.6.0",
-    "normalize.css": "^8.0.1"
+    "normalize.css": "^8.0.1",
+    "underscore": "^1.13.4"
   },
   "devDependencies": {
     "@types/expect-puppeteer": "^5.0.0",

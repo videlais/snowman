@@ -3,6 +3,7 @@
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Element}
  */
 const $ = require('jquery');
+const _ = require('underscore');
 const ejs = require('ejs');
 const Passage = require('./Passage.js');
 const Markdown = require('./Markdown.js');
@@ -219,11 +220,8 @@ class Story {
     if (this.userScripts.length > 0) {
       // For each, render them as JavaScript inside EJS
       this.userScripts.forEach((script) => {
-        try {
-          ejs.render(`<%${script}%>`, { s: window.story.state, $ });
-        } catch (error) {
-          throw new Error(`User script error: ${error}`);
-        }
+        // Run any code within a templated sandbox.
+        this.runScript(`<%${script}%>`);
       });
     }
 
@@ -352,14 +350,34 @@ class Story {
       throw new Error('There is no passage with name ' + name);
     }
 
+    // Render any possible code first
+    let result = this.runScript(passage.source);
+
+    // Parse the resulting text
+    result = Markdown.parse(result);
+
+    // Return the rendered and parsed passage source.
+    return result;
+  }
+
+  /**
+   * Render JavaScript within a templated sandbox and return possible output.
+   * Will throw error if code does.
+   *
+   * @function runScript
+   * @param {string} script - Code to run
+   * @returns {string} Any output, if produced
+   */
+  runScript (script) {
     let result = '';
 
     try {
       // Send in state, jQuery, renderToSelector, and either
-      result = ejs.render(passage.source,
+      result = ejs.render(script,
         {
-          s: window.story.state,
+          s: this.state,
           $,
+          _,
           renderToSelector: this.renderToSelector
         },
         {
@@ -367,14 +385,10 @@ class Story {
         }
       );
     } catch (e) {
-      // Throw error is rendering fails.
+      // Throw error if rendering fails.
       throw new Error(`Error compiling template code in passage: ${e}`);
     }
 
-    // Parse the resulting text
-    result = Markdown.parse(result);
-
-    // Return the rendered and parsed passage source.
     return result;
   }
 
