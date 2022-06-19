@@ -1,5 +1,6 @@
 const $ = require('jquery');
 const Story = require('../src/Story.js');
+const State = require('../src/State.js');
 
 describe('Story', () => {
   beforeEach(() => {
@@ -174,5 +175,75 @@ describe('Story', () => {
     it('Should throw error if argument is not array', () => {
       expect(() => window.story.applyExternalStyles(2)).toThrow();
     });
+  });
+});
+
+describe('Story events', () => {
+  beforeEach(() => {
+    /*
+     * :hidden and :visible will never work in JSDOM.
+     * Solution via https://github.com/jsdom/jsdom/issues/1048
+     */
+    window.Element.prototype.getClientRects = function () {
+      let node = this;
+      while (node) {
+        if (node === document) {
+          break;
+        }
+        if (!node.style || node.style.display === 'none' || node.style.visibility === 'hidden') {
+          return [];
+        }
+        node = node.parentNode;
+      }
+      return [{ width: 10, height: 10 }];
+    };
+
+    $(document.body).html(`
+    <tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3">
+      <tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">[[Test Passage 2]]</tw-passagedata>
+      <tw-passagedata pid="2" name="Test Passage 2" tags="tag2">Hello world 2</tw-passagedata>
+      <tw-passagedata pid="3" name="Test Passage 5" tags="">[[Test Passage]]</tw-passagedata>
+      <script type="text/twine-javascript">window.scriptRan = true;</script>
+      <style type="text/twine-css">body { color: blue }</style>
+   </tw-storydata>
+   <tw-story>
+   <tw-sidebar>
+      <tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+    </tw-sidebar>
+    <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+    // Reset story
+    window.story = new Story();
+    // Start a new story
+    window.story.start();
+  });
+
+  it('Should emit undo event when tw-icon is clicked', () => {
+    let result = false;
+    State.events.emit('navigation', 'Test Passage 5');
+    State.events.on('undo', () => {
+      result = true;
+    });
+    window.story.undoIcon.trigger('click');
+    expect(result).toBe(true);
+  });
+
+  it('Should listen for navigation events', () => {
+    State.events.emit('navigation', 'Test Passage 3');
+    expect(State.history.length).toBe(2);
+  });
+
+  it('Should trigger showing undo icon', () => {
+    State.events.emit('navigation', 'Test Passage 3');
+    State.events.emit('navigation', 'Test Passage 3');
+    expect(window.story.undoIcon.css('visibility')).toBe('visible');
+  });
+
+  it('Should trigger navigation when a reader clicks a link', () => {
+    let result = false;
+    State.events.on('navigation', () => {
+      result = true;
+    });
+    $('tw-link').trigger('click');
+    expect(result).toBe(true);
   });
 });

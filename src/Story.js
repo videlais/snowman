@@ -131,12 +131,13 @@ class Story {
 
     // Listen for all navigation events.
     // These happen when a user clicks on a link.
-    State.events.on('navigation', dest => {
+    State.events.on('navigation', (dest) => {
       // Add to the state's history.
       State.history.push(dest);
       // Check if undo icon should be shown or not.
-      if (State.history.length >= 1) {
-        this.undoIcon.show();
+      if (State.history.length > 1) {
+        // Only show undo if a reader has visited multiple passages previously.
+        this.undoIcon.css('visibility', 'visible');
       }
     });
 
@@ -171,7 +172,7 @@ class Story {
     this.undoIcon = $('tw-icon[title="Undo"]');
 
     // Start the story with it hidden.
-    this.undoIcon.hide();
+    this.undoIcon.css('visibility', 'hidden');
 
     // Listen for user click interactions
     this.undoIcon.on('click', () => {
@@ -185,13 +186,10 @@ class Story {
 
     // Listen for undo events
     State.events.on('undo', () => {
-      State.history.pop();
-      if (State.history.length === 0) {
-        // Hide the undo button.
-        this.undoIcon.hide();
-        // Show the starting passage again.
-        this.show(this.getPassageById(this.startPassage).name);
-      }
+      // There will always be at least one passage, the starting passage.
+      // As the undo icon will only appear after the first navigation event,
+      //  we can safely go "back" one entry.
+      this.show(State.history[State.history.length - 2]);
     });
   }
 
@@ -208,22 +206,16 @@ class Story {
    */
 
   start () {
-    // Are there any user styles to parse?
-    if (this.userStyles.length > 0) {
-      // For each, add them to the body as extra style elements
-      this.userStyles.forEach((style) => {
-        $(document.body).append(`<style>${style}</style>`);
-      });
-    }
+    // For each style, add them to the body as extra style elements.
+    this.userStyles.forEach((style) => {
+      $(document.body).append(`<style>${style}</style>`);
+    });
 
-    // Are there any user scripts to parse?
-    if (this.userScripts.length > 0) {
-      // For each, render them as JavaScript inside EJS
-      this.userScripts.forEach((script) => {
-        // Run any code within a templated sandbox.
-        this.runScript(`<%${script}%>`);
-      });
-    }
+    // For each script, render them as JavaScript inside EJS.
+    this.userScripts.forEach((script) => {
+      // Run any code within a templated sandbox.
+      this.runScript(`<%${script}%>`);
+    });
 
     // Retrieve Passage object matching starting passage id.
     const passage = this.getPassageById(this.startPassage);
@@ -235,8 +227,11 @@ class Story {
       throw new Error('Starting passage pid does not exist!');
     }
 
-    // Show the passage by name
+    // Show the passage by name.
     this.show(passage.name);
+
+    // Trigger the navigation event, as the reader has visited the starting passage.
+    State.events.emit('navigation', passage.name);
   }
 
   /**
@@ -372,13 +367,15 @@ class Story {
     let result = '';
 
     try {
-      // Send in state, jQuery, renderToSelector, and either
+      // Send in pseudo-globals
       result = ejs.render(script,
         {
+          State,
           s: this.state,
           $,
           _,
-          renderToSelector: this.renderToSelector
+          renderToSelector: this.renderToSelector,
+          include: this.render
         },
         {
           outputFunctionName: 'print'
@@ -386,7 +383,7 @@ class Story {
       );
     } catch (e) {
       // Throw error if rendering fails.
-      throw new Error(`Error compiling template code in passage: ${e}`);
+      throw new Error(`Error compiling template code: ${e}`);
     }
 
     return result;
