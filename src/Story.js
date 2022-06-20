@@ -371,12 +371,13 @@ class Story {
 
     try {
       // Send in pseudo-global properties
+      /* eslint-disable object-shorthand */
       result = ejs.render(script,
         {
-          State,
+          State: State,
           s: this.state,
-          $,
-          _,
+          $: $,
+          _: _,
           renderToSelector: this.renderToSelector,
           include: this.render
         },
@@ -389,6 +390,7 @@ class Story {
       throw new Error(`Error compiling template code: ${e}`);
     }
 
+    /* eslint-enable object-shorthand */
     return result;
   }
 

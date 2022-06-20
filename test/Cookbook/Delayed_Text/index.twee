@@ -7,7 +7,7 @@ Delayed Text in Snowman
 	_.delay(
 		function()
 		{
-			$("#results").text("It has been 5 seconds. Show the text!");
+			$("#results").html(`<p id="timer">It has been 5 seconds. Show the text!</p>`);
 		}, 
 		5000) 
 %>

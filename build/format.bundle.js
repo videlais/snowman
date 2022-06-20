@@ -13053,7 +13053,7 @@ class Story {
       // There will always be at least one passage, the starting passage.
       // As the undo icon will only appear after the first navigation event,
       //  we can safely go "back" one entry.
-      this.show(State.history[State.history.length - 1]);
+      this.show(State.history[State.history.length - 2]);
     });
   }
 
@@ -13070,22 +13070,16 @@ class Story {
    */
 
   start () {
-    // Are there any user styles to parse?
-    if (this.userStyles.length > 0) {
-      // For each, add them to the body as extra style elements
-      this.userStyles.forEach((style) => {
-        $(document.body).append(`<style>${style}</style>`);
-      });
-    }
+    // For each style, add them to the body as extra style elements.
+    this.userStyles.forEach((style) => {
+      $(document.body).append(`<style>${style}</style>`);
+    });
 
-    // Are there any user scripts to parse?
-    if (this.userScripts.length > 0) {
-      // For each, render them as JavaScript inside EJS
-      this.userScripts.forEach((script) => {
-        // Run any code within a templated sandbox.
-        this.runScript(`<%${script}%>`);
-      });
-    }
+    // For each script, render them as JavaScript inside EJS.
+    this.userScripts.forEach((script) => {
+      // Run any code within a templated sandbox.
+      this.runScript(`<%${script}%>`);
+    });
 
     // Retrieve Passage object matching starting passage id.
     const passage = this.getPassageById(this.startPassage);
@@ -13187,6 +13181,9 @@ class Story {
     // Set the global passage to the one about to be shown.
     window.passage = passage;
 
+    // Overwrite current tags
+    this.passageElement.attr('tags', passage.tags);
+
     // Overwrite the parsed with the rendered.
     this.passageElement.html(this.render(passage.name));
   }
@@ -13237,13 +13234,14 @@ class Story {
     let result = '';
 
     try {
-      // Send in pseudo-globals
+      // Send in pseudo-global properties
+      /* eslint-disable object-shorthand */
       result = ejs.render(script,
         {
-          State,
+          State: State,
           s: this.state,
-          $,
-          _,
+          $: $,
+          _: _,
           renderToSelector: this.renderToSelector,
           include: this.render
         },
@@ -13256,6 +13254,7 @@ class Story {
       throw new Error(`Error compiling template code: ${e}`);
     }
 
+    /* eslint-enable object-shorthand */
     return result;
   }
 
