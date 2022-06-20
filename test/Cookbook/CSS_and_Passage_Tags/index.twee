@@ -2,21 +2,19 @@
 CSS and Passage Tags in Snowman
 
 :: UserStylesheet[stylesheet]
-.grey {
+[tags="grey"] {
 	background: grey;
   	color: white;
 }
-.yellow {
+
+[tags="yellow"] {
 	background: yellow;
   	color: black;
 }
 
 :: Start[grey]
-<% $("body").toggleClass("grey") %>
-This passage has a grey background and white text.
-
+This passage has a grey background and (default) white text.
 [[Second]]
 
 :: Second[yellow]
-<% $("body").toggleClass("yellow") %>
 This passage has a yellow background and black text.

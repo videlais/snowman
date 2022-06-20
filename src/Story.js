@@ -317,6 +317,9 @@ class Story {
     // Set the global passage to the one about to be shown.
     window.passage = passage;
 
+    // Overwrite current tags
+    this.passageElement.attr('tags', passage.tags);
+
     // Overwrite the parsed with the rendered.
     this.passageElement.html(this.render(passage.name));
   }
