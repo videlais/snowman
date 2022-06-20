@@ -12,6 +12,10 @@
    beforeAll(async () => {
      await page.goto(`file://${path.join(__dirname, 'index.html')}`);
    });
+
+   afterAll(async () => {
+    ShellJS.rm(`${path.join(__dirname, 'index.html')}`);
+   });
  
    it('Should use "tags="yellow"', async () => {
         await page.click('[data-passage="Second"]');

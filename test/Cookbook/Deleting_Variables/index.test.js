@@ -12,6 +12,10 @@
    beforeAll(async () => {
      await page.goto(`file://${path.join(__dirname, 'index.html')}`);
    });
+
+   afterAll(async () => {
+    ShellJS.rm(`${path.join(__dirname, 'index.html')}`);
+   });
  
    it('Should display "Does "example" still exist as part of the object window.story? false" after opening chest', async () => {
         await page.click('[data-passage="Delete the value!"]');

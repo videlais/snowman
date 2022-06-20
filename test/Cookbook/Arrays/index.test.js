@@ -12,6 +12,10 @@
    beforeAll(async () => {
      await page.goto(`file://${path.join(__dirname, 'index.html')}`);
    });
+
+   afterAll(async () => {
+    ShellJS.rm(`${path.join(__dirname, 'index.html')}`);
+   });
  
    it('Should display "a sword, a shield, a suit of armor" after opening chest', async () => {
         await page.click('[data-passage="hallway"]');

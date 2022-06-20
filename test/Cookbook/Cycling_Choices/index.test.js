@@ -12,6 +12,10 @@
    beforeAll(async () => {
      await page.goto(`file://${path.join(__dirname, 'index.html')}`);
    });
+
+   afterAll(async () => {
+    ShellJS.rm(`${path.join(__dirname, 'index.html')}`);
+   });
  
    it('Should display "Two" after link is clicked once', async () => {
         await page.click('[class="cycle"]');

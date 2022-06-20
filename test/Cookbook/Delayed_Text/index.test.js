@@ -15,6 +15,10 @@
    beforeAll(async () => {
      await page.goto(`file://${path.join(__dirname, 'index.html')}`);
    });
+
+   afterAll(async () => {
+    ShellJS.rm(`${path.join(__dirname, 'index.html')}`);
+   });
  
    it('Should display "5 seconds" after at least five seconds', async () => {
         // Should be done under 10 seconds
