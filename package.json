@@ -28,7 +28,7 @@
     "@types/puppeteer": "^5.4.6",
     "css-loader": "^6.7.1",
     "css-minimizer-webpack-plugin": "^4.0.0",
-    "eslint": "^8.17.0",
+    "eslint": "^8.18.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-jest": "^26.5.3",
     "eslint-plugin-jsdoc": "^39.3.2",
