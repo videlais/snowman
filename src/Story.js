@@ -367,7 +367,7 @@ class Story {
     let result = '';
 
     try {
-      // Send in pseudo-globals
+      // Send in pseudo-global properties
       result = ejs.render(script,
         {
           State,
