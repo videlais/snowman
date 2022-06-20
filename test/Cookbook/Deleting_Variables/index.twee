@@ -2,8 +2,6 @@
 Snowman: Deleting Variables
 
 :: UserScript[script]
-window.story = {};
-
 window.story.example = "an example!";
 
 :: Start
