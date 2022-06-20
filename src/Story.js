@@ -339,7 +339,7 @@ class Story {
    */
   render (name) {
     // Search for passage by name
-    const passage = this.getPassageByName(name);
+    const passage = window.story.getPassageByName(name);
 
     // Does this passage exist?
     if (passage === null) {
@@ -349,7 +349,7 @@ class Story {
     }
 
     // Render any possible code first
-    let result = this.runScript(passage.source);
+    let result = window.story.runScript(passage.source);
 
     // Parse the resulting text
     result = Markdown.parse(result);
@@ -404,7 +404,7 @@ class Story {
   renderToSelector (passageName, selector) {
     // Render content to a specific selector.
     try {
-      $(selector).html(this.render(passageName));
+      $(selector).html(window.story.render(passageName));
     } catch (e) {
       // Throw error if selector does not exist.
       throw new Error('Error with selector when using renderToSelector()');

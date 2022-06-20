@@ -1,0 +1,8 @@
+:: StoryTitle
+Single Global Property
+
+:: Script[script]
+s.example = 5;
+
+:: Start
+Value is <%= s.example %>

@@ -1,0 +1,5 @@
+:: StoryTitle
+Underscore Test
+
+:: Start
+<%= _.random(1, 10) %>

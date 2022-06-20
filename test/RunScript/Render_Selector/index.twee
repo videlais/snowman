@@ -1,0 +1,9 @@
+:: StoryTitle
+Render Selector
+
+:: Start
+<span id="test"></span>
+<% renderToSelector('Another', '#test') %>
+
+:: Another
+Hey!

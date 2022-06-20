@@ -1,0 +1,8 @@
+:: StoryTitle
+Render Test
+
+:: Start
+<span id="test"><%= include('Another') %></span>
+
+:: Another
+Hey!

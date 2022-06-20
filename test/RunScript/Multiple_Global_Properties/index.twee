@@ -1,0 +1,9 @@
+:: StoryTitle
+Multiple Global Properties
+
+:: Script[script]
+s.example = 5;
+s.second = 56;
+
+:: Start
+Values are <%= s.example %> and <%= s.second %>.

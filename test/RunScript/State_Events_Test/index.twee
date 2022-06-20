@@ -1,0 +1,17 @@
+:: StoryTitle
+State Events Test
+
+:: Start
+<a role="link">Click me</a>
+<%
+$('a').on('click', () => {
+    State.events.emit('test-click');
+});
+
+State.events.on('test-click', () => {
+    window.story.show('Another');
+});
+%>
+
+:: Another
+This one.

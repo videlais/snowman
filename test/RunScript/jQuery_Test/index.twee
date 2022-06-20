@@ -1,0 +1,8 @@
+:: StoryTitle
+jQuery Test
+
+:: Start
+<span id="results"></span>
+<% 
+    $('#results').html("Hi");
+%>
