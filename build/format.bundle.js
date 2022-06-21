@@ -13223,6 +13223,44 @@ class Story {
   }
 
   /**
+   * Accepts mixed input of arrays or comma-separated list of values and returns a random entry.
+   * Will return null when given no arguments.
+   *
+   * Examples:
+   * - either(1,2,3);
+   * - either(1,[2],[4,5]);
+   *
+   * @function either
+   * @param {object|Array} args - Array or comma-separated list
+   * @returns {object|null} Random entry or null
+   */
+  either (...args) {
+    let tempArray = [];
+    let result = null;
+
+    // For every entry...
+    for (const entry of args) {
+      // If it is not an array...
+      if (!(entry instanceof Array)) {
+        // push the entry into the temporary array.
+        tempArray.push(entry);
+      } else {
+        // Spread out any subentries and add them to temporary array.
+        tempArray = [...tempArray, ...entry];
+      }
+    }
+
+    // Check if any entries were added.
+    if (tempArray.length > 0) {
+      // If they were, grab one of them.
+      result = tempArray[Math.floor(Math.random() * tempArray.length)];
+    }
+
+    // Return either null (no entries) or random entry.
+    return result;
+  }
+
+  /**
    * Render JavaScript within a templated sandbox and return possible output.
    * Will throw error if code does.
    *
@@ -13243,7 +13281,8 @@ class Story {
           $: $,
           _: _,
           renderToSelector: this.renderToSelector,
-          include: this.render
+          include: this.render,
+          either: this.either
         },
         {
           outputFunctionName: 'print'

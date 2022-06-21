@@ -1,0 +1,5 @@
+:: StoryTitle
+Either Test
+
+:: Start
+<%= either(1,2,3) %>

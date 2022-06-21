@@ -417,7 +417,8 @@ class Story {
           $: $,
           _: _,
           renderToSelector: this.renderToSelector,
-          include: this.render
+          include: this.render,
+          either: this.either
         },
         {
           outputFunctionName: 'print'
