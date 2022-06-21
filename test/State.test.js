@@ -148,6 +148,18 @@ describe('State', () => {
       expect(State.hasVisited()).toBe(false);
     });
   });
+
+  describe('visited()', () => {
+    it('Should return 1 if only one visit in history', () => {
+      State.history = ['Start', 'Another'];
+      expect(State.visited('Start')).toBe(1);
+    });
+
+    it('Should return 2 if two visits in history', () => {
+      State.history = ['Start', 'Another', 'Start'];
+      expect(State.visited('Start')).toBe(2);
+    });
+  });
 });
 
 describe('localStorage turned off', () => {

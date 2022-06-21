@@ -141,6 +141,17 @@ class State {
 
     return result;
   }
+
+  /**
+   * Returns number of visits for a single passage.
+   *
+   * @function visited
+   * @param {string} passageName - Passage name to check
+   * @returns {number} Number of visits to passage
+   */
+  static visited (passageName) {
+    return State.history.filter(name => name === passageName).length;
+  }
 }
 
 module.exports = State;

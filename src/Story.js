@@ -419,7 +419,8 @@ class Story {
           renderToSelector: this.renderToSelector,
           include: this.render,
           either: this.either,
-          hasVisited: State.hasVisited
+          hasVisited: State.hasVisited,
+          visited: State.visited
         },
         {
           outputFunctionName: 'print'

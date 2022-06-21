@@ -12852,6 +12852,17 @@ class State {
 
     return result;
   }
+
+  /**
+   * Returns number of visits for a single passage.
+   *
+   * @function visited
+   * @param {string} passageName - Passage name to check
+   * @returns {number} Number of visits to passage
+   */
+  static visited (passageName) {
+    return State.history.filter(name => name === passageName).length;
+  }
 }
 
 module.exports = State;
@@ -13283,7 +13294,8 @@ class Story {
           renderToSelector: this.renderToSelector,
           include: this.render,
           either: this.either,
-          hasVisited: State.hasVisited
+          hasVisited: State.hasVisited,
+          visited: State.visited
         },
         {
           outputFunctionName: 'print'
