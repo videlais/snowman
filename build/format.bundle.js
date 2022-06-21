@@ -12831,21 +12831,21 @@ class State {
   }
 
   /**
-   * Returns true if the named passage exists within the history array
+   * Returns true if the named passage exists within State history array
    *
    * @function hasVisited
    * @param {string | Array} passageName - Name(s) of passage to check
    * @returns {boolean} - True if passage(s) in history; false otherwise
    */
-  static hasVisited (passageName) {
+  static hasVisited (passageName = null) {
     let result = false;
 
     if (Array.isArray(passageName)) {
       result = passageName.every((p) => {
-        return this.history.includes(p);
+        return State.history.includes(p);
       });
     } else {
-      result = this.history.some((p) => {
+      result = State.history.some((p) => {
         return p === passageName;
       });
     }
@@ -13282,7 +13282,8 @@ class Story {
           _: _,
           renderToSelector: this.renderToSelector,
           include: this.render,
-          either: this.either
+          either: this.either,
+          hasVisited: State.hasVisited
         },
         {
           outputFunctionName: 'print'

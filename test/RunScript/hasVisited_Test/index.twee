@@ -1,0 +1,12 @@
+:: StoryTitle
+hasVisited Test
+
+:: Start
+[[Another]]
+
+:: Another
+<% 
+    if(hasVisited('Start')) {
+        print("Hi!");
+    }
+%>

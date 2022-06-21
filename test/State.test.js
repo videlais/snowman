@@ -143,6 +143,10 @@ describe('State', () => {
       State.history = ['1', '2'];
       expect(State.hasVisited(['1', '3'])).toBe(false);
     });
+
+    it('Should return false if passed nothing to check', () => {
+      expect(State.hasVisited()).toBe(false);
+    });
   });
 });
 

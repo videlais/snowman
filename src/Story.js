@@ -418,7 +418,8 @@ class Story {
           _: _,
           renderToSelector: this.renderToSelector,
           include: this.render,
-          either: this.either
+          either: this.either,
+          hasVisited: State.hasVisited
         },
         {
           outputFunctionName: 'print'
