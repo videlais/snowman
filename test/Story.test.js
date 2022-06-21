@@ -176,6 +176,24 @@ describe('Story', () => {
       expect(() => window.story.applyExternalStyles(2)).toThrow();
     });
   });
+
+  describe('either()', () => {
+    it('Should return null if given nothing', () => {
+      expect(window.story.either()).toBe(null);
+    });
+
+    it('Should return single entry when only given one number', () => {
+      expect(window.story.either(1)).toBe(1);
+    });
+
+    it('Should return single entry when only given one number in an array', () => {
+      expect(window.story.either([1])).toBe(1);
+    });
+
+    it('Should return single entry when given mixed input', () => {
+      expect(window.story.either([1], 2, [3], [4])).toBeLessThan(5);
+    });
+  });
 });
 
 describe('Story events', () => {
