@@ -103,6 +103,17 @@ describe('Story', () => {
     });
   });
 
+  describe('passage()', () => {
+    it('Should return null if passage name does not exist', () => {
+      expect(window.story.passage('Nope')).toBe(null);
+    });
+
+    it('Should return passage if name exists', () => {
+      const p = window.story.passage('Test Passage 3');
+      expect(p.name).toBe('Test Passage 3');
+    });
+  });
+
   describe('render()', () => {
     it('Should return rendered content of named passage', () => {
       expect(window.story.render('Test Passage 5')).toBe('<tw-link role="link" data-passage="Test Passage">Test Passage</a>');

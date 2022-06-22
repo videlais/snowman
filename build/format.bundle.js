@@ -13163,7 +13163,7 @@ class Story {
     let passage = null;
 
     // Search for any passages with the name
-    const result = this.passages.filter((p) => p.name === name);
+    const result = window.story.passages.filter((p) => p.name === name);
 
     // Were any found?
     if (result.length !== 0) {
@@ -13173,6 +13173,18 @@ class Story {
 
     // Return either null or first result found.
     return passage;
+  }
+
+  /**
+   * Legacy method. Alias for Story.getPassageByName().
+   *
+   * @function passage
+   * @param {string} name - name of the passage
+   * @returns {Passage|null} Passage object or null
+   * @depreciated Since version 2.2
+   */
+  passage (name) {
+    return window.story.getPassageByName(name);
   }
 
   /**
@@ -13295,7 +13307,8 @@ class Story {
           include: this.render,
           either: this.either,
           hasVisited: State.hasVisited,
-          visited: State.visited
+          visited: State.visited,
+          getPassageByName: this.getPassageByName
         },
         {
           outputFunctionName: 'print'
