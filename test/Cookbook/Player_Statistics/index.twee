@@ -7,7 +7,7 @@ $(function() {
 	// Create a global setup object	
 	window.setup = window.setup || {};
 
-	// Create a global propety on the setup object
+	// Create a global property on the setup object
 	window.setup.stats = {};
 	
 	// Create (and overwrite) the use of 's'
