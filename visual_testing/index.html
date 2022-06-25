@@ -17,6 +17,7 @@
 		<tw-story>
 			<tw-sidebar>
 				<tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+				<tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
 			</tw-sidebar>
 			<tw-passage class="passage" aria-live="polite"></tw-passage>
 		</tw-story>
@@ -12853,26 +12854,37 @@ class State {
   }
 
   /**
-   * Returns true if the named passage exists within the history array
+   * Returns true if the named passage exists within State history array
    *
    * @function hasVisited
    * @param {string | Array} passageName - Name(s) of passage to check
    * @returns {boolean} - True if passage(s) in history; false otherwise
    */
-  static hasVisited (passageName) {
+  static hasVisited (passageName = null) {
     let result = false;
 
     if (Array.isArray(passageName)) {
       result = passageName.every((p) => {
-        return this.history.includes(p);
+        return State.history.includes(p);
       });
     } else {
-      result = this.history.some((p) => {
+      result = State.history.some((p) => {
         return p === passageName;
       });
     }
 
     return result;
+  }
+
+  /**
+   * Returns number of visits for a single passage.
+   *
+   * @function visited
+   * @param {string} passageName - Passage name to check
+   * @returns {number} Number of visits to passage
+   */
+  static visited (passageName) {
+    return State.history.filter(name => name === passageName).length;
   }
 }
 
@@ -13020,9 +13032,9 @@ class Story {
     State.events.on('navigation', (dest) => {
       // Add to the state's history.
       State.history.push(dest);
-      // Check if undo icon should be shown or not.
-      if (State.history.length > 1) {
-        // Only show undo if a reader has visited multiple passages previously.
+      // Show the buttons *after* the user has made an interaction.
+      if(State.history.length > 1) {
+        // On first (and future) navigation events, show undo icon.
         this.undoIcon.css('visibility', 'visible');
       }
     });
@@ -13068,6 +13080,9 @@ class Story {
        * @event undo
        */
       State.events.emit('undo');
+      
+      // If undo is ever used, redo becomes available.
+      this.redoIcon.css('visibility', 'visible');
     });
 
     // Listen for undo events
@@ -13075,6 +13090,34 @@ class Story {
       // There will always be at least one passage, the starting passage.
       // As the undo icon will only appear after the first navigation event,
       //  we can safely go "back" one entry.
+      this.show(State.history[State.history.length - 2]);
+    });
+
+    /**
+     * Reference to redo icon
+     *
+     * @property {Element} undoIcon - Redo element
+     * @type {Element}
+     */
+    this.redoIcon = $('tw-icon[title="Redo"]');
+
+    // Start the story with it hidden.
+    this.redoIcon.css('visibility', 'hidden');
+
+    // Listen for user click interactions
+    this.redoIcon.on('click', () => {
+      /**
+       * Triggered when user clicks on the redo button.
+       *
+       * @event redo
+       */
+      State.events.emit('redo');
+    });
+
+    // Listen for undo events
+    State.events.on('redo', () => {
+      // Undo goes back one in the array.
+      // Redo picks the last entry.
       this.show(State.history[State.history.length - 1]);
     });
   }
@@ -13092,22 +13135,16 @@ class Story {
    */
 
   start () {
-    // Are there any user styles to parse?
-    if (this.userStyles.length > 0) {
-      // For each, add them to the body as extra style elements
-      this.userStyles.forEach((style) => {
-        $(document.body).append(`<style>${style}</style>`);
-      });
-    }
+    // For each style, add them to the body as extra style elements.
+    this.userStyles.forEach((style) => {
+      $(document.body).append(`<style>${style}</style>`);
+    });
 
-    // Are there any user scripts to parse?
-    if (this.userScripts.length > 0) {
-      // For each, render them as JavaScript inside EJS
-      this.userScripts.forEach((script) => {
-        // Run any code within a templated sandbox.
-        this.runScript(`<%${script}%>`);
-      });
-    }
+    // For each script, render them as JavaScript inside EJS.
+    this.userScripts.forEach((script) => {
+      // Run any code within a templated sandbox.
+      this.runScript(`<%${script}%>`);
+    });
 
     // Retrieve Passage object matching starting passage id.
     const passage = this.getPassageById(this.startPassage);
@@ -13180,7 +13217,7 @@ class Story {
     let passage = null;
 
     // Search for any passages with the name
-    const result = this.passages.filter((p) => p.name === name);
+    const result = window.story.passages.filter((p) => p.name === name);
 
     // Were any found?
     if (result.length !== 0) {
@@ -13190,6 +13227,18 @@ class Story {
 
     // Return either null or first result found.
     return passage;
+  }
+
+  /**
+   * Legacy method. Alias for Story.getPassageByName().
+   *
+   * @function passage
+   * @param {string} name - name of the passage
+   * @returns {Passage|null} Passage object or null
+   * @depreciated Since version 2.2
+   */
+  passage (name) {
+    return window.story.getPassageByName(name);
   }
 
   /**
@@ -13208,6 +13257,9 @@ class Story {
 
     // Set the global passage to the one about to be shown.
     window.passage = passage;
+
+    // Overwrite current tags
+    this.passageElement.attr('tags', passage.tags);
 
     // Overwrite the parsed with the rendered.
     this.passageElement.html(this.render(passage.name));
@@ -13228,7 +13280,7 @@ class Story {
    */
   render (name) {
     // Search for passage by name
-    const passage = this.getPassageByName(name);
+    const passage = window.story.getPassageByName(name);
 
     // Does this passage exist?
     if (passage === null) {
@@ -13238,12 +13290,50 @@ class Story {
     }
 
     // Render any possible code first
-    let result = this.runScript(passage.source);
+    let result = window.story.runScript(passage.source);
 
     // Parse the resulting text
     result = Markdown.parse(result);
 
     // Return the rendered and parsed passage source.
+    return result;
+  }
+
+  /**
+   * Accepts mixed input of arrays or comma-separated list of values and returns a random entry.
+   * Will return null when given no arguments.
+   *
+   * Examples:
+   * - either(1,2,3);
+   * - either(1,[2],[4,5]);
+   *
+   * @function either
+   * @param {object|Array} args - Array or comma-separated list
+   * @returns {object|null} Random entry or null
+   */
+  either (...args) {
+    let tempArray = [];
+    let result = null;
+
+    // For every entry...
+    for (const entry of args) {
+      // If it is not an array...
+      if (!(entry instanceof Array)) {
+        // push the entry into the temporary array.
+        tempArray.push(entry);
+      } else {
+        // Spread out any subentries and add them to temporary array.
+        tempArray = [...tempArray, ...entry];
+      }
+    }
+
+    // Check if any entries were added.
+    if (tempArray.length > 0) {
+      // If they were, grab one of them.
+      result = tempArray[Math.floor(Math.random() * tempArray.length)];
+    }
+
+    // Return either null (no entries) or random entry.
     return result;
   }
 
@@ -13259,15 +13349,20 @@ class Story {
     let result = '';
 
     try {
-      // Send in pseudo-globals
+      // Send in pseudo-global properties
+      /* eslint-disable object-shorthand */
       result = ejs.render(script,
         {
-          State,
+          State: State,
           s: this.state,
-          $,
-          _,
+          $: $,
+          _: _,
           renderToSelector: this.renderToSelector,
-          include: this.render
+          include: this.render,
+          either: this.either,
+          hasVisited: State.hasVisited,
+          visited: State.visited,
+          getPassageByName: this.getPassageByName
         },
         {
           outputFunctionName: 'print'
@@ -13278,6 +13373,7 @@ class Story {
       throw new Error(`Error compiling template code: ${e}`);
     }
 
+    /* eslint-enable object-shorthand */
     return result;
   }
 
@@ -13291,7 +13387,7 @@ class Story {
   renderToSelector (passageName, selector) {
     // Render content to a specific selector.
     try {
-      $(selector).html(this.render(passageName));
+      $(selector).html(window.story.render(passageName));
     } catch (e) {
       // Throw error if selector does not exist.
       throw new Error('Error with selector when using renderToSelector()');

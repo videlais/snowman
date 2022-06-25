@@ -32,13 +32,6 @@ class Story {
     this.name = this.storyDataElement.attr('name');
 
     /**
-     * @property {number} startPassage - The ID of the first passage to be displayed.
-     * @type {number}
-     * @readonly
-     */
-    this.startPassage = parseInt(this.storyDataElement.attr('startnode'));
-
-    /**
      * @property {string} creator - The program that created this story.
      * @type {string}
      * @readonly
@@ -51,6 +44,13 @@ class Story {
      * @readonly
      */
     this.creatorVersion = this.storyDataElement.attr('creator-version');
+
+    /**
+     * @property {string} startPassage - ID of the first passage to be displayed.
+     * @type {string}
+     * @readonly
+     */
+    this.startPassage = parseInt(this.storyDataElement.attr('startnode'));
 
     // Create internal events and storehouse for state.
     State.createStore();
@@ -134,11 +134,8 @@ class Story {
     State.events.on('navigation', (dest) => {
       // Add to the state's history.
       State.history.push(dest);
-      // Check if undo icon should be shown or not.
-      if (State.history.length > 1) {
-        // Only show undo if a reader has visited multiple passages previously.
-        this.undoIcon.css('visibility', 'visible');
-      }
+      // On first (and future) navigation events, show undo icon.
+      this.undoIcon.css('visibility', 'visible');
     });
 
     // Catch user clicking on links and create navigation event
@@ -149,6 +146,7 @@ class Story {
        * Triggered when user initiates passage navigation.
        *
        * @event navigation
+       * @type {Passage}
        */
       State.events.emit('navigation', passageName);
       // Show the passage by name.
@@ -179,9 +177,13 @@ class Story {
       /**
        * Triggered when user clicks on the undo button.
        *
-       * @event undo
+       * @event State#undo
+       * @type {State}
        */
-      State.events.emit('undo');
+      State.events.emit('undo', window.story.state);
+
+      // If undo is ever used, redo becomes available.
+      this.redoIcon.css('visibility', 'visible');
     });
 
     // Listen for undo events
@@ -191,6 +193,41 @@ class Story {
       //  we can safely go "back" one entry.
       this.show(State.history[State.history.length - 2]);
     });
+
+    /**
+     * Reference to redo icon
+     *
+     * @property {Element} redoIcon - Redo element
+     * @type {Element}
+     */
+    this.redoIcon = $('tw-icon[title="Redo"]');
+
+    // Start the story with it hidden.
+    this.redoIcon.css('visibility', 'hidden');
+
+    // Listen for user click interactions
+    this.redoIcon.on('click', () => {
+      /**
+       * Triggered when user clicks on the redo button.
+       *
+       * @event State#redo
+       * @type {State}
+       */
+      State.events.emit('redo', window.story.state);
+    });
+
+    // Listen for undo events
+    State.events.on('redo', () => {
+      // Undo goes back one in the array.
+      // Redo picks the last entry.
+      this.show(State.history[State.history.length - 1]);
+    });
+
+    // Listen for 'start' event
+    State.events.on('start', (passageName) => {
+      // Append the starting passage to the history array.
+      State.history.push(passageName);
+    });
   }
 
   /**
@@ -198,8 +235,7 @@ class Story {
    * 1. Apply all user styles
    * 2. Try to run all user scripts
    * 3. Trigger story started event
-   * 4. Tries to find startPassage's id in this.passages array
-   * 4. Throws error if startPassage's id does not exist
+   * 4. Checks if startPassage exists
    * 5. Calls show() using startPassage's name
    *
    * @function start
@@ -217,21 +253,24 @@ class Story {
       this.runScript(`<%${script}%>`);
     });
 
-    // Retrieve Passage object matching starting passage id.
     const passage = this.getPassageById(this.startPassage);
 
-    // Does the passage exist?
+    // Does the starting passage exist?
     if (passage === null) {
       // It does not exist.
       // Throw an error.
-      throw new Error('Starting passage pid does not exist!');
+      throw new Error('Starting passage does not exist!');
     }
 
     // Show the passage by name.
     this.show(passage.name);
 
-    // Trigger the navigation event, as the reader has visited the starting passage.
-    State.events.emit('navigation', passage.name);
+    /**
+     * Triggered when the story starts
+     *
+     * @event start
+     */
+    State.events.emit('start', passage.name);
   }
 
   /**
@@ -262,7 +301,7 @@ class Story {
     let passage = null;
 
     // Search for any passages with the name
-    const result = this.passages.filter((p) => p.id === id);
+    const result = window.story.passages.filter((p) => p.id === id);
 
     // Were any found?
     if (result.length !== 0) {
@@ -306,7 +345,6 @@ class Story {
    * @function passage
    * @param {string} name - name of the passage
    * @returns {Passage|null} Passage object or null
-   * @depreciated Since version 2.2
    */
   passage (name) {
     return window.story.getPassageByName(name);
