@@ -12994,26 +12994,10 @@ class Story {
      */
     this.storyElement = $('tw-story');
 
-    // Listen for all navigation events.
-    // These happen when a user clicks on a link.
-    State.events.on('navigation', (dest) => {
-      // Add to the state's history.
-      State.history.push(dest);
-      // On first (and future) navigation events, show undo icon.
-      this.undoIcon.css('visibility', 'visible');
-    });
-
-    // Catch user clicking on links and create navigation event
+    // Catch user clicking on links
     this.storyElement.on('click', 'tw-link[data-passage]', (e) => {
       // Pull destination passage name from the attribute.
       const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
-      /**
-       * Triggered when user initiates passage navigation.
-       *
-       * @event navigation
-       * @type {Passage}
-       */
-      State.events.emit('navigation', passageName);
       // Show the passage by name.
       this.show(passageName);
     });
@@ -13054,8 +13038,6 @@ class Story {
     // Listen for undo events
     State.events.on('undo', () => {
       // There will always be at least one passage, the starting passage.
-      // As the undo icon will only appear after the first navigation event,
-      //  we can safely go "back" one entry.
       this.show(State.history[State.history.length - 2]);
     });
 
@@ -13102,12 +13084,6 @@ class Story {
       // Redo picks the last entry.
       this.show(State.history[State.history.length - 1]);
     });
-
-    // Listen for 'start' event
-    State.events.on('start', (passageName) => {
-      // Append the starting passage to the history array.
-      State.history.push(passageName);
-    });
   }
 
   /**
@@ -13142,13 +13118,14 @@ class Story {
       throw new Error('Starting passage does not exist!');
     }
 
-    // Show the passage by name.
+    // Show starting passage.
     this.show(passage.name);
 
     /**
      * Triggered when the story starts
      *
-     * @event start
+     * @event State#start
+     * @type {string}
      */
     State.events.emit('start', passage.name);
   }
@@ -13252,6 +13229,22 @@ class Story {
 
     // Overwrite the parsed with the rendered.
     this.passageElement.html(this.render(passage.name));
+
+    // Add to the state's history.
+    State.history.push(passage.name);
+
+    // Change visibility after second (and later) show calls
+    if (State.history.length > 1) {
+      this.undoIcon.css('visibility', 'visible');
+    }
+
+    /**
+     * Triggered when a passage is shown
+     *
+     * @event State#show
+     * @type {string}
+     */
+    State.events.emit('show', passage.name);
   }
 
   /**

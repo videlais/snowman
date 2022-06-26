@@ -182,6 +182,15 @@ describe('Story', () => {
     it('Should throw error if passage does not exist', () => {
       expect(() => window.story.show('Nope')).toThrow();
     });
+
+    it('Should emit show event', () => {
+      let result = false;
+      State.events.on('show', async () => {
+        result = true;
+        await expect(result).toBe(true);
+      });
+      window.story.show('Test Passage');
+    });
   });
 
   describe('applyExternalStyles()', () => {
@@ -256,7 +265,7 @@ describe('Story events', () => {
 
   it('Should emit undo event when tw-icon is clicked', () => {
     let result = false;
-    State.events.emit('navigation', 'Test Passage 5');
+    window.story.show('Test Passage 5');
     State.events.on('undo', () => {
       result = true;
     });
@@ -266,7 +275,6 @@ describe('Story events', () => {
 
   it('Should emit redo event when tw-icon is clicked', () => {
     let result = false;
-    State.events.emit('navigation', 'Test Passage 5');
     State.events.on('redo', () => {
       result = true;
     });
@@ -274,20 +282,14 @@ describe('Story events', () => {
     expect(result).toBe(true);
   });
 
-  it('Should listen for navigation events', () => {
-    State.events.emit('navigation', 'Test Passage 3');
-    expect(State.history.length).toBe(2);
-  });
-
-  it('Should trigger showing undo icon', () => {
-    State.events.emit('navigation', 'Test Passage 3');
-    State.events.emit('navigation', 'Test Passage 3');
+  it('Should show undo icon after at least one user click', () => {
+    $('tw-link').trigger('click');
     expect(window.story.undoIcon.css('visibility')).toBe('visible');
   });
 
-  it('Should trigger navigation when a reader clicks a link', () => {
+  it('Should trigger show when a reader clicks a link', () => {
     let result = false;
-    State.events.on('navigation', () => {
+    State.events.on('show', () => {
       result = true;
     });
     $('tw-link').trigger('click');

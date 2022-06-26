@@ -1,0 +1,29 @@
+:: StoryTitle
+Left Sidebar in Snowman
+
+:: UserScript [script]
+/*
+	Append new element with id of 'sidebar' to existing tw-sidebar
+*/
+$('tw-sidebar').append('<div id="sidebar">');
+
+/*
+	Update every time a passage is shown.
+*/
+State.events.on('show', () => {
+	$('#sidebar').html(window.story.render("Sidebar"));
+});
+
+:: Start
+<% s.name = "Jane Doe"; s.location = "Work" %>
+[[Another passage]]
+
+
+:: Sidebar
+Name: <%= s.name %><br>
+Location: <%= s.location %>
+
+
+:: Another passage
+<% s.name = "John Smith"; s.location = "Shop" %>
+[[Start]]
