@@ -55,6 +55,12 @@ describe('Story', () => {
     it('Should record all passages', () => {
       expect(window.story.passages.length).toBe(5);
     });
+
+    it('Should have read-only access to history', () => {
+      expect(window.story.history.length).toBe(0);
+      window.story.start();
+      expect(window.story.history.length).toBe(1);
+    });
   });
 
   describe('render()', () => {

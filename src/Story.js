@@ -191,6 +191,21 @@ class Story {
       //  we can safely go "back" one entry.
       this.show(State.history[State.history.length - 2]);
     });
+
+    // Read-only proxy construct
+    const handler = {
+      get: (target, property, receiver) => {
+        return Reflect.get(target, property, receiver);
+      }
+    };
+
+    /**
+     * Legacy property. Read-only proxy to State.history.
+     *
+     * @property {Array} history - Array of passage names visited by reader
+     * @type {Array}
+     */
+    this.history = new Proxy(State.history, handler);
   }
 
   /**
