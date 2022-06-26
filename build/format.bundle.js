@@ -13009,9 +13009,9 @@ class Story {
     State.events.on('navigation', (dest) => {
       // Add to the state's history.
       State.history.push(dest);
-      // Check if undo icon should be shown or not.
-      if (State.history.length > 1) {
-        // Only show undo if a reader has visited multiple passages previously.
+      // Show the buttons *after* the user has made an interaction.
+      if(State.history.length > 1) {
+        // On first (and future) navigation events, show undo icon.
         this.undoIcon.css('visibility', 'visible');
       }
     });
@@ -13057,6 +13057,9 @@ class Story {
        * @event undo
        */
       State.events.emit('undo');
+      
+      // If undo is ever used, redo becomes available.
+      this.redoIcon.css('visibility', 'visible');
     });
 
     // Listen for undo events
@@ -13067,6 +13070,7 @@ class Story {
       this.show(State.history[State.history.length - 2]);
     });
 
+<<<<<<< HEAD
     // Read-only proxy construct
     const handler = {
       get: (target, property, receiver) => {
@@ -13081,6 +13085,35 @@ class Story {
      * @type {Array}
      */
     this.history = new Proxy(State.history, handler);
+=======
+    /**
+     * Reference to redo icon
+     *
+     * @property {Element} undoIcon - Redo element
+     * @type {Element}
+     */
+    this.redoIcon = $('tw-icon[title="Redo"]');
+
+    // Start the story with it hidden.
+    this.redoIcon.css('visibility', 'hidden');
+
+    // Listen for user click interactions
+    this.redoIcon.on('click', () => {
+      /**
+       * Triggered when user clicks on the redo button.
+       *
+       * @event redo
+       */
+      State.events.emit('redo');
+    });
+
+    // Listen for undo events
+    State.events.on('redo', () => {
+      // Undo goes back one in the array.
+      // Redo picks the last entry.
+      this.show(State.history[State.history.length - 1]);
+    });
+>>>>>>> 3d41f9de848b97a9c6ee38ae56fc16d855332549
   }
 
   /**

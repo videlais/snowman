@@ -17,6 +17,7 @@ describe('Story', () => {
    <tw-story>
    <tw-sidebar>
       <tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+      <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
     </tw-sidebar>
     <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
     // Setup global jQuery
@@ -244,6 +245,7 @@ describe('Story events', () => {
    <tw-story>
    <tw-sidebar>
       <tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+      <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
     </tw-sidebar>
     <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
     // Reset story
@@ -259,6 +261,16 @@ describe('Story events', () => {
       result = true;
     });
     window.story.undoIcon.trigger('click');
+    expect(result).toBe(true);
+  });
+
+  it('Should emit redo event when tw-icon is clicked', () => {
+    let result = false;
+    State.events.emit('navigation', 'Test Passage 5');
+    State.events.on('redo', () => {
+      result = true;
+    });
+    window.story.redoIcon.trigger('click');
     expect(result).toBe(true);
   });
 
