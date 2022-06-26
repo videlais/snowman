@@ -194,7 +194,6 @@ class Story {
       this.show(State.history[State.history.length - 2]);
     });
 
-<<<<<<< HEAD
     // Read-only proxy construct
     const handler = {
       get: (target, property, receiver) => {
@@ -209,7 +208,7 @@ class Story {
      * @type {Array}
      */
     this.history = new Proxy(State.history, handler);
-=======
+
     /**
      * Reference to redo icon
      *
@@ -244,7 +243,6 @@ class Story {
       // Append the starting passage to the history array.
       State.history.push(passageName);
     });
->>>>>>> 3d41f9de848b97a9c6ee38ae56fc16d855332549
   }
 
   /**
