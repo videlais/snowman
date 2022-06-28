@@ -1,3 +1,6 @@
+:: StoryTitle
+Snowman: Moving through a dungeon
+
 :: Start
 <div class="maze"></div>
 
