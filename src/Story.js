@@ -8,6 +8,7 @@ const ejs = require('ejs');
 const Passage = require('./Passage.js');
 const Markdown = require('./Markdown.js');
 const State = require('./State.js');
+const History = require('./History.js');
 
 /**
  * An object representing the entire story. After the document has completed
@@ -53,13 +54,16 @@ class Story {
     this.startPassage = parseInt(this.storyDataElement.attr('startnode'));
 
     // Create internal events and storehouse for state.
-    State.createStore();
+    State.init();
+
+    // Create history management.
+    History.init();
 
     /**
      * @property {string} state - State proxy; an object with mutation tracking
      * @type {object}
      */
-    this.state = State.proxy;
+    this.state = State.store;
 
     /**
      * An array of all passages, indexed by ID.
@@ -133,6 +137,8 @@ class Story {
     this.storyElement.on('click', 'tw-link[data-passage]', (e) => {
       // Pull destination passage name from the attribute.
       const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
+      // Add to the history.
+      History.add(passageName);
       // Show the passage by name.
       this.show(passageName);
     });
@@ -161,19 +167,12 @@ class Story {
       /**
        * Triggered when user clicks on the undo button.
        *
-       * @event State#undo
-       * @type {State}
+       * @event History#undo
        */
-      State.events.emit('undo', window.story.state);
+      State.events.emit('undo');
 
       // If undo is ever used, redo becomes available.
       this.redoIcon.css('visibility', 'visible');
-    });
-
-    // Listen for undo events
-    State.events.on('undo', () => {
-      // There will always be at least one passage, the starting passage.
-      this.show(State.history[State.history.length - 2]);
     });
 
     // Read-only proxy construct
@@ -184,12 +183,12 @@ class Story {
     };
 
     /**
-     * Legacy property. Read-only proxy to State.history.
+     * Legacy property. Read-only proxy to History.history.
      *
-     * @property {Array} history - Array of passage names visited by reader
+     * @property {Array} history - Array of passage names and copies of State.store
      * @type {Array}
      */
-    this.history = new Proxy(State.history, handler);
+    this.history = new Proxy(History.history, handler);
 
     /**
      * Reference to redo icon
@@ -207,27 +206,42 @@ class Story {
       /**
        * Triggered when user clicks on the redo button.
        *
-       * @event State#redo
-       * @type {State}
+       * @event History#redo
        */
-      State.events.emit('redo', window.story.state);
+      State.events.emit('redo');
+    });
+
+    // Listen for redo events
+    State.events.on('redo', () => {
+      // Attempt to redo history.
+      const passageName = History.redo();
+      // If redo failed, name will be null.
+      if (passageName !== null) {
+        // Not null, show previous passage.
+        window.story.show(passageName);
+      }
     });
 
     // Listen for undo events
-    State.events.on('redo', () => {
-      // Undo goes back one in the array.
-      // Redo picks the last entry.
-      this.show(State.history[State.history.length - 1]);
+    State.events.on('undo', () => {
+      // Attempt to undo history.
+      const passageName = History.undo();
+      // If undo failed, name will be null.
+      if (passageName !== null) {
+        // Not null, show previous passage.
+        window.story.show(passageName);
+      }
     });
   }
 
   /**
    * Begins playing this story based on data from tw-storydata.
    * 1. Apply all user styles
-   * 2. Try to run all user scripts
-   * 3. Trigger story started event
-   * 4. Checks if startPassage exists
-   * 5. Calls show() using startPassage's name
+   * 2. Run all user scripts
+   * 3. Find starting passage
+   * 4. Add to starting passage to History.history
+   * 5. Show starting passage
+   * 6. Trigger 'start' event
    *
    * @function start
    */
@@ -252,6 +266,9 @@ class Story {
       // Throw an error.
       throw new Error('Starting passage does not exist!');
     }
+
+    // Add to the history.
+    History.add(passage.name);
 
     // Show starting passage.
     this.show(passage.name);
@@ -365,11 +382,8 @@ class Story {
     // Overwrite the parsed with the rendered.
     this.passageElement.html(this.render(passage.name));
 
-    // Add to the state's history.
-    State.history.push(passage.name);
-
     // Change visibility after second (and later) show calls
-    if (State.history.length > 1) {
+    if (this.history.length > 1) {
       this.undoIcon.css('visibility', 'visible');
     }
 
@@ -477,8 +491,8 @@ class Story {
           renderToSelector: this.renderToSelector,
           include: this.render,
           either: this.either,
-          hasVisited: State.hasVisited,
-          visited: State.visited,
+          hasVisited: History.hasVisited,
+          visited: History.visited,
           getPassageByName: this.getPassageByName
         },
         {

@@ -265,12 +265,39 @@ describe('Story events', () => {
 
   it('Should emit undo event when tw-icon is clicked', () => {
     let result = false;
-    window.story.show('Test Passage 5');
+    $('tw-link').trigger('click');
     State.events.on('undo', () => {
       result = true;
     });
     window.story.undoIcon.trigger('click');
     expect(result).toBe(true);
+  });
+
+  it('Should move back one in History.history when undo is clicked', () => {
+    $('tw-link').trigger('click');
+    window.story.undoIcon.trigger('click');
+    expect(window.passage.name).toBe('Test Passage');
+  });
+
+  it('Should do nothing when at the bottom of history when undo is clicked', () => {
+    window.story.undoIcon.trigger('click');
+    window.story.undoIcon.trigger('click');
+    expect(window.passage.name).toBe('Test Passage');
+  });
+
+  it('Should do nothing when at the bottom of history when redo is clicked', () => {
+    $('tw-link').trigger('click');
+    window.story.undoIcon.trigger('click');
+    window.story.redoIcon.trigger('click');
+    window.story.redoIcon.trigger('click');
+    expect(window.passage.name).toBe('Test Passage 2');
+  });
+
+  it('Should move forward one in History.history when redo is clicked', () => {
+    $('tw-link').trigger('click');
+    window.story.undoIcon.trigger('click');
+    window.story.redoIcon.trigger('click');
+    expect(window.passage.name).toBe('Test Passage 2');
   });
 
   it('Should emit redo event when tw-icon is clicked', () => {

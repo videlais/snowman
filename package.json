@@ -9,7 +9,8 @@
     "lint": "eslint src/*.js test/*.js --fix",
     "build": "webpack",
     "package": "npm run build && node build-format.js",
-    "visual-test": "npm run build && node visual_testing/build-test.js && extwee -s visual_testing/snowman-2.2.0-format.js -i visual_testing/index.twee -c -o visual_testing/index.html && open-cli visual_testing/index.html"
+    "visual-test": "npm run build && node visual_testing/build-test.js && extwee -s visual_testing/snowman-2.2.0-format.js -i visual_testing/index.twee -c -o visual_testing/index.html && open-cli visual_testing/index.html",
+    "all": "npm run lint && npm run package && npm run test"
   },
   "keywords": [
     "twine",

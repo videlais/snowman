@@ -12604,6 +12604,127 @@ return jQuery;
 
 /***/ }),
 
+/***/ 201:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const State = __webpack_require__(780);
+
+class History {
+  /**
+   * Create the initial history values.
+   *
+   * @function init
+   */
+  static init () {
+    this.history = [];
+    this.position = 0;
+  }
+
+  /**
+   * Add a passage name to the history array.
+   *
+   * @function add
+   * @param {string} name - Name of the passage to add
+   */
+  static add (name) {
+    // Append to the end
+    History.history.push({
+      passageName: name,
+      state: Object.assign({}, State.store)
+    });
+
+    // Reset the position to entry at the end
+    History.position = History.history.length - 1;
+  }
+
+  /**
+   * Step back one index in the history array.
+   *
+   * @function undo
+   * @returns {string | null} Name of now current passage; null if undo not possible.
+   */
+  static undo () {
+    let result = null;
+
+    if (History.history.length > 1) {
+      // Decrease position
+      History.position -= 1;
+      // Find state.
+      const state = History.history[History.position].state;
+      // Have State update itself.
+      State.updateState(state);
+      // Return current passage name
+      result = History.history[History.position].passageName;
+    }
+
+    return result;
+  }
+
+  /**
+   * Step forward in history array, if possible.
+   *
+   * @function Redo
+   * @returns {string | null} Name of now current passage; null if redo not possible.
+   */
+  static redo () {
+    let result = null;
+
+    if (History.position < History.history.length - 1) {
+      // Increase position
+      History.position += 1;
+      // Find state.
+      const state = History.history[History.position].state;
+      // Have State update itself.
+      State.updateState(state);
+      // Return current passage name
+      result = History.history[History.position].passageName;
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns true if the named passage exists within the history array.
+   *
+   * @function hasVisited
+   * @param {string | Array} passageName - Name(s) of passage to check.
+   * @returns {boolean} True if passage(s) in history; false otherwise.
+   */
+  static hasVisited (passageName = null) {
+    let result = false;
+
+    if (Array.isArray(passageName)) {
+      result = passageName.every((passageName) => {
+        return History.history.some(entry => {
+          return entry.passageName === passageName;
+        });
+      });
+    } else {
+      result = History.history.some((p) => {
+        return p.passageName === passageName;
+      });
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns number of visits for a single passage.
+   *
+   * @function visited
+   * @param {string} passageName - Passage name to check.
+   * @returns {number} Number of visits to passage.
+   */
+  static visited (passageName) {
+    return History.history.filter(entry => entry.passageName === passageName).length;
+  }
+}
+
+module.exports = History;
+
+
+/***/ }),
+
 /***/ 456:
 /***/ ((module) => {
 
@@ -12703,21 +12824,15 @@ const EventEmitter = __webpack_require__(187);
 
 class State {
   /**
-   * Creates internal event emitter and store proxy
+   * Creates internal event emitter and store proxy.
    *
-   * @function createStore
+   * @function init
    */
-  static createStore () {
-    // Public event emitter
+  static init () {
+    // Public event emitter.
     this.events = new EventEmitter();
 
-    // Internal array of visited passages
-    this.history = [];
-
-    // Internal store
-    this.store = {};
-
-    // Act like an object, but emit on any changes
+    // Act like an object, but emit on any changes.
     const handler = {
       get: (target, property) => {
         return target[property];
@@ -12727,131 +12842,34 @@ class State {
         target[property] = value;
         // Emit change
         this.events.emit('change', property, value);
+        // Return true
+        return true;
+      },
+      ownKeys: (target) => {
+        return Object.keys(target);
+      },
+      getOwnPropertyDescriptor: () => {
+        return {
+          enumerable: true,
+          configurable: true
+        };
       }
     };
 
     // Create a proxy that acts like an object.
-    this.proxy = new Proxy(this.store, handler);
+    this.store = new Proxy({}, handler);
   }
 
   /**
-   * Remove save by name from the localStorage
+   * Update current state properties to previous state values
    *
-   * @function remove
-   * @param {string} save - Name of save string
-   * @returns {boolean} - True if remove was successful
+   * @function updateState
+   * @param {object} state - Object containing state properties.
    */
-  static remove (save = 'default') {
-    let result = false;
-
-    if (window.localStorage !== null) {
-      window.localStorage.removeItem(`${save}.snowman.history`);
-      window.localStorage.removeItem(`${save}.snowman.store`);
-      result = true;
+  static updateState (state) {
+    for (const property in state) {
+      State.store[property] = state[property];
     }
-
-    return result;
-  }
-
-  /**
-   * Returns if save string exists in localStorage
-   *
-   * @function exists
-   * @param {string} save - Name of save string
-   * @returns {boolean} - True if save string exists (is not null)
-   */
-  static exists (save = 'default') {
-    let history = null;
-    let store = null;
-
-    if (window.localStorage !== null) {
-      history = window.localStorage.getItem(`${save}.snowman.history`);
-      store = window.localStorage.getItem(`${save}.snowman.store`);
-    }
-
-    return (history !== null) && (store !== null);
-  }
-
-  /**
-   * Save history and store using optional string prefix
-   *
-   * @function save
-   * @param {string} save - Optional name of save string
-   * @returns {boolean} - Returns true if save was successful
-   */
-  static save (save = 'default') {
-    let result = false;
-
-    if (window.localStorage !== null) {
-      window.localStorage.setItem(`${save}.snowman.history`, JSON.stringify(this.history));
-      window.localStorage.setItem(`${save}.snowman.store`, JSON.stringify(this.store));
-      result = true;
-    }
-
-    return result;
-  }
-
-  /**
-   * Attempts to restore the history and store based on optional save name
-   *
-   * @function restore
-   * @param {string} save - Optional name of save string
-   * @returns {boolean} - Returns true if restore was successful
-   */
-  static restore (save = 'default') {
-    let history = null;
-    let store = null;
-    let result = false;
-
-    if (window.localStorage !== null) {
-      history = window.localStorage.getItem(`${save}.snowman.history`);
-      store = window.localStorage.getItem(`${save}.snowman.store`);
-      result = true;
-    }
-
-    if (history !== null) {
-      this.history = JSON.parse(history);
-    }
-
-    if (store !== null) {
-      this.store = JSON.parse(store);
-    }
-
-    return result;
-  }
-
-  /**
-   * Returns true if the named passage exists within State history array
-   *
-   * @function hasVisited
-   * @param {string | Array} passageName - Name(s) of passage to check
-   * @returns {boolean} - True if passage(s) in history; false otherwise
-   */
-  static hasVisited (passageName = null) {
-    let result = false;
-
-    if (Array.isArray(passageName)) {
-      result = passageName.every((p) => {
-        return State.history.includes(p);
-      });
-    } else {
-      result = State.history.some((p) => {
-        return p === passageName;
-      });
-    }
-
-    return result;
-  }
-
-  /**
-   * Returns number of visits for a single passage.
-   *
-   * @function visited
-   * @param {string} passageName - Passage name to check
-   * @returns {number} Number of visits to passage
-   */
-  static visited (passageName) {
-    return State.history.filter(name => name === passageName).length;
   }
 }
 
@@ -12873,6 +12891,7 @@ const ejs = __webpack_require__(83);
 const Passage = __webpack_require__(67);
 const Markdown = __webpack_require__(456);
 const State = __webpack_require__(780);
+const History = __webpack_require__(201);
 
 /**
  * An object representing the entire story. After the document has completed
@@ -12918,13 +12937,16 @@ class Story {
     this.startPassage = parseInt(this.storyDataElement.attr('startnode'));
 
     // Create internal events and storehouse for state.
-    State.createStore();
+    State.init();
+
+    // Create history management.
+    History.init();
 
     /**
      * @property {string} state - State proxy; an object with mutation tracking
      * @type {object}
      */
-    this.state = State.proxy;
+    this.state = State.store;
 
     /**
      * An array of all passages, indexed by ID.
@@ -12998,6 +13020,8 @@ class Story {
     this.storyElement.on('click', 'tw-link[data-passage]', (e) => {
       // Pull destination passage name from the attribute.
       const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
+      // Add to the history.
+      History.add(passageName);
       // Show the passage by name.
       this.show(passageName);
     });
@@ -13026,19 +13050,12 @@ class Story {
       /**
        * Triggered when user clicks on the undo button.
        *
-       * @event State#undo
-       * @type {State}
+       * @event History#undo
        */
-      State.events.emit('undo', window.story.state);
+      State.events.emit('undo');
 
       // If undo is ever used, redo becomes available.
       this.redoIcon.css('visibility', 'visible');
-    });
-
-    // Listen for undo events
-    State.events.on('undo', () => {
-      // There will always be at least one passage, the starting passage.
-      this.show(State.history[State.history.length - 2]);
     });
 
     // Read-only proxy construct
@@ -13049,12 +13066,12 @@ class Story {
     };
 
     /**
-     * Legacy property. Read-only proxy to State.history.
+     * Legacy property. Read-only proxy to History.history.
      *
-     * @property {Array} history - Array of passage names visited by reader
+     * @property {Array} history - Array of passage names and copies of State.store
      * @type {Array}
      */
-    this.history = new Proxy(State.history, handler);
+    this.history = new Proxy(History.history, handler);
 
     /**
      * Reference to redo icon
@@ -13072,27 +13089,42 @@ class Story {
       /**
        * Triggered when user clicks on the redo button.
        *
-       * @event State#redo
-       * @type {State}
+       * @event History#redo
        */
-      State.events.emit('redo', window.story.state);
+      State.events.emit('redo');
+    });
+
+    // Listen for redo events
+    State.events.on('redo', () => {
+      // Attempt to redo history.
+      const passageName = History.redo();
+      // If redo failed, name will be null.
+      if (passageName !== null) {
+        // Not null, show previous passage.
+        window.story.show(passageName);
+      }
     });
 
     // Listen for undo events
-    State.events.on('redo', () => {
-      // Undo goes back one in the array.
-      // Redo picks the last entry.
-      this.show(State.history[State.history.length - 1]);
+    State.events.on('undo', () => {
+      // Attempt to undo history.
+      const passageName = History.undo();
+      // If undo failed, name will be null.
+      if (passageName !== null) {
+        // Not null, show previous passage.
+        window.story.show(passageName);
+      }
     });
   }
 
   /**
    * Begins playing this story based on data from tw-storydata.
    * 1. Apply all user styles
-   * 2. Try to run all user scripts
-   * 3. Trigger story started event
-   * 4. Checks if startPassage exists
-   * 5. Calls show() using startPassage's name
+   * 2. Run all user scripts
+   * 3. Find starting passage
+   * 4. Add to starting passage to History.history
+   * 5. Show starting passage
+   * 6. Trigger 'start' event
    *
    * @function start
    */
@@ -13117,6 +13149,9 @@ class Story {
       // Throw an error.
       throw new Error('Starting passage does not exist!');
     }
+
+    // Add to the history.
+    History.add(passage.name);
 
     // Show starting passage.
     this.show(passage.name);
@@ -13230,11 +13265,8 @@ class Story {
     // Overwrite the parsed with the rendered.
     this.passageElement.html(this.render(passage.name));
 
-    // Add to the state's history.
-    State.history.push(passage.name);
-
     // Change visibility after second (and later) show calls
-    if (State.history.length > 1) {
+    if (this.history.length > 1) {
       this.undoIcon.css('visibility', 'visible');
     }
 
@@ -13342,8 +13374,8 @@ class Story {
           renderToSelector: this.renderToSelector,
           include: this.render,
           either: this.either,
-          hasVisited: State.hasVisited,
-          visited: State.visited,
+          hasVisited: History.hasVisited,
+          visited: History.visited,
           getPassageByName: this.getPassageByName
         },
         {
