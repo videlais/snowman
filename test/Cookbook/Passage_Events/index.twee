@@ -1,0 +1,27 @@
+:: StoryTitle
+Snowman 2: Passage Events
+
+:: UserScript[script]
+/*
+    For every 'show' event (user clicking on story link),
+	prepend "Header" and append "Footer" passages to current one.
+*/
+State.events.on('show', (passageName) => {
+		let headerContent = window.story.render("Header");
+		let currentContent = window.story.render(passageName);
+		let footerContent = window.story.render("Footer");
+
+		$('tw-passage').html(headerContent + currentContent + footerContent);
+});
+
+:: Start
+<p>[[Another Passage]]</p>
+
+:: Another Passage
+[[Back to beginning->Start]]
+
+:: Header
+This is the header!
+
+:: Footer
+This is the footer!
