@@ -9,10 +9,10 @@ describe('Storage', () => {
     localStorage.clear();
   });
 
-  describe('save()', () => {
+  describe('createSave()', () => {
     it('Should save history to local storage using provided string prefix', () => {
       History.add('State');
-      Storage.save('test');
+      Storage.createSave('test');
       const test = JSON.parse(localStorage.getItem('test.snowman.history'));
       expect(test.length).toBe(1);
     });
@@ -20,14 +20,14 @@ describe('Storage', () => {
 
   describe('removeSave()', () => {
     it('Should saved data using defaults from localStorage', () => {
-      Storage.save();
+      Storage.createSave();
       Storage.removeSave();
       const test = localStorage.getItem('default.snowman.store');
       expect(test).toBe(null);
     });
 
     it('Should saved data by name from localStorage', () => {
-      Storage.save('test');
+      Storage.createSave('test');
       Storage.removeSave('test');
       const test = localStorage.getItem('test.snowman.store');
       expect(test).toBe(null);
@@ -36,7 +36,7 @@ describe('Storage', () => {
 
   describe('doesSaveExist()', () => {
     it('Should return true if named save string exists', () => {
-      Storage.save('test');
+      Storage.createSave('test');
       expect(Storage.doesSaveExist('test')).toBe(true);
     });
 
@@ -45,7 +45,7 @@ describe('Storage', () => {
     });
 
     it('Should return true if default save string exists', () => {
-      Storage.save();
+      Storage.createSave();
       expect(Storage.doesSaveExist()).toBe(true);
     });
 
@@ -54,23 +54,41 @@ describe('Storage', () => {
     });
   });
 
-  describe('restore()', () => {
+  describe('restoreSave()', () => {
     it('Should restore History.history based on optional string prefix', () => {
       History.add('1');
       History.add('2');
-      Storage.save('test');
+      Storage.createSave('test');
       History.init();
-      Storage.restore('test');
+      Storage.restoreSave('test');
       expect(History.history.length).toBe(2);
     });
 
     it('Should restore History.history using default string prefix', () => {
       History.add('1');
       History.add('2');
-      Storage.save();
+      Storage.createSave();
       History.init();
-      Storage.restore();
+      Storage.restoreSave();
       expect(History.history.length).toBe(2);
+    });
+  });
+
+  describe('removeAll()', () => {
+    it('Should remove any saves', () => {
+      Storage.createSave('test');
+      Storage.removeAll();
+      expect(Storage.doesSaveExist('test')).toBe(false);
+    });
+
+    it('Should return true if clear() is available', () => {
+      expect(Storage.removeAll()).toBe(true);
+    });
+  });
+
+  describe('available()', () => {
+    it('Should return true if localStorage is available', () => {
+      expect(Storage.available()).toBe(true);
     });
   });
 });
@@ -90,20 +108,28 @@ describe('localStorage turned off', () => {
   });
 
   it('save() should return false if localStorage is turned off', () => {
-    expect(Storage.save('test')).toBe(false);
+    expect(Storage.createSave('test')).toBe(false);
   });
 
   it('exists() should return false if localStorage is turned off', () => {
-    Storage.save('test');
+    Storage.createSave('test');
     expect(Storage.doesSaveExist('test')).toBe(false);
   });
 
   it('load() should return false if localStorage is turned off', () => {
-    Storage.save('test');
-    expect(Storage.restore('test')).toBe(false);
+    Storage.createSave('test');
+    expect(Storage.restoreSave('test')).toBe(false);
   });
 
   it('remove() should return false if localStorage is turned off', () => {
     expect(Storage.removeSave('test')).toBe(false);
+  });
+
+  it('Should return false from available()', () => {
+    expect(Storage.available()).toBe(false);
+  });
+
+  it('Should return false from removeAll()', () => {
+    expect(Storage.removeAll()).toBe(false);
   });
 });
