@@ -3,7 +3,7 @@ Render Selector
 
 :: Start
 <span id="test"></span>
-<% renderToSelector('Another', '#test') %>
+<% renderPassageToSelector('Another', '#test') %>
 
 :: Another
 Hey!

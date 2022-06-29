@@ -490,7 +490,7 @@ class Story {
           s: this.state,
           $: $,
           _: _,
-          renderToSelector: this.renderToSelector,
+          renderPassageToSelector: this.renderPassageToSelector,
           include: this.render,
           either: this.either,
           hasVisited: History.hasVisited,
@@ -515,11 +515,11 @@ class Story {
   /**
    * Render a passage to any/all element(s) matching query selector
    *
-   * @function renderToSelector
+   * @function renderPassageToSelector
    * @param {object} passageName - The passage to render
    * @param {string} selector - jQuery selector
    */
-  renderToSelector (passageName, selector) {
+  renderPassageToSelector (passageName, selector) {
     // Render content to a specific selector.
     try {
       $(selector).html(window.story.render(passageName));

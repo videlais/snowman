@@ -1,0 +1,13 @@
+:: StoryTitle
+Snowman: Render to Element
+
+:: UserScript[script]
+State.events.on('show', () => {
+	renderPassageToSelector("HUD", "#hudID");
+});
+
+:: Start
+<div id="hudID"></div>
+
+:: HUD
+<h1>This is the HUD!</h1>

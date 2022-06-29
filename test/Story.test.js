@@ -131,14 +131,14 @@ describe('Story', () => {
     });
   });
 
-  describe('renderToSelector()', () => {
+  describe('renderPassageToSelector()', () => {
     it('Should render to a selector', () => {
-      window.story.renderToSelector('Test Passage', 'tw-passage');
+      window.story.renderPassageToSelector('Test Passage', 'tw-passage');
       expect($('tw-passage').html()).toBe('Hello world');
     });
 
     it('Should throw if selector does not exist', () => {
-      expect(() => window.story.renderToSelector(':yeah', '<test>')).toThrow();
+      expect(() => window.story.renderPassageToSelector(':yeah', '<test>')).toThrow();
     });
   });
 
