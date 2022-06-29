@@ -37,7 +37,7 @@ class History {
   static undo () {
     let result = null;
 
-    if (History.history.length > 1) {
+    if (History.position >= 1 && History.history.length >= 1) {
       // Decrease position
       History.position -= 1;
       // Find state.
@@ -60,7 +60,7 @@ class History {
   static redo () {
     let result = null;
 
-    if (History.position < History.history.length - 1) {
+    if (History.position >= 0 && History.position < History.history.length - 1) {
       // Increase position
       History.position += 1;
       // Find state.

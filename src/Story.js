@@ -139,6 +139,8 @@ class Story {
       const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
       // Add to the history.
       History.add(passageName);
+      // Hide the redo icon
+      this.redoIcon.css('visibility', 'hidden');
       // Show the passage by name.
       this.show(passageName);
     });
@@ -493,7 +495,9 @@ class Story {
           either: this.either,
           hasVisited: History.hasVisited,
           visited: History.visited,
-          getPassageByName: this.getPassageByName
+          getPassageByName: this.getPassageByName,
+          undo: () => { State.events.emit('undo'); },
+          redo: () => { State.events.emit('redo'); }
         },
         {
           outputFunctionName: 'print'

@@ -1,0 +1,15 @@
+:: StoryTitle
+Programmatic Undo in Snowman 2
+
+:: Start
+<p>Ready to enter the darkness?</p>
+[[Enter the Darkness]]
+
+:: Enter the Darkness
+<a role="link" id="return">You are not ready! Go back!</a>
+
+<%
+$('#return').on('click', () => {
+    undo();
+});
+%>
