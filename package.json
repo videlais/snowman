@@ -35,7 +35,7 @@
     "eslint-plugin-jest": "^26.5.3",
     "eslint-plugin-jsdoc": "^39.3.3",
     "extwee": "^2.0.6",
-    "jest": "^28.1.1",
+    "jest": "^28.1.2",
     "jest-environment-jsdom": "^28.1.1",
     "jest-puppeteer": "^6.1.0",
     "mini-css-extract-plugin": "^2.6.1",
