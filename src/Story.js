@@ -9,6 +9,7 @@ const Passage = require('./Passage.js');
 const Markdown = require('./Markdown.js');
 const State = require('./State.js');
 const History = require('./History.js');
+const Storage = require('./Storage.js');
 
 /**
  * An object representing the entire story. After the document has completed
@@ -247,7 +248,6 @@ class Story {
    *
    * @function start
    */
-
   start () {
     // For each style, add them to the body as extra style elements.
     this.userStyles.forEach((style) => {
@@ -490,6 +490,7 @@ class Story {
           s: this.state,
           $: $,
           _: _,
+          Storage: Storage,
           renderPassageToSelector: this.renderPassageToSelector,
           include: this.render,
           either: this.either,

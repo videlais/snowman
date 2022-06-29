@@ -1,0 +1,46 @@
+:: StoryTitle
+Saving Games in Snowman 2.2
+
+:: Start
+<% 
+    if( Storage.available() ) {
+	    print('Window localStorage works!');
+    }
+%>	
+<% 
+    if( Storage.doesSaveExist() ) {
+	    print('There is a session saved!');
+    }
+%>
+[[Save the session]]
+
+[[Restore from previous session?]]
+
+[[Delete previous session?]]
+
+:: Save the session
+<% 
+	if( Storage.createSave() ) {
+        print('Session has been saved!');
+    }
+%>
+
+[[Go back?|Start]]
+
+:: Restore from previous session?
+<% 
+	if( Storage.restoreSave() ) {
+	    print('The restore was successful!');
+    }
+%>
+
+[[Go back?|Start]]
+
+:: Delete previous session?
+<% 
+    if( Storage.removeSave() ) {
+        print('Save removed!');
+    }
+%>
+
+[[Go back?|Start]]

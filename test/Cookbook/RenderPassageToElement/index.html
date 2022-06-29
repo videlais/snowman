@@ -7,7 +7,7 @@
 		<style>/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */html{-webkit-text-size-adjust:100%;line-height:1.15}body{margin:0}main{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}[hidden],template{display:none}body{color:#222;font:1.5em Helvetica Neue,Helvetica,Arial,sans-serif}tw-icon{cursor:pointer;font-size:2em}tw-story{box-sizing:border-box;display:flex;flex-direction:row;font-size:1.5em;line-height:1.5em;margin-top:1em;min-height:100%;width:100%}tw-passage{display:block;width:90%}a,tw-link{color:#222;cursor:pointer;text-decoration-color:#ccc}a,a:hover,tw-icon:hover,tw-link,tw-link:hover{text-decoration:underline}tw-sidebar{margin-left:1em;width:10%}a:hover{color:#cc8929}a:active,a:hover{text-decoration-color:#cc8929}a:active{color:#ffb040}tw-storydata{display:none}@media screen and (max-width:480px){#passage{font-size:70%}}</style>
 	</head>
 	<body>
-		<tw-storydata name="Snowman: Render to Element" startnode="3" creator="extwee" creator-version="2.0.6" ifid="99FCA8DC-7700-4B47-BA37-4A5F13131D3C" zoom="0" format="Snowman" format-version="2.2.0" options hidden>
+		<tw-storydata name="Snowman: Render to Element" startnode="3" creator="extwee" creator-version="2.0.6" ifid="68566FDA-D7B5-4A9C-9EF6-BFBBD95CB246" zoom="0" format="Snowman" format-version="2.2.0" options hidden>
 	<style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style>
 	<script role="script" id="twine-user-script" type="text/twine-javascript">State.events.on('show', () => {
 	renderPassageToSelector("HUD", "#hudID");
@@ -12885,6 +12885,143 @@ module.exports = State;
 
 /***/ }),
 
+/***/ 505:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const History = __webpack_require__(201);
+const State = __webpack_require__(780);
+
+class Storage {
+  /**
+   * Remove save by name from the localStorage.
+   *
+   * @function removeSave
+   * @param {string} save Name of save string.
+   * @returns {boolean} True if remove was successful.
+   */
+  static removeSave (save = 'default') {
+    let result = false;
+
+    if (Storage.available()) {
+      window.localStorage.removeItem(`${save}.snowman.history`);
+      result = true;
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns if save string exists in localStorage
+   *
+   * @function doesSaveExist
+   * @param {string} save Name of save string
+   * @returns {boolean} True if save string exists
+   */
+  static doesSaveExist (save = 'default') {
+    let history = null;
+
+    if (Storage.available()) {
+      history = window.localStorage.getItem(`${save}.snowman.history`);
+    }
+
+    return (history !== null);
+  }
+
+  /**
+   * Save history using optional string prefix
+   *
+   * @function createSave
+   * @param {string} save Optional name of save string
+   * @returns {boolean} Returns true if save was successful
+   */
+  static createSave (save = 'default') {
+    let result = false;
+
+    if (Storage.available()) {
+      window.localStorage.setItem(`${save}.snowman.history`, JSON.stringify(History.history));
+      result = true;
+    }
+
+    return result;
+  }
+
+  /**
+   * Attempts to restore the history and store based on optional save name
+   *
+   * @function restoreSave
+   * @param {string} save Optional name of save string
+   * @returns {boolean} Returns true if restore was successful
+   */
+  static restoreSave (save = 'default') {
+    let history = null;
+    let result = false;
+
+    if (Storage.available()) {
+      history = window.localStorage.getItem(`${save}.snowman.history`);
+      result = true;
+    }
+
+    if (history !== null) {
+      // Restore history
+      History.history = JSON.parse(history);
+      // Find current state.
+      const state = History.history[History.position].state;
+      // Have State update itself.
+      State.updateState(state);
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns if localStorage is available or not in browser context.
+   *
+   * @function available
+   * @returns {boolean} Returns true if localStorage can be used.
+   */
+  static available () {
+    // Set default value to false.
+    let result = false;
+
+    try {
+      window.localStorage.setItem('testKey', 'test');
+      window.localStorage.removeItem('testKey');
+      result = true;
+    } catch (e) {
+      // If an error was thrown, we do nothing.
+      // The method will return false if it did not work.
+    }
+
+    // Return result
+    return result;
+  }
+
+  /**
+   * Clears localStorage, if available.
+   *
+   * @function removeAll
+   * @returns {boolean} Returns true if removal was possible.
+   */
+  static removeAll () {
+    // Set default value to false.
+    let result = false;
+    // Is localStorage available?
+    if (Storage.available()) {
+      // Clear the localStorage
+      window.localStorage.clear();
+      // Record result
+      result = true;
+    }
+    // Return result
+    return result;
+  }
+}
+
+module.exports = Storage;
+
+
+/***/ }),
+
 /***/ 213:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -12899,6 +13036,7 @@ const Passage = __webpack_require__(67);
 const Markdown = __webpack_require__(456);
 const State = __webpack_require__(780);
 const History = __webpack_require__(201);
+const Storage = __webpack_require__(505);
 
 /**
  * An object representing the entire story. After the document has completed
@@ -13137,7 +13275,6 @@ class Story {
    *
    * @function start
    */
-
   start () {
     // For each style, add them to the body as extra style elements.
     this.userStyles.forEach((style) => {
@@ -13380,6 +13517,7 @@ class Story {
           s: this.state,
           $: $,
           _: _,
+          Storage: Storage,
           renderPassageToSelector: this.renderPassageToSelector,
           include: this.render,
           either: this.either,
