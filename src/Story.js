@@ -401,11 +401,11 @@ class Story {
   /**
    * Returns the HTML source for a passage. This is most often used when
    * embedding one passage inside another. In this instance, make sure to
-   * use <%= %> instead of <%- %> to avoid incorrectly encoding HTML entities.
+   * use <%- %> instead of <%= %> to avoid template passing literal string values.
    *
-   * 1. Find passage by name
-   * 2. Run EJS rendering for possible template tags
-   * 3. Run Markdown parsing
+   * 1. Find passage by name.
+   * 2. Run EJS rendering for possible template tags.
+   * 3. Run Markdown parsing.
    *
    * @function render
    * @param {string} name - name of the passage
