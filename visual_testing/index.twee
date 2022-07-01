@@ -5,12 +5,15 @@
     "format-version": "2.2.0"
 }
 
-:: Start
-<% s.key = false; %>
-[[Another]]
-
-:: Another
-<p>Something</p>
-
 :: StoryTitle
 Testing
+
+:: UserScript[script]
+console.log("Locked");
+screenLock();
+
+:: Start
+<p>Screen is now unlocked.</p>
+<%
+    _.delay(screenUnlock, 5000);
+%>

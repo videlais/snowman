@@ -235,6 +235,18 @@ class Story {
         window.story.show(passageName);
       }
     });
+
+    // Listen for screen-lock event
+    State.events.on('screen-lock', () => {
+      // Append an element filling screen with CSS loading spinner.
+      $(document.body).append('<tw-screenlock><div class="loading"></div></tw-screenlock>');
+    });
+
+    // Listen for screen-unlock event
+    State.events.on('screen-unlock', () => {
+      // Remove tw-screenlock element, if there is one.
+      $('tw-screenlock').remove();
+    });
   }
 
   /**
@@ -498,7 +510,9 @@ class Story {
           visited: History.visited,
           getPassageByName: this.getPassageByName,
           undo: () => { State.events.emit('undo'); },
-          redo: () => { State.events.emit('redo'); }
+          redo: () => { State.events.emit('redo'); },
+          screenLock: () => { State.events.emit('screen-lock'); },
+          screenUnlock: () => { State.events.emit('screen-unlock'); }
         },
         {
           outputFunctionName: 'print'
