@@ -13384,7 +13384,7 @@ class Story {
    * @param {string} name - name of the passage
    */
   show (name) {
-    const passage = this.getPassageByName(name);
+    const passage = window.story.getPassageByName(name);
 
     if (passage === null) {
       throw new Error(`There is no passage with the name ${name}`);
@@ -13394,14 +13394,14 @@ class Story {
     window.passage = passage;
 
     // Overwrite current tags
-    this.passageElement.attr('tags', passage.tags);
+    window.story.passageElement.attr('tags', passage.tags);
 
     // Overwrite the parsed with the rendered.
-    this.passageElement.html(this.render(passage.name));
+    window.story.passageElement.html(window.story.render(passage.name));
 
     // Change visibility after second (and later) show calls
-    if (this.history.length > 1) {
-      this.undoIcon.css('visibility', 'visible');
+    if (window.story.history.length > 1) {
+      window.story.undoIcon.css('visibility', 'visible');
     }
 
     /**
@@ -13515,7 +13515,8 @@ class Story {
           undo: () => { State.events.emit('undo'); },
           redo: () => { State.events.emit('redo'); },
           screenLock: () => { State.events.emit('screen-lock'); },
-          screenUnlock: () => { State.events.emit('screen-unlock'); }
+          screenUnlock: () => { State.events.emit('screen-unlock'); },
+          show: this.show
         },
         {
           outputFunctionName: 'print'
@@ -13538,7 +13539,6 @@ class Story {
    * @param {string} selector - jQuery selector
    */
   renderPassageToSelector (passageName, selector) {
-    // Render content to a specific selector.
     try {
       $(selector).html(window.story.render(passageName));
     } catch (e) {

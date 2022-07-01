@@ -322,4 +322,20 @@ describe('Story events', () => {
     $('tw-link').trigger('click');
     expect(result).toBe(true);
   });
+
+  it('Should trigger adding the tw-screenlock element when "screen-lock" event happens', () => {
+    State.events.emit('screen-lock');
+    expect($('tw-screenlock').length).toBe(1);
+  });
+
+  it('Should remove tw-screenlock element if previously locked', () => {
+    State.events.emit('screen-lock');
+    State.events.emit('screen-unlock');
+    expect($('tw-screenlock').length).toBe(0);
+  });
+
+  it('Should do nothing if not locked when trying to unlock', () => {
+    State.events.emit('screen-unlock');
+    expect($('tw-screenlock').length).toBe(0);
+  });
 });

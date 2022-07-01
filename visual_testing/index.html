@@ -3,18 +3,171 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="utf-8">
-		<title>Testing</title>
-		<style>/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */html{-webkit-text-size-adjust:100%;line-height:1.15}body{margin:0}main{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}[hidden],template{display:none}body{color:#222;font:1.5em Helvetica Neue,Helvetica,Arial,sans-serif}tw-icon{cursor:pointer;font-size:2em}tw-story{box-sizing:border-box;display:flex;flex-direction:row;font-size:1.5em;line-height:1.5em;margin-top:1em;min-height:100%;width:100%}tw-passage{display:block;width:90%}a,tw-link{color:#222;cursor:pointer;text-decoration-color:#ccc}a,a:hover,tw-icon:hover,tw-link,tw-link:hover{text-decoration:underline}tw-sidebar{margin-left:1em;width:10%}a:hover{color:#cc8929}a:active,a:hover{text-decoration-color:#cc8929}a:active{color:#ffb040}tw-storydata{display:none}tw-screenlock{align-items:center;background-color:#fff;display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:100000}.loading{-webkit-animation:spin 2s linear infinite;animation:spin 2s linear infinite;border:16px solid #f3f3f3;border-radius:50%;border-top-color:#3498db;height:250px;width:250px}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(1turn)}}@keyframes spin{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}</style>
+		<title>Space Exploration in Snowman 2.0</title>
+		<style>/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */html{-webkit-text-size-adjust:100%;line-height:1.15}body{margin:0}main{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}[hidden],template{display:none}body{color:#222;font:1.5em Helvetica Neue,Helvetica,Arial,sans-serif;margin-right:1em}tw-icon{cursor:pointer;font-size:2em}tw-story{box-sizing:border-box;display:flex;flex-direction:row;font-size:1.5em;line-height:1.5em;margin-top:1em;min-height:100%;width:100%}tw-passage{display:block;width:90%}a,tw-link{color:#222;cursor:pointer;text-decoration-color:#ccc}a,a:hover,tw-icon:hover,tw-link,tw-link:hover{text-decoration:underline}tw-sidebar{margin-left:1em;width:10%}a:hover{color:#cc8929}a:active,a:hover{text-decoration-color:#cc8929}a:active{color:#ffb040}tw-storydata{display:none}tw-screenlock{align-items:center;background-color:#fff;display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:100000}.loading{-webkit-animation:spin 2s linear infinite;animation:spin 2s linear infinite;border:16px solid #f3f3f3;border-radius:50%;border-top-color:#3498db;height:250px;width:250px}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(1turn)}}@keyframes spin{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}</style>
 	</head>
 	<body>
-		<tw-storydata name="Testing" startnode="4" creator="extwee" creator-version="2.0.6" ifid="51989D33-C87D-4C94-A365-03368F828957" zoom="0" format="Snowman" format-version="2.2.0" options hidden>
+		<tw-storydata name="Space Exploration in Snowman 2.0" startnode="3" creator="extwee" creator-version="2.0.6" ifid="963F80B9-0C19-460D-A6D3-294D15497D5A" zoom="0" format="Snowman" format-version="2.2.0" options hidden>
 	<style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style>
-	<script role="script" id="twine-user-script" type="text/twine-javascript">console.log("Locked");
-screenLock();</script>
-	<tw-passagedata pid="4" name="Start">&lt;p&gt;Screen is now unlocked.&lt;/p&gt;
+	<script role="script" id="twine-user-script" type="text/twine-javascript">// Use the existing global store, s:
+s.health = 20;
+s.fuel = 4;
+s.numberOfJumpsLeft = 10;
+
+s.riskyOutcome = () => {
+	const percentage = _.random(1, 10);
+	let response = "";
+	
+	if( percentage >= 6) {
+		const foundHealth = _.random( 1, 5);
+	 	const foundFuel = _.random( 1, 3);	 
+		response = `The hostile environment damaged the ship, but extra fuel was found. -${foundHealth} to health and +${foundFuel} to fuel.`;
+	  	s.health -= foundHealth;
+	  	s.fuel += foundFuel;
+	} else {
+	  	if( percentage <= 3) {
+	  		const foundHealth = _.random(2, 7);
+	  		response = `A hostile ship attacked. -${foundHealth} to health`;
+	 		s.health -= foundHealth;
+		} else {
+			response = "Nothing happened."
+		}
+	}
+		
+	return response;
+};
+	
+s.saferOutcome = () => {
+	const percentage = _.random(1, 10);
+	let response = "";
+	
+	if( percentage == 1) {
+		const foundFuel = _.random( 1, 2);
+		response = `Fuel was found in some wreckage. +${foundFuel} to fuel`;
+	  	s.fuel += foundFuel;
+	} else {
+	  	if( percentage >= 6) {
+	  		const foundHealth = _.random(1, 3);
+			response = `During a brief pause, the ship was able to be repaired. +${foundHealth} to health`;
+	 		s.health += foundHealth;
+		} else {
+			response = "Nothing happened."
+		}
+	}
+		
+	return response;
+};
+
+s.checkStatus = () => {
+    // If health is less than or equal to zero,
+    //  show the "Destoryed" passage.
+	if(s.health <= 0) {
+		show("Destroyed");
+	}
+
+    // If fuel is less than or equal to zero,
+    //  show the "Lost in Space" passage.
+	if(s.fuel <= 0) {
+        show("Lost in Space");
+	}
+
+    // If numberOfJumpsLeft is less than or equal to zero,
+    //  show the "Safe" passage.
+	if(s.numberOfJumpsLeft <= 0) {
+		show("Safe");
+	}
+}</script>
+	<tw-passagedata pid="3" name="Start">&lt;p&gt;You are running low on supplies, but know you can call for help after 10 hyperjumps.&lt;/p&gt;
+&lt;p&gt;Each hyperjump will land you in a new system of planets to explore.&lt;/p&gt;
+&lt;p&gt;Some planets will be safer and others risky to explore for more supplies.&lt;/p&gt;
+[[Hyperjump|Space]]</tw-passagedata>
+	<tw-passagedata pid="4" name="Space">&lt;%
+    // Adjust the fuel and jumps left.
+    s.fuel -= 1;
+	s.numberOfJumpsLeft -= 1;
+%&gt;
+&lt;h2&gt;Statistics&lt;/h2&gt;
+&lt;div id=&quot;HUD&quot;&gt;&lt;/div&gt;
+&lt;h2&gt;System Planets:&lt;/h2&gt;
+&lt;div id=&quot;system&quot;&gt;&lt;/div&gt;
+&lt;h2&gt;Ship Controls&lt;/h2&gt;
+&lt;p&gt;[[Hyperjump|Space]]&lt;/p&gt;
 &lt;%
-    _.delay(screenUnlock, 5000);
+    // Wait for elements to load.
+    $(() =&gt; {
+        // Update HUD.
+        renderPassageToSelector(&quot;HUD&quot;, &quot;#HUD&quot;);
+        // Update system.
+        include(&quot;System&quot;);
+    });
 %&gt;</tw-passagedata>
+	<tw-passagedata pid="5" name="System">&lt;%
+    // Create a new array of a random size between 1 and 4.
+    const system = new Array(_.random(1, 4));
+	
+    // Set each entry in new array to either 0 or 1.
+	for(let i = 0; i &lt; system.length; i++) {
+		system[i] = either(0, 1);
+	}
+	
+    // Create list of planets.
+    let list = $(&#x27;&lt;ul&gt;&#x27;);
+
+    // For each planet in system,
+    //  create line item and hyperlink with Risky or Safer text.
+	for(let planet in system) {
+        if(planet == 0) {
+            // Create a line item and hyperlink.
+		    link = $(&#x27;&lt;li&gt;&lt;a role=&quot;link&quot;&gt;Risky&lt;/a&gt;&lt;/li&gt;&#x27;);
+            // Listen for &#x27;click&#x27; event.
+			link.on(&#x27;click&#x27;, function() {
+                // If a reader clicks, replace content with &quot;Risky&quot; passage.
+    			$( this ).replaceWith( include(&quot;Risky&quot;) );
+			});
+	    } else {
+            // Create a line item and hyperlink.
+		    link = $(&#x27;&lt;li&gt;&lt;a role=&quot;link&quot;&gt;Safer&lt;/a&gt;&lt;/li&gt;&#x27;);
+            // Listen for &#x27;click&#x27; event.
+			link.on(&#x27;click&#x27;, function() {
+                // If a reader clicks, replace content with &quot;Safer&quot; passage.
+    			$( this ).replaceWith( include(&quot;Safer&quot;) );
+			});
+        }
+
+        // Append the new line item to the list.
+        list.append(link);
+	}
+
+    // Wait for all content to be loaded.
+    $(() =&gt; {
+        // Overwrite #system with unordered list.
+        $(&#x27;#system&#x27;).html(list);
+    });
+%&gt;</tw-passagedata>
+	<tw-passagedata pid="6" name="Risky">&lt;p&gt;
+    &lt;%- s.riskyOutcome() %&gt;
+    &lt;% renderPassageToSelector(&quot;HUD&quot;, &quot;#HUD&quot;) %&gt;
+&lt;/p&gt;</tw-passagedata>
+	<tw-passagedata pid="7" name="Safer">&lt;p&gt;
+    &lt;%- s.saferOutcome() %&gt;
+    &lt;% renderPassageToSelector(&quot;HUD&quot;, &quot;#HUD&quot;) %&gt;
+&lt;/p&gt;</tw-passagedata>
+	<tw-passagedata pid="8" name="HUD">&lt;%
+// Check status before displaying HUD.
+    s.checkStatus();
+%&gt;
+Health: &lt;%- s.health %&gt; &lt;br&gt;
+Fuel: &lt;%- s.fuel %&gt; &lt;br&gt;
+Number of Jumps Left to Safety: &lt;%- s.numberOfJumpsLeft %&gt; &lt;br&gt;</tw-passagedata>
+	<tw-passagedata pid="9" name="Destroyed">The ship exploded in flight.
+
+&lt;h2&gt;Game Over&lt;/h2&gt;</tw-passagedata>
+	<tw-passagedata pid="10" name="Lost in Space">Without fuel, the ship tumbled and spun in the endless black.
+
+&lt;h2&gt;Game Over&lt;/h2&gt;</tw-passagedata>
+	<tw-passagedata pid="11" name="Safe">After 10 hyperjumps, the ship left the hazardous area and called for help.
+
+&lt;h2&gt;Success!&lt;/h2&gt;</tw-passagedata>
 </tw-storydata>
 		<tw-story>
 			<tw-sidebar>
@@ -13409,7 +13562,7 @@ class Story {
    * @param {string} name - name of the passage
    */
   show (name) {
-    const passage = this.getPassageByName(name);
+    const passage = window.story.getPassageByName(name);
 
     if (passage === null) {
       throw new Error(`There is no passage with the name ${name}`);
@@ -13419,14 +13572,14 @@ class Story {
     window.passage = passage;
 
     // Overwrite current tags
-    this.passageElement.attr('tags', passage.tags);
+    window.story.passageElement.attr('tags', passage.tags);
 
     // Overwrite the parsed with the rendered.
-    this.passageElement.html(this.render(passage.name));
+    window.story.passageElement.html(window.story.render(passage.name));
 
     // Change visibility after second (and later) show calls
-    if (this.history.length > 1) {
-      this.undoIcon.css('visibility', 'visible');
+    if (window.story.history.length > 1) {
+      window.story.undoIcon.css('visibility', 'visible');
     }
 
     /**
@@ -13537,10 +13690,11 @@ class Story {
           hasVisited: History.hasVisited,
           visited: History.visited,
           getPassageByName: this.getPassageByName,
-          undo: () => { State.events.emit('undo')},
-          redo: () => { State.events.emit('redo')},
-          screenLock: () => { State.events.emit('screen-lock')},
-          screenUnlock: () => { State.events.emit('screen-unlock');}
+          undo: () => { State.events.emit('undo'); },
+          redo: () => { State.events.emit('redo'); },
+          screenLock: () => { State.events.emit('screen-lock'); },
+          screenUnlock: () => { State.events.emit('screen-unlock'); },
+          show: this.show
         },
         {
           outputFunctionName: 'print'
@@ -13563,7 +13717,6 @@ class Story {
    * @param {string} selector - jQuery selector
    */
   renderPassageToSelector (passageName, selector) {
-    // Render content to a specific selector.
     try {
       $(selector).html(window.story.render(passageName));
     } catch (e) {
