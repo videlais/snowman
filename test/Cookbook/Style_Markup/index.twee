@@ -1,0 +1,54 @@
+:: StoryTitle
+Style Markup in Snowman 2.2
+
+:: Start
+<em>Emphasis</em>
+
+<strong>Strong emphasis</strong>
+
+<s>Strikethrough</s>
+
+<ol>
+    <li>First ordered list item</li>
+    <li>Another item</li>
+</ol>
+
+<h1>H1</h1>
+<h2>H2</h2>
+<h3>H3</h3>
+<h4>H4</h4>
+<h5>H5</h5>
+<h6>H6</h6>
+
+<p>Paragraph text.</p>
+
+<table>
+    <thead>
+        <tr>
+            <td>Tables</td>
+            <td>Are</td>
+            <td>Cool</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Row 1, Col 1</td>
+            <td>Row 2, Col 1</td>
+            <td>Row 3, Col 1</td>
+        </tr>
+        <tr>
+            <td>Row 1, Col 2</td>
+            <td>Row 2, Col 2</td>
+            <td>Row 3, Col 2</td>
+        </tr>
+        <tr>
+            <td>Row 1, Col 3</td>
+            <td>Row 2, Col 3</td>
+            <td>Row 3, Col 3</td>
+        </tr>
+</table>
+
+<blockquote>
+    <p>Blockquotes are useful.</p>
+    <p>This line is part of the same quote.</p>
+</blockquote>
