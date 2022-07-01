@@ -1,0 +1,36 @@
+:: StoryTitle
+Dropdown with Snowman
+
+:: Start
+<p>Choose direction:</p>
+
+<select id="directions">
+  <option>up</option>
+  <option>down</option>
+  <option>left</option>
+  <option>right</option>
+</select>
+
+<div id="result"></div>
+
+<%
+    // Set a default global value in case reader does not pick any value.
+    s.chosenDirection = "none";
+
+    // Use jQuery to wait for content to be loaded.
+    $(() => {
+        // Listen for the 'change' event on element with id of "directions".
+        $('#directions').on('change', () => {
+            // Look for the child element just selected.
+            const selectedElement = $('#directions option:selected');
+            
+            // Update with selected direction.
+            s.chosenDirection = selectedElement.text();
+        });
+    });
+%>
+
+<p>[[Show Direction]]</p>
+
+:: Show Direction
+The direction was <%= s.chosenDirection %>.
