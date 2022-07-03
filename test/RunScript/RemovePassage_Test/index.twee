@@ -1,0 +1,14 @@
+:: StoryTitle
+Remove Passage Test
+
+:: Start
+<%
+    removePassage('Another');
+
+    if(getPassageByName('Another') === null) {
+        print('Show me!');
+    }
+%>
+
+:: Another
+Some text.
