@@ -1,0 +1,12 @@
+:: StoryTitle
+Sidebar Hide Test
+
+:: Start
+<% 
+    sidebarHide();
+    $(() => {
+        if($('tw-sidebar').css('visibility') === 'hidden') {
+            print('Show me!');
+        }
+    })
+%>
