@@ -1,0 +1,10 @@
+:: StoryTitle
+Show Test
+
+:: Start
+<% 
+    show('Another');
+%>
+
+:: Another
+<p id="test">Show me!</p>
