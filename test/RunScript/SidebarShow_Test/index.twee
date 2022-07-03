@@ -1,0 +1,13 @@
+:: StoryTitle
+Sidebar Show Test
+
+:: Start
+<% 
+    sidebarHide();
+    sidebarShow();
+    $(() => {
+        if($('tw-sidebar').css('visibility') === 'visible') {
+            print('Show me!');
+        }
+    })
+%>
