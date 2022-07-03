@@ -5,14 +5,7 @@
  */
 
 class Passage {
-  constructor (id = 1, name = 'Default', tags = [], source = '') {
-    /**
-     * @property {number} id - id number of passage
-     * @type {number}
-     */
-
-    this.id = id;
-
+  constructor (name = 'Default', tags = [], source = '') {
     /**
      * @property {string} name - The name of passage
      * @type {string}

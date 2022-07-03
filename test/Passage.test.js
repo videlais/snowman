@@ -1,11 +1,6 @@
 const Passage = require('../src/Passage.js');
 
 describe('constructor()', () => {
-  it('Should contain default id when initialized with no arguments', () => {
-    const p = new Passage();
-    expect(p.id).toBe(1);
-  });
-
   it('Should contain default name when initialized with no arguments', () => {
     const p = new Passage();
     expect(p.name).toBe('Default');

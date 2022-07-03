@@ -3,7 +3,6 @@
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Element}
  */
 const $ = require('jquery');
-const _ = require('underscore');
 const ejs = require('ejs');
 const Passage = require('./Passage.js');
 const Markdown = require('./Markdown.js');
@@ -47,13 +46,6 @@ class Story {
      */
     this.creatorVersion = this.storyDataElement.attr('creator-version');
 
-    /**
-     * @property {string} startPassage - ID of the first passage to be displayed.
-     * @type {string}
-     * @readonly
-     */
-    this.startPassage = parseInt(this.storyDataElement.attr('startnode'));
-
     // Create internal events and storehouse for state.
     State.init();
 
@@ -78,7 +70,6 @@ class Story {
     //  create a new Passage object based on its attributes.
     this.storyDataElement.children('tw-passagedata').each((index, element) => {
       const elementReference = $(element);
-      const id = parseInt(elementReference.attr('pid'));
       let tags = elementReference.attr('tags');
 
       // Does the 'tags' attribute exist?
@@ -90,8 +81,8 @@ class Story {
         tags = [];
       }
 
+      // Push the new passage.
       this.passages.push(new Passage(
-        id,
         elementReference.attr('name'),
         tags,
         Markdown.unescape(elementReference.html())
@@ -188,15 +179,15 @@ class Story {
     /**
      * Legacy property. Read-only proxy to History.history.
      *
-     * @property {Array} history - Array of passage names and copies of State.store
+     * @property {Array} history - Array of passage names and copies of State.store.
      * @type {Array}
      */
     this.history = new Proxy(History.history, handler);
 
     /**
-     * Reference to redo icon
+     * Reference to redo icon.
      *
-     * @property {Element} redoIcon - Redo element
+     * @property {Element} redoIcon - Redo element.
      * @type {Element}
      */
     this.redoIcon = $('tw-icon[title="Redo"]');
@@ -204,7 +195,7 @@ class Story {
     // Start the story with it hidden.
     this.redoIcon.css('visibility', 'hidden');
 
-    // Listen for user click interactions
+    // Listen for user click interactions.
     this.redoIcon.on('click', () => {
       /**
        * Triggered when user clicks on the redo button.
@@ -214,7 +205,7 @@ class Story {
       State.events.emit('redo');
     });
 
-    // Listen for redo events
+    // Listen for redo events.
     State.events.on('redo', () => {
       // Attempt to redo history.
       const passageName = History.redo();
@@ -225,7 +216,7 @@ class Story {
       }
     });
 
-    // Listen for undo events
+    // Listen for undo events.
     State.events.on('undo', () => {
       // Attempt to undo history.
       const passageName = History.undo();
@@ -236,16 +227,28 @@ class Story {
       }
     });
 
-    // Listen for screen-lock event
+    // Listen for screen-lock event.
     State.events.on('screen-lock', () => {
       // Append an element filling screen with CSS loading spinner.
       $(document.body).append('<tw-screenlock><div class="loading"></div></tw-screenlock>');
     });
 
-    // Listen for screen-unlock event
+    // Listen for screen-unlock event.
     State.events.on('screen-unlock', () => {
       // Remove tw-screenlock element, if there is one.
       $('tw-screenlock').remove();
+    });
+
+    // Listen for sidebar-show event.
+    State.events.on('sidebar-show', () => {
+      // Show tw-sidebar
+      $('tw-sidebar').css('visibility', 'visible');
+    });
+
+    // Listen for sidebar-hide event.
+    State.events.on('sidebar-hide', () => {
+      // Show tw-sidebar
+      $('tw-sidebar').css('visibility', 'hidden');
     });
   }
 
@@ -272,7 +275,12 @@ class Story {
       this.runScript(`<%${script}%>`);
     });
 
-    const passage = this.getPassageById(this.startPassage);
+    // Get the startnode value (which is a number).
+    const startingPassageID = parseInt(this.storyDataElement.attr('startnode'));
+    // Use the PID to find the name of the starting passage based on elements.
+    const startPassage = $(`[pid="${startingPassageID}"]`).attr('name');
+    // Search for the starting passage.
+    const passage = this.getPassageByName(startPassage);
 
     // Does the starting passage exist?
     if (passage === null) {
@@ -308,32 +316,6 @@ class Story {
     return this.passages.filter((p) => {
       return p.tags.includes(tag);
     });
-  }
-
-  /**
-   * Returns a Passage object by id from internal collection. If none exists, returns null.
-   * The Twine editor prevents multiple passages from having the same id, so
-   *  this always returns the first search result.
-   *
-   * @function getPassageById
-   * @param {number} id - id of the passage
-   * @returns {Passage|null} Passage object or null
-   */
-  getPassageById (id) {
-    // Create default value
-    let passage = null;
-
-    // Search for any passages with the name
-    const result = window.story.passages.filter((p) => p.id === id);
-
-    // Were any found?
-    if (result.length !== 0) {
-      // Grab the first result.
-      passage = result[0];
-    }
-
-    // Return either null or first result found.
-    return passage;
   }
 
   /**
@@ -500,8 +482,6 @@ class Story {
         {
           State: State,
           s: this.state,
-          $: $,
-          _: _,
           Storage: Storage,
           renderPassageToSelector: this.renderPassageToSelector,
           include: this.render,
@@ -509,11 +489,15 @@ class Story {
           hasVisited: History.hasVisited,
           visited: History.visited,
           getPassageByName: this.getPassageByName,
-          undo: () => { State.events.emit('undo'); },
-          redo: () => { State.events.emit('redo'); },
-          screenLock: () => { State.events.emit('screen-lock'); },
-          screenUnlock: () => { State.events.emit('screen-unlock'); },
-          show: this.show
+          undo: this.undo,
+          redo: this.redo,
+          screenLock: this.screenLock,
+          screenUnlock: this.screenUnlock,
+          show: this.show,
+          sidebarHide: this.sidebarHide,
+          sidebarShow: this.sidebarShow,
+          addPassage: this.addPassage,
+          removePassage: this.removePassage
         },
         {
           outputFunctionName: 'print'
@@ -562,6 +546,113 @@ class Story {
     } else {
       throw new Error('Method only accepts an array!');
     }
+  }
+
+  /**
+   * Trigger undo event
+   *
+   * @function undo
+   */
+  undo () {
+    State.events.emit('undo');
+  }
+
+  /**
+   * Trigger redo event
+   *
+   * @function redo
+   */
+  redo () {
+    State.events.emit('redo');
+  }
+
+  /**
+   * Trigger screenLock event
+   *
+   * @function screenLock
+   */
+  screenLock () {
+    State.events.emit('screen-lock');
+  }
+
+  /**
+   * Trigger screenUnlock event
+   *
+   * @function screenUnlock
+   */
+  screenUnlock () {
+    State.events.emit('screen-unlock');
+  }
+
+  /**
+   * Trigger sidebar-show event.
+   *
+   * @function sidebarShow
+   */
+  sidebarShow () {
+    State.events.emit('sidebar-show');
+  }
+
+  /**
+   * Trigger sidebar-hide event.
+   *
+   * @function sidebarHide
+   */
+  sidebarHide () {
+    State.events.emit('sidebar-hide');
+  }
+
+  /**
+   * Add a new passage to the story.
+   *
+   * @function addPassage
+   * @param {string} name name
+   * @param {Array} tags tags
+   * @param {string} source source
+   */
+  addPassage (name = '', tags = [], source = '') {
+    // Look for name.
+    const nameSearch = window.story.getPassageByName(name);
+
+    // Confirm name does not already exist.
+    if (nameSearch !== null) {
+      throw new Error('Cannot add two passages with the same name!');
+    }
+
+    // Confirm tags is an array.
+    if (!Array.isArray(tags)) {
+      // Ignore and set to empty array.
+      tags = [];
+    }
+
+    // Confirm if source is string.
+    if (Object.prototype.toString.call(source) !== '[object String]') {
+      // Ignore and set to empty string.
+      source = '';
+    }
+
+    // Add to the existing passages.
+    window.story.passages.push(new Passage(
+      name,
+      tags,
+      Markdown.unescape(source)
+    ));
+  }
+
+  /**
+   * Remove a passage from the story internal collection.
+   * Removing a passage and then attempting to visit the passage will
+   * throw an error.
+   *
+   * Note: Does not affect HTML elements.
+   *
+   * @function removePassage
+   * @param {string} name name
+   */
+  removePassage (name = '') {
+    window.story.passages = window.story.passages.filter(passage => {
+      return passage.name !== name;
+    });
   }
 }
 

@@ -39,10 +39,6 @@ describe('Story', () => {
       expect(window.story.creatorVersion).toBe('1.2.3');
     });
 
-    it('Should set startPassage to parseInt(startNode)', () => {
-      expect(window.story.startPassage).toBe(1);
-    });
-
     it('Should set the story\'s scripts from the element', () => {
       expect(window.story.userScripts.length).toBe(1);
       expect(window.story.userScripts[0]).toBe('window.scriptRan = true;');
@@ -85,17 +81,6 @@ describe('Story', () => {
 
     it('Should return array of two entry if tag is used twice', () => {
       expect(window.story.getPassagesByTags('tag2').length).toBe(2);
-    });
-  });
-
-  describe('getPassageById()', () => {
-    it('Should return null if passage id does not exist', () => {
-      expect(window.story.getPassageById(10)).toBe(null);
-    });
-
-    it('Should return passage if id exists', () => {
-      const p = window.story.getPassageById(1);
-      expect(p.id).toBe(1);
     });
   });
 
@@ -160,16 +145,26 @@ describe('Story', () => {
       expect(() => window.story.start()).toThrow();
     });
 
-    it('Should throw error if starting passage does not exist', () => {
-      window.story.startPassage = 10;
-      expect(() => window.story.start()).toThrow();
-    });
-
-    it('Should listen for navigation (click) events', () => {
-      window.story.startPassage = 5;
-      window.story.start();
-      $('tw-link[data-passage]').trigger('click');
-      expect($('tw-story').html().includes('Hello world')).toBe(true);
+    it('Should throw error if starting passage cannot be found', () => {
+      $(document.body).html(`
+        <tw-storydata name="Test" startnode="3" creator="jasmine" creator-version="1.2.3">
+          <tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">Hello world</tw-passagedata>
+          <script type="text/twine-javascript"></script>
+          <style type="text/twine-css"></style>
+      </tw-storydata>
+      <tw-story>
+      <tw-sidebar>
+          <tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+          <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
+        </tw-sidebar>
+        <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Setup global jQuery
+      window.$ = $;
+      // Create new Story instance
+      window.story = new Story();
+      // The starting passage does not exist.
+      // This will throw an error.
+      expect(() => { window.story.start(); }).toThrow();
     });
   });
 
@@ -219,6 +214,58 @@ describe('Story', () => {
 
     it('Should return single entry when given mixed input', () => {
       expect(window.story.either([1], 2, [3], [4])).toBeLessThan(5);
+    });
+  });
+
+  describe('addPassage()', () => {
+    it('Should add a new passage and increase length of passage array', () => {
+      const currentLength = window.story.passages.length;
+      window.story.addPassage('Example');
+      expect(window.story.passages.length).toBe(currentLength + 1);
+    });
+
+    it('Should throw error if passage name already exists', () => {
+      window.story.addPassage('Example');
+      expect(() => { window.story.addPassage('Example'); }).toThrow();
+    });
+
+    it('Should ignore non-array data for tags', () => {
+      window.story.addPassage('Example', 'test');
+      const passage = window.story.getPassageByName('Example');
+      expect(passage.tags.length).toBe(0);
+    });
+
+    it('Should ignore non-string data for source', () => {
+      window.story.addPassage('Example', [], null);
+      const passage = window.story.getPassageByName('Example');
+      expect(passage.source.length).toBe(0);
+    });
+
+    it('Should assume default values', () => {
+      window.story.addPassage();
+      const passage = window.story.getPassageByName('');
+      expect(passage.name).toBe('');
+      expect(passage.tags.length).toBe(0);
+      expect(passage.source).toBe('');
+    });
+  });
+
+  describe('removePassage()', () => {
+    it('Should do nothing if passage does not exist', () => {
+      const passageCount = window.story.passages.length;
+      window.story.removePassage('Nah');
+      expect(window.story.passages.length).toBe(passageCount);
+    });
+
+    it('Should remove passage by name', () => {
+      window.story.removePassage('Test Passage 5');
+      expect(window.story.getPassageByName('Test Passage 5')).toBe(null);
+    });
+
+    it('Should assume default value', () => {
+      const passageCount = window.story.passages.length;
+      window.story.removePassage();
+      expect(window.story.passages.length).toBe(passageCount);
     });
   });
 });
@@ -273,6 +320,16 @@ describe('Story events', () => {
     expect(result).toBe(true);
   });
 
+  it('Should emit undo event when undo() is called', () => {
+    let result = false;
+    $('tw-link').trigger('click');
+    State.events.on('undo', () => {
+      result = true;
+    });
+    window.story.undo();
+    expect(result).toBe(true);
+  });
+
   it('Should move back one in History.history when undo is clicked', () => {
     $('tw-link').trigger('click');
     window.story.undoIcon.trigger('click');
@@ -309,6 +366,15 @@ describe('Story events', () => {
     expect(result).toBe(true);
   });
 
+  it('Should emit redo event when redo() is called', () => {
+    let result = false;
+    State.events.on('redo', () => {
+      result = true;
+    });
+    window.story.redo();
+    expect(result).toBe(true);
+  });
+
   it('Should show undo icon after at least one user click', () => {
     $('tw-link').trigger('click');
     expect(window.story.undoIcon.css('visibility')).toBe('visible');
@@ -328,14 +394,45 @@ describe('Story events', () => {
     expect($('tw-screenlock').length).toBe(1);
   });
 
-  it('Should remove tw-screenlock element if previously locked', () => {
+  it('Should trigger "screen-lock" when screenLock() is called', () => {
+    window.story.screenLock();
+    expect($('tw-screenlock').length).toBe(1);
+  });
+
+  it('Should remove tw-screenlock element if previously locked using events', () => {
     State.events.emit('screen-lock');
     State.events.emit('screen-unlock');
+    expect($('tw-screenlock').length).toBe(0);
+  });
+
+  it('Should remove tw-screenlock element if previously locked using function calls', () => {
+    window.story.screenLock();
+    window.story.screenUnlock();
     expect($('tw-screenlock').length).toBe(0);
   });
 
   it('Should do nothing if not locked when trying to unlock', () => {
     State.events.emit('screen-unlock');
     expect($('tw-screenlock').length).toBe(0);
+  });
+
+  it('Should hide tw-sidebar by event', () => {
+    State.events.emit('sidebar-hide');
+    expect($('tw-sidebar').css('visibility')).toBe('hidden');
+  });
+
+  it('Should hide tw-sidebar by function call', () => {
+    window.story.sidebarHide();
+    expect($('tw-sidebar').css('visibility')).toBe('hidden');
+  });
+
+  it('Should show tw-sidebar by event', () => {
+    State.events.emit('sidebar-show');
+    expect($('tw-sidebar').css('visibility')).toBe('visible');
+  });
+
+  it('Should show tw-sidebar by function call', () => {
+    window.story.sidebarShow();
+    expect($('tw-sidebar').css('visibility')).toBe('visible');
   });
 });
