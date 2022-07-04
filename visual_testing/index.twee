@@ -1,13 +1,30 @@
 :: StoryTitle
 Storylets in Snowman 2.2
 
-:: Start
+:: UserScript[script]
+s.testing = true;
 
-:: Another[storylet]
+:: Start
+<%
+  // Retrieve only 1 passage object from 
+  //  any available based on their requirements.
+  const nextStorylet = Storylets.getAvailablePassages(1);
+  // Use the show() pseudo-global shorthand 
+  //  for window.story.show() and show passage by name.
+  show(nextStorylet.name);
+%>
+
+:: First[storylet]
 <requirements>
 {
-  type: "homework",
-  score: { $gte: 50 }
+  "testing": true
 }
 </requirements>
 
+:: Second[storylet]
+<requirements>
+{
+  "testing": true,
+  "priority": 1
+}
+</requirements>
