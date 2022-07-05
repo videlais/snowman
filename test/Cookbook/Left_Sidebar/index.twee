@@ -11,7 +11,7 @@ $('tw-sidebar').append('<div id="sidebar">');
 	Update every time a passage is shown.
 */
 State.events.on('show', () => {
-	$('#sidebar').html(window.story.render("Sidebar"));
+	$('#sidebar').html(Story.include("Sidebar"));
 });
 
 :: Start

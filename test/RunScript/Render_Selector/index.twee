@@ -3,7 +3,7 @@ Render Selector
 
 :: Start
 <span id="test"></span>
-<% renderPassageToSelector('Another', '#test') %>
+<% Story.renderPassageToSelector('Another', '#test') %>
 
 :: Another
 Hey!

@@ -9,7 +9,7 @@ $('a').on('click', () => {
 });
 
 State.events.on('test-click', () => {
-    window.story.show('Another');
+    Story.show('Another');
 });
 %>
 

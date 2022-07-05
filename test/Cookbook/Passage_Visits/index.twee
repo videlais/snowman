@@ -2,7 +2,7 @@
 Snowman: Passage Visits
 
 :: Start
-How many times has the passage "Another Passage" been visited? <%= visited("Another Passage") %>
+How many times has the passage "Another Passage" been visited? <%= History.visited("Another Passage") %>
 
 [[Another Passage]]
 

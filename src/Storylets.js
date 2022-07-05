@@ -7,58 +7,64 @@ const { Query } = require('mingo');
  * @class Storylets
  */
 class Storylets {
-  constructor () {
+  constructor (storyPassages = []) {
     // Internal array of passages.
     this.passages = [];
 
-    // Find all passages with the tag 'storylet'.
-    const passageList = window.story.getPassagesByTags('storylet');
+    // Is storyPassages an array?
+    if (!Array.isArray(storyPassages)) {
+      // If not, make it an empty array.
+      storyPassages = [];
+    }
 
     // For each, look for the <requirements> element in their source.
-    for (const passageEntry of passageList) {
-      // Find the element and replace it with an empty string.
-      const searchedSource = passageEntry.source.replace(/<requirements>([^>]*?)<\/requirements>/gmi, (match, captured) => {
-        // Set a default object if JSON parsing fails.
-        let passageRequirements = {};
+    for (const passageEntry of storyPassages) {
+      // Double-check each object has a 'source' property.
+      if (Object.prototype.hasOwnProperty.call(passageEntry, 'source')) {
+        // Find the element and replace it with an empty string.
+        const searchedSource = passageEntry.source.replace(/<requirements>([^>]*?)<\/requirements>/gmi, (match, captured) => {
+          // Set a default object if JSON parsing fails.
+          let passageRequirements = {};
 
-        // Attempt JSON parsing, which can throw error on failure.
-        try {
-          // Try to parse string into object
-          passageRequirements = JSON.parse(captured);
-        } catch (e) {
-          // Ignore the error
-        }
-
-        // Set default priority for all cards.
-        let passagePriority = 0;
-
-        // Look for priority property.
-        // First, are there any keys?
-        if (Object.keys(passageRequirements).length > 0) {
-          // Second, does the 'priority' property exist?
-          if (Object.prototype.hasOwnProperty.call(passageRequirements, 'priority')) {
-            // Update priority.
-            passagePriority = passageRequirements.priority;
-            // Remove priority.
-            delete passageRequirements.priority;
+          // Attempt JSON parsing, which can throw error on failure.
+          try {
+            // Try to parse string into object
+            passageRequirements = JSON.parse(captured);
+          } catch (e) {
+            // Ignore the error
           }
-        }
 
-        // Add the passage to the internal array.
-        this.passages.push(
-          {
-            passage: passageEntry,
-            requirements: passageRequirements,
-            priority: passagePriority
+          // Set default priority for all cards.
+          let passagePriority = 0;
+
+          // Look for priority property.
+          // First, are there any keys?
+          if (Object.keys(passageRequirements).length > 0) {
+            // Second, does the 'priority' property exist?
+            if (Object.prototype.hasOwnProperty.call(passageRequirements, 'priority')) {
+              // Update priority.
+              passagePriority = passageRequirements.priority;
+              // Remove priority.
+              delete passageRequirements.priority;
+            }
           }
-        );
 
-        // Return empty string, removing it from the passage source.
-        return '';
-      });
+          // Add the passage to the internal array.
+          this.passages.push(
+            {
+              passage: passageEntry,
+              requirements: passageRequirements,
+              priority: passagePriority
+            }
+          );
 
-      // Overwrite previous source with removed <requirements> element.
-      passageEntry.source = searchedSource;
+          // Return empty string, removing it from the passage source.
+          return '';
+        });
+
+        // Overwrite previous source with removed <requirements> element.
+        passageEntry.source = searchedSource;
+      }
     }
   }
 

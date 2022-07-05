@@ -10,6 +10,6 @@ Programmatic Undo in Snowman 2
 
 <%
 $('#return').on('click', () => {
-    undo();
+    Story.undo();
 });
 %>

@@ -5,13 +5,9 @@ Storylets in Snowman 2.2
 s.testing = true;
 
 :: Start
+<h2>Destinations:</h2>
 <%
-  // Retrieve only 1 passage object from 
-  //  any available based on their requirements.
-  const nextStorylet = Storylets.getAvailablePassages(1);
-  // Use the show() pseudo-global shorthand 
-  //  for window.story.show() and show passage by name.
-  show(nextStorylet.name);
+  goto('First');
 %>
 
 :: First[storylet]
@@ -20,11 +16,12 @@ s.testing = true;
   "testing": true
 }
 </requirements>
+<p>First!</p>
 
 :: Second[storylet]
 <requirements>
 {
-  "testing": true,
-  "priority": 1
+  "testing": true
 }
 </requirements>
+<p>Second!</p>

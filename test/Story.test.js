@@ -70,17 +70,17 @@ describe('Story', () => {
     });
   });
 
-  describe('getPassageByTags()', () => {
+  describe('getPassageByTag()', () => {
     it('Should return empty array if tag does not exist in story', () => {
-      expect(window.story.getPassagesByTags('tag3').length).toBe(0);
+      expect(window.story.getPassagesByTag('tag3').length).toBe(0);
     });
 
     it('Should return array of one entry if tag is only used once', () => {
-      expect(window.story.getPassagesByTags('tag1').length).toBe(1);
+      expect(window.story.getPassagesByTag('tag1').length).toBe(1);
     });
 
     it('Should return array of two entry if tag is used twice', () => {
-      expect(window.story.getPassagesByTags('tag2').length).toBe(2);
+      expect(window.story.getPassagesByTag('tag2').length).toBe(2);
     });
   });
 
@@ -185,6 +185,30 @@ describe('Story', () => {
         await expect(result).toBe(true);
       });
       window.story.show('Test Passage');
+    });
+  });
+
+  describe('goto()', () => {
+    it('Should replace the current passage content', () => {
+      window.story.goto('Test Passage');
+      expect($('tw-passage').html()).toBe('Hello world');
+    });
+
+    it('Should throw error if passage does not exist', () => {
+      expect(() => window.story.goto('Nope')).toThrow();
+    });
+
+    it('Should assume default values', () => {
+      expect(() => window.story.goto()).toThrow();
+    });
+
+    it('Should emit show event', () => {
+      let result = false;
+      State.events.on('show', async () => {
+        result = true;
+        await expect(result).toBe(true);
+      });
+      window.story.goto('Test Passage');
     });
   });
 

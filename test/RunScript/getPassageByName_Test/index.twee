@@ -5,13 +5,15 @@ getPassageByName() Test
 The title of this story is "<%= window.story.name %>."
 
 <% 
-	window.setup = {};
-	window.setup.passage = window.story.passage("Storage");
+	// Look for the passage by name.
+	const passage = Story.getPassageByName("Storage");
+	// Save the passage globally.
+	s.passage = passage;
 %>
 
-The name of the passage is "<%= setup.passage.name %>."
+The name of the passage is "<%= s.passage.name %>."
 
-The source of the passage is "<%= setup.passage.source %>"
+The source of the passage is "<%= s.passage.source %>"
 
 :: Storage
 This is content in the storage passage!

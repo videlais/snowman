@@ -3,11 +3,11 @@ Loading Screen in Snowman
 
 :: UserScript[script]
 // Before the story starts, lock the screen.
-screenLock();
+Screen.lock();
 
 // Pause for 5 seconds before unlocking the screen.
 setTimeout(() => {
-    screenUnlock();
+    Screen.unlock();
 }, 5000);
 
 :: Start

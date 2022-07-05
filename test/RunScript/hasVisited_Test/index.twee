@@ -6,7 +6,7 @@ hasVisited Test
 
 :: Another
 <% 
-    if(hasVisited('Start')) {
+    if(History.hasVisited('Start')) {
         print("Hi!");
     }
 %>

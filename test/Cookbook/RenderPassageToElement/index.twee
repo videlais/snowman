@@ -3,7 +3,7 @@ Snowman: Render to Element
 
 :: UserScript[script]
 State.events.on('show', () => {
-	renderPassageToSelector("HUD", "#hudID");
+	Story.renderPassageToSelector("HUD", "#hudID");
 });
 
 :: Start

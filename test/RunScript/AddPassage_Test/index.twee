@@ -3,5 +3,5 @@ Add Passage Test
 
 :: Start
 <% 
-    addPassage('Another', [], '<p id="test">Show me!</p>');
+    Story.addPassage('Another', [], '<p id="test">Show me!</p>');
 %>

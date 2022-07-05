@@ -9,6 +9,7 @@ const Markdown = require('./Markdown.js');
 const State = require('./State.js');
 const History = require('./History.js');
 const Storage = require('./Storage.js');
+const Storylets = require('./Storylets.js');
 
 /**
  * An object representing the entire story. After the document has completed
@@ -212,7 +213,7 @@ class Story {
       // If redo failed, name will be null.
       if (passageName !== null) {
         // Not null, show previous passage.
-        window.story.show(passageName);
+        this.show(passageName);
       }
     });
 
@@ -223,7 +224,7 @@ class Story {
       // If undo failed, name will be null.
       if (passageName !== null) {
         // Not null, show previous passage.
-        window.story.show(passageName);
+        this.show(passageName);
       }
     });
 
@@ -250,6 +251,17 @@ class Story {
       // Show tw-sidebar
       $('tw-sidebar').css('visibility', 'hidden');
     });
+
+    /**
+     * Reference to internal Storylets object.
+     *
+     * Starts as null. During Story.start(), a new object is
+     *  created based on initial passages.
+     *
+     * @property {Storylets} storylets Internal reference to Storylets
+     * @type {Storylets|null}
+     */
+    this.storylets = null;
   }
 
   /**
@@ -264,6 +276,11 @@ class Story {
    * @function start
    */
   start () {
+    // Find all passages with the tag 'storylet'.
+    const passageList = this.getPassagesByTag('storylet');
+    // Generate initial Storylets collection.
+    this.storylets = new Storylets(passageList);
+
     // For each style, add them to the body as extra style elements.
     this.userStyles.forEach((style) => {
       $(document.body).append(`<style>${style}</style>`);
@@ -307,11 +324,11 @@ class Story {
   /**
    * Returns an array of none, one, or many passages matching a specific tag.
    *
-   * @function getPassagesByTags
-   * @param {string} tag - Tag to search for
-   * @returns {Array} Array containing none, one, or many passage objects
+   * @function getPassagesByTag
+   * @param {string} tag - Tag to search for.
+   * @returns {Array} Array containing none, one, or many passage objects.
    */
-  getPassagesByTags (tag) {
+  getPassagesByTag (tag) {
     // Search internal passages
     return this.passages.filter((p) => {
       return p.tags.includes(tag);
@@ -332,7 +349,7 @@ class Story {
     let passage = null;
 
     // Search for any passages with the name
-    const result = window.story.passages.filter((p) => p.name === name);
+    const result = this.passages.filter((p) => p.name === name);
 
     // Were any found?
     if (result.length !== 0) {
@@ -352,7 +369,7 @@ class Story {
    * @returns {Passage|null} Passage object or null
    */
   passage (name) {
-    return window.story.getPassageByName(name);
+    return this.getPassageByName(name);
   }
 
   /**
@@ -363,7 +380,7 @@ class Story {
    * @param {string} name - name of the passage
    */
   show (name) {
-    const passage = window.story.getPassageByName(name);
+    const passage = this.getPassageByName(name);
 
     if (passage === null) {
       throw new Error(`There is no passage with the name ${name}`);
@@ -373,14 +390,14 @@ class Story {
     window.passage = passage;
 
     // Overwrite current tags
-    window.story.passageElement.attr('tags', passage.tags);
+    this.passageElement.attr('tags', passage.tags);
 
     // Overwrite the parsed with the rendered.
-    window.story.passageElement.html(window.story.render(passage.name));
+    this.passageElement.html(this.render(passage.name));
 
     // Change visibility after second (and later) show calls
-    if (window.story.history.length > 1) {
-      window.story.undoIcon.css('visibility', 'visible');
+    if (this.history.length > 1) {
+      this.undoIcon.css('visibility', 'visible');
     }
 
     /**
@@ -407,7 +424,7 @@ class Story {
    */
   render (name) {
     // Search for passage by name
-    const passage = window.story.getPassageByName(name);
+    const passage = this.getPassageByName(name);
 
     // Does this passage exist?
     if (passage === null) {
@@ -417,7 +434,7 @@ class Story {
     }
 
     // Render any possible code first
-    let result = window.story.runScript(passage.source);
+    let result = this.runScript(passage.source);
 
     // Parse the resulting text
     result = Markdown.parse(result);
@@ -483,21 +500,32 @@ class Story {
           State: State,
           s: this.state,
           Storage: Storage,
-          renderPassageToSelector: this.renderPassageToSelector,
-          include: this.render,
-          either: this.either,
-          hasVisited: History.hasVisited,
-          visited: History.visited,
-          getPassageByName: this.getPassageByName,
-          undo: this.undo,
-          redo: this.redo,
-          screenLock: this.screenLock,
-          screenUnlock: this.screenUnlock,
-          show: this.show,
-          sidebarHide: this.sidebarHide,
-          sidebarShow: this.sidebarShow,
-          addPassage: this.addPassage,
-          removePassage: this.removePassage
+          Storylets: this.storylets,
+          Story: {
+            renderPassageToSelector: this.renderPassageToSelector.bind(this),
+            include: this.render.bind(this),
+            getPassageByName: this.getPassageByName.bind(this),
+            getPassagesByTag: this.getPassagesByTag.bind(this),
+            undo: this.undo.bind(this),
+            redo: this.redo.bind(this),
+            show: this.show.bind(this),
+            addPassage: this.addPassage.bind(this),
+            removePassage: this.removePassage.bind(this),
+            goto: this.goto.bind(this)
+          },
+          either: this.either.bind(this),
+          History: {
+            hasVisited: History.hasVisited,
+            visited: History.visited
+          },
+          Screen: {
+            lock: this.screenLock.bind(this),
+            unlock: this.screenUnlock.bind(this)
+          },
+          Sidebar: {
+            hide: this.sidebarHide.bind(this),
+            show: this.sidebarShow.bind(this)
+          }
         },
         {
           outputFunctionName: 'print'
@@ -521,7 +549,7 @@ class Story {
    */
   renderPassageToSelector (passageName, selector) {
     try {
-      $(selector).html(window.story.render(passageName));
+      $(selector).html(this.render(passageName));
     } catch (e) {
       // Throw error if selector does not exist.
       throw new Error('Error with selector when using renderToSelector()');
@@ -612,7 +640,7 @@ class Story {
    */
   addPassage (name = '', tags = [], source = '') {
     // Look for name.
-    const nameSearch = window.story.getPassageByName(name);
+    const nameSearch = this.getPassageByName(name);
 
     // Confirm name does not already exist.
     if (nameSearch !== null) {
@@ -632,7 +660,7 @@ class Story {
     }
 
     // Add to the existing passages.
-    window.story.passages.push(new Passage(
+    this.passages.push(new Passage(
       name,
       tags,
       Markdown.unescape(source)
@@ -650,9 +678,37 @@ class Story {
    * @param {string} name name
    */
   removePassage (name = '') {
-    window.story.passages = window.story.passages.filter(passage => {
+    this.passages = this.passages.filter(passage => {
       return passage.name !== name;
     });
+  }
+
+  /**
+   * Go to an existing passage in the story. Unlike `Story.show()`, this will add to the history.
+   *
+   * Throws error if passage does not exist.
+   *
+   * @function goto
+   * @param {string} name name of passage
+   */
+  goto (name = '') {
+    // Look for passage.
+    const passage = this.getPassageByName(name);
+
+    // Does passage exist?
+    if (passage === null) {
+      // Throw error.
+      throw new Error(`There is no passage with the name ${name}`);
+    }
+
+    // Add to the history.
+    History.add(name);
+
+    // Hide the redo icon.
+    this.redoIcon.css('visibility', 'hidden');
+
+    // Show the passage by name.
+    this.show(name);
   }
 }
 

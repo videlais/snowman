@@ -10,7 +10,7 @@ $(function() {
 	
 	function tick() {
 		if (--timeLeft === 0) {
-			story.show('World End');
+			Story.show('World End');
 		}
 		else {
 			$('.time-left').text(timeLeft);

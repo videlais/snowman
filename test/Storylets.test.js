@@ -4,6 +4,28 @@ const $ = require('jquery');
 
 describe('Storylets', () => {
   describe('constructor()', () => {
+    it('Should have empty collection if run by itself', () => {
+      const s = new Storylets();
+      expect(s.passages.length).toBe(0);
+    });
+
+    it('Should ignore non-array arguments', () => {
+      const s = new Storylets(1);
+      expect(s.passages.length).toBe(0);
+    });
+
+    it('Should ignore array of objects without source property', () => {
+      const s = new Storylets([
+        {
+          example: 1
+        },
+        {
+          example: 2
+        }
+      ]);
+      expect(s.passages.length).toBe(0);
+    });
+
     it('Should have two cards from elements', () => {
       $(document.body).html(`
             <tw-storydata name="Test" startnode="1" creator="extwee" creator-version="1.2.3">
@@ -41,7 +63,7 @@ describe('Storylets', () => {
       window.story = new Story();
       // Start a new story
       window.story.start();
-      const s = new Storylets();
+      const s = window.story.storylets;
       expect(s.passages.length).toBe(2);
     });
 
@@ -67,8 +89,7 @@ describe('Storylets', () => {
       window.story = new Story();
       // Start a new story
       window.story.start();
-      // Create new collection
-      const s = new Storylets();
+      const s = window.story.storylets;
       // No elements were tagged with 'storylet'
       expect(s.passages.length).toBe(0);
     });
@@ -97,8 +118,7 @@ describe('Storylets', () => {
       window.story = new Story();
       // Start a new story
       window.story.start();
-      // Create new collection
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Retrieve 'Test Passage'.
       const passage = window.story.getPassageByName('Test Passage');
       // One card.
@@ -128,7 +148,7 @@ describe('Storylets', () => {
       // Start a new story.
       window.story.start();
       // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Grab first entry in Storylets collection.
       const p = s.passages[0];
       // Should have no properties in its requirements.
@@ -166,8 +186,7 @@ describe('Storylets', () => {
       window.story = new Story();
       // Start a new story
       window.story.start();
-      // Create new collection
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Only one card(passage) should be available.
       expect(s.getAvailablePassages().length).toBe(1);
     });
@@ -207,7 +226,7 @@ describe('Storylets', () => {
       // Start a new story
       window.story.start();
       // Create new collection
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Only one card(passage) should be available.
       expect(s.getAvailablePassages().length).toBe(2);
     });
@@ -246,8 +265,7 @@ describe('Storylets', () => {
       window.story = new Story();
       // Start a new story
       window.story.start();
-      // Create new collection
-      const s = new Storylets();
+      const s = window.story.storylets;
       // No cards should be available.
       expect(s.getAvailablePassages().length).toBe(0);
     });
@@ -291,7 +309,7 @@ describe('Storylets', () => {
       // Start a new story.
       window.story.start();
       // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Two cards should be available.
       expect(s.getAvailablePassages().length).toBe(2);
     });
@@ -332,8 +350,7 @@ describe('Storylets', () => {
       window.story = new Story();
       // Start a new story.
       window.story.start();
-      // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Two cards should be available.
       expect(s.getAvailablePassages().length).toBe(1);
     });
@@ -375,7 +392,7 @@ describe('Storylets', () => {
       // Start a new story.
       window.story.start();
       // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Get array of available cards, limited to 1.
       const passageList = s.getAvailablePassages(1);
       // Higher priority passage should be found.
@@ -416,8 +433,7 @@ describe('Storylets', () => {
       window.story = new Story();
       // Start a new story.
       window.story.start();
-      // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Get array of available cards, limited to 1.
       const passageList = s.getAvailablePassages(1);
       // Get top
@@ -456,7 +472,7 @@ describe('Storylets', () => {
       // Start a new story.
       window.story.start();
       // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Add passage
       s.addPassage('Test Passage 2', {}, 0);
       expect(s.passages.length).toBe(2);
@@ -489,7 +505,7 @@ describe('Storylets', () => {
       // Start a new story.
       window.story.start();
       // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Throw error
       expect(() => s.addPassage('Test Passage')).toThrow();
     });
@@ -521,7 +537,7 @@ describe('Storylets', () => {
       // Start a new story.
       window.story.start();
       // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Throw error
       expect(() => s.addPassage('Nah')).toThrow();
     });
@@ -556,7 +572,7 @@ describe('Storylets', () => {
       // Start a new story.
       window.story.start();
       // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Add passage with null as requirements.
       s.addPassage('Test Passage 2', null);
       // Grab requirements
@@ -595,7 +611,7 @@ describe('Storylets', () => {
       // Start a new story.
       window.story.start();
       // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Add passage
       s.addPassage();
       expect(s.passages.length).toBe(2);
@@ -633,7 +649,7 @@ describe('Storylets', () => {
       // Start a new story.
       window.story.start();
       // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       s.removePassage('Test Passage');
       expect(s.passages.length).toBe(0);
     });
@@ -675,7 +691,7 @@ describe('Storylets', () => {
       // Start a new story
       window.story.start();
       // Create new collection
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Confirm each passage is available
       expect(s.includes('Test Passage')).toBe(true);
       expect(s.includes('Test Passage 2')).toBe(true);
@@ -716,7 +732,7 @@ describe('Storylets', () => {
       // Start a new story
       window.story.start();
       // Create new collection
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Confirm default passage is available
       expect(s.includes()).toBe(true);
     });
@@ -758,7 +774,7 @@ describe('Storylets', () => {
       // Start a new story.
       window.story.start();
       // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Remove passage by name.
       s.removePassage('Test Passage');
       // Only one passage should be available.
@@ -800,7 +816,7 @@ describe('Storylets', () => {
       // Start a new story.
       window.story.start();
       // Create new collection.
-      const s = new Storylets();
+      const s = window.story.storylets;
       // Remove default passage.
       s.removePassage();
       // Only one passage should be available.

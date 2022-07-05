@@ -3,9 +3,9 @@ Remove Passage Test
 
 :: Start
 <%
-    removePassage('Another');
+    Story.removePassage('Another');
 
-    if(getPassageByName('Another') === null) {
+    if(Story.getPassageByName('Another') === null) {
         print('Show me!');
     }
 %>

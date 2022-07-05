@@ -1,9 +1,9 @@
 :: StoryTitle
-Show Test
+Goto Test
 
 :: Start
 <% 
-    Story.show('Another');
+    Story.goto('Another');
 %>
 
 :: Another

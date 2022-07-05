@@ -55,19 +55,19 @@ s.checkStatus = () => {
     // If health is less than or equal to zero,
     //  show the "Destoryed" passage.
 	if(s.health <= 0) {
-		show("Destroyed");
+		Story.show("Destroyed");
 	}
 
     // If fuel is less than or equal to zero,
     //  show the "Lost in Space" passage.
 	if(s.fuel <= 0) {
-        show("Lost in Space");
+        Story.show("Lost in Space");
 	}
 
     // If numberOfJumpsLeft is less than or equal to zero,
     //  show the "Safe" passage.
 	if(s.numberOfJumpsLeft <= 0) {
-		show("Safe");
+		Story.show("Safe");
 	}
 }
 
@@ -93,9 +93,9 @@ s.checkStatus = () => {
     // Wait for elements to load.
     $(() => {
         // Update HUD.
-        renderPassageToSelector("HUD", "#HUD");
+        Story.renderPassageToSelector("HUD", "#HUD");
         // Update system.
-        include("System");
+        Story.include("System");
     });
 %>
 
@@ -121,7 +121,7 @@ s.checkStatus = () => {
             // Listen for 'click' event.
 			link.on('click', function() {
                 // If a reader clicks, replace content with "Risky" passage.
-    			$( this ).replaceWith( include("Risky") );
+    			$( this ).replaceWith( Story.include("Risky") );
 			});
 	    } else {
             // Create a line item and hyperlink.
@@ -129,7 +129,7 @@ s.checkStatus = () => {
             // Listen for 'click' event.
 			link.on('click', function() {
                 // If a reader clicks, replace content with "Safer" passage.
-    			$( this ).replaceWith( include("Safer") );
+    			$( this ).replaceWith( Story.include("Safer") );
 			});
         }
 
@@ -147,13 +147,13 @@ s.checkStatus = () => {
 :: Risky
 <p>
     <%- s.riskyOutcome() %>
-    <% renderPassageToSelector("HUD", "#HUD") %>
+    <% Story.renderPassageToSelector("HUD", "#HUD") %>
 </p>
 
 :: Safer
 <p>
     <%- s.saferOutcome() %>
-    <% renderPassageToSelector("HUD", "#HUD") %>
+    <% Story.renderPassageToSelector("HUD", "#HUD") %>
 </p>
 
 :: HUD

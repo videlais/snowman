@@ -7,9 +7,9 @@ Snowman 2: Passage Events
 	prepend "Header" and append "Footer" passages to current one.
 */
 State.events.on('show', (passageName) => {
-		let headerContent = window.story.render("Header");
-		let currentContent = window.story.render(passageName);
-		let footerContent = window.story.render("Footer");
+		let headerContent = Story.include("Header");
+		let currentContent = Story.include(passageName);
+		let footerContent = Story.include("Footer");
 
 		$('tw-passage').html(headerContent + currentContent + footerContent);
 });
