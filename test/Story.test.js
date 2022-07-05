@@ -108,7 +108,7 @@ describe('Story', () => {
 
   describe('render()', () => {
     it('Should return rendered content of named passage', () => {
-      expect(window.story.render('Test Passage 5')).toBe('<tw-link role="link" data-passage="Test Passage">Test Passage</a>');
+      expect(window.story.render('Test Passage 5')).toBe('<tw-link role="link" data-passage="Test Passage">Test Passage</tw-link>');
     });
 
     it('Should throw error if named passage does not exist', () => {
@@ -317,7 +317,7 @@ describe('Story events', () => {
     $(document.body).html(`
     <tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3">
       <tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">[[Test Passage 2]]</tw-passagedata>
-      <tw-passagedata pid="2" name="Test Passage 2" tags="tag2">Hello world 2</tw-passagedata>
+      <tw-passagedata pid="2" name="Test Passage 2" tags="tag2">[[Test Passage 5]]</tw-passagedata>
       <tw-passagedata pid="3" name="Test Passage 5" tags="">[[Test Passage]]</tw-passagedata>
       <script type="text/twine-javascript">window.scriptRan = true;</script>
       <style type="text/twine-css">body { color: blue }</style>
@@ -379,6 +379,22 @@ describe('Story events', () => {
     window.story.undoIcon.trigger('click');
     window.story.redoIcon.trigger('click');
     expect(window.passage.name).toBe('Test Passage 2');
+  });
+
+  it('Should only hide undo icon when at beginning of collection', () => {
+    $('tw-link').trigger('click');
+    $('tw-link').trigger('click');
+    window.story.undo();
+    expect(window.story.undoIcon.css('visibility')).toBe('visible');
+  });
+
+  it('Should only hide redo icon when at end of collection', () => {
+    $('tw-link').trigger('click');
+    $('tw-link').trigger('click');
+    window.story.undo();
+    window.story.undo();
+    window.story.redo();
+    expect(window.story.redoIcon.css('visibility')).toBe('visible');
   });
 
   it('Should emit redo event when tw-icon is clicked', () => {

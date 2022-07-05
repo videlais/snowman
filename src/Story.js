@@ -396,9 +396,13 @@ class Story {
    * @param {string} name - name of the passage
    */
   show (name) {
+    // Look for passage by name.
     const passage = this.getPassageByName(name);
 
+    // passage will be null if it was not found.
     if (passage === null) {
+      // Passage was not found.
+      // Throw error.
       throw new Error(`There is no passage with the name ${name}`);
     }
 
@@ -434,7 +438,7 @@ class Story {
    * @returns {string} HTML source code
    */
   render (name) {
-    // Search for passage by name
+    // Search for passage by name.
     const passage = this.getPassageByName(name);
 
     // Does this passage exist?
@@ -444,14 +448,14 @@ class Story {
       throw new Error('There is no passage with name ' + name);
     }
 
-    // Render any possible code first
+    // Render any possible code first.
     let result = this.runScript(passage.source);
 
-    // Parse the resulting text
+    // Parse the resulting text.
     result = Markdown.parse(result);
 
     // Return the rendered and parsed passage source.
-    return result;
+    return Markdown.parse(result);
   }
 
   /**

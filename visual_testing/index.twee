@@ -1,11 +1,32 @@
 :: StoryTitle
-Visual Testing
+Storylets in Snowman 2.2
+
+:: UserScript[script]
+s.testing = true;
 
 :: Start
-[[First]]
+[[Start Adventure]]
 
-:: First
-<p>Some content.</p>
+:: Start Adventure
+<%
+  // Retrieve only 1 passage object from 
+  //  any available based on their requirements.
+  const availablePassages = Storylets.getAvailablePassages(1);
+%>
+<%- Story.include(availablePassages[0].passage.name); %>
 
-:: Second
-<p>More.</p>
+:: First[storylet]
+<requirements>
+{
+  "testing": true
+}
+</requirements>
+<p>First</p>
+
+:: Second[storylet]
+<requirements>
+{
+  "testing": true
+}
+</requirements>
+<p>Second</p>
