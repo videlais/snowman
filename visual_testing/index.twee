@@ -1,27 +1,11 @@
 :: StoryTitle
-Storylets in Snowman 2.2
-
-:: UserScript[script]
-s.testing = true;
+Visual Testing
 
 :: Start
-<h2>Destinations:</h2>
-<%
-  goto('First');
-%>
+[[First]]
 
-:: First[storylet]
-<requirements>
-{
-  "testing": true
-}
-</requirements>
-<p>First!</p>
+:: First
+<p>Some content.</p>
 
-:: Second[storylet]
-<requirements>
-{
-  "testing": true
-}
-</requirements>
-<p>Second!</p>
+:: Second
+<p>More.</p>

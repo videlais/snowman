@@ -132,8 +132,10 @@ class Story {
       const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
       // Add to the history.
       History.add(passageName);
-      // Hide the redo icon
+      // Hide the redo icon.
       this.redoIcon.css('visibility', 'hidden');
+      // Show the undo icon.
+      this.undoIcon.css('visibility', 'visible');
       // Show the passage by name.
       this.show(passageName);
     });
@@ -212,6 +214,13 @@ class Story {
       const passageName = History.redo();
       // If redo failed, name will be null.
       if (passageName !== null) {
+        // Check if at end of collection.
+        if (History.position === History.history.length - 1) {
+          // Hide redo
+          this.redoIcon.css('visibility', 'hidden');
+          // Show undo
+          this.undoIcon.css('visibility', 'visible');
+        }
         // Not null, show previous passage.
         this.show(passageName);
       }
@@ -219,10 +228,17 @@ class Story {
 
     // Listen for undo events.
     State.events.on('undo', () => {
+      // Show redo if undo is clicked.
+      this.redoIcon.css('visibility', 'visible');
       // Attempt to undo history.
       const passageName = History.undo();
       // If undo failed, name will be null.
       if (passageName !== null) {
+        // Check if at beginning of collection.
+        if (History.position === 0) {
+          // Hide undo
+          this.undoIcon.css('visibility', 'hidden');
+        }
         // Not null, show previous passage.
         this.show(passageName);
       }
@@ -395,11 +411,6 @@ class Story {
     // Overwrite the parsed with the rendered.
     this.passageElement.html(this.render(passage.name));
 
-    // Change visibility after second (and later) show calls
-    if (this.history.length > 1) {
-      this.undoIcon.css('visibility', 'visible');
-    }
-
     /**
      * Triggered when a passage is shown
      *
@@ -511,7 +522,8 @@ class Story {
             show: this.show.bind(this),
             addPassage: this.addPassage.bind(this),
             removePassage: this.removePassage.bind(this),
-            goto: this.goto.bind(this)
+            goto: this.goto.bind(this),
+            applyExternalStyles: this.applyExternalStyles.bind(this)
           },
           either: this.either.bind(this),
           History: {
