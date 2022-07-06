@@ -38,7 +38,7 @@
     "extwee": "^2.0.6",
     "jest": "^28.1.2",
     "jest-environment-jsdom": "^28.1.2",
-    "jest-puppeteer": "^6.1.0",
+    "jest-puppeteer": "^6.1.1",
     "mini-css-extract-plugin": "^2.6.1",
     "open": "^8.4.0",
     "open-cli": "^7.0.1",
