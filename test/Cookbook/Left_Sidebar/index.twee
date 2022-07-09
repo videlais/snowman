@@ -8,7 +8,14 @@ Left Sidebar in Snowman
 $('tw-sidebar').append('<div id="sidebar">');
 
 /*
-	Update every time a passage is shown.
+	Update at story start.
+*/
+State.events.on('start', () => {
+	$('#sidebar').html(Story.include("Sidebar"));
+});
+
+/*
+	Update again on future passage show event.
 */
 State.events.on('show', () => {
 	$('#sidebar').html(Story.include("Sidebar"));

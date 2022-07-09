@@ -23017,8 +23017,14 @@ class Story {
     // Add to the history.
     History.add(passage.name);
 
-    // Show starting passage.
-    this.show(passage.name);
+    // Set the global passage to the one about to be shown.
+    window.passage = passage;
+
+    // Overwrite current tags
+    this.passageElement.attr('tags', passage.tags);
+
+    // Overwrite the parsed with the rendered.
+    this.passageElement.html(this.render(passage.name));
 
     /**
      * Triggered when the story starts

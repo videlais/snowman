@@ -1,32 +1,28 @@
 :: StoryTitle
-Storylets in Snowman 2.2
+Snowman 2: Start Event
 
 :: UserScript[script]
-s.testing = true;
+/*
+  When 'start' happens, overwrite current contents.
+
+  This will only run once, as 'start' is only emitted
+   at the beginning of a story.
+*/
+State.events.on('start', (passageName) => {
+		let headerContent = Story.include("Header");
+		let currentContent = Story.include(passageName);
+		let footerContent = Story.include("Footer");
+		$('tw-passage').html(headerContent + currentContent + footerContent);
+});
 
 :: Start
-[[Start Adventure]]
+<p>[[Another Passage]]</p>
 
-:: Start Adventure
-<%
-  // Retrieve only 1 passage object from 
-  //  any available based on their requirements.
-  const availablePassages = Storylets.getAvailablePassages(1);
-%>
-<%- Story.include(availablePassages[0].passage.name); %>
+:: Another Passage
+[[Back to beginning->Start]]
 
-:: First[storylet]
-<requirements>
-{
-  "testing": true
-}
-</requirements>
-<p>First</p>
+:: Header
+This is the header!
 
-:: Second[storylet]
-<requirements>
-{
-  "testing": true
-}
-</requirements>
-<p>Second</p>
+:: Footer
+This is the footer!
