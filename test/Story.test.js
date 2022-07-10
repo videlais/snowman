@@ -108,7 +108,7 @@ describe('Story', () => {
 
   describe('render()', () => {
     it('Should return rendered content of named passage', () => {
-      expect(window.story.render('Test Passage 5')).toBe('<tw-link role="link" data-passage="Test Passage">Test Passage</tw-link>');
+      expect(window.story.render('Test Passage 5')).toBe('<tw-link role="link" onclick="" data-passage="Test Passage">Test Passage</tw-link>');
     });
 
     it('Should throw error if named passage does not exist', () => {
