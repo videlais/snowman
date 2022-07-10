@@ -1,11 +1,15 @@
-# Snowman Documentation
+# Snowman
 
-Welcome to the Snowman documentation!
+Snowman was originally created by Chris Klimas as a "minimal Twine 2 story format designed for people who already know JavaScript and CSS." In 2022, with the move to 3.X, Dan Cox has changed the description to "an advanced Twine 2 story format designed for people who already know JavaScript and CSS."
 
-All examples come from the [Twine Cookbook](https://twinery.org/cookbook/) and are used under the same Creative Commons Attribution-ShareAlike 4.0 International License.
+## What does Snowman offer?
 
-## License:
+Snowman does not use macros like Harlowe, SugarCube, and other story formats. Instead, it uses template tags `<% ... %>` and exposes a rich JavaScript API for manipulating the story and its passages.
 
-<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+It also includes the JavaScript library [jQuery](https://jquery.com/).
 
-## Version 1.7 (August 2019)
+## License
+
+This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
+
+Documentation Version 3.0 (July 2022).

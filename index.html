@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <style>
-    body {
-      padding-top: 2em;
+<head>
+  <meta charset="UTF-8">
+  <title>Snowman</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css">
+  <style>
+    :root {
+      /* Increase the font size */
+      --base-font-size: 24px;
+  
+      /* Change the theme color hue */
+      --theme-hue: 325;
+
+      --sidebar-nav-link-before-content: '•';
+      --sidebar-nav-link-before-content-l2: '';
+      --sidebar-nav-link-before-content-l3: '';
     }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="row">
-        <div class="col-12">
-          <h2>Snowman Documentation</h2>
-        </div>
-        <div class="col-12">
-          <p>Snowman is a minimal Twine 2 story format designed for people who already know JavaScript and CSS originally created by Chris Klimas.</p>
-          <p>It is currently maintained by Dan Cox.</p>
-        </div>
-        <div class="col-12">
-          <h3>Snowman exists as two branches: 1.X and 2.X.</h3>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-6">
-         <h4><a href="https://videlais.github.io/snowman/1/">1.X</a></h4>
-       </div>
-       <div class="col-sm-6">
-         <h4><a href="https://videlais.github.io/snowman/2/">2.X</a></h4>
-       </div>
-     </div>
-    </div>
-  </body>
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name: 'Snowman Documentation',
+      loadSidebar: true
+    }
+  </script>
+  <!-- Docsify v4 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/js/docsify-themeable.min.js"></script>
+</body>
 </html>
