@@ -1,20 +1,18 @@
 ![Node.js CI](https://github.com/videlais/snowman/workflows/Node.js%20CI/badge.svg) [![codecov](https://codecov.io/gh/videlais/snowman/branch/master/graph/badge.svg)](https://codecov.io/gh/videlais/snowman)
 
-# Snowman 2.0.3
+# Snowman
 
-Snowman is a minimal Twine 2 story format designed for people who already know JavaScript and CSS originally created by Chris Klimas. It is currently maintained by Dan Cox.
+Snowman is an advanced Twine 2 story format designed for people who already know JavaScript and CSS. It was originally created by Chris Klimas and is currently maintained by Dan Cox.
 
 ## What does Snowman offer?
 
-Snowman does not use macros like Harlowe, SugarCube, and other story formats. Instead, it has two global objects, `window.story` and `window.passage`, that expose functionality for working with the overall story and the current passage, respectively.
+Snowman does not use macros. Instead, it provides template tags, `<% ... %>`, and a JavaScript API for accessing and manipulating the current story and its passages.
 
-It also includes the JavaScript libraries [jQuery](https://jquery.com/) and [Underscore](https://underscorejs.org/).
-
-Additional styling options are supplied through the inclusion of the [Marked](https://github.com/markedjs/marked) library.
+It also includes the JavaScript library [jQuery](https://jquery.com/).
 
 ## Want to learn more?
 
-The [official Snowman documentation](https://videlais.github.io/snowman/2/) has more details about Snowman including multiple examples of how to do various tasks.
+The [official Snowman documentation](https://videlais.github.io/snowman/#/) has more details.
 
 ## Building
 
