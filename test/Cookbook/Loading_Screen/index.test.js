@@ -8,7 +8,7 @@ require('expect-puppeteer');
 // Extend timeout to 10 seconds.
 jest.setTimeout(10000);
 
-ShellJS.exec(`extwee -c -s dist/snowman-2.2.0-format.js -i ${path.join(__dirname, 'index.twee')} -o ${path.join(__dirname, 'index.html')}`);
+ShellJS.exec(`extwee -c -s dist/format.js -i ${path.join(__dirname, 'index.twee')} -o ${path.join(__dirname, 'index.html')}`);
 
 describe('Cookbook - Loading Screen', () => {
     beforeAll(async () => {

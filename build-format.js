@@ -1,38 +1,38 @@
 const fs = require('fs');
 const ejs = require('ejs');
 
-// Read and parse story.json file
+// Read and parse story.json file.
 const storyFile = fs.readFileSync("story.json", {'encoding': 'utf8'});
 const story = JSON.parse(storyFile);
 
-// Read story format HTML template
+// Read story format HTML template.
 const srcIndex = fs.readFileSync("src/story.ejs", {'encoding': 'utf8'});
-// Read bundled format
+// Read bundled format.
 const formatSource = fs.readFileSync("build/format.bundle.js", {'encoding': 'utf8'});
-// Read bundled CSS
+// Read bundled CSS.
 const storyCSS = fs.readFileSync("build/format.css", {'encoding': 'utf8'});
-// Replace the bundles in the format HTML template
+// Replace the bundles in the format HTML template.
 const indexSource = ejs.render(srcIndex, {
     format: `<script>${formatSource}</script>`,
     story_css: `<style>${storyCSS}</style>`
 });
 
 // Write the resulting file.
-fs.writeFileSync('build/index.html', indexSource);
+//fs.writeFileSync('build/index.html', indexSource);
 
-// Read the bundled editor code
-const editorSource = fs.readFileSync("build/editor.bundle.js", {'encoding': 'utf8'});
+// Read the bundled editor code.
+//const editorSource = fs.readFileSync("build/editor.bundle.js", {'encoding': 'utf8'});
 
-// Add the HTML template code to the story object
+// Add the HTML template code to the story object.
 story.source = indexSource;
 
-// Generate format.js
+// Generate format.js.
 let format = "window.storyFormat(" + JSON.stringify(story) + ");";
-fs.writeFileSync(`dist/${story.name}-${story.version}-format.js`, format);
+fs.writeFileSync(`dist/format.js`, format);
 
-// Re-read format.js, replacing the editor code to create a malformed JSON
-let compiledFormat = fs.readFileSync(`dist/${story.name}-${story.version}-format.js`, {'encoding': 'utf8'});
+// Re-read format.js, replacing the editor code to create a malformed JSON.
+//let compiledFormat = fs.readFileSync(`dist/format.js`, {'encoding': 'utf8'});
 //compiledFormat = compiledFormat.replace("\"setup\":\"\"", `\"setup\": function(){${editorSource}}`);
 
-// Re-write the format.js with editor code additions
-fs.writeFileSync(`dist/${story.name}-${story.version}-format.js`, compiledFormat);
+// Re-write the format.js with editor code additions.
+//fs.writeFileSync(`dist/format.js`, compiledFormat);

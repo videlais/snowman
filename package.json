@@ -1,7 +1,7 @@
 {
   "name": "snowman",
-  "version": "2.2.0",
-  "description": "An advanced story format for authors more experienced with HTML, CSS, and JavaScript. See its <a href='https://videlais.github.io/snowman/' target='_blank' rel='noopener noreferrer'>documentation</a>.",
+  "version": "3.0.0",
+  "description": "An advanced story format for authors more experienced with HTML, CSS, and JavaScript. See its <a href='https://videlais.github.io/snowman/#/' target='_blank' rel='noopener noreferrer'>documentation</a>.",
   "license": "MIT",
   "repository": "https://github.com/videlais/snowman/",
   "scripts": {
@@ -9,7 +9,7 @@
     "lint": "eslint src/*.js test/*.js --fix",
     "build": "webpack",
     "package": "npm run build && node build-format.js",
-    "visual-test": "npm run package && extwee -s dist/snowman-2.2.0-format.js -i visual_testing/index.twee -c -o visual_testing/index.html && open-cli visual_testing/index.html",
+    "visual-test": "npm run package && extwee -s dist/format.js -i visual_testing/index.twee -c -o visual_testing/index.html && open-cli visual_testing/index.html",
     "all": "npm run lint && npm run package && npm run test"
   },
   "keywords": [
