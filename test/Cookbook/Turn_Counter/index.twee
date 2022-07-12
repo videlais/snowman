@@ -2,7 +2,7 @@
 Turn Counter in Snowman
 
 :: Start
-<%=	window.story.render("Turn Counter") %> 
+<%-	Story.include("Turn Counter") %> 
 Rooms:
 
 [[Back Room]]
@@ -12,7 +12,7 @@ Rooms:
 [[Right Room]]
 
 :: Back Room
-<%=	window.story.render("Turn Counter") %> 
+<%-	Story.include("Turn Counter") %> 
 Rooms:
 
 [[Left Room]]
@@ -22,7 +22,7 @@ Rooms:
 [[Front Room|Start]]
 
 :: Left Room
-<%=	window.story.render("Turn Counter") %> 
+<%-	Story.include("Turn Counter") %> 
 Rooms:
 
 [[Right Room]]
@@ -33,7 +33,7 @@ Rooms:
 
 
 :: Right Room
-<%=	window.story.render("Turn Counter") %> 
+<%-	Story.include("Turn Counter") %> 
 Rooms:
 
 [[Left Room]]

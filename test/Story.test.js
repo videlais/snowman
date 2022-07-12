@@ -108,7 +108,7 @@ describe('Story', () => {
 
   describe('include()', () => {
     it('Should return rendered content of named passage', () => {
-      expect(window.story.include('Test Passage 5')).toBe('[[Test Passage]]');
+      expect(window.story.include('Test Passage 5')).toBe('<tw-link role="link" onclick="" data-passage="Test Passage">Test Passage</tw-link>');
     });
 
     it('Should throw error if named passage does not exist', () => {

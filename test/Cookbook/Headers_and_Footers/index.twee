@@ -2,11 +2,11 @@
 Snowman: Headers and Footers
 
 :: Start
-<%= window.story.render("Header") %>
+<%- Story.include("Header") %>
 
 This content is between the header and the footer.
 
-<%= window.story.render("Footer") %>
+<%- Story.include("Footer") %>
 
 :: Header
 This is the header!

@@ -332,13 +332,7 @@ class Story {
     this.passageElement.attr('tags', passage.tags);
 
     // Get passage source.
-    let passageSource = this.include(passage.name);
-
-    // Run any scripts.
-    passageSource = this.runScript(passageSource);
-
-    // Parse any Markdown.
-    passageSource = Markdown.parse(passageSource);
+    const passageSource = this.include(passage.name);
 
     // Overwrite the parsed with the rendered.
     this.passageElement.html(passageSource);
@@ -428,13 +422,7 @@ class Story {
     this.passageElement.attr('tags', passage.tags);
 
     // Get passage source by name.
-    let passageSource = this.include(passage.name);
-
-    // Run any script
-    passageSource = this.runScript(passageSource);
-
-    // Parse any Markdown.
-    passageSource = Markdown.parse(passageSource);
+    const passageSource = this.include(passage.name);
 
     // Overwrite any existing HTML.
     this.passageElement.html(passageSource);
@@ -449,11 +437,11 @@ class Story {
   }
 
   /**
-   * Returns the source of a passage by name.
+   * Returns the rendered source of a passage by name.
    *
    * @function include
    * @param {string} name - name of the passage.
-   * @returns {string} Passage source.
+   * @returns {string} Rendered passage source.
    */
   include (name) {
     // Search for passage by name.
@@ -466,8 +454,17 @@ class Story {
       throw new Error('There is no passage with name ' + name);
     }
 
+    // Get passage source.
+    let passageSource = passage.source;
+
+    // Run any script.
+    passageSource = this.runScript(passageSource);
+
+    // Parse any Markdown.
+    passageSource = Markdown.parse(passageSource);
+
     // Return the passage source.
-    return passage.source;
+    return passageSource;
   }
 
   /**

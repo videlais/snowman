@@ -1,28 +1,56 @@
 :: StoryTitle
-Snowman 2: Start Event
+Arrays in Snowman
 
-:: UserScript[script]
-/*
-  When 'start' happens, overwrite current contents.
-
-  This will only run once, as 'start' is only emitted
-   at the beginning of a story.
-*/
-State.events.on('start', (passageName) => {
-		let headerContent = Story.include("Header");
-		let currentContent = Story.include(passageName);
-		let footerContent = Story.include("Footer");
-		$('tw-passage').html(headerContent + currentContent + footerContent);
-});
-
-:: Start
-<p>[[Another Passage]]</p>
-
-:: Another Passage
-[[Back to beginning->Start]]
+:: UserScript [script]
+s.inventory = [];
+s.chest = ['a shield', 'a suit of armor'];
+s.chestOpen = false;
 
 :: Header
-This is the header!
+You are currently carrying: 
+<% if (s.inventory.length === 0) { %>
+nothing.
+<% } else { %>
+<%- s.inventory.join(', ') + '.' %>
+<% } %>
 
-:: Footer
-This is the footer!
+:: Start
+<%- Story.include("Header") %><hr />
+
+You find yourself inside a small room. In the corner, you see a sword, and decide to pick it up.
+
+<% s.inventory.push('a sword') %>
+[[Continue|hallway]]
+
+:: hallway
+<%- Story.include("Header") %><hr />
+You see a chest here in the hallway.
+<% if (!s.chestOpen) { %>
+Do you want to open it?
+
+[[Open the chest.|chest]]
+<% } else { %>
+It's open, and there's nothing inside.
+<% } %>
+
+[[Move on.|dart trap]]
+
+:: chest
+<% s.inventory = s.inventory.concat(s.chest) %>
+<% s.chestOpen = true %>
+<%- Story.include("Header") %><hr />
+
+You open the chest and find <%= s.chest.join(' and ') %>.
+
+[[Okay.|hallway]]
+
+:: dart trap
+<%- Story.include("Header") %><hr />
+Several darts shoot out of a wall at you!
+<% if (s.inventory.includes('a shield')) { %>
+
+Luckily, your shield will protect you.
+<% } else { %>
+
+With no way to defend yourself, you die.
+<% } %>
