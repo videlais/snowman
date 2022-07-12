@@ -331,8 +331,17 @@ class Story {
     // Overwrite current tags
     this.passageElement.attr('tags', passage.tags);
 
+    // Get passage source.
+    let passageSource = this.include(passage.name);
+
+    // Run any scripts.
+    passageSource = this.runScript(passageSource);
+
+    // Parse any Markdown.
+    passageSource = Markdown.parse(passageSource);
+
     // Overwrite the parsed with the rendered.
-    this.passageElement.html(this.render(passage.name));
+    this.passageElement.html(passageSource);
 
     /**
      * Triggered when the story starts
@@ -415,11 +424,20 @@ class Story {
     // Set the global passage to the one about to be shown.
     window.passage = passage;
 
-    // Overwrite current tags
+    // Overwrite current tags.
     this.passageElement.attr('tags', passage.tags);
 
-    // Overwrite the parsed with the rendered.
-    this.passageElement.html(this.render(passage.name));
+    // Get passage source by name.
+    let passageSource = this.include(passage.name);
+
+    // Run any script
+    passageSource = this.runScript(passageSource);
+
+    // Parse any Markdown.
+    passageSource = Markdown.parse(passageSource);
+
+    // Overwrite any existing HTML.
+    this.passageElement.html(passageSource);
 
     /**
      * Triggered when a passage is shown
@@ -431,19 +449,13 @@ class Story {
   }
 
   /**
-   * Returns the HTML source for a passage. This is most often used when
-   * embedding one passage inside another. In this instance, make sure to
-   * use <%- %> instead of <%= %> to avoid template passing literal string values.
+   * Returns the source of a passage by name.
    *
-   * 1. Find passage by name.
-   * 2. Run EJS rendering for possible template tags.
-   * 3. Run Markdown parsing.
-   *
-   * @function render
-   * @param {string} name - name of the passage
-   * @returns {string} HTML source code
+   * @function include
+   * @param {string} name - name of the passage.
+   * @returns {string} Passage source.
    */
-  render (name) {
+  include (name) {
     // Search for passage by name.
     const passage = this.getPassageByName(name);
 
@@ -454,14 +466,8 @@ class Story {
       throw new Error('There is no passage with name ' + name);
     }
 
-    // Render any possible code first.
-    let result = this.runScript(passage.source);
-
-    // Parse the resulting text.
-    result = Markdown.parse(result);
-
-    // Return the rendered and parsed passage source.
-    return Markdown.parse(result);
+    // Return the passage source.
+    return passage.source;
   }
 
   /**
@@ -524,7 +530,7 @@ class Story {
           Storylets: this.storylets,
           Story: {
             renderPassageToSelector: this.renderPassageToSelector.bind(this),
-            include: this.render.bind(this),
+            include: this.include.bind(this),
             getPassageByName: this.getPassageByName.bind(this),
             getPassagesByTag: this.getPassagesByTag.bind(this),
             undo: this.undo.bind(this),
@@ -570,12 +576,17 @@ class Story {
    * @param {string} selector - jQuery selector
    */
   renderPassageToSelector (passageName, selector) {
-    try {
-      $(selector).html(this.render(passageName));
-    } catch (e) {
-      // Throw error if selector does not exist.
-      throw new Error('Error with selector when using renderToSelector()');
-    }
+    // Get passage source
+    let passageSource = this.include(passageName);
+
+    // Run any possible template scripts.
+    passageSource = this.runScript(passageSource);
+
+    // Run the Markdown parsing.
+    passageSource = Markdown.parse(passageSource);
+
+    // Replace the HTML of the selector (if valid).
+    $(selector).html(passageSource);
   }
 
   /**

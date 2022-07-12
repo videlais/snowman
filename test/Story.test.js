@@ -60,13 +60,13 @@ describe('Story', () => {
     });
   });
 
-  describe('render()', () => {
-    it('Should render a passage by name', () => {
-      expect(window.story.render('Test Passage')).toBe('Hello world');
+  describe('include()', () => {
+    it('Should include a passage by name', () => {
+      expect(window.story.include('Test Passage')).toBe('Hello world');
     });
 
     it('Should throw error when name is not found in passages', () => {
-      expect(() => { window.story.render('Not Found'); }).toThrow();
+      expect(() => { window.story.include('Not Found'); }).toThrow();
     });
   });
 
@@ -106,13 +106,13 @@ describe('Story', () => {
     });
   });
 
-  describe('render()', () => {
+  describe('include()', () => {
     it('Should return rendered content of named passage', () => {
-      expect(window.story.render('Test Passage 5')).toBe('<tw-link role="link" onclick="" data-passage="Test Passage">Test Passage</tw-link>');
+      expect(window.story.include('Test Passage 5')).toBe('[[Test Passage]]');
     });
 
     it('Should throw error if named passage does not exist', () => {
-      expect(() => window.story.render('Test Passage 10')).toThrow();
+      expect(() => window.story.include('Test Passage 10')).toThrow();
     });
   });
 
@@ -122,7 +122,7 @@ describe('Story', () => {
       expect($('tw-passage').html()).toBe('Hello world');
     });
 
-    it('Should throw if selector does not exist', () => {
+    it('Should throw error if passage does not exist', () => {
       expect(() => window.story.renderPassageToSelector(':yeah', '<test>')).toThrow();
     });
   });
