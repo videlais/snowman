@@ -1,18 +1,9 @@
 const State = require('../src/State.js');
 
 describe('State', () => {
-  beforeEach(() => {
-    State.init();
-  });
-
-  describe('init()', () => {
-    it('Should provide event emitter for use of events', () => {
-      let result = false;
-      State.events.on('test', () => {
-        result = true;
-      });
-      State.events.emit('test');
-      expect(result).toBe(true);
+  describe('Store interactions', () => {
+    afterEach(() => {
+      State.reset();
     });
 
     it('Should have store as object', () => {
@@ -25,10 +16,10 @@ describe('State', () => {
 
       State.events.on('change', (property, value) => {
         test = value;
+        expect(test).toBe(true);
       });
 
       State.store.a = true;
-      expect(test).toBe(true);
     });
 
     it('Should have store for... in... support', () => {
@@ -41,7 +32,26 @@ describe('State', () => {
     });
   });
 
+  describe('Event usage', () => {
+    afterEach(() => {
+      State.reset();
+    });
+
+    it('Should provide event emitter for use of events', () => {
+      let result = false;
+      State.events.on('test', () => {
+        result = true;
+        expect(result).toBe(true);
+      });
+      State.events.emit('test');
+    });
+  });
+
   describe('updateState()', () => {
+    afterEach(() => {
+      State.reset();
+    });
+
     it('Should update properties', () => {
       State.store.a = '1';
       State.updateState({ a: 'Hi' });

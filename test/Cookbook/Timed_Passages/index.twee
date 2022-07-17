@@ -5,24 +5,27 @@ Timed Passages in Snowman
 There are <span class="time-left">10</span> seconds left.
 
 <%
-$(function() {
-	var timeLeft = parseInt($('.time-left').text());
+	let timeLeft = parseInt($('.time-left').text());
 	
 	function tick() {
-		if (--timeLeft === 0) {
+		// Decrease time.
+		timeLeft -= 1;
+
+		// Check if timeLeft is 0.
+		if (timeLeft === 0) {
+			// Show 'World End'.
 			Story.show('World End');
 		}
-		else {
-			$('.time-left').text(timeLeft);
-		}
 		
-		_.delay(tick, 1000);
+		// Update timer for reader.
+		$('.time-left').text(timeLeft);
+		
+		// Wait another second.
+		Utils.delay(tick, 1000);
 	}
 	
-	/* Start ticking. */
-	
-	_.delay(tick, 1000);
-});
+	// Begin with a 1 second delay.
+	Utils.delay(tick, 1000);
 %>
 
 :: World End

@@ -4,8 +4,8 @@ const State = require('../src/State.js');
 
 describe('Storage', () => {
   beforeEach(() => {
-    History.init();
-    State.init();
+    History.reset();
+    State.reset();
     localStorage.clear();
   });
 
@@ -59,7 +59,7 @@ describe('Storage', () => {
       History.add('1');
       History.add('2');
       Storage.createSave('test');
-      History.init();
+      History.reset();
       Storage.restoreSave('test');
       expect(History.history.length).toBe(2);
     });
@@ -68,7 +68,7 @@ describe('Storage', () => {
       History.add('1');
       History.add('2');
       Storage.createSave();
-      History.init();
+      History.reset();
       Storage.restoreSave();
       expect(History.history.length).toBe(2);
     });

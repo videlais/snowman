@@ -1,4 +1,5 @@
 const { Query } = require('mingo');
+const State = require('./State.js');
 
 /**
  * An object containing none, one, or multiple passages based
@@ -85,15 +86,15 @@ class Storylets {
     // Force argument into number.
     limit = parseInt(limit);
 
-    // For each passage, test its requirements against window.story.state.
+    // For each passage, test its requirements against State.store.
     this.passages.forEach(entry => {
       // Pull the requirements.
       const requirements = entry.requirements;
       // Create a query based on requirements.
       const query = new Query(requirements);
-      // Test against window.story.state AND make sure there are search properties.
+      // Test against State.store AND make sure there are search properties.
       // As requirements can be an empty object, we need to protect against it.
-      if (query.test(window.story.state) && Object.keys(requirements).length > 0) {
+      if (query.test(State.store) && Object.keys(requirements).length > 0) {
         // Add the element to the results.
         results.push(entry);
       }

@@ -8,7 +8,7 @@
  // Create the index.html file to test
  ShellJS.exec(`extwee -c -s dist/format.js -i ${path.join(__dirname, 'index.twee')} -o ${path.join(__dirname, 'index.html')}`);
   
- describe('RunScript - Underscore Test', () => {
+ describe('RunScript - RandomInt Test', () => {
    beforeAll(async () => {
     await page.goto(`file://${path.join(__dirname, 'index.html')}`);
    });

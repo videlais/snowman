@@ -7,24 +7,14 @@ Looping in Snowman
 s.arrayInventory = ["Bread", "Pan", "Book"];
 
 // An example using JavaScript
-for (var i = 0; i < s.arrayInventory.length; i++){
- %>You have <%= s.arrayInventory[i] %>.<br> <%
+for (const item in s.arrayInventory){
+ %>You have <%- item %>.<br> <%
 }
 %>
-
-<hr>
-<%
-// An example using Underscore.js
-_.each(s.arrayInventory, function(item) {
-    %>You have <%= item %>.<br> <%
-});
-%>
-
 <hr>
 <%
 // An example using jQuery
 jQuery.each(s.arrayInventory, function( index, value ) {
    %>You have <%= value %>.<br> <%
 });
-
 %>

@@ -10,14 +10,14 @@ $('tw-sidebar').append('<div id="sidebar">');
 /*
 	Update at story start.
 */
-State.events.on('start', () => {
+Story.events.on('start', () => {
 	Story.renderPassageToSelector('Sidebar', '#sidebar');
 });
 
 /*
 	Update again on future passage show event.
 */
-State.events.on('show', () => {
+Story.events.on('show', () => {
 	Story.renderPassageToSelector('Sidebar', '#sidebar');
 });
 

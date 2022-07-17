@@ -1,10 +1,8 @@
 const History = require('../src/History.js');
-const State = require('../src/State.js');
 
 describe('History', () => {
   beforeEach(() => {
-    State.init();
-    History.init();
+    History.reset();
   });
 
   describe('undo()', () => {
@@ -31,16 +29,6 @@ describe('History', () => {
       History.undo();
       const passageName = History.redo();
       expect(passageName).toBe('Another');
-    });
-  });
-
-  describe('init()', () => {
-    it('Should have initial empty array', () => {
-      expect(History.history.length).toBe(0);
-    });
-
-    it('Should have position of zero', () => {
-      expect(History.position).toBe(0);
     });
   });
 

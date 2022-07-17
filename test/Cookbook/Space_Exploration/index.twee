@@ -8,18 +8,18 @@ s.fuel = 4;
 s.numberOfJumpsLeft = 10;
 
 s.riskyOutcome = () => {
-	const percentage = _.random(1, 10);
+	const percentage = Utils.randomInt(1, 10);
 	let response = "";
 	
 	if( percentage >= 6) {
-		const foundHealth = _.random( 1, 5);
-	 	const foundFuel = _.random( 1, 3);	 
+		const foundHealth = Utils.randomInt( 1, 5);
+	 	const foundFuel = Utils.randomInt( 1, 3);	 
 		response = `The hostile environment damaged the ship, but extra fuel was found. -${foundHealth} to health and +${foundFuel} to fuel.`;
 	  	s.health -= foundHealth;
 	  	s.fuel += foundFuel;
 	} else {
 	  	if( percentage <= 3) {
-	  		const foundHealth = _.random(2, 7);
+	  		const foundHealth = Utils.randomInt(2, 7);
 	  		response = `A hostile ship attacked. -${foundHealth} to health`;
 	 		s.health -= foundHealth;
 		} else {
@@ -31,16 +31,16 @@ s.riskyOutcome = () => {
 };
 	
 s.saferOutcome = () => {
-	const percentage = _.random(1, 10);
+	const percentage = Utils.randomInt(1, 10);
 	let response = "";
 	
 	if( percentage == 1) {
-		const foundFuel = _.random( 1, 2);
+		const foundFuel = Utils.randomInt( 1, 2);
 		response = `Fuel was found in some wreckage. +${foundFuel} to fuel`;
 	  	s.fuel += foundFuel;
 	} else {
 	  	if( percentage >= 6) {
-	  		const foundHealth = _.random(1, 3);
+	  		const foundHealth = Utils.randomInt(1, 3);
 			response = `During a brief pause, the ship was able to be repaired. +${foundHealth} to health`;
 	 		s.health += foundHealth;
 		} else {
@@ -102,11 +102,11 @@ s.checkStatus = () => {
 :: System
 <%
     // Create a new array of a random size between 1 and 4.
-    const system = new Array(_.random(1, 4));
+    const system = new Array(Utils.randomInt(1, 4));
 	
     // Set each entry in new array to either 0 or 1.
 	for(let i = 0; i < system.length; i++) {
-		system[i] = either(0, 1);
+		system[i] = Utils.either(0, 1);
 	}
 	
     // Create list of planets.

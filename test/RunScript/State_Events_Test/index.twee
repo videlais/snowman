@@ -4,13 +4,13 @@ State Events Test
 :: Start
 <a role="link">Click me</a>
 <%
-$('a').on('click', () => {
-    State.events.emit('test-click');
-});
+    $('a').on('click', () => {
+        Story.events.emit('test-click');
+    });
 
-State.events.on('test-click', () => {
-    Story.show('Another');
-});
+    Story.events.on('test-click', () => {
+        Story.show('Another');
+    });
 %>
 
 :: Another

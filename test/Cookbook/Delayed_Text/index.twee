@@ -4,10 +4,10 @@ Delayed Text in Snowman
 :: Start
 <div id="results"></div>
 <%
-	_.delay(
+	Utils.delay(
 		function()
 		{
 			$("#results").html(`<p id="timer">It has been 5 seconds. Show the text!</p>`);
 		}, 
-		5000) 
+		5000);
 %>

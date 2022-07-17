@@ -2,7 +2,7 @@
 Visited Test
 
 :: Start
-How many times has the passage "Another Passage" been visited? <%= History.visited("Another Passage") %>
+How many times has the passage "Another Passage" been visited? <%- History.visited("Another Passage") %>
 
 [[Another Passage]]
 

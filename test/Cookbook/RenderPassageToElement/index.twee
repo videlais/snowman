@@ -2,7 +2,7 @@
 Snowman: Render to Element
 
 :: UserScript[script]
-State.events.on('show', () => {
+Story.events.on('show', () => {
 	Story.renderPassageToSelector("HUD", "#hudID");
 });
 

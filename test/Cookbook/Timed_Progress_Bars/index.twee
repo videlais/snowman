@@ -2,44 +2,40 @@
 Timed Progress Bars in Snowman
 
 :: UserScript[script]
-// Use or create window.setup
-window.setup = window.setup || {};
-
 /*
 		
-		Description: Show a dynamically-created "progress bar" 
-		that changes colors as its timer runs down.
+	Description: Show a dynamically-created "progress bar" 
+	that changes colors as its timer runs down.
 		
-		Arguments:
-			duration: time in seconds
-			width: CSS width
-			functionToRun: the function to execute when the timer runs out
+	Arguments:
+		dur: time in seconds
+		wid: CSS width
+		func: the function to execute when the timer runs out
 		
 */
-
-setup.timedprogressbars = function(duration, width, functionToRun) {
+s.timedprogressbars = function(dur, wid, func) {
 	
 		// Save or generate a default duration
-		var duration = (Number(duration) || 60) * 1000;
+		let duration = (Number(dur) || 60) * 1000;
 		
 		// Save or generate a width
-		var width = width || "100%";
+		let width = wid || "100%";
 		
 		// Generate a unique hash
-		var hash = Math.floor(Math.random() * 0x100000000).toString(16);
+		let hash = Math.floor(Math.random() * 0x100000000).toString(16);
 		
 		//  Create an outer ID
-		var outerId = "outer_" + hash;
+		let outerId = "outer_" + hash;
 		
 		// Create an inner ID
-		var innerId = "inner_" + hash;
+		let innerId = "inner_" + hash;
 		
 		// Create an outer div, 
 		// add an ID,
 		// add a class,
 		// change the CSS width, and
 		// append to the output
-		var progressbar = $("<div>")
+		let progressbar = $("<div>")
 		.attr("id", outerId)
 		.addClass("progress-bar")
 		.css('width', width)
@@ -50,26 +46,26 @@ setup.timedprogressbars = function(duration, width, functionToRun) {
 		// add a class,
 		// change the CSS width, and
 		// append to the progressbar
-		var progressvalue = $("<div>")
+		let progressvalue = $("<div>")
 		.attr("id", innerId)
 		.addClass("progress-value")
 		.css('width', "100%")
 		.appendTo(progressbar);
 		
 		// Create a function to convert into hexadecimal
-		var toHex = function(num) {
-			var res = Math.round(Number(num)).toString(16);
+		let toHex = function(num) {
+			let res = Math.round(Number(num)).toString(16);
 			return (res.length === 1 ? "0" + res : res);
 		};
 		
 		// Watch for story show event
-		State.events.once("show", function() {
+		Story.events.once("start", () => {
 			
 			// Get the current time
-			var timeStarted = (new Date()).getTime();
+			let timeStarted = (new Date()).getTime();
 			
 			// Save a reference to the setInterval function
-			var workFunction = setInterval(function() {
+			let workFunction = setInterval(() => {
 				
 				// Check if the element is still 'connected'
 				if(! progressbar.prop("isConnected") ) {
@@ -80,7 +76,7 @@ setup.timedprogressbars = function(duration, width, functionToRun) {
 				}
 				
 				// Figure out how much time has passed
-				var timePassed = (new Date()).getTime() - timeStarted;
+				let timePassed = (new Date()).getTime() - timeStarted;
 				
 				// Check if the timer has run out
 				if(timePassed >= duration) {
@@ -92,15 +88,15 @@ setup.timedprogressbars = function(duration, width, functionToRun) {
 					clearInterval(workFunction);
 					
 					// Run the inner function (if set)
-					setTimeout(functionToRun, 40);
+					setTimeout(func, 40);
 					return;
 				}
 				
 				// Update the progress percentage
-				var percentage = 100 - 100 * timePassed / duration;
+				let percentage = 100 - 100 * timePassed / duration;
 				
 				// Save the new color
-				var color = "#"
+				let color = "#"
 					+ toHex(Math.min(255, 510 -  5.1 * percentage))
 					+ toHex(Math.min(255, 5.1 * percentage)) + "00";
 				
@@ -109,14 +105,9 @@ setup.timedprogressbars = function(duration, width, functionToRun) {
 				
 				// Update the inner div width
 				progressvalue.css("width", (100 - 100 * timePassed / duration) + "%");
-				
 			}, 40);
-			
 		});
 };
-
-
-
 
 :: UserStylesheet[stylesheet]
 .progress-bar {
@@ -133,16 +124,16 @@ setup.timedprogressbars = function(duration, width, functionToRun) {
 	background: #00ff00;
 }
 
-
-
 :: Start
-<script>
-	setup.timedprogressbars(5, "20em", function(){
-		// Hide the progress bar
-		$(".progress-bar").css("display", "none");
-		// Display the result
-		$("#results").text("Too late!");
-	});
-</script>
-
 <div id="results"></div>
+
+<%
+	$(() => {
+		s.timedprogressbars(5, "20em", () => {
+			// Hide the progress bar
+			$(".progress-bar").css("display", "none");
+			// Display the result
+			$("#results").text("Too late!");
+		});
+	});
+%>

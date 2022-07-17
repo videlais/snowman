@@ -29,4 +29,4 @@ story.source = indexSource;
 
 // Generate format.js
 let format = "window.storyFormat(" + JSON.stringify(story) + ");";
-fs.writeFileSync(`visual_testing/${story.name}-${story.version}-format.js`, format);
+fs.writeFileSync(`visual_testing/format.js`, format);

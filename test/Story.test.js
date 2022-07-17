@@ -20,6 +20,8 @@ describe('Story', () => {
       <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
     </tw-sidebar>
     <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+    // Reset State
+    State.reset();
     // Setup global jQuery
     window.$ = $;
     // Create new Story instance
@@ -27,18 +29,6 @@ describe('Story', () => {
   });
 
   describe('constructor()', () => {
-    it('Should set the story name from the element attribute', () => {
-      expect(window.story.name).toBe('Test');
-    });
-
-    it('Should set the story creator from the element attribute', () => {
-      expect(window.story.creator).toBe('jasmine');
-    });
-
-    it('Should set the story creator version from the element attribute', () => {
-      expect(window.story.creatorVersion).toBe('1.2.3');
-    });
-
     it('Should set the story\'s scripts from the element', () => {
       expect(window.story.userScripts.length).toBe(1);
       expect(window.story.userScripts[0]).toBe('window.scriptRan = true;');
@@ -51,12 +41,6 @@ describe('Story', () => {
 
     it('Should record all passages', () => {
       expect(window.story.passages.length).toBe(5);
-    });
-
-    it('Should have read-only access to history', () => {
-      expect(window.story.history.length).toBe(0);
-      window.story.start();
-      expect(window.story.history.length).toBe(1);
     });
   });
 
@@ -91,17 +75,6 @@ describe('Story', () => {
 
     it('Should return passage if name exists', () => {
       const p = window.story.getPassageByName('Test Passage 3');
-      expect(p.name).toBe('Test Passage 3');
-    });
-  });
-
-  describe('passage()', () => {
-    it('Should return null if passage name does not exist', () => {
-      expect(window.story.passage('Nope')).toBe(null);
-    });
-
-    it('Should return passage if name exists', () => {
-      const p = window.story.passage('Test Passage 3');
       expect(p.name).toBe('Test Passage 3');
     });
   });
@@ -212,35 +185,6 @@ describe('Story', () => {
     });
   });
 
-  describe('applyExternalStyles()', () => {
-    it('Should append a remote CSS file', () => {
-      window.story.applyExternalStyles(['https://twinery.org/homepage/css/homepage.css', 'https://twinery.org/homepage/css/homepage-responsive.css']);
-      expect($('link').length).toBe(2);
-    });
-
-    it('Should throw error if argument is not array', () => {
-      expect(() => window.story.applyExternalStyles(2)).toThrow();
-    });
-  });
-
-  describe('either()', () => {
-    it('Should return null if given nothing', () => {
-      expect(window.story.either()).toBe(null);
-    });
-
-    it('Should return single entry when only given one number', () => {
-      expect(window.story.either(1)).toBe(1);
-    });
-
-    it('Should return single entry when only given one number in an array', () => {
-      expect(window.story.either([1])).toBe(1);
-    });
-
-    it('Should return single entry when given mixed input', () => {
-      expect(window.story.either([1], 2, [3], [4])).toBeLessThan(5);
-    });
-  });
-
   describe('addPassage()', () => {
     it('Should add a new passage and increase length of passage array', () => {
       const currentLength = window.story.passages.length;
@@ -291,188 +235,5 @@ describe('Story', () => {
       window.story.removePassage();
       expect(window.story.passages.length).toBe(passageCount);
     });
-  });
-});
-
-describe('Story events', () => {
-  beforeEach(() => {
-    /*
-     * :hidden and :visible will never work in JSDOM.
-     * Solution via https://github.com/jsdom/jsdom/issues/1048
-     */
-    window.Element.prototype.getClientRects = function () {
-      let node = this;
-      while (node) {
-        if (node === document) {
-          break;
-        }
-        if (!node.style || node.style.display === 'none' || node.style.visibility === 'hidden') {
-          return [];
-        }
-        node = node.parentNode;
-      }
-      return [{ width: 10, height: 10 }];
-    };
-
-    $(document.body).html(`
-    <tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3">
-      <tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">[[Test Passage 2]]</tw-passagedata>
-      <tw-passagedata pid="2" name="Test Passage 2" tags="tag2">[[Test Passage 5]]</tw-passagedata>
-      <tw-passagedata pid="3" name="Test Passage 5" tags="">[[Test Passage]]</tw-passagedata>
-      <script type="text/twine-javascript">window.scriptRan = true;</script>
-      <style type="text/twine-css">body { color: blue }</style>
-   </tw-storydata>
-   <tw-story>
-   <tw-sidebar>
-      <tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
-      <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
-    </tw-sidebar>
-    <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
-    // Reset story
-    window.story = new Story();
-    // Start a new story
-    window.story.start();
-  });
-
-  it('Should emit undo event when tw-icon is clicked', () => {
-    let result = false;
-    $('tw-link').trigger('click');
-    State.events.on('undo', () => {
-      result = true;
-    });
-    window.story.undoIcon.trigger('click');
-    expect(result).toBe(true);
-  });
-
-  it('Should emit undo event when undo() is called', () => {
-    let result = false;
-    $('tw-link').trigger('click');
-    State.events.on('undo', () => {
-      result = true;
-    });
-    window.story.undo();
-    expect(result).toBe(true);
-  });
-
-  it('Should move back one in History.history when undo is clicked', () => {
-    $('tw-link').trigger('click');
-    window.story.undoIcon.trigger('click');
-    expect(window.passage.name).toBe('Test Passage');
-  });
-
-  it('Should do nothing when at the bottom of history when undo is clicked', () => {
-    window.story.undoIcon.trigger('click');
-    window.story.undoIcon.trigger('click');
-    expect(window.passage.name).toBe('Test Passage');
-  });
-
-  it('Should do nothing when at the bottom of history when redo is clicked', () => {
-    $('tw-link').trigger('click');
-    window.story.undoIcon.trigger('click');
-    window.story.redoIcon.trigger('click');
-    window.story.redoIcon.trigger('click');
-    expect(window.passage.name).toBe('Test Passage 2');
-  });
-
-  it('Should move forward one in History.history when redo is clicked', () => {
-    $('tw-link').trigger('click');
-    window.story.undoIcon.trigger('click');
-    window.story.redoIcon.trigger('click');
-    expect(window.passage.name).toBe('Test Passage 2');
-  });
-
-  it('Should only hide undo icon when at beginning of collection', () => {
-    $('tw-link').trigger('click');
-    $('tw-link').trigger('click');
-    window.story.undo();
-    expect(window.story.undoIcon.css('visibility')).toBe('visible');
-  });
-
-  it('Should only hide redo icon when at end of collection', () => {
-    $('tw-link').trigger('click');
-    $('tw-link').trigger('click');
-    window.story.undo();
-    window.story.undo();
-    window.story.redo();
-    expect(window.story.redoIcon.css('visibility')).toBe('visible');
-  });
-
-  it('Should emit redo event when tw-icon is clicked', () => {
-    let result = false;
-    State.events.on('redo', () => {
-      result = true;
-    });
-    window.story.redoIcon.trigger('click');
-    expect(result).toBe(true);
-  });
-
-  it('Should emit redo event when redo() is called', () => {
-    let result = false;
-    State.events.on('redo', () => {
-      result = true;
-    });
-    window.story.redo();
-    expect(result).toBe(true);
-  });
-
-  it('Should show undo icon after at least one user click', () => {
-    $('tw-link').trigger('click');
-    expect(window.story.undoIcon.css('visibility')).toBe('visible');
-  });
-
-  it('Should trigger show when a reader clicks a link', () => {
-    let result = false;
-    State.events.on('show', () => {
-      result = true;
-    });
-    $('tw-link').trigger('click');
-    expect(result).toBe(true);
-  });
-
-  it('Should trigger adding the tw-screenlock element when "screen-lock" event happens', () => {
-    State.events.emit('screen-lock');
-    expect($('tw-screenlock').length).toBe(1);
-  });
-
-  it('Should trigger "screen-lock" when screenLock() is called', () => {
-    window.story.screenLock();
-    expect($('tw-screenlock').length).toBe(1);
-  });
-
-  it('Should remove tw-screenlock element if previously locked using events', () => {
-    State.events.emit('screen-lock');
-    State.events.emit('screen-unlock');
-    expect($('tw-screenlock').length).toBe(0);
-  });
-
-  it('Should remove tw-screenlock element if previously locked using function calls', () => {
-    window.story.screenLock();
-    window.story.screenUnlock();
-    expect($('tw-screenlock').length).toBe(0);
-  });
-
-  it('Should do nothing if not locked when trying to unlock', () => {
-    State.events.emit('screen-unlock');
-    expect($('tw-screenlock').length).toBe(0);
-  });
-
-  it('Should hide tw-sidebar by event', () => {
-    State.events.emit('sidebar-hide');
-    expect($('tw-sidebar').css('visibility')).toBe('hidden');
-  });
-
-  it('Should hide tw-sidebar by function call', () => {
-    window.story.sidebarHide();
-    expect($('tw-sidebar').css('visibility')).toBe('hidden');
-  });
-
-  it('Should show tw-sidebar by event', () => {
-    State.events.emit('sidebar-show');
-    expect($('tw-sidebar').css('visibility')).toBe('visible');
-  });
-
-  it('Should show tw-sidebar by function call', () => {
-    window.story.sidebarShow();
-    expect($('tw-sidebar').css('visibility')).toBe('visible');
   });
 });

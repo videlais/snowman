@@ -1,31 +1,29 @@
 const State = require('./State.js');
 
-class History {
-  /**
-   * Create the initial history values.
-   *
-   * @function init
-   */
-  static init () {
-    this.history = [];
-    this.position = 0;
-  }
+/**
+ * @namespace History
+ * @property {Array}    history   Array of passages and previous state.
+ * @property {number}   position  Current position in the array.
+ */
 
+class History {
+  static history = [];
+  static position = 0;
   /**
    * Add a passage name to the history array.
    *
    * @function add
-   * @param {string} name - Name of the passage to add
+   * @param {string} name - Name of the passage to add.
    */
   static add (name) {
     // Append to the end
-    History.history.push({
+    this.history.push({
       passageName: name,
       state: Object.assign({}, State.store)
     });
 
-    // Reset the position to entry at the end
-    History.position = History.history.length - 1;
+    // Reset the position to entry at the end.
+    this.position = this.history.length - 1;
   }
 
   /**
@@ -37,15 +35,15 @@ class History {
   static undo () {
     let result = null;
 
-    if (History.position >= 1 && History.history.length >= 1) {
+    if (this.position >= 1 && this.history.length >= 1) {
       // Decrease position
-      History.position -= 1;
+      this.position -= 1;
       // Find state.
-      const state = History.history[History.position].state;
+      const state = this.history[this.position].state;
       // Have State update itself.
       State.updateState(state);
       // Return current passage name
-      result = History.history[History.position].passageName;
+      result = this.history[this.position].passageName;
     }
 
     return result;
@@ -60,15 +58,15 @@ class History {
   static redo () {
     let result = null;
 
-    if (History.position >= 0 && History.position < History.history.length - 1) {
+    if (this.position >= 0 && this.position < this.history.length - 1) {
       // Increase position
-      History.position += 1;
+      this.position += 1;
       // Find state.
-      const state = History.history[History.position].state;
+      const state = this.history[this.position].state;
       // Have State update itself.
       State.updateState(state);
       // Return current passage name
-      result = History.history[History.position].passageName;
+      result = this.history[this.position].passageName;
     }
 
     return result;
@@ -86,12 +84,12 @@ class History {
 
     if (Array.isArray(passageName)) {
       result = passageName.every((passageName) => {
-        return History.history.some(entry => {
+        return this.history.some(entry => {
           return entry.passageName === passageName;
         });
       });
     } else {
-      result = History.history.some((p) => {
+      result = this.history.some((p) => {
         return p.passageName === passageName;
       });
     }
@@ -103,11 +101,23 @@ class History {
    * Returns number of visits for a single passage.
    *
    * @function visited
-   * @param {string} passageName - Passage name to check.
-   * @returns {number} Number of visits to passage.
+   * @param   {string} passageName  Passage name to check.
+   * @returns {number}              Number of visits to passage.
    */
   static visited (passageName) {
-    return History.history.filter(entry => entry.passageName === passageName).length;
+    let searchResults = [];
+    searchResults = this.history.filter(entry => entry.passageName === passageName);
+    return searchResults.length;
+  }
+
+  /**
+   * Resets History values to defaults.
+   *
+   * @function reset
+   */
+  static reset () {
+    this.history = [];
+    this.position = 0;
   }
 }
 

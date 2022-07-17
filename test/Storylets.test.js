@@ -1,6 +1,7 @@
 const Storylets = require('../src/Storylets.js');
 const Story = require('../src/Story.js');
 const $ = require('jquery');
+const State = require('../src/State.js');
 
 describe('Storylets', () => {
   describe('constructor()', () => {
@@ -59,6 +60,8 @@ describe('Storylets', () => {
               <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
             </tw-sidebar>
             <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story
       window.story = new Story();
       // Start a new story
@@ -85,6 +88,8 @@ describe('Storylets', () => {
               <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
             </tw-sidebar>
             <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story
       window.story = new Story();
       // Start a new story
@@ -114,6 +119,8 @@ describe('Storylets', () => {
                 <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
               </tw-sidebar>
               <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story
       window.story = new Story();
       // Start a new story
@@ -143,6 +150,8 @@ describe('Storylets', () => {
                 <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
               </tw-sidebar>
               <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -182,6 +191,8 @@ describe('Storylets', () => {
               <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
             </tw-sidebar>
             <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story
       window.story = new Story();
       // Start a new story
@@ -221,6 +232,8 @@ describe('Storylets', () => {
               <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
             </tw-sidebar>
             <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story
       window.story = new Story();
       // Start a new story
@@ -261,6 +274,8 @@ describe('Storylets', () => {
                 <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
               </tw-sidebar>
               <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story
       window.story = new Story();
       // Start a new story
@@ -304,6 +319,8 @@ describe('Storylets', () => {
                   <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
                 </tw-sidebar>
                 <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -346,6 +363,8 @@ describe('Storylets', () => {
                     <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
                   </tw-sidebar>
                   <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -387,6 +406,8 @@ describe('Storylets', () => {
                     <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
                   </tw-sidebar>
                   <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -429,6 +450,8 @@ describe('Storylets', () => {
                     <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
                   </tw-sidebar>
                   <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -467,6 +490,8 @@ describe('Storylets', () => {
           <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
         </tw-sidebar>
         <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -500,6 +525,8 @@ describe('Storylets', () => {
           <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
         </tw-sidebar>
         <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -532,6 +559,8 @@ describe('Storylets', () => {
           <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
         </tw-sidebar>
         <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -567,6 +596,8 @@ describe('Storylets', () => {
           <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
         </tw-sidebar>
         <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -606,6 +637,8 @@ describe('Storylets', () => {
           <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
         </tw-sidebar>
         <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -644,6 +677,8 @@ describe('Storylets', () => {
         <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
       </tw-sidebar>
       <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -686,6 +721,8 @@ describe('Storylets', () => {
               <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
             </tw-sidebar>
             <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story
       window.story = new Story();
       // Start a new story
@@ -727,6 +764,8 @@ describe('Storylets', () => {
               <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
             </tw-sidebar>
             <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story
       window.story = new Story();
       // Start a new story
@@ -769,6 +808,8 @@ describe('Storylets', () => {
               <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
             </tw-sidebar>
             <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.
@@ -811,6 +852,8 @@ describe('Storylets', () => {
               <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
             </tw-sidebar>
             <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      // Reset State
+      State.reset();
       // Reset story.
       window.story = new Story();
       // Start a new story.

@@ -2,4 +2,4 @@
 Underscore Test
 
 :: Start
-<%= _.random(1, 10) %>
+<%- Utils.randomInt(1, 10) %>

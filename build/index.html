@@ -22765,10 +22765,10 @@ class Story {
     this.creatorVersion = this.storyDataElement.attr('creator-version');
 
     // Create internal events and storehouse for state.
-    State.init();
+    State.reset();
 
     // Create history management.
-    History.init();
+    History.reset();
 
     /**
      * @property {string} state - State proxy; an object with mutation tracking

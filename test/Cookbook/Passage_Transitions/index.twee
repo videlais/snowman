@@ -2,7 +2,7 @@
 Snowman 2: Passage Transitions
 
 :: UserScript[script]
-State.events.on('show', () => {
+Story.events.on('show', () => {
 	$("tw-passage").hide(0).fadeIn(2000);
 });
 

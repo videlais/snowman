@@ -45,7 +45,7 @@ Rooms:
 
 :: Turn Counter
 <%
-	var hour = window.story.history.length % 24;
+	let hour = History.length % 24;
 	
 	if(hour <= 8){%>
 		It is morning.

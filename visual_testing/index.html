@@ -3,54 +3,15 @@
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="utf-8">
-		<title>Arrays in Snowman</title>
+		<title>Render Test</title>
 		<style>/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */html{-webkit-text-size-adjust:100%;line-height:1.15}body{margin:0}main{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}[hidden],template{display:none}body{color:#222;font:1.5em Helvetica Neue,Helvetica,Arial,sans-serif;margin-right:1em}tw-icon{cursor:pointer;font-size:2em}tw-story{box-sizing:border-box;display:flex;flex-direction:row;font-size:1.5em;line-height:1.5em;margin-top:1em;min-height:100%;width:100%}tw-passage{display:block;width:90%}a,tw-link{color:#222;cursor:pointer;text-decoration-color:#ccc}a,a:hover,tw-icon:hover,tw-link,tw-link:hover{text-decoration:underline}tw-sidebar{margin-left:1em;width:10%}a:hover{color:#cc8929}a:active,a:hover{text-decoration-color:#cc8929}a:active{color:#ffb040}tw-storydata{display:none}tw-screenlock{align-items:center;background-color:#fff;display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:100000}.loading{-webkit-animation:spin 2s linear infinite;animation:spin 2s linear infinite;border:16px solid #f3f3f3;border-radius:50%;border-top-color:#3498db;height:250px;width:250px}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(1turn)}}@keyframes spin{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}</style>
 	</head>
 	<body>
-		<tw-storydata name="Arrays in Snowman" startnode="4" creator="extwee" creator-version="2.0.6" ifid="769C0BB9-7FBD-4A6A-8B79-9790E1B55E7F" zoom="0" format="Snowman" format-version="3.0.0" options hidden>
+		<tw-storydata name="Render Test" startnode="2" creator="extwee" creator-version="2.0.6" ifid="E43AAF41-695F-4334-AE6E-39E1D6AF00AD" zoom="0" format="Snowman" format-version="3.0.0" options hidden>
 	<style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css"></style>
-	<script role="script" id="twine-user-script" type="text/twine-javascript">s.inventory = [];
-s.chest = ['a shield', 'a suit of armor'];
-s.chestOpen = false;</script>
-	<tw-passagedata pid="3" name="Header">You are currently carrying: 
-&lt;% if (s.inventory.length === 0) { %&gt;
-nothing.
-&lt;% } else { %&gt;
-&lt;%- s.inventory.join(&#x27;, &#x27;) + &#x27;.&#x27; %&gt;
-&lt;% } %&gt;</tw-passagedata>
-	<tw-passagedata pid="4" name="Start">&lt;%- Story.include(&quot;Header&quot;) %&gt;&lt;hr /&gt;
-
-You find yourself inside a small room. In the corner, you see a sword, and decide to pick it up.
-
-&lt;% s.inventory.push(&#x27;a sword&#x27;) %&gt;
-[[Continue|hallway]]</tw-passagedata>
-	<tw-passagedata pid="5" name="hallway">&lt;%- Story.include(&quot;Header&quot;) %&gt;&lt;hr /&gt;
-You see a chest here in the hallway.
-&lt;% if (!s.chestOpen) { %&gt;
-Do you want to open it?
-
-[[Open the chest.|chest]]
-&lt;% } else { %&gt;
-It&#x27;s open, and there&#x27;s nothing inside.
-&lt;% } %&gt;
-
-[[Move on.|dart trap]]</tw-passagedata>
-	<tw-passagedata pid="6" name="chest">&lt;% s.inventory = s.inventory.concat(s.chest) %&gt;
-&lt;% s.chestOpen = true %&gt;
-&lt;%- Story.include(&quot;Header&quot;) %&gt;&lt;hr /&gt;
-
-You open the chest and find &lt;%= s.chest.join(&#x27; and &#x27;) %&gt;.
-
-[[Okay.|hallway]]</tw-passagedata>
-	<tw-passagedata pid="7" name="dart trap">&lt;%- Story.include(&quot;Header&quot;) %&gt;&lt;hr /&gt;
-Several darts shoot out of a wall at you!
-&lt;% if (s.inventory.includes(&#x27;a shield&#x27;)) { %&gt;
-
-Luckily, your shield will protect you.
-&lt;% } else { %&gt;
-
-With no way to defend yourself, you die.
-&lt;% } %&gt;</tw-passagedata>
+	<script role="script" id="twine-user-script" type="text/twine-javascript"></script>
+	<tw-passagedata pid="2" name="Start">&lt;span id=&quot;test&quot;&gt;&lt;%- Story.include(&#x27;Another&#x27;) %&gt;&lt;/span&gt;</tw-passagedata>
+	<tw-passagedata pid="3" name="Another">Hey!</tw-passagedata>
 </tw-storydata>
 		<tw-story>
 			<tw-sidebar>
@@ -22349,32 +22310,30 @@ exports.normalize = normalize;
 
 const State = __webpack_require__(5213);
 
-class History {
-  /**
-   * Create the initial history values.
-   *
-   * @function init
-   */
-  static init () {
-    this.history = [];
-    this.position = 0;
-  }
+/**
+ * @namespace History
+ * @property {Array}    history   Array of passages and previous state.
+ * @property {number}   position  Current position in the array.
+ */
 
+class History {
+  static history = [];
+  static position = 0;
   /**
    * Add a passage name to the history array.
    *
    * @function add
-   * @param {string} name - Name of the passage to add
+   * @param {string} name - Name of the passage to add.
    */
   static add (name) {
     // Append to the end
-    History.history.push({
+    this.history.push({
       passageName: name,
       state: Object.assign({}, State.store)
     });
 
-    // Reset the position to entry at the end
-    History.position = History.history.length - 1;
+    // Reset the position to entry at the end.
+    this.position = this.history.length - 1;
   }
 
   /**
@@ -22386,15 +22345,15 @@ class History {
   static undo () {
     let result = null;
 
-    if (History.position >= 1 && History.history.length >= 1) {
+    if (this.position >= 1 && this.history.length >= 1) {
       // Decrease position
-      History.position -= 1;
+      this.position -= 1;
       // Find state.
-      const state = History.history[History.position].state;
+      const state = this.history[this.position].state;
       // Have State update itself.
       State.updateState(state);
       // Return current passage name
-      result = History.history[History.position].passageName;
+      result = this.history[this.position].passageName;
     }
 
     return result;
@@ -22409,15 +22368,15 @@ class History {
   static redo () {
     let result = null;
 
-    if (History.position >= 0 && History.position < History.history.length - 1) {
+    if (this.position >= 0 && this.position < this.history.length - 1) {
       // Increase position
-      History.position += 1;
+      this.position += 1;
       // Find state.
-      const state = History.history[History.position].state;
+      const state = this.history[this.position].state;
       // Have State update itself.
       State.updateState(state);
       // Return current passage name
-      result = History.history[History.position].passageName;
+      result = this.history[this.position].passageName;
     }
 
     return result;
@@ -22435,12 +22394,12 @@ class History {
 
     if (Array.isArray(passageName)) {
       result = passageName.every((passageName) => {
-        return History.history.some(entry => {
+        return this.history.some(entry => {
           return entry.passageName === passageName;
         });
       });
     } else {
-      result = History.history.some((p) => {
+      result = this.history.some((p) => {
         return p.passageName === passageName;
       });
     }
@@ -22452,11 +22411,23 @@ class History {
    * Returns number of visits for a single passage.
    *
    * @function visited
-   * @param {string} passageName - Passage name to check.
-   * @returns {number} Number of visits to passage.
+   * @param   {string} passageName  Passage name to check.
+   * @returns {number}              Number of visits to passage.
    */
   static visited (passageName) {
-    return History.history.filter(entry => entry.passageName === passageName).length;
+    let searchResults = [];
+    searchResults = this.history.filter(entry => entry.passageName === passageName);
+    return searchResults.length;
+  }
+
+  /**
+   * Resets History values to defaults.
+   *
+   * @function reset
+   */
+  static reset () {
+    this.history = [];
+    this.position = 0;
   }
 }
 
@@ -22558,59 +22529,305 @@ module.exports = Passage;
 
 /***/ }),
 
+/***/ 1675:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const $ = __webpack_require__(9755);
+
+class Screen {
+  /**
+   * Trigger screen-lock event.
+   *
+   * @function lock
+   */
+  static lock () {
+    // Append an element filling screen with CSS loading spinner.
+    $(document.body).append('<tw-screenlock><div class="loading"></div></tw-screenlock>');
+  }
+
+  /**
+   * Trigger screen-unlock event.
+   *
+   * @function unlock
+   */
+  static unlock () {
+    // Remove tw-screenlock element, if there is one.
+    $('tw-screenlock').remove();
+  }
+}
+
+module.exports = Screen;
+
+
+/***/ }),
+
+/***/ 5827:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const ejs = __webpack_require__(7083);
+const State = __webpack_require__(5213);
+const StorageAlias = __webpack_require__(6505);
+const History = __webpack_require__(1201);
+const Screen = __webpack_require__(1675);
+const Sidebar = __webpack_require__(9906);
+const Utilities = __webpack_require__(5543);
+
+/**
+ * @external Story
+ * @see {@link Story}
+ */
+
+class Script {
+  /**
+   * Render JavaScript within a templated sandbox and return possible output.
+   * Will throw error if code does.
+   *
+   * @function run
+   * @param {string} script - Code to run.
+   * @param {Story} story - Current story object.
+   * @returns {string} Any output, if produced.
+   */
+  static run (script, story) {
+    let result = '';
+
+    try {
+      // Send in pseudo-global properties
+      /* eslint-disable object-shorthand */
+      result = ejs.render(script,
+        {
+          s: State.store,
+          Storage: StorageAlias,
+          Storylets: story.storylets,
+          Story: {
+            name: story.name,
+            currentPassage: story.currentPassage,
+            renderPassageToSelector: story.renderPassageToSelector.bind(story),
+            include: story.include.bind(story),
+            getPassageByName: story.getPassageByName.bind(story),
+            getPassagesByTag: story.getPassagesByTag.bind(story),
+            show: story.show.bind(story),
+            addPassage: story.addPassage.bind(story),
+            removePassage: story.removePassage.bind(story),
+            goto: story.goto.bind(story),
+            events: State.events
+          },
+          History: {
+            hasVisited: History.hasVisited.bind(History),
+            visited: History.visited.bind(History),
+            length: History.history.length
+          },
+          Screen: {
+            lock: Screen.lock.bind(Screen),
+            unlock: Screen.unlock.bind(Screen)
+          },
+          Sidebar: {
+            hide: story.sidebar.hide.bind(),
+            show: story.sidebar.show.bind()
+          },
+          Utils: {
+            delay: Utilities.delay.bind(Utilities),
+            either: Utilities.either.bind(Utilities),
+            applyExternalStyles: Utilities.applyExternalStyles.bind(Utilities),
+            randomInt: Utilities.randomInt.bind(Utilities)
+          }
+        },
+        {
+          outputFunctionName: 'print'
+        }
+      );
+    } catch (e) {
+      // Throw error if rendering fails.
+      throw new Error(`Error compiling template code: ${e}`);
+    }
+
+    /* eslint-enable object-shorthand */
+    return result;
+  }
+}
+
+module.exports = Script;
+
+
+/***/ }),
+
+/***/ 9906:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const $ = __webpack_require__(9755);
+const State = __webpack_require__(5213);
+const History = __webpack_require__(1201);
+
+class Sidebar {
+  constructor() {
+    /**
+     * Reference to undo icon.
+     *
+     * @property {Element} undoIcon - Undo element.
+     * @type {Element}
+     */
+    this.undoIcon = $('tw-icon[title="Undo"]');
+
+    /**
+     * Reference to redo icon.
+     *
+     * @property {Element} redoIcon - Redo element.
+     * @type {Element}
+     */
+    this.redoIcon = $('tw-icon[title="Redo"]');
+
+    /**
+     * Reference to tw-sidebar element.
+     *
+     * @property {Element} sidebar  Sidebar element.
+     * @type {Element}
+     */
+    this.sidebar = $('tw-sidebar');
+
+    // Listen for user click interactions
+    this.undoIcon.on('click', () => {
+      // If undo is ever used, redo becomes available.
+      this.showRedo();
+      // Emit 'undo'
+      State.events.emit('undo');
+    });
+
+    // Listen for user click interactions.
+    this.redoIcon.on('click', () => {
+      State.events.emit('redo');
+    });
+  }
+
+  /**
+   * Show undo icon.
+   *
+   * @function showUndo
+   */
+  showUndo () {
+    this.undoIcon.css('visibility', 'visible');
+  }
+
+  /**
+   * Hide undo icon.
+   *
+   * @function hideUndo
+   */
+  hideUndo () {
+    this.undoIcon.css('visibility', 'hidden');
+  }
+
+  /**
+   * Show redo icon.
+   *
+   * @function showRedo
+   */
+  showRedo () {
+    this.redoIcon.css('visibility', 'visible');
+  }
+
+  /**
+   * Hide redo icon.
+   *
+   * @function hideRedo
+   */
+  hideRedo () {
+    this.redoIcon.css('visibility', 'hidden');
+  }
+
+  /**
+   * Trigger undo event.
+   *
+   * @function undo
+   */
+  undo () {
+    State.events.emit('undo');
+  }
+
+  /**
+   * Trigger redo event.
+   *
+   * @function redo
+   */
+  redo () {
+    State.events.emit('redo');
+  }
+
+  /**
+   * Shows sidebar.
+   *
+   * @function show
+   */
+  show () {
+    // Show tw-sidebar.
+    $('tw-sidebar').css('visibility', 'visible');
+  }
+
+  /**
+   * Hides sidebar.
+   *
+   * @function hide
+   */
+  hide () {
+    // Hide tw-sidebar.
+    $('tw-sidebar').css('visibility', 'hidden');
+  }
+}
+
+module.exports = Sidebar;
+
+
+/***/ }),
+
 /***/ 5213:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const EventEmitter = __webpack_require__(7187);
 
-class State {
-  /**
-   * Creates internal event emitter and store proxy.
-   *
-   * @function init
-   */
-  static init () {
-    // Public event emitter.
-    this.events = new EventEmitter();
-
-    // Act like an object, but emit on any changes.
-    const handler = {
-      get: (target, property) => {
-        return target[property];
-      },
-      set: (target, property, value) => {
-        // Make change
-        target[property] = value;
-        // Emit change
-        this.events.emit('change', property, value);
-        // Return true
-        return true;
-      },
-      ownKeys: (target) => {
-        return Object.keys(target);
-      },
-      getOwnPropertyDescriptor: () => {
-        return {
-          enumerable: true,
-          configurable: true
-        };
-      }
+const handler = {
+  get: (target, property) => {
+    return target[property];
+  },
+  set: (target, property, value) => {
+    // Make change.
+    target[property] = value;
+    // Emit change.
+    State.events.emit('change', property, value);
+    // Return true.
+    return true;
+  },
+  ownKeys: (target) => {
+    return Object.keys(target);
+  },
+  getOwnPropertyDescriptor: () => {
+    return {
+      enumerable: true,
+      configurable: true
     };
-
-    // Create a proxy that acts like an object.
-    this.store = new Proxy({}, handler);
   }
+};
 
+/**
+ * @class State
+ */
+class State {
+  static events = new EventEmitter();
+  static store = new Proxy({}, handler);
   /**
-   * Update current state properties to previous state values
+   * Update current state properties to previous state values.
    *
-   * @function updateState
    * @param {object} state - Object containing state properties.
    */
   static updateState (state) {
     for (const property in state) {
-      State.store[property] = state[property];
+      this.store[property] = state[property];
     }
+  }
+
+  /**
+   * Resets State properties to default values.
+   */
+  static reset () {
+    this.events = new EventEmitter();
+    this.store = new Proxy({}, handler);
   }
 }
 
@@ -22764,13 +22981,13 @@ module.exports = Storage;
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Element}
  */
 const $ = __webpack_require__(9755);
-const ejs = __webpack_require__(7083);
 const Passage = __webpack_require__(1067);
 const Markdown = __webpack_require__(9456);
 const State = __webpack_require__(5213);
 const History = __webpack_require__(1201);
-const Storage = __webpack_require__(6505);
 const Storylets = __webpack_require__(2444);
+const Script = __webpack_require__(5827);
+const Sidebar = __webpack_require__(9906);
 
 /**
  * An object representing the entire story. After the document has completed
@@ -22781,7 +22998,7 @@ const Storylets = __webpack_require__(2444);
 class Story {
   constructor () {
     /**
-     * @property {Element} storyDataElement - Reference to tw-storydata element
+     * @property {Element} storyDataElement - Reference to tw-storydata element.
      * @type {Element}
      * @readonly
      */
@@ -22795,35 +23012,9 @@ class Story {
     this.name = this.storyDataElement.attr('name');
 
     /**
-     * @property {string} creator - The program that created this story.
-     * @type {string}
-     * @readonly
-     */
-    this.creator = this.storyDataElement.attr('creator');
-
-    /**
-     * @property {string} creatorVersion - The version of the program used to create this story.
-     * @type {string}
-     * @readonly
-     */
-    this.creatorVersion = this.storyDataElement.attr('creator-version');
-
-    // Create internal events and storehouse for state.
-    State.init();
-
-    // Create history management.
-    History.init();
-
-    /**
-     * @property {string} state - State proxy; an object with mutation tracking
-     * @type {object}
-     */
-    this.state = State.store;
-
-    /**
-     * An array of all passages, indexed by ID.
+     * An array of all passages.
      *
-     * @property {Array} passages - Passages array
+     * @property {Array} passages - Passages array.
      * @type {Array}
      */
     this.passages = [];
@@ -22854,7 +23045,7 @@ class Story {
     /**
      * An array of user-specific scripts to run when the story is begun.
      *
-     * @property {Array} userScripts - Array of user-added JavaScript
+     * @property {Array} userScripts - Array of user-added JavaScript.
      * @type {Array}
      */
     this.userScripts = [];
@@ -22894,9 +23085,9 @@ class Story {
       // Add to the history.
       History.add(passageName);
       // Hide the redo icon.
-      this.redoIcon.css('visibility', 'hidden');
+      this.sidebar.hideRedo();
       // Show the undo icon.
-      this.undoIcon.css('visibility', 'visible');
+      this.sidebar.showUndo();
       // Show the passage by name.
       this.show(passageName);
     });
@@ -22904,70 +23095,18 @@ class Story {
     /**
      * Passage element
      *
-     * @property {Element} passageElement - Passage element
+     * @property {Element} passageElement Passage element
      * @type {Element}
      */
     this.passageElement = $('tw-passage');
 
     /**
-     * Reference to undo icon
+     * Sidebar
      *
-     * @property {Element} undoIcon - Undo element
+     * @property {Element} sidebar Sidebar instance.
      * @type {Element}
      */
-    this.undoIcon = $('tw-icon[title="Undo"]');
-
-    // Start the story with it hidden.
-    this.undoIcon.css('visibility', 'hidden');
-
-    // Listen for user click interactions
-    this.undoIcon.on('click', () => {
-      /**
-       * Triggered when user clicks on the undo button.
-       *
-       * @event History#undo
-       */
-      State.events.emit('undo');
-
-      // If undo is ever used, redo becomes available.
-      this.redoIcon.css('visibility', 'visible');
-    });
-
-    // Read-only proxy construct
-    const handler = {
-      get: (target, property, receiver) => {
-        return Reflect.get(target, property, receiver);
-      }
-    };
-
-    /**
-     * Legacy property. Read-only proxy to History.history.
-     *
-     * @property {Array} history - Array of passage names and copies of State.store.
-     * @type {Array}
-     */
-    this.history = new Proxy(History.history, handler);
-
-    /**
-     * Reference to redo icon.
-     *
-     * @property {Element} redoIcon - Redo element.
-     * @type {Element}
-     */
-    this.redoIcon = $('tw-icon[title="Redo"]');
-
-    // Start the story with it hidden.
-    this.redoIcon.css('visibility', 'hidden');
-
-    // Listen for user click interactions.
-    this.redoIcon.on('click', () => {
-      /**
-       * Triggered when user clicks on the redo button.
-       *
-       * @event History#redo
-       */
-      State.events.emit('redo');
-    });
+     this.sidebar = new Sidebar();
 
     // Listen for redo events.
     State.events.on('redo', () => {
@@ -22977,10 +23116,10 @@ class Story {
       if (passageName !== null) {
         // Check if at end of collection.
         if (History.position === History.history.length - 1) {
-          // Hide redo
-          this.redoIcon.css('visibility', 'hidden');
-          // Show undo
-          this.undoIcon.css('visibility', 'visible');
+          // Hide redo.
+          this.sidebar.hideRedo();
+          // Show undo.
+          this.sidebar.showUndo();
         }
         // Not null, show previous passage.
         this.show(passageName);
@@ -22990,7 +23129,7 @@ class Story {
     // Listen for undo events.
     State.events.on('undo', () => {
       // Show redo if undo is clicked.
-      this.redoIcon.css('visibility', 'visible');
+      this.sidebar.showRedo();
       // Attempt to undo history.
       const passageName = History.undo();
       // If undo failed, name will be null.
@@ -22998,36 +23137,20 @@ class Story {
         // Check if at beginning of collection.
         if (History.position === 0) {
           // Hide undo
-          this.undoIcon.css('visibility', 'hidden');
+          this.sidebar.hideUndo();
         }
         // Not null, show previous passage.
         this.show(passageName);
       }
     });
 
-    // Listen for screen-lock event.
-    State.events.on('screen-lock', () => {
-      // Append an element filling screen with CSS loading spinner.
-      $(document.body).append('<tw-screenlock><div class="loading"></div></tw-screenlock>');
-    });
-
-    // Listen for screen-unlock event.
-    State.events.on('screen-unlock', () => {
-      // Remove tw-screenlock element, if there is one.
-      $('tw-screenlock').remove();
-    });
-
-    // Listen for sidebar-show event.
-    State.events.on('sidebar-show', () => {
-      // Show tw-sidebar
-      $('tw-sidebar').css('visibility', 'visible');
-    });
-
-    // Listen for sidebar-hide event.
-    State.events.on('sidebar-hide', () => {
-      // Show tw-sidebar
-      $('tw-sidebar').css('visibility', 'hidden');
-    });
+    /**
+     * The current passage.
+     *
+     * @property {Passage|null} currentPassage Currently showing passage, if any.
+     * @type {Passage|null}
+     */
+    this.currentPassage = null;
 
     /**
      * Reference to internal Storylets object.
@@ -23066,7 +23189,7 @@ class Story {
     // For each script, render them as JavaScript inside EJS.
     this.userScripts.forEach((script) => {
       // Run any code within a templated sandbox.
-      this.runScript(`<%${script}%>`);
+      Script.run(`<%${script}%>`, this);
     });
 
     // Get the startnode value (which is a number).
@@ -23087,19 +23210,13 @@ class Story {
     History.add(passage.name);
 
     // Set the global passage to the one about to be shown.
-    window.passage = passage;
+    this.currentPassage = passage;
 
     // Overwrite current tags
     this.passageElement.attr('tags', passage.tags);
 
     // Get passage source.
-    let passageSource = this.include(passage.name);
-
-    // Run any scripts.
-    passageSource = this.runScript(passageSource);
-
-    // Parse any Markdown.
-    passageSource = Markdown.parse(passageSource);
+    const passageSource = this.include(passage.name);
 
     // Overwrite the parsed with the rendered.
     this.passageElement.html(passageSource);
@@ -23154,17 +23271,6 @@ class Story {
   }
 
   /**
-   * Legacy method. Alias for Story.getPassageByName().
-   *
-   * @function passage
-   * @param {string} name - name of the passage
-   * @returns {Passage|null} Passage object or null
-   */
-  passage (name) {
-    return this.getPassageByName(name);
-  }
-
-  /**
    * Replaces current passage shown to reader with rendered source of named passage.
    * If the named passage does not exist, an error is thrown.
    *
@@ -23182,26 +23288,20 @@ class Story {
       throw new Error(`There is no passage with the name ${name}`);
     }
 
-    // Set the global passage to the one about to be shown.
-    window.passage = passage;
+    // Set currentPassage to the one about to be shown.
+    this.currentPassage = passage;
 
     // Overwrite current tags.
     this.passageElement.attr('tags', passage.tags);
 
     // Get passage source by name.
-    let passageSource = this.include(passage.name);
-
-    // Run any script
-    passageSource = this.runScript(passageSource);
-
-    // Parse any Markdown.
-    passageSource = Markdown.parse(passageSource);
+    const passageSource = this.include(passage.name);
 
     // Overwrite any existing HTML.
     this.passageElement.html(passageSource);
 
     /**
-     * Triggered when a passage is shown
+     * Triggered when a passage is shown.
      *
      * @event State#show
      * @type {string}
@@ -23210,11 +23310,11 @@ class Story {
   }
 
   /**
-   * Returns the source of a passage by name.
+   * Returns the rendered source of a passage by name.
    *
    * @function include
    * @param {string} name - name of the passage.
-   * @returns {string} Passage source.
+   * @returns {string} Rendered passage source.
    */
   include (name) {
     // Search for passage by name.
@@ -23227,106 +23327,17 @@ class Story {
       throw new Error('There is no passage with name ' + name);
     }
 
+    // Get passage source.
+    let passageSource = passage.source;
+
+    // Run any script.
+    passageSource = Script.run(passageSource, this);
+
+    // Parse any Markdown.
+    passageSource = Markdown.parse(passageSource);
+
     // Return the passage source.
-    return passage.source;
-  }
-
-  /**
-   * Accepts mixed input of arrays or comma-separated list of values and returns a random entry.
-   * Will return null when given no arguments.
-   *
-   * Examples:
-   * - either(1,2,3);
-   * - either(1,[2],[4,5]);
-   *
-   * @function either
-   * @param {object|Array} args - Array or comma-separated list
-   * @returns {object|null} Random entry or null
-   */
-  either (...args) {
-    let tempArray = [];
-    let result = null;
-
-    // For every entry...
-    for (const entry of args) {
-      // If it is not an array...
-      if (!(entry instanceof Array)) {
-        // push the entry into the temporary array.
-        tempArray.push(entry);
-      } else {
-        // Spread out any subentries and add them to temporary array.
-        tempArray = [...tempArray, ...entry];
-      }
-    }
-
-    // Check if any entries were added.
-    if (tempArray.length > 0) {
-      // If they were, grab one of them.
-      result = tempArray[Math.floor(Math.random() * tempArray.length)];
-    }
-
-    // Return either null (no entries) or random entry.
-    return result;
-  }
-
-  /**
-   * Render JavaScript within a templated sandbox and return possible output.
-   * Will throw error if code does.
-   *
-   * @function runScript
-   * @param {string} script - Code to run
-   * @returns {string} Any output, if produced
-   */
-  runScript (script) {
-    let result = '';
-
-    try {
-      // Send in pseudo-global properties
-      /* eslint-disable object-shorthand */
-      result = ejs.render(script,
-        {
-          State: State,
-          s: this.state,
-          Storage: Storage,
-          Storylets: this.storylets,
-          Story: {
-            renderPassageToSelector: this.renderPassageToSelector.bind(this),
-            include: this.include.bind(this),
-            getPassageByName: this.getPassageByName.bind(this),
-            getPassagesByTag: this.getPassagesByTag.bind(this),
-            undo: this.undo.bind(this),
-            redo: this.redo.bind(this),
-            show: this.show.bind(this),
-            addPassage: this.addPassage.bind(this),
-            removePassage: this.removePassage.bind(this),
-            goto: this.goto.bind(this),
-            applyExternalStyles: this.applyExternalStyles.bind(this)
-          },
-          either: this.either.bind(this),
-          History: {
-            hasVisited: History.hasVisited,
-            visited: History.visited
-          },
-          Screen: {
-            lock: this.screenLock.bind(this),
-            unlock: this.screenUnlock.bind(this)
-          },
-          Sidebar: {
-            hide: this.sidebarHide.bind(this),
-            show: this.sidebarShow.bind(this)
-          }
-        },
-        {
-          outputFunctionName: 'print'
-        }
-      );
-    } catch (e) {
-      // Throw error if rendering fails.
-      throw new Error(`Error compiling template code: ${e}`);
-    }
-
-    /* eslint-enable object-shorthand */
-    return result;
+    return passageSource;
   }
 
   /**
@@ -23341,87 +23352,13 @@ class Story {
     let passageSource = this.include(passageName);
 
     // Run any possible template scripts.
-    passageSource = this.runScript(passageSource);
+    passageSource = Script.run(passageSource, this);
 
     // Run the Markdown parsing.
     passageSource = Markdown.parse(passageSource);
 
     // Replace the HTML of the selector (if valid).
     $(selector).html(passageSource);
-  }
-
-  /**
-   * Applies external CSS files
-   *
-   * @function applyExternalStyles
-   * @param {Array} files - Array of one or more external files to load
-   */
-  applyExternalStyles (files) {
-    if (Array.isArray(files)) {
-      files.forEach(location => {
-        $('<link/>', {
-          rel: 'stylesheet',
-          type: 'text/css',
-          href: location
-        }).appendTo('head');
-      });
-    } else {
-      throw new Error('Method only accepts an array!');
-    }
-  }
-
-  /**
-   * Trigger undo event
-   *
-   * @function undo
-   */
-  undo () {
-    State.events.emit('undo');
-  }
-
-  /**
-   * Trigger redo event
-   *
-   * @function redo
-   */
-  redo () {
-    State.events.emit('redo');
-  }
-
-  /**
-   * Trigger screenLock event
-   *
-   * @function screenLock
-   */
-  screenLock () {
-    State.events.emit('screen-lock');
-  }
-
-  /**
-   * Trigger screenUnlock event
-   *
-   * @function screenUnlock
-   */
-  screenUnlock () {
-    State.events.emit('screen-unlock');
-  }
-
-  /**
-   * Trigger sidebar-show event.
-   *
-   * @function sidebarShow
-   */
-  sidebarShow () {
-    State.events.emit('sidebar-show');
-  }
-
-  /**
-   * Trigger sidebar-hide event.
-   *
-   * @function sidebarHide
-   */
-  sidebarHide () {
-    State.events.emit('sidebar-hide');
   }
 
   /**
@@ -23499,7 +23436,7 @@ class Story {
     History.add(name);
 
     // Hide the redo icon.
-    this.redoIcon.css('visibility', 'hidden');
+    this.sidebar.hideRedo();
 
     // Show the passage by name.
     this.show(name);
@@ -23515,6 +23452,7 @@ module.exports = Story;
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const { Query } = __webpack_require__(4406);
+const State = __webpack_require__(5213);
 
 /**
  * An object containing none, one, or multiple passages based
@@ -23601,15 +23539,15 @@ class Storylets {
     // Force argument into number.
     limit = parseInt(limit);
 
-    // For each passage, test its requirements against window.story.state.
+    // For each passage, test its requirements against State.store.
     this.passages.forEach(entry => {
       // Pull the requirements.
       const requirements = entry.requirements;
       // Create a query based on requirements.
       const query = new Query(requirements);
-      // Test against window.story.state AND make sure there are search properties.
+      // Test against State.store AND make sure there are search properties.
       // As requirements can be an empty object, we need to protect against it.
-      if (query.test(window.story.state) && Object.keys(requirements).length > 0) {
+      if (query.test(State.store) && Object.keys(requirements).length > 0) {
         // Add the element to the results.
         results.push(entry);
       }
@@ -23706,6 +23644,115 @@ module.exports = Storylets;
 
 /***/ }),
 
+/***/ 5543:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const $ = __webpack_require__(9755);
+
+class Utilities {
+  /**
+   * Accepts a function, wait, and optional set of arguments.
+   * After the wait, the function will run with the passed arguments.
+   *
+   * @function delay
+   * @param {Function}    func    Function to run.
+   * @param {number}      wait    Number of milliseconds to wait.
+   * @param {any}         [args]  Optional arguments to pass to the function.
+   * @returns {number}            Identification of timer returned from setTimeout().
+   */
+  static delay (func, wait, ...args) {
+    return setTimeout(function () {
+      return func(...args);
+    }, wait);
+  }
+
+  /**
+   * Accepts mixed input of arrays or comma-separated list of values and returns a random entry.
+   * Will return null when given no arguments.
+   *
+   * Examples:
+   * - either(1,2,3);
+   * - either(1,[2],[4,5]);
+   *
+   * @function either
+   * @param   {object|Array} args Array or comma-separated list.
+   * @returns {object|null}       Random entry or null.
+   */
+  static either (...args) {
+    let tempArray = [];
+    let result = null;
+
+    // For every entry...
+    for (const entry of args) {
+      // If it is not an array...
+      if (!(entry instanceof Array)) {
+        // push the entry into the temporary array.
+        tempArray.push(entry);
+      } else {
+        // Spread out any subentries and add them to temporary array.
+        tempArray = [...tempArray, ...entry];
+      }
+    }
+
+    // Check if any entries were added.
+    if (tempArray.length > 0) {
+      // If they were, grab one of them.
+      result = tempArray[Math.floor(Math.random() * tempArray.length)];
+    }
+
+    // Return either null (no entries) or random entry.
+    return result;
+  }
+
+  /**
+   * Applies external CSS files.
+   *
+   * @function applyExternalStyles
+   * @param {Array} files Array of one or more external files to load.
+   */
+  static applyExternalStyles (files) {
+    if (Array.isArray(files)) {
+      files.forEach(location => {
+        $('<link/>', {
+          rel: 'stylesheet',
+          type: 'text/css',
+          href: location
+        }).appendTo('head');
+      });
+    } else {
+      throw new Error('Method only accepts an array!');
+    }
+  }
+
+  /**
+   * Return random integer within range.
+   *
+   * @function randomInt
+   * @param   {number}  min   Start of range (default 0).
+   * @param   {number}  max   End of range (default 0).
+   * @returns {number}        Number in range.
+   */
+  static randomInt (min = 0, max = 0) {
+    // Round up to min.
+    min = Math.ceil(min);
+    // Round down to max.
+    max = Math.floor(max);
+
+    // Is min greater than max?
+    if (min > max) {
+      max = min;
+      min = 0;
+    }
+
+    return Math.floor(Math.random() * (max - min)) + min;
+  }
+}
+
+module.exports = Utilities;
+
+
+/***/ }),
+
 /***/ 7790:
 /***/ (() => {
 
@@ -23717,18 +23764,6 @@ module.exports = Storylets;
 /***/ (() => {
 
 /* (ignored) */
-
-/***/ }),
-
-/***/ 6419:
-/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
-
-!function(n,r){ true?module.exports=r():0}(this,(function(){
-//     Underscore.js 1.13.4
-//     https://underscorejs.org
-//     (c) 2009-2022 Jeremy Ashkenas, Julian Gonggrijp, and DocumentCloud and Investigative Reporters & Editors
-//     Underscore may be freely distributed under the MIT license.
-var n="1.13.4",r="object"==typeof self&&self.self===self&&self||"object"==typeof __webpack_require__.g&&__webpack_require__.g.global===__webpack_require__.g&&__webpack_require__.g||Function("return this")()||{},t=Array.prototype,e=Object.prototype,u="undefined"!=typeof Symbol?Symbol.prototype:null,o=t.push,i=t.slice,a=e.toString,f=e.hasOwnProperty,c="undefined"!=typeof ArrayBuffer,l="undefined"!=typeof DataView,s=Array.isArray,p=Object.keys,v=Object.create,h=c&&ArrayBuffer.isView,y=isNaN,d=isFinite,g=!{toString:null}.propertyIsEnumerable("toString"),b=["valueOf","isPrototypeOf","toString","propertyIsEnumerable","hasOwnProperty","toLocaleString"],m=Math.pow(2,53)-1;function j(n,r){return r=null==r?n.length-1:+r,function(){for(var t=Math.max(arguments.length-r,0),e=Array(t),u=0;u<t;u++)e[u]=arguments[u+r];switch(r){case 0:return n.call(this,e);case 1:return n.call(this,arguments[0],e);case 2:return n.call(this,arguments[0],arguments[1],e)}var o=Array(r+1);for(u=0;u<r;u++)o[u]=arguments[u];return o[r]=e,n.apply(this,o)}}function _(n){var r=typeof n;return"function"===r||"object"===r&&!!n}function w(n){return void 0===n}function A(n){return!0===n||!1===n||"[object Boolean]"===a.call(n)}function x(n){var r="[object "+n+"]";return function(n){return a.call(n)===r}}var S=x("String"),O=x("Number"),M=x("Date"),E=x("RegExp"),B=x("Error"),N=x("Symbol"),I=x("ArrayBuffer"),T=x("Function"),k=r.document&&r.document.childNodes; true&&"object"!=typeof Int8Array&&"function"!=typeof k&&(T=function(n){return"function"==typeof n||!1});var D=T,R=x("Object"),F=l&&R(new DataView(new ArrayBuffer(8))),V="undefined"!=typeof Map&&R(new Map),P=x("DataView");var q=F?function(n){return null!=n&&D(n.getInt8)&&I(n.buffer)}:P,U=s||x("Array");function W(n,r){return null!=n&&f.call(n,r)}var z=x("Arguments");!function(){z(arguments)||(z=function(n){return W(n,"callee")})}();var L=z;function $(n){return O(n)&&y(n)}function C(n){return function(){return n}}function K(n){return function(r){var t=n(r);return"number"==typeof t&&t>=0&&t<=m}}function J(n){return function(r){return null==r?void 0:r[n]}}var G=J("byteLength"),H=K(G),Q=/\[object ((I|Ui)nt(8|16|32)|Float(32|64)|Uint8Clamped|Big(I|Ui)nt64)Array\]/;var X=c?function(n){return h?h(n)&&!q(n):H(n)&&Q.test(a.call(n))}:C(!1),Y=J("length");function Z(n,r){r=function(n){for(var r={},t=n.length,e=0;e<t;++e)r[n[e]]=!0;return{contains:function(n){return!0===r[n]},push:function(t){return r[t]=!0,n.push(t)}}}(r);var t=b.length,u=n.constructor,o=D(u)&&u.prototype||e,i="constructor";for(W(n,i)&&!r.contains(i)&&r.push(i);t--;)(i=b[t])in n&&n[i]!==o[i]&&!r.contains(i)&&r.push(i)}function nn(n){if(!_(n))return[];if(p)return p(n);var r=[];for(var t in n)W(n,t)&&r.push(t);return g&&Z(n,r),r}function rn(n,r){var t=nn(r),e=t.length;if(null==n)return!e;for(var u=Object(n),o=0;o<e;o++){var i=t[o];if(r[i]!==u[i]||!(i in u))return!1}return!0}function tn(n){return n instanceof tn?n:this instanceof tn?void(this._wrapped=n):new tn(n)}function en(n){return new Uint8Array(n.buffer||n,n.byteOffset||0,G(n))}tn.VERSION=n,tn.prototype.value=function(){return this._wrapped},tn.prototype.valueOf=tn.prototype.toJSON=tn.prototype.value,tn.prototype.toString=function(){return String(this._wrapped)};var un="[object DataView]";function on(n,r,t,e){if(n===r)return 0!==n||1/n==1/r;if(null==n||null==r)return!1;if(n!=n)return r!=r;var o=typeof n;return("function"===o||"object"===o||"object"==typeof r)&&function n(r,t,e,o){r instanceof tn&&(r=r._wrapped);t instanceof tn&&(t=t._wrapped);var i=a.call(r);if(i!==a.call(t))return!1;if(F&&"[object Object]"==i&&q(r)){if(!q(t))return!1;i=un}switch(i){case"[object RegExp]":case"[object String]":return""+r==""+t;case"[object Number]":return+r!=+r?+t!=+t:0==+r?1/+r==1/t:+r==+t;case"[object Date]":case"[object Boolean]":return+r==+t;case"[object Symbol]":return u.valueOf.call(r)===u.valueOf.call(t);case"[object ArrayBuffer]":case un:return n(en(r),en(t),e,o)}var f="[object Array]"===i;if(!f&&X(r)){if(G(r)!==G(t))return!1;if(r.buffer===t.buffer&&r.byteOffset===t.byteOffset)return!0;f=!0}if(!f){if("object"!=typeof r||"object"!=typeof t)return!1;var c=r.constructor,l=t.constructor;if(c!==l&&!(D(c)&&c instanceof c&&D(l)&&l instanceof l)&&"constructor"in r&&"constructor"in t)return!1}o=o||[];var s=(e=e||[]).length;for(;s--;)if(e[s]===r)return o[s]===t;if(e.push(r),o.push(t),f){if((s=r.length)!==t.length)return!1;for(;s--;)if(!on(r[s],t[s],e,o))return!1}else{var p,v=nn(r);if(s=v.length,nn(t).length!==s)return!1;for(;s--;)if(p=v[s],!W(t,p)||!on(r[p],t[p],e,o))return!1}return e.pop(),o.pop(),!0}(n,r,t,e)}function an(n){if(!_(n))return[];var r=[];for(var t in n)r.push(t);return g&&Z(n,r),r}function fn(n){var r=Y(n);return function(t){if(null==t)return!1;var e=an(t);if(Y(e))return!1;for(var u=0;u<r;u++)if(!D(t[n[u]]))return!1;return n!==hn||!D(t[cn])}}var cn="forEach",ln="has",sn=["clear","delete"],pn=["get",ln,"set"],vn=sn.concat(cn,pn),hn=sn.concat(pn),yn=["add"].concat(sn,cn,ln),dn=V?fn(vn):x("Map"),gn=V?fn(hn):x("WeakMap"),bn=V?fn(yn):x("Set"),mn=x("WeakSet");function jn(n){for(var r=nn(n),t=r.length,e=Array(t),u=0;u<t;u++)e[u]=n[r[u]];return e}function _n(n){for(var r={},t=nn(n),e=0,u=t.length;e<u;e++)r[n[t[e]]]=t[e];return r}function wn(n){var r=[];for(var t in n)D(n[t])&&r.push(t);return r.sort()}function An(n,r){return function(t){var e=arguments.length;if(r&&(t=Object(t)),e<2||null==t)return t;for(var u=1;u<e;u++)for(var o=arguments[u],i=n(o),a=i.length,f=0;f<a;f++){var c=i[f];r&&void 0!==t[c]||(t[c]=o[c])}return t}}var xn=An(an),Sn=An(nn),On=An(an,!0);function Mn(n){if(!_(n))return{};if(v)return v(n);var r=function(){};r.prototype=n;var t=new r;return r.prototype=null,t}function En(n){return U(n)?n:[n]}function Bn(n){return tn.toPath(n)}function Nn(n,r){for(var t=r.length,e=0;e<t;e++){if(null==n)return;n=n[r[e]]}return t?n:void 0}function In(n,r,t){var e=Nn(n,Bn(r));return w(e)?t:e}function Tn(n){return n}function kn(n){return n=Sn({},n),function(r){return rn(r,n)}}function Dn(n){return n=Bn(n),function(r){return Nn(r,n)}}function Rn(n,r,t){if(void 0===r)return n;switch(null==t?3:t){case 1:return function(t){return n.call(r,t)};case 3:return function(t,e,u){return n.call(r,t,e,u)};case 4:return function(t,e,u,o){return n.call(r,t,e,u,o)}}return function(){return n.apply(r,arguments)}}function Fn(n,r,t){return null==n?Tn:D(n)?Rn(n,r,t):_(n)&&!U(n)?kn(n):Dn(n)}function Vn(n,r){return Fn(n,r,1/0)}function Pn(n,r,t){return tn.iteratee!==Vn?tn.iteratee(n,r):Fn(n,r,t)}function qn(){}function Un(n,r){return null==r&&(r=n,n=0),n+Math.floor(Math.random()*(r-n+1))}tn.toPath=En,tn.iteratee=Vn;var Wn=Date.now||function(){return(new Date).getTime()};function zn(n){var r=function(r){return n[r]},t="(?:"+nn(n).join("|")+")",e=RegExp(t),u=RegExp(t,"g");return function(n){return n=null==n?"":""+n,e.test(n)?n.replace(u,r):n}}var Ln={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#x27;","`":"&#x60;"},$n=zn(Ln),Cn=zn(_n(Ln)),Kn=tn.templateSettings={evaluate:/<%([\s\S]+?)%>/g,interpolate:/<%=([\s\S]+?)%>/g,escape:/<%-([\s\S]+?)%>/g},Jn=/(.)^/,Gn={"'":"'","\\":"\\","\r":"r","\n":"n","\u2028":"u2028","\u2029":"u2029"},Hn=/\\|'|\r|\n|\u2028|\u2029/g;function Qn(n){return"\\"+Gn[n]}var Xn=/^\s*(\w|\$)+\s*$/;var Yn=0;function Zn(n,r,t,e,u){if(!(e instanceof r))return n.apply(t,u);var o=Mn(n.prototype),i=n.apply(o,u);return _(i)?i:o}var nr=j((function(n,r){var t=nr.placeholder,e=function(){for(var u=0,o=r.length,i=Array(o),a=0;a<o;a++)i[a]=r[a]===t?arguments[u++]:r[a];for(;u<arguments.length;)i.push(arguments[u++]);return Zn(n,e,this,this,i)};return e}));nr.placeholder=tn;var rr=j((function(n,r,t){if(!D(n))throw new TypeError("Bind must be called on a function");var e=j((function(u){return Zn(n,e,r,this,t.concat(u))}));return e})),tr=K(Y);function er(n,r,t,e){if(e=e||[],r||0===r){if(r<=0)return e.concat(n)}else r=1/0;for(var u=e.length,o=0,i=Y(n);o<i;o++){var a=n[o];if(tr(a)&&(U(a)||L(a)))if(r>1)er(a,r-1,t,e),u=e.length;else for(var f=0,c=a.length;f<c;)e[u++]=a[f++];else t||(e[u++]=a)}return e}var ur=j((function(n,r){var t=(r=er(r,!1,!1)).length;if(t<1)throw new Error("bindAll must be passed function names");for(;t--;){var e=r[t];n[e]=rr(n[e],n)}return n}));var or=j((function(n,r,t){return setTimeout((function(){return n.apply(null,t)}),r)})),ir=nr(or,tn,1);function ar(n){return function(){return!n.apply(this,arguments)}}function fr(n,r){var t;return function(){return--n>0&&(t=r.apply(this,arguments)),n<=1&&(r=null),t}}var cr=nr(fr,2);function lr(n,r,t){r=Pn(r,t);for(var e,u=nn(n),o=0,i=u.length;o<i;o++)if(r(n[e=u[o]],e,n))return e}function sr(n){return function(r,t,e){t=Pn(t,e);for(var u=Y(r),o=n>0?0:u-1;o>=0&&o<u;o+=n)if(t(r[o],o,r))return o;return-1}}var pr=sr(1),vr=sr(-1);function hr(n,r,t,e){for(var u=(t=Pn(t,e,1))(r),o=0,i=Y(n);o<i;){var a=Math.floor((o+i)/2);t(n[a])<u?o=a+1:i=a}return o}function yr(n,r,t){return function(e,u,o){var a=0,f=Y(e);if("number"==typeof o)n>0?a=o>=0?o:Math.max(o+f,a):f=o>=0?Math.min(o+1,f):o+f+1;else if(t&&o&&f)return e[o=t(e,u)]===u?o:-1;if(u!=u)return(o=r(i.call(e,a,f),$))>=0?o+a:-1;for(o=n>0?a:f-1;o>=0&&o<f;o+=n)if(e[o]===u)return o;return-1}}var dr=yr(1,pr,hr),gr=yr(-1,vr);function br(n,r,t){var e=(tr(n)?pr:lr)(n,r,t);if(void 0!==e&&-1!==e)return n[e]}function mr(n,r,t){var e,u;if(r=Rn(r,t),tr(n))for(e=0,u=n.length;e<u;e++)r(n[e],e,n);else{var o=nn(n);for(e=0,u=o.length;e<u;e++)r(n[o[e]],o[e],n)}return n}function jr(n,r,t){r=Pn(r,t);for(var e=!tr(n)&&nn(n),u=(e||n).length,o=Array(u),i=0;i<u;i++){var a=e?e[i]:i;o[i]=r(n[a],a,n)}return o}function _r(n){var r=function(r,t,e,u){var o=!tr(r)&&nn(r),i=(o||r).length,a=n>0?0:i-1;for(u||(e=r[o?o[a]:a],a+=n);a>=0&&a<i;a+=n){var f=o?o[a]:a;e=t(e,r[f],f,r)}return e};return function(n,t,e,u){var o=arguments.length>=3;return r(n,Rn(t,u,4),e,o)}}var wr=_r(1),Ar=_r(-1);function xr(n,r,t){var e=[];return r=Pn(r,t),mr(n,(function(n,t,u){r(n,t,u)&&e.push(n)})),e}function Sr(n,r,t){r=Pn(r,t);for(var e=!tr(n)&&nn(n),u=(e||n).length,o=0;o<u;o++){var i=e?e[o]:o;if(!r(n[i],i,n))return!1}return!0}function Or(n,r,t){r=Pn(r,t);for(var e=!tr(n)&&nn(n),u=(e||n).length,o=0;o<u;o++){var i=e?e[o]:o;if(r(n[i],i,n))return!0}return!1}function Mr(n,r,t,e){return tr(n)||(n=jn(n)),("number"!=typeof t||e)&&(t=0),dr(n,r,t)>=0}var Er=j((function(n,r,t){var e,u;return D(r)?u=r:(r=Bn(r),e=r.slice(0,-1),r=r[r.length-1]),jr(n,(function(n){var o=u;if(!o){if(e&&e.length&&(n=Nn(n,e)),null==n)return;o=n[r]}return null==o?o:o.apply(n,t)}))}));function Br(n,r){return jr(n,Dn(r))}function Nr(n,r,t){var e,u,o=-1/0,i=-1/0;if(null==r||"number"==typeof r&&"object"!=typeof n[0]&&null!=n)for(var a=0,f=(n=tr(n)?n:jn(n)).length;a<f;a++)null!=(e=n[a])&&e>o&&(o=e);else r=Pn(r,t),mr(n,(function(n,t,e){((u=r(n,t,e))>i||u===-1/0&&o===-1/0)&&(o=n,i=u)}));return o}var Ir=/[^\ud800-\udfff]|[\ud800-\udbff][\udc00-\udfff]|[\ud800-\udfff]/g;function Tr(n){return n?U(n)?i.call(n):S(n)?n.match(Ir):tr(n)?jr(n,Tn):jn(n):[]}function kr(n,r,t){if(null==r||t)return tr(n)||(n=jn(n)),n[Un(n.length-1)];var e=Tr(n),u=Y(e);r=Math.max(Math.min(r,u),0);for(var o=u-1,i=0;i<r;i++){var a=Un(i,o),f=e[i];e[i]=e[a],e[a]=f}return e.slice(0,r)}function Dr(n,r){return function(t,e,u){var o=r?[[],[]]:{};return e=Pn(e,u),mr(t,(function(r,u){var i=e(r,u,t);n(o,r,i)})),o}}var Rr=Dr((function(n,r,t){W(n,t)?n[t].push(r):n[t]=[r]})),Fr=Dr((function(n,r,t){n[t]=r})),Vr=Dr((function(n,r,t){W(n,t)?n[t]++:n[t]=1})),Pr=Dr((function(n,r,t){n[t?0:1].push(r)}),!0);function qr(n,r,t){return r in t}var Ur=j((function(n,r){var t={},e=r[0];if(null==n)return t;D(e)?(r.length>1&&(e=Rn(e,r[1])),r=an(n)):(e=qr,r=er(r,!1,!1),n=Object(n));for(var u=0,o=r.length;u<o;u++){var i=r[u],a=n[i];e(a,i,n)&&(t[i]=a)}return t})),Wr=j((function(n,r){var t,e=r[0];return D(e)?(e=ar(e),r.length>1&&(t=r[1])):(r=jr(er(r,!1,!1),String),e=function(n,t){return!Mr(r,t)}),Ur(n,e,t)}));function zr(n,r,t){return i.call(n,0,Math.max(0,n.length-(null==r||t?1:r)))}function Lr(n,r,t){return null==n||n.length<1?null==r||t?void 0:[]:null==r||t?n[0]:zr(n,n.length-r)}function $r(n,r,t){return i.call(n,null==r||t?1:r)}var Cr=j((function(n,r){return r=er(r,!0,!0),xr(n,(function(n){return!Mr(r,n)}))})),Kr=j((function(n,r){return Cr(n,r)}));function Jr(n,r,t,e){A(r)||(e=t,t=r,r=!1),null!=t&&(t=Pn(t,e));for(var u=[],o=[],i=0,a=Y(n);i<a;i++){var f=n[i],c=t?t(f,i,n):f;r&&!t?(i&&o===c||u.push(f),o=c):t?Mr(o,c)||(o.push(c),u.push(f)):Mr(u,f)||u.push(f)}return u}var Gr=j((function(n){return Jr(er(n,!0,!0))}));function Hr(n){for(var r=n&&Nr(n,Y).length||0,t=Array(r),e=0;e<r;e++)t[e]=Br(n,e);return t}var Qr=j(Hr);function Xr(n,r){return n._chain?tn(r).chain():r}function Yr(n){return mr(wn(n),(function(r){var t=tn[r]=n[r];tn.prototype[r]=function(){var n=[this._wrapped];return o.apply(n,arguments),Xr(this,t.apply(tn,n))}})),tn}mr(["pop","push","reverse","shift","sort","splice","unshift"],(function(n){var r=t[n];tn.prototype[n]=function(){var t=this._wrapped;return null!=t&&(r.apply(t,arguments),"shift"!==n&&"splice"!==n||0!==t.length||delete t[0]),Xr(this,t)}})),mr(["concat","join","slice"],(function(n){var r=t[n];tn.prototype[n]=function(){var n=this._wrapped;return null!=n&&(n=r.apply(n,arguments)),Xr(this,n)}}));var Zr=Yr({__proto__:null,VERSION:n,restArguments:j,isObject:_,isNull:function(n){return null===n},isUndefined:w,isBoolean:A,isElement:function(n){return!(!n||1!==n.nodeType)},isString:S,isNumber:O,isDate:M,isRegExp:E,isError:B,isSymbol:N,isArrayBuffer:I,isDataView:q,isArray:U,isFunction:D,isArguments:L,isFinite:function(n){return!N(n)&&d(n)&&!isNaN(parseFloat(n))},isNaN:$,isTypedArray:X,isEmpty:function(n){if(null==n)return!0;var r=Y(n);return"number"==typeof r&&(U(n)||S(n)||L(n))?0===r:0===Y(nn(n))},isMatch:rn,isEqual:function(n,r){return on(n,r)},isMap:dn,isWeakMap:gn,isSet:bn,isWeakSet:mn,keys:nn,allKeys:an,values:jn,pairs:function(n){for(var r=nn(n),t=r.length,e=Array(t),u=0;u<t;u++)e[u]=[r[u],n[r[u]]];return e},invert:_n,functions:wn,methods:wn,extend:xn,extendOwn:Sn,assign:Sn,defaults:On,create:function(n,r){var t=Mn(n);return r&&Sn(t,r),t},clone:function(n){return _(n)?U(n)?n.slice():xn({},n):n},tap:function(n,r){return r(n),n},get:In,has:function(n,r){for(var t=(r=Bn(r)).length,e=0;e<t;e++){var u=r[e];if(!W(n,u))return!1;n=n[u]}return!!t},mapObject:function(n,r,t){r=Pn(r,t);for(var e=nn(n),u=e.length,o={},i=0;i<u;i++){var a=e[i];o[a]=r(n[a],a,n)}return o},identity:Tn,constant:C,noop:qn,toPath:En,property:Dn,propertyOf:function(n){return null==n?qn:function(r){return In(n,r)}},matcher:kn,matches:kn,times:function(n,r,t){var e=Array(Math.max(0,n));r=Rn(r,t,1);for(var u=0;u<n;u++)e[u]=r(u);return e},random:Un,now:Wn,escape:$n,unescape:Cn,templateSettings:Kn,template:function(n,r,t){!r&&t&&(r=t),r=On({},r,tn.templateSettings);var e=RegExp([(r.escape||Jn).source,(r.interpolate||Jn).source,(r.evaluate||Jn).source].join("|")+"|$","g"),u=0,o="__p+='";n.replace(e,(function(r,t,e,i,a){return o+=n.slice(u,a).replace(Hn,Qn),u=a+r.length,t?o+="'+\n((__t=("+t+"))==null?'':_.escape(__t))+\n'":e?o+="'+\n((__t=("+e+"))==null?'':__t)+\n'":i&&(o+="';\n"+i+"\n__p+='"),r})),o+="';\n";var i,a=r.variable;if(a){if(!Xn.test(a))throw new Error("variable is not a bare identifier: "+a)}else o="with(obj||{}){\n"+o+"}\n",a="obj";o="var __t,__p='',__j=Array.prototype.join,"+"print=function(){__p+=__j.call(arguments,'');};\n"+o+"return __p;\n";try{i=new Function(a,"_",o)}catch(n){throw n.source=o,n}var f=function(n){return i.call(this,n,tn)};return f.source="function("+a+"){\n"+o+"}",f},result:function(n,r,t){var e=(r=Bn(r)).length;if(!e)return D(t)?t.call(n):t;for(var u=0;u<e;u++){var o=null==n?void 0:n[r[u]];void 0===o&&(o=t,u=e),n=D(o)?o.call(n):o}return n},uniqueId:function(n){var r=++Yn+"";return n?n+r:r},chain:function(n){var r=tn(n);return r._chain=!0,r},iteratee:Vn,partial:nr,bind:rr,bindAll:ur,memoize:function(n,r){var t=function(e){var u=t.cache,o=""+(r?r.apply(this,arguments):e);return W(u,o)||(u[o]=n.apply(this,arguments)),u[o]};return t.cache={},t},delay:or,defer:ir,throttle:function(n,r,t){var e,u,o,i,a=0;t||(t={});var f=function(){a=!1===t.leading?0:Wn(),e=null,i=n.apply(u,o),e||(u=o=null)},c=function(){var c=Wn();a||!1!==t.leading||(a=c);var l=r-(c-a);return u=this,o=arguments,l<=0||l>r?(e&&(clearTimeout(e),e=null),a=c,i=n.apply(u,o),e||(u=o=null)):e||!1===t.trailing||(e=setTimeout(f,l)),i};return c.cancel=function(){clearTimeout(e),a=0,e=u=o=null},c},debounce:function(n,r,t){var e,u,o,i,a,f=function(){var c=Wn()-u;r>c?e=setTimeout(f,r-c):(e=null,t||(i=n.apply(a,o)),e||(o=a=null))},c=j((function(c){return a=this,o=c,u=Wn(),e||(e=setTimeout(f,r),t&&(i=n.apply(a,o))),i}));return c.cancel=function(){clearTimeout(e),e=o=a=null},c},wrap:function(n,r){return nr(r,n)},negate:ar,compose:function(){var n=arguments,r=n.length-1;return function(){for(var t=r,e=n[r].apply(this,arguments);t--;)e=n[t].call(this,e);return e}},after:function(n,r){return function(){if(--n<1)return r.apply(this,arguments)}},before:fr,once:cr,findKey:lr,findIndex:pr,findLastIndex:vr,sortedIndex:hr,indexOf:dr,lastIndexOf:gr,find:br,detect:br,findWhere:function(n,r){return br(n,kn(r))},each:mr,forEach:mr,map:jr,collect:jr,reduce:wr,foldl:wr,inject:wr,reduceRight:Ar,foldr:Ar,filter:xr,select:xr,reject:function(n,r,t){return xr(n,ar(Pn(r)),t)},every:Sr,all:Sr,some:Or,any:Or,contains:Mr,includes:Mr,include:Mr,invoke:Er,pluck:Br,where:function(n,r){return xr(n,kn(r))},max:Nr,min:function(n,r,t){var e,u,o=1/0,i=1/0;if(null==r||"number"==typeof r&&"object"!=typeof n[0]&&null!=n)for(var a=0,f=(n=tr(n)?n:jn(n)).length;a<f;a++)null!=(e=n[a])&&e<o&&(o=e);else r=Pn(r,t),mr(n,(function(n,t,e){((u=r(n,t,e))<i||u===1/0&&o===1/0)&&(o=n,i=u)}));return o},shuffle:function(n){return kr(n,1/0)},sample:kr,sortBy:function(n,r,t){var e=0;return r=Pn(r,t),Br(jr(n,(function(n,t,u){return{value:n,index:e++,criteria:r(n,t,u)}})).sort((function(n,r){var t=n.criteria,e=r.criteria;if(t!==e){if(t>e||void 0===t)return 1;if(t<e||void 0===e)return-1}return n.index-r.index})),"value")},groupBy:Rr,indexBy:Fr,countBy:Vr,partition:Pr,toArray:Tr,size:function(n){return null==n?0:tr(n)?n.length:nn(n).length},pick:Ur,omit:Wr,first:Lr,head:Lr,take:Lr,initial:zr,last:function(n,r,t){return null==n||n.length<1?null==r||t?void 0:[]:null==r||t?n[n.length-1]:$r(n,Math.max(0,n.length-r))},rest:$r,tail:$r,drop:$r,compact:function(n){return xr(n,Boolean)},flatten:function(n,r){return er(n,r,!1)},without:Kr,uniq:Jr,unique:Jr,union:Gr,intersection:function(n){for(var r=[],t=arguments.length,e=0,u=Y(n);e<u;e++){var o=n[e];if(!Mr(r,o)){var i;for(i=1;i<t&&Mr(arguments[i],o);i++);i===t&&r.push(o)}}return r},difference:Cr,unzip:Hr,transpose:Hr,zip:Qr,object:function(n,r){for(var t={},e=0,u=Y(n);e<u;e++)r?t[n[e]]=r[e]:t[n[e][0]]=n[e][1];return t},range:function(n,r,t){null==r&&(r=n||0,n=0),t||(t=r<n?-1:1);for(var e=Math.max(Math.ceil((r-n)/t),0),u=Array(e),o=0;o<e;o++,n+=t)u[o]=n;return u},chunk:function(n,r){if(null==r||r<1)return[];for(var t=[],e=0,u=n.length;e<u;)t.push(i.call(n,e,e+=r));return t},mixin:Yr,default:tn});return Zr._=Zr,Zr}));
 
 /***/ }),
 
@@ -23767,19 +23802,6 @@ module.exports = {"i8":"3.1.8"};
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/global */
-/******/ 	(() => {
-/******/ 		__webpack_require__.g = (function() {
-/******/ 			if (typeof globalThis === 'object') return globalThis;
-/******/ 			try {
-/******/ 				return this || new Function('return this')();
-/******/ 			} catch (e) {
-/******/ 				if (typeof window === 'object') return window;
-/******/ 			}
-/******/ 		})();
-/******/ 	})();
-/******/ 	
-/************************************************************************/
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
@@ -23793,14 +23815,8 @@ const $ = __webpack_require__(9755);
 // Setup global jQuery
 window.$ = $;
 window.jQuery = $;
-// Require Underscore
-const _ = __webpack_require__(6419);
-// Setup global underscore
-window._ = _;
 // Require Story
 const Story = __webpack_require__(3213);
-// Create window.passage
-window.passage = null;
 // Create new Story instance
 window.story = new Story();
 // Start story

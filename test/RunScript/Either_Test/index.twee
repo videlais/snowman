@@ -2,4 +2,4 @@
 Either Test
 
 :: Start
-<%= either(1,2,3) %>
+<%- Utils.either(1,2,3) %>
