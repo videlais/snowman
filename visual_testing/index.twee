@@ -1,8 +1,21 @@
 :: StoryTitle
-Render Test
+Snowman: Deleting Variables
+
+:: UserScript[script]
+s.example = "an example!";
 
 :: Start
-<span id="test"><%- Story.include('Another') %></span>
+What is the value of the property "example" of the global store? <%= s.example %>
 
-:: Another
-Hey!
+[[Delete the value!]]
+
+:: Delete the value!
+<%
+    // Delete the variable
+    delete s.example;
+%>
+
+[[Test for value]]
+
+:: Test for value
+Does "example" still exist as part of the global store? <%= s.hasOwnProperty("example") %>

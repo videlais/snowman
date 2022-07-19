@@ -22421,19 +22421,19 @@ class Markdown {
   static parse (text) {
     const rules = [
       // [[rename|destination][onclick]]
-      [/\[\[(.*?)\|(.*?)\](?:\[(.*?)\])?\]/g, (m, p1, p2, p3 = '') => `<tw-link role="link" onclick="${p3.replaceAll('s.', 'window.story.state.')}" data-passage="${p2}">${p1}</tw-link>`],
+      [/\[\[(.*?)\|(.*?)\](?:\[(.*?)\])?\]/g, (m, p1, p2, p3 = '') => `<tw-link role="link" onclick="${p3.replaceAll('s.', 'window.Story.state.')}" data-passage="${p2}">${p1}</tw-link>`],
       // [[rename|destination]]
       // [/\[\[(.*?)\|(.*?)\]\]/g, '<tw-link role="link" data-passage="$2">$1</tw-link>'],
       // [[rename->dest][onclick]]
-      [/\[\[(.*?)->(.*?)\](?:\[(.*?)\])?\]/g, (m, p1, p2, p3 = '') => `<tw-link role="link" onclick="${p3.replaceAll('s.', 'window.story.state.')}" data-passage="${p2}">${p1}</tw-link>`],
+      [/\[\[(.*?)->(.*?)\](?:\[(.*?)\])?\]/g, (m, p1, p2, p3 = '') => `<tw-link role="link" onclick="${p3.replaceAll('s.', 'window.Story.state.')}" data-passage="${p2}">${p1}</tw-link>`],
       // [[rename->dest]]
       // [/\[\[(.*?)->(.*?)\]\]/g, '<tw-link role="link" data-passage="$2">$1</tw-link>'],
       // [[dest<-rename][onclick]]
-      [/\[\[(.*?)<-(.*?)\](?:\[(.*?)\])?\]/g, (m, p1, p2, p3 = '') => `<tw-link role="link" onclick="${p3.replaceAll('s.', 'window.story.state.')}" data-passage="${p1}">${p2}</tw-link>`],
+      [/\[\[(.*?)<-(.*?)\](?:\[(.*?)\])?\]/g, (m, p1, p2, p3 = '') => `<tw-link role="link" onclick="${p3.replaceAll('s.', 'window.Story.state.')}" data-passage="${p1}">${p2}</tw-link>`],
       // [[dest<-rename]]
       // [/\[\[(.*?)<-(.*?)\]\]/g, '<tw-link role="link" data-passage="$1">$2</tw-link>'],
       // [[destination][onclick]]
-      [/\[\[(.*?)\](?:\[(.*?)\])?\]/g, (m, p1, p2 = '') => `<tw-link role="link" onclick="${p2.replaceAll('s.', 'window.story.state.')}" data-passage="${p1}">${p1}</tw-link>`]
+      [/\[\[(.*?)\](?:\[(.*?)\])?\]/g, (m, p1, p2 = '') => `<tw-link role="link" onclick="${p2.replaceAll('s.', 'window.Story.state.')}" data-passage="${p1}">${p1}</tw-link>`]
       // [[destination]]
       // [/\[\[(.*?)\]\]/g, '<tw-link role="link" data-passage="$1">$1</tw-link>']
     ];
@@ -22543,8 +22543,6 @@ module.exports = Screen;
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const ejs = __webpack_require__(7083);
-const State = __webpack_require__(5213);
-const StorageAlias = __webpack_require__(6505);
 const History = __webpack_require__(1201);
 const Screen = __webpack_require__(1675);
 const Utilities = __webpack_require__(5543);
@@ -22568,44 +22566,30 @@ class Script {
     let result = '';
 
     try {
-      // Send in pseudo-global properties
-      /* eslint-disable object-shorthand */
+      // Send in pseudo-global properties.
       result = ejs.render(script,
         {
-          s: State.store,
-          Storage: StorageAlias,
+          s: story.store,
+          Storage: story.storage,
           Storylets: story.storylets,
-          Story: {
-            name: story.name,
-            currentPassage: story.currentPassage,
-            renderPassageToSelector: story.renderPassageToSelector.bind(story),
-            include: story.include.bind(story),
-            getPassageByName: story.getPassageByName.bind(story),
-            getPassagesByTag: story.getPassagesByTag.bind(story),
-            show: story.show.bind(story),
-            addPassage: story.addPassage.bind(story),
-            removePassage: story.removePassage.bind(story),
-            goto: story.goto.bind(story),
-            events: State.events
-          },
           History: {
             hasVisited: History.hasVisited.bind(History),
             visited: History.visited.bind(History),
             length: History.history.length
           },
           Screen: {
-            lock: Screen.lock.bind(Screen),
-            unlock: Screen.unlock.bind(Screen)
+            lock: Screen.lock.bind(),
+            unlock: Screen.unlock.bind()
           },
           Sidebar: {
             hide: story.sidebar.hide.bind(),
             show: story.sidebar.show.bind()
           },
           Utils: {
-            delay: Utilities.delay.bind(Utilities),
-            either: Utilities.either.bind(Utilities),
-            applyExternalStyles: Utilities.applyExternalStyles.bind(Utilities),
-            randomInt: Utilities.randomInt.bind(Utilities)
+            delay: Utilities.delay.bind(),
+            either: Utilities.either.bind(),
+            applyExternalStyles: Utilities.applyExternalStyles.bind(),
+            randomInt: Utilities.randomInt.bind()
           }
         },
         {
@@ -22617,7 +22601,6 @@ class Script {
       throw new Error(`Error compiling template code: ${e}`);
     }
 
-    /* eslint-enable object-shorthand */
     return result;
   }
 }
@@ -22659,7 +22642,7 @@ class Sidebar {
      */
     this.sidebar = $('tw-sidebar');
 
-    // Listen for user click interactions
+    // Listen for user click interactions.
     this.undoIcon.on('click', () => {
       // If undo is ever used, redo becomes available.
       this.showRedo();
@@ -22776,14 +22759,26 @@ const handler = {
     // Return true.
     return true;
   },
-  ownKeys: (target) => {
+  ownKeys (target) {
     return Object.keys(target);
   },
-  getOwnPropertyDescriptor: () => {
-    return {
-      enumerable: true,
-      configurable: true
-    };
+  has (target, prop) {
+    return prop in target;
+  },
+  deleteProperty (target, prop) {
+    // Set default.
+    let result = false;
+
+    // Test for inclusion as property.
+    if (prop in target) {
+      // Emit deletion event.
+      State.events.emit('deletion', prop);
+      // Delete via Reflection.
+      result = Reflect.deleteProperty(target, prop);
+    }
+
+    // Return default or reflection result.
+    return result;
   }
 };
 
@@ -22970,6 +22965,8 @@ const History = __webpack_require__(1201);
 const Storylets = __webpack_require__(2444);
 const Script = __webpack_require__(5827);
 const Sidebar = __webpack_require__(9906);
+const Screen = __webpack_require__(1675);
+const Storage = __webpack_require__(6505);
 
 /**
  * An object representing the entire story. After the document has completed
@@ -23052,9 +23049,9 @@ class Story {
     });
 
     /**
-     * Story element
+     * Story element.
      *
-     * @property {Element} storyElement - Story element
+     * @property {Element} storyElement Story element.
      * @type {Element}
      * @readonly
      */
@@ -23075,7 +23072,7 @@ class Story {
     });
 
     /**
-     * Passage element
+     * Passage element.
      *
      * @property {Element} passageElement Passage element
      * @type {Element}
@@ -23083,12 +23080,58 @@ class Story {
     this.passageElement = $('tw-passage');
 
     /**
-     * Sidebar
+     * Sidebar.
      *
      * @property {Element} sidebar Sidebar instance.
      * @type {Element}
      */
     this.sidebar = new Sidebar();
+
+    // Reset History.
+    History.reset();
+
+    /**
+     * History reference.
+     *
+     * @property {History} history Reference to History.
+     * @type {History}
+     */
+    this.history = History;
+
+    /**
+     * Screen reference.
+     *
+     * @property {Screen} screen Reference to Screen.
+     * @type {Screen}
+     */
+    this.screen = Screen;
+
+    /**
+     * Storage reference.
+     *
+     * @property {Storage} screen Reference to Storage.
+     * @type {Storage}
+     */
+    this.storage = Storage;
+
+    // Reset State.
+    State.reset();
+
+    /**
+     * State.events reference.
+     *
+     * @property {EventEmitter} events Reference to State.events.
+     * @type {EventEmitter}
+     */
+    this.events = State.events;
+
+    /**
+     * State.store reference.
+     *
+     * @property {Proxy} store Reference to State.store.
+     * @type {Proxy}
+     */
+    this.store = State.store;
 
     // Listen for redo events.
     State.events.on('redo', () => {
@@ -23557,7 +23600,7 @@ class Storylets {
    */
   addPassage (newName = '', newRequirements = {}, newPriority = 0) {
     // Check if passage exists in Story.
-    const newPassage = window.story.getPassageByName(newName);
+    const newPassage = window.Story.getPassageByName(newName);
 
     // If the passage was not found, throw an error.
     if (newPassage == null) {
@@ -23643,9 +23686,8 @@ class Utilities {
    * @returns {number}            Identification of timer returned from setTimeout().
    */
   static delay (func, wait, ...args) {
-    return setTimeout(function () {
-      return func(...args);
-    }, wait);
+    const boundFunction = func.bind(func);
+    return setTimeout(boundFunction, wait, ...args);
   }
 
   /**
@@ -23788,21 +23830,23 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
 "use strict";
-// Require normalize.css
+// Require normalize.css.
 
-// Require local CSS
+// Require local CSS.
 
-// Require jQuery
+// Require jQuery.
 const $ = __webpack_require__(9755);
-// Setup global jQuery
+// Setup global jQuery.
 window.$ = $;
 window.jQuery = $;
-// Require Story
+// Require Story.
 const Story = __webpack_require__(3213);
-// Create new Story instance
-window.story = new Story();
-// Start story
-window.story.start();
+// Create new Story instance.
+window.Story = new Story();
+// Create global store shortcut.
+window.s = window.Story.store;
+// Start story.
+window.Story.start();
 
 })();
 

@@ -2,25 +2,22 @@
 Fairmath in Snowman
 
 :: UserScript[script]
-// Create a global object
-window.setup = window.setup || {};
+// Create a fairmath global object.
+s.fairmath = {};
 
-// Create a fairmath global object
-window.setup.fairmath = {};
-
-// Create an 'increase' function
-setup.fairmath.increase = function(x,y) {
+// Create an 'increase' function.
+s.fairmath.increase = function(x,y) {
 	return Math.round(x+((100-x)*(y/100)));
 };
 
-// Create a "decrease" function
-setup.fairmath.decrease = function(x,y) {
+// Create a "decrease" function.
+s.fairmath.decrease = function(x,y) {
 	return Math.round(x-(x*(y/100)));
 };
 
 :: Start
 Decrease 100 by 50% using Fairmath:
-<%= setup.fairmath.decrease(100, 50) %>
+<%- s.fairmath.decrease(100, 50) %>
 
 Increase 50 by 50% using Fairmath:
-<%= setup.fairmath.increase(50, 50) %>
+<%- s.fairmath.increase(50, 50) %>

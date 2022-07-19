@@ -12,14 +12,26 @@ const handler = {
     // Return true.
     return true;
   },
-  ownKeys: (target) => {
+  ownKeys (target) {
     return Object.keys(target);
   },
-  getOwnPropertyDescriptor: () => {
-    return {
-      enumerable: true,
-      configurable: true
-    };
+  has (target, prop) {
+    return prop in target;
+  },
+  deleteProperty (target, prop) {
+    // Set default.
+    let result = false;
+
+    // Test for inclusion as property.
+    if (prop in target) {
+      // Emit deletion event.
+      State.events.emit('deletion', prop);
+      // Delete via Reflection.
+      result = Reflect.deleteProperty(target, prop);
+    }
+
+    // Return default or reflection result.
+    return result;
   }
 };
 

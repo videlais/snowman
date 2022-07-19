@@ -15,7 +15,7 @@ describe('Markdown', () => {
     });
 
     it('Should produce classic link with custom onclick with state reference', () => {
-      expect(Markdown.parse('[[dest][s.onclick=1]]')).toBe('<tw-link role="link" onclick="window.story.state.onclick=1" data-passage="dest">dest</tw-link>');
+      expect(Markdown.parse('[[dest][s.onclick=1]]')).toBe('<tw-link role="link" onclick="window.Story.state.onclick=1" data-passage="dest">dest</tw-link>');
     });
 
     it('Should produce bar link', () => {
@@ -31,7 +31,7 @@ describe('Markdown', () => {
     });
 
     it('Should produce bar link with custom onclick with state reference', () => {
-      expect(Markdown.parse('[[rename|dest][s.onclick=1]]')).toBe('<tw-link role="link" onclick="window.story.state.onclick=1" data-passage="dest">rename</tw-link>');
+      expect(Markdown.parse('[[rename|dest][s.onclick=1]]')).toBe('<tw-link role="link" onclick="window.Story.state.onclick=1" data-passage="dest">rename</tw-link>');
     });
 
     it('Should produce right arrow link', () => {
@@ -47,7 +47,7 @@ describe('Markdown', () => {
     });
 
     it('Should produce right arrow link with custom onclick with state reference', () => {
-      expect(Markdown.parse('[[rename->dest][s.onclick=1]]')).toBe('<tw-link role="link" onclick="window.story.state.onclick=1" data-passage="dest">rename</tw-link>');
+      expect(Markdown.parse('[[rename->dest][s.onclick=1]]')).toBe('<tw-link role="link" onclick="window.Story.state.onclick=1" data-passage="dest">rename</tw-link>');
     });
 
     it('Should produce left arrow link', () => {
@@ -63,7 +63,7 @@ describe('Markdown', () => {
     });
 
     it('Should produce left arrow link with custom onclick with state reference', () => {
-      expect(Markdown.parse('[[dest<-rename][s.onclick=1]]')).toBe('<tw-link role="link" onclick="window.story.state.onclick=1" data-passage="dest">rename</tw-link>');
+      expect(Markdown.parse('[[dest<-rename][s.onclick=1]]')).toBe('<tw-link role="link" onclick="window.Story.state.onclick=1" data-passage="dest">rename</tw-link>');
     });
   });
 

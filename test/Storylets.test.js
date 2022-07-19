@@ -63,10 +63,10 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story
-      window.story.start();
-      const s = window.story.storylets;
+      window.Story.start();
+      const s = window.Story.storylets;
       expect(s.passages.length).toBe(2);
     });
 
@@ -91,10 +91,10 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story
-      window.story.start();
-      const s = window.story.storylets;
+      window.Story.start();
+      const s = window.Story.storylets;
       // No elements were tagged with 'storylet'
       expect(s.passages.length).toBe(0);
     });
@@ -122,12 +122,12 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story
-      window.story.start();
-      const s = window.story.storylets;
+      window.Story.start();
+      const s = window.Story.storylets;
       // Retrieve 'Test Passage'.
-      const passage = window.story.getPassageByName('Test Passage');
+      const passage = window.Story.getPassageByName('Test Passage');
       // One card.
       expect(s.passages.length).toBe(1);
       // <requirement> should not be in the source.
@@ -153,11 +153,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
+      window.Story.start();
       // Create new collection.
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Grab first entry in Storylets collection.
       const p = s.passages[0];
       // Should have no properties in its requirements.
@@ -194,10 +194,10 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story
-      window.story.start();
-      const s = window.story.storylets;
+      window.Story.start();
+      const s = window.Story.storylets;
       // Only one card(passage) should be available.
       expect(s.getAvailablePassages().length).toBe(1);
     });
@@ -235,11 +235,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story
-      window.story.start();
+      window.Story.start();
       // Create new collection
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Only one card(passage) should be available.
       expect(s.getAvailablePassages().length).toBe(2);
     });
@@ -277,10 +277,10 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story
-      window.story.start();
-      const s = window.story.storylets;
+      window.Story.start();
+      const s = window.Story.storylets;
       // No cards should be available.
       expect(s.getAvailablePassages().length).toBe(0);
     });
@@ -322,11 +322,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
+      window.Story.start();
       // Create new collection.
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Two cards should be available.
       expect(s.getAvailablePassages().length).toBe(2);
     });
@@ -366,10 +366,10 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
-      const s = window.story.storylets;
+      window.Story.start();
+      const s = window.Story.storylets;
       // Two cards should be available.
       expect(s.getAvailablePassages().length).toBe(1);
     });
@@ -409,11 +409,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
+      window.Story.start();
       // Create new collection.
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Get array of available cards, limited to 1.
       const passageList = s.getAvailablePassages(1);
       // Higher priority passage should be found.
@@ -453,10 +453,10 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
-      const s = window.story.storylets;
+      window.Story.start();
+      const s = window.Story.storylets;
       // Get array of available cards, limited to 1.
       const passageList = s.getAvailablePassages(1);
       // Get top
@@ -493,11 +493,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
+      window.Story.start();
       // Create new collection.
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Add passage
       s.addPassage('Test Passage 2', {}, 0);
       expect(s.passages.length).toBe(2);
@@ -528,11 +528,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
+      window.Story.start();
       // Create new collection.
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Throw error
       expect(() => s.addPassage('Test Passage')).toThrow();
     });
@@ -562,11 +562,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
+      window.Story.start();
       // Create new collection.
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Throw error
       expect(() => s.addPassage('Nah')).toThrow();
     });
@@ -599,11 +599,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
+      window.Story.start();
       // Create new collection.
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Add passage with null as requirements.
       s.addPassage('Test Passage 2', null);
       // Grab requirements
@@ -640,11 +640,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
+      window.Story.start();
       // Create new collection.
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Add passage
       s.addPassage();
       expect(s.passages.length).toBe(2);
@@ -680,11 +680,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
+      window.Story.start();
       // Create new collection.
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       s.removePassage('Test Passage');
       expect(s.passages.length).toBe(0);
     });
@@ -724,11 +724,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story
-      window.story.start();
+      window.Story.start();
       // Create new collection
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Confirm each passage is available
       expect(s.includes('Test Passage')).toBe(true);
       expect(s.includes('Test Passage 2')).toBe(true);
@@ -767,11 +767,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story
-      window.story.start();
+      window.Story.start();
       // Create new collection
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Confirm default passage is available
       expect(s.includes()).toBe(true);
     });
@@ -811,11 +811,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
+      window.Story.start();
       // Create new collection.
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Remove passage by name.
       s.removePassage('Test Passage');
       // Only one passage should be available.
@@ -855,11 +855,11 @@ describe('Storylets', () => {
       // Reset State
       State.reset();
       // Reset story.
-      window.story = new Story();
+      window.Story = new Story();
       // Start a new story.
-      window.story.start();
+      window.Story.start();
       // Create new collection.
-      const s = window.story.storylets;
+      const s = window.Story.storylets;
       // Remove default passage.
       s.removePassage();
       // Only one passage should be available.

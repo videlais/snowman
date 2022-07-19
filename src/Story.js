@@ -10,6 +10,8 @@ const History = require('./History.js');
 const Storylets = require('./Storylets.js');
 const Script = require('./Script.js');
 const Sidebar = require('./Sidebar.js');
+const Screen = require('./Screen.js');
+const Storage = require('./Storage.js');
 
 /**
  * An object representing the entire story. After the document has completed
@@ -92,9 +94,9 @@ class Story {
     });
 
     /**
-     * Story element
+     * Story element.
      *
-     * @property {Element} storyElement - Story element
+     * @property {Element} storyElement Story element.
      * @type {Element}
      * @readonly
      */
@@ -115,7 +117,7 @@ class Story {
     });
 
     /**
-     * Passage element
+     * Passage element.
      *
      * @property {Element} passageElement Passage element
      * @type {Element}
@@ -123,12 +125,58 @@ class Story {
     this.passageElement = $('tw-passage');
 
     /**
-     * Sidebar
+     * Sidebar.
      *
      * @property {Element} sidebar Sidebar instance.
      * @type {Element}
      */
     this.sidebar = new Sidebar();
+
+    // Reset History.
+    History.reset();
+
+    /**
+     * History reference.
+     *
+     * @property {History} history Reference to History.
+     * @type {History}
+     */
+    this.history = History;
+
+    /**
+     * Screen reference.
+     *
+     * @property {Screen} screen Reference to Screen.
+     * @type {Screen}
+     */
+    this.screen = Screen;
+
+    /**
+     * Storage reference.
+     *
+     * @property {Storage} screen Reference to Storage.
+     * @type {Storage}
+     */
+    this.storage = Storage;
+
+    // Reset State.
+    State.reset();
+
+    /**
+     * State.events reference.
+     *
+     * @property {EventEmitter} events Reference to State.events.
+     * @type {EventEmitter}
+     */
+    this.events = State.events;
+
+    /**
+     * State.store reference.
+     *
+     * @property {Proxy} store Reference to State.store.
+     * @type {Proxy}
+     */
+    this.store = State.store;
 
     // Listen for redo events.
     State.events.on('redo', () => {

@@ -2,7 +2,7 @@
 getPassageByName() Test
 
 :: Start
-The title of this story is "<%= window.story.name %>."
+The title of this story is "<%- Story.name %>."
 
 <% 
 	// Look for the passage by name.
@@ -11,9 +11,9 @@ The title of this story is "<%= window.story.name %>."
 	s.passage = passage;
 %>
 
-The name of the passage is "<%= s.passage.name %>."
+The name of the passage is "<%- s.passage.name %>."
 
-The source of the passage is "<%= s.passage.source %>"
+The source of the passage is "<%- s.passage.source %>"
 
 :: Storage
 This is content in the storage passage!

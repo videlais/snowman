@@ -12,9 +12,8 @@ class Utilities {
    * @returns {number}            Identification of timer returned from setTimeout().
    */
   static delay (func, wait, ...args) {
-    return setTimeout(function () {
-      return func(...args);
-    }, wait);
+    const boundFunction = func.bind(func);
+    return setTimeout(boundFunction, wait, ...args);
   }
 
   /**

@@ -30,6 +30,21 @@ describe('State', () => {
       }
       expect(result).toBe('Hi');
     });
+
+    it('Should allow deletion', () => {
+      State.store.a = 'Hi';
+      delete State.store.a;
+      expect('a' in State.store).toBe(false);
+    });
+
+    it('Should allow has/in', () => {
+      State.store.a = 'Hi';
+      expect('a' in State.store).toBe(true);
+    });
+
+    it('Should do nothing if trying to delete property that does not exist', () => {
+      expect(delete State.store.a).toBe(false);
+    });
   });
 
   describe('Event usage', () => {

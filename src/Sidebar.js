@@ -27,7 +27,7 @@ class Sidebar {
      */
     this.sidebar = $('tw-sidebar');
 
-    // Listen for user click interactions
+    // Listen for user click interactions.
     this.undoIcon.on('click', () => {
       // If undo is ever used, redo becomes available.
       this.showRedo();

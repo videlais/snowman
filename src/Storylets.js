@@ -122,7 +122,7 @@ class Storylets {
    */
   addPassage (newName = '', newRequirements = {}, newPriority = 0) {
     // Check if passage exists in Story.
-    const newPassage = window.story.getPassageByName(newName);
+    const newPassage = window.Story.getPassageByName(newName);
 
     // If the passage was not found, throw an error.
     if (newPassage == null) {

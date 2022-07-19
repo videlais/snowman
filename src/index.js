@@ -1,15 +1,17 @@
-// Require normalize.css
+// Require normalize.css.
 import 'normalize.css';
-// Require local CSS
+// Require local CSS.
 import './story.css';
-// Require jQuery
+// Require jQuery.
 const $ = require('jquery');
-// Setup global jQuery
+// Setup global jQuery.
 window.$ = $;
 window.jQuery = $;
-// Require Story
+// Require Story.
 const Story = require('./Story.js');
-// Create new Story instance
-window.story = new Story();
-// Start story
-window.story.start();
+// Create new Story instance.
+window.Story = new Story();
+// Create global store shortcut.
+window.s = window.Story.store;
+// Start story.
+window.Story.start();
