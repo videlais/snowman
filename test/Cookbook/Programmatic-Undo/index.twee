@@ -9,7 +9,7 @@ Programmatic Undo in Snowman 2
 <a role="link" id="return">You are not ready! Go back!</a>
 
 <%
-$('#return').on('click', () => {
-    Story.undo();
-});
+    $('#return').on('click', () => {
+        Story.undo();
+    });
 %>

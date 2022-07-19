@@ -64,6 +64,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story
       window.Story.start();
       const s = window.Story.storylets;
@@ -92,6 +94,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story
       window.Story.start();
       const s = window.Story.storylets;
@@ -123,6 +127,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story
       window.Story.start();
       const s = window.Story.storylets;
@@ -154,6 +160,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       // Create new collection.
@@ -195,6 +203,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story
       window.Story.start();
       const s = window.Story.storylets;
@@ -236,6 +246,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story
       window.Story.start();
       // Create new collection
@@ -278,6 +290,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story
       window.Story.start();
       const s = window.Story.storylets;
@@ -323,6 +337,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       // Create new collection.
@@ -367,6 +383,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       const s = window.Story.storylets;
@@ -410,6 +428,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       // Create new collection.
@@ -454,6 +474,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       const s = window.Story.storylets;
@@ -494,6 +516,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       // Create new collection.
@@ -529,6 +553,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       // Create new collection.
@@ -563,6 +589,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       // Create new collection.
@@ -600,6 +628,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       // Create new collection.
@@ -641,6 +671,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       // Create new collection.
@@ -681,6 +713,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       // Create new collection.
@@ -725,6 +759,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story
       window.Story.start();
       // Create new collection
@@ -768,6 +804,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story
       window.Story.start();
       // Create new collection
@@ -812,6 +850,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       // Create new collection.
@@ -856,6 +896,8 @@ describe('Storylets', () => {
       State.reset();
       // Reset story.
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // Start a new story.
       window.Story.start();
       // Create new collection.

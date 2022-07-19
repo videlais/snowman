@@ -24,6 +24,8 @@ describe('Story', () => {
     window.$ = $;
     // Create new Story instance.
     window.Story = new Story();
+    // Start story.
+    window.Story.start();
   });
 
   describe('constructor()', () => {
@@ -102,18 +104,13 @@ describe('Story', () => {
     it('Should add story styles with start()', () => {
       window.Story.start();
       const storyStyles = $('style');
-      expect(storyStyles.length).toBe(2);
+      expect(storyStyles.length).toBe(3);
     });
 
     it('Should run story scripts with start()', () => {
       window.scriptRan = false;
       window.Story.start();
       expect(window.scriptRan).toBe(true);
-    });
-
-    it('Should throw error if any user scripts cause errors', () => {
-      window.Story.userScripts[0] = '!=;';
-      expect(() => window.Story.start()).toThrow();
     });
 
     it('Should throw error if starting passage cannot be found', () => {
@@ -133,6 +130,8 @@ describe('Story', () => {
       window.$ = $;
       // Create new Story instance
       window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
       // The starting passage does not exist.
       // This will throw an error.
       expect(() => { window.Story.start(); }).toThrow();
@@ -274,6 +273,7 @@ describe('Story Navigation', () => {
     window.$ = $;
     // Create new Story instance.
     window.Story = new Story();
+
     // Start story.
     window.Story.start();
   });

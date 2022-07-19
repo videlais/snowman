@@ -23087,6 +23087,18 @@ class Story {
      */
     this.sidebar = new Sidebar();
 
+    /**
+     * Reference to Sidebar.undo()
+     *
+     */
+    this.undo = this.sidebar.undo.bind(this.sidebar);
+
+    /**
+     * Reference to Sidebar.redo()
+     *
+     */
+    this.redo = this.sidebar.redo.bind(this.sidebar);
+
     // Reset History.
     History.reset();
 
@@ -23208,13 +23220,23 @@ class Story {
 
     // For each style, add them to the body as extra style elements.
     this.userStyles.forEach((style) => {
-      $(document.body).append(`<style>${style}</style>`);
+      // Prevent empty elements from being appended.
+      if (style.length > 0) {
+        $(document.body).append(`<style>${style}</style>`);
+      }
     });
 
-    // For each script, render them as JavaScript inside EJS.
+    /**
+     * Note: Browsers prevent error catching from scripts
+     *  added after the initial loading.
+     *
+     * window.onerror will have error, but it cannot
+     *  be caught.
+     */
     this.userScripts.forEach((script) => {
-      // Run any code within a templated sandbox.
-      Script.run(`<%${script}%>`, this);
+      const scriptElement = $('<script>');
+      scriptElement.text(script);
+      $(document.body).append(scriptElement);
     });
 
     // Get the startnode value (which is a number).
