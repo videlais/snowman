@@ -29,16 +29,6 @@ describe('Story', () => {
   });
 
   describe('constructor()', () => {
-    it('Should set the story\'s scripts from the element', () => {
-      expect(window.Story.userScripts.length).toBe(1);
-      expect(window.Story.userScripts[0]).toBe('window.scriptRan = true;');
-    });
-
-    it('Should set the story\'s styles from the element', () => {
-      expect(window.Story.userStyles.length).toBe(1);
-      expect(window.Story.userStyles[0]).toBe('body { color: blue }');
-    });
-
     it('Should record all passages', () => {
       expect(window.Story.passages.length).toBe(5);
     });
@@ -46,7 +36,7 @@ describe('Story', () => {
 
   describe('include()', () => {
     it('Should include a passage by name', () => {
-      expect(window.Story.include('Test Passage')).toBe('Hello world');
+      expect(window.Story.include('Test Passage')).toBe('<p>Hello world</p>\n');
     });
 
     it('Should throw error when name is not found in passages', () => {
@@ -81,7 +71,7 @@ describe('Story', () => {
 
   describe('include()', () => {
     it('Should return rendered content of named passage', () => {
-      expect(window.Story.include('Test Passage 5')).toBe('<tw-link role="link" onclick="" data-passage="Test Passage">Test Passage</tw-link>');
+      expect(window.Story.include('Test Passage 5')).toBe('<p><tw-link role="link" onclick="" data-passage="Test Passage">Test Passage</tw-link></p>\n');
     });
 
     it('Should throw error if named passage does not exist', () => {
@@ -92,7 +82,7 @@ describe('Story', () => {
   describe('renderPassageToSelector()', () => {
     it('Should render to a selector', () => {
       window.Story.renderPassageToSelector('Test Passage', 'tw-passage');
-      expect($('tw-passage').html()).toBe('Hello world');
+      expect($('tw-passage').html()).toBe('<p>Hello world</p>\n');
     });
 
     it('Should throw error if passage does not exist', () => {
@@ -141,7 +131,7 @@ describe('Story', () => {
   describe('show()', () => {
     it('Should replace the current passage content', () => {
       window.Story.show('Test Passage');
-      expect($('tw-passage').html()).toBe('Hello world');
+      expect($('tw-passage').html()).toBe('<p>Hello world</p>\n');
     });
 
     it('Should throw error if passage does not exist', () => {
@@ -161,7 +151,7 @@ describe('Story', () => {
   describe('goto()', () => {
     it('Should replace the current passage content', () => {
       window.Story.goto('Test Passage');
-      expect($('tw-passage').html()).toBe('Hello world');
+      expect($('tw-passage').text()).toBe('Hello world\n');
     });
 
     it('Should throw error if passage does not exist', () => {
@@ -280,33 +270,46 @@ describe('Story Navigation', () => {
 
   it('Should replace content when reader clicks a story link', () => {
     $('tw-link').trigger('click');
-    expect($('tw-passage').text()).toBe('Hello world 2');
+    expect($('tw-passage').text()).toBe('Hello world 2\n');
   });
 
   it('Should undo content after a navigation event by function call', () => {
     $('tw-link').trigger('click');
     window.Story.sidebar.undo();
-    expect($('tw-passage').text()).toBe('Test Passage 2');
+    expect($('tw-passage').text()).toBe('Test Passage 2\n');
+  });
+
+  it('Should undo content after a navigation event', () => {
+    $('tw-link').trigger('click');
+    State.events.emit('undo');
+    expect($('tw-passage').text()).toBe('Test Passage 2\n');
   });
 
   it('Should redo content by function call', () => {
     $('tw-link').trigger('click');
     window.Story.sidebar.undo();
     window.Story.sidebar.redo();
-    expect($('tw-passage').text()).toBe('Hello world 2');
+    expect($('tw-passage').text()).toBe('Hello world 2\n');
+  });
+
+  it('Should redo content by State.events', () => {
+    $('tw-link').trigger('click');
+    State.events.emit('undo');
+    State.events.emit('redo');
+    expect($('tw-passage').text()).toBe('Hello world 2\n');
   });
 
   it('Should undo content after a navigation event by click event', () => {
     $('tw-link').trigger('click');
     window.Story.sidebar.undoIcon.trigger('click');
-    expect($('tw-passage').text()).toBe('Test Passage 2');
+    expect($('tw-passage').text()).toBe('Test Passage 2\n');
   });
 
   it('Should redo content by click event', () => {
     $('tw-link').trigger('click');
     window.Story.sidebar.undoIcon.trigger('click');
     window.Story.sidebar.redoIcon.trigger('click');
-    expect($('tw-passage').text()).toBe('Hello world 2');
+    expect($('tw-passage').text()).toBe('Hello world 2\n');
   });
 
   it('Should be back at position 0 in History', () => {

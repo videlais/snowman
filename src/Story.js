@@ -15,7 +15,7 @@ const Storage = require('./Storage.js');
 
 /**
  * An object representing the entire story. After the document has completed
- * loading, an instance of this class will be available at `window.story`.
+ * loading, an instance of this class will be available at `window.Story`.
  *
  * @class Story
  */
@@ -51,7 +51,7 @@ class Story {
 
       // Does the 'tags' attribute exist?
       if (tags !== '' && tags !== undefined) {
-        // Attempt to split by space
+        // Attempt to split by space.
         tags = tags.split(' ');
       } else {
         // It did not exist, so we create it as an empty array.
@@ -67,33 +67,6 @@ class Story {
     });
 
     /**
-     * An array of user-specific scripts to run when the story is begun.
-     *
-     * @property {Array} userScripts - Array of user-added JavaScript.
-     * @type {Array}
-     */
-    this.userScripts = [];
-
-    // Add the internal (HTML) contents of all SCRIPT tags
-    $('*[type="text/twine-javascript"]').each((index, value) => {
-      this.userScripts.push($(value).html());
-    });
-
-    /**
-     * An array of user-specific style declarations to add when the story is
-     * begun.
-     *
-     * @property {Array} userStyles - Array of user-added styles
-     * @type {Array}
-     */
-    this.userStyles = [];
-
-    // Add the internal (HTML) contents of all STYLE tags
-    $('*[type="text/twine-css"]').each((index, value) => {
-      this.userStyles.push($(value).html());
-    });
-
-    /**
      * Story element.
      *
      * @property {Element} storyElement Story element.
@@ -102,7 +75,7 @@ class Story {
      */
     this.storyElement = $('tw-story');
 
-    // Catch user clicking on links
+    // Catch user clicking on links.
     this.storyElement.on('click', 'tw-link[data-passage]', (e) => {
       // Pull destination passage name from the attribute.
       const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
@@ -263,12 +236,12 @@ class Story {
     // Generate initial Storylets collection.
     this.storylets = new Storylets(passageList);
 
-    // For each style, add them to the body as extra style elements.
-    this.userStyles.forEach((style) => {
-      // Prevent empty elements from being appended.
-      if (style.length > 0) {
-        $(document.body).append(`<style>${style}</style>`);
-      }
+    // For each Twine style, add them to the body as extra style elements.
+    $('*[type="text/twine-css"]').each((index, element) => {
+      // Convert from Element into jQuery Element.
+      const twineStyleElement = $(element);
+      // Append a new `<style>` with text from old.
+      $(document.body).append(`<style>${twineStyleElement.text()}</style>`);
     });
 
     /**
@@ -278,10 +251,15 @@ class Story {
      * window.onerror will have error, but it cannot
      *  be caught.
      */
-    this.userScripts.forEach((script) => {
-      const scriptElement = $('<script>');
-      scriptElement.text(script);
-      $(document.body).append(scriptElement);
+    $('*[type="text/twine-javascript"]').each((index, element) => {
+      // Convert Element into jQuery Element.
+      const twineScriptElement = $(element);
+      // Create a new `<script>`.
+      const newScriptElement = $('<script>');
+      // Set the text of new from old.
+      newScriptElement.text(twineScriptElement.text());
+      // Append the new `<script>` with text to document body.
+      $(document.body).append(newScriptElement);
     });
 
     // Get the startnode value (which is a number).
@@ -367,7 +345,7 @@ class Story {
    * If the named passage does not exist, an error is thrown.
    *
    * @function show
-   * @param {string} name - name of the passage
+   * @param {string} name name of the passage.
    */
   show (name) {
     // Look for passage by name.
@@ -428,6 +406,9 @@ class Story {
     // Parse any Markdown.
     passageSource = Markdown.parse(passageSource);
 
+    // Run the Markdown conversion.
+    passageSource = Markdown.convert(passageSource);
+
     // Return the passage source.
     return passageSource;
   }
@@ -441,13 +422,7 @@ class Story {
    */
   renderPassageToSelector (passageName, selector) {
     // Get passage source
-    let passageSource = this.include(passageName);
-
-    // Run any possible template scripts.
-    passageSource = Script.run(passageSource, this);
-
-    // Run the Markdown parsing.
-    passageSource = Markdown.parse(passageSource);
+    const passageSource = this.include(passageName);
 
     // Replace the HTML of the selector (if valid).
     $(selector).html(passageSource);

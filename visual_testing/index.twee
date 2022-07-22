@@ -1,8 +1,12 @@
 :: StoryTitle
-Error Test
-
-:: UserScript[script]
-!=;
+Event Listeners
 
 :: Start
-Produces errors.
+<script defer>
+    // Despite this appearing before its target,
+    //  a web browser will defer its execution until
+    //  after the page has been parsed.
+    $("#example").text("Show me!");
+</script>
+
+<div id="example"></div>

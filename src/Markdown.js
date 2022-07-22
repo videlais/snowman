@@ -1,3 +1,9 @@
+const md = require('markdown-it')({
+  html: true, // Enable HTML tags in source
+  xhtmlOut: true, // Use '/' to close single tags (<br />).
+  breaks: true // Convert \n into <br />
+});
+
 class Markdown {
   static parse (text) {
     const rules = [
@@ -24,6 +30,10 @@ class Markdown {
     });
 
     return text;
+  }
+
+  static convert (text) {
+    return md.render(text);
   }
 
   static unescape (text) {
