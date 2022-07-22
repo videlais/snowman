@@ -31408,14 +31408,6 @@ class Sidebar {
      */
     this.redoIcon = $('tw-icon[title="Redo"]');
 
-    /**
-     * Reference to tw-sidebar element.
-     *
-     * @property {Element} sidebar  Sidebar element.
-     * @type {Element}
-     */
-    this.sidebar = $('tw-sidebar');
-
     // Listen for user click interactions.
     this.undoIcon.on('click', () => {
       // If undo is ever used, redo becomes available.
@@ -31751,18 +31743,11 @@ const Storage = __webpack_require__(6505);
 class Story {
   constructor () {
     /**
-     * @property {Element} storyDataElement - Reference to tw-storydata element.
-     * @type {Element}
-     * @readonly
-     */
-    this.storyDataElement = $('tw-storydata');
-
-    /**
      * @property {string} name - The name of the story.
      * @type {string}
      * @readonly
      */
-    this.name = this.storyDataElement.attr('name');
+    this.name = $('tw-storydata').attr('name');
 
     /**
      * An array of all passages.
@@ -31772,10 +31757,12 @@ class Story {
      */
     this.passages = [];
 
-    // For each child element of the tw-storydata element,
+    // For each child element of the `<tw-storydata>` element,
     //  create a new Passage object based on its attributes.
-    this.storyDataElement.children('tw-passagedata').each((index, element) => {
+    $('tw-storydata').children('tw-passagedata').each((index, element) => {
+      // Convert Element into jQuery Element.
       const elementReference = $(element);
+      // Access any potential tags.
       let tags = elementReference.attr('tags');
 
       // Does the 'tags' attribute exist?
@@ -31796,32 +31783,9 @@ class Story {
     });
 
     /**
-     * Story element.
-     *
-     * @property {Element} storyElement Story element.
-     * @type {Element}
-     * @readonly
-     */
-    this.storyElement = $('tw-story');
-
-    // Catch user clicking on links.
-    this.storyElement.on('click', 'tw-link[data-passage]', (e) => {
-      // Pull destination passage name from the attribute.
-      const passageName = Markdown.unescape($(e.target).closest('[data-passage]').data('passage'));
-      // Add to the history.
-      History.add(passageName);
-      // Hide the redo icon.
-      this.sidebar.hideRedo();
-      // Show the undo icon.
-      this.sidebar.showUndo();
-      // Show the passage by name.
-      this.show(passageName);
-    });
-
-    /**
      * Passage element.
      *
-     * @property {Element} passageElement Passage element
+     * @property {Element} passageElement Passage element.
      * @type {Element}
      */
     this.passageElement = $('tw-passage');
@@ -31833,18 +31797,6 @@ class Story {
      * @type {Element}
      */
     this.sidebar = new Sidebar();
-
-    /**
-     * Reference to Sidebar.undo()
-     *
-     */
-    this.undo = this.sidebar.undo.bind(this.sidebar);
-
-    /**
-     * Reference to Sidebar.redo()
-     *
-     */
-    this.redo = this.sidebar.redo.bind(this.sidebar);
 
     // Reset History.
     History.reset();
@@ -31992,7 +31944,7 @@ class Story {
     });
 
     // Get the startnode value (which is a number).
-    const startingPassageID = parseInt(this.storyDataElement.attr('startnode'));
+    const startingPassageID = parseInt($('tw-storydata').attr('startnode'));
     // Use the PID to find the name of the starting passage based on elements.
     const startPassage = $(`[pid="${startingPassageID}"]`).attr('name');
     // Search for the starting passage.
@@ -32020,8 +31972,24 @@ class Story {
     // Overwrite the parsed with the rendered.
     this.passageElement.html(passageSource);
 
+    // Listen for any reader clicking on `<tw-link>`.
+    $('tw-link[data-passage]').on('click', (event) => {
+      // Convert Element into jQuery Element.
+      const jEl = $(event.target);
+      // Retrieve data-passage value.
+      const passageName = jEl.attr('data-passage');
+      // Add to the history.
+      History.add(passageName);
+      // Hide the redo icon.
+      this.sidebar.hideRedo();
+      // Show the undo icon.
+      this.sidebar.showUndo();
+      // Show the passage by name.
+      this.show(passageName);
+    });
+
     /**
-     * Triggered when the story starts
+     * Triggered when the story starts.
      *
      * @event State#start
      * @type {string}
@@ -32098,6 +32066,22 @@ class Story {
 
     // Overwrite any existing HTML.
     this.passageElement.html(passageSource);
+
+    // Listen for any reader clicking on `<tw-link>`.
+    $('tw-link[data-passage]').on('click', (event) => {
+      // Convert Element into jQuery Element.
+      const jEl = $(event.target);
+      // Retrieve data-passage value.
+      const passageName = jEl.attr('data-passage');
+      // Add to the history.
+      History.add(passageName);
+      // Hide the redo icon.
+      this.sidebar.hideRedo();
+      // Show the undo icon.
+      this.sidebar.showUndo();
+      // Show the passage by name.
+      this.show(passageName);
+    });
 
     /**
      * Triggered when a passage is shown.

@@ -19,14 +19,6 @@ class Sidebar {
      */
     this.redoIcon = $('tw-icon[title="Redo"]');
 
-    /**
-     * Reference to tw-sidebar element.
-     *
-     * @property {Element} sidebar  Sidebar element.
-     * @type {Element}
-     */
-    this.sidebar = $('tw-sidebar');
-
     // Listen for user click interactions.
     this.undoIcon.on('click', () => {
       // If undo is ever used, redo becomes available.

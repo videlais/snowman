@@ -3,8 +3,8 @@ Sidebar Hide Test
 
 :: Start
 <% 
-    Sidebar.hide();
     $(() => {
+        Sidebar.hide();
         if($('tw-sidebar').css('visibility') === 'hidden') {
             print('Show me!');
         }
