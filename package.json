@@ -44,7 +44,7 @@
     "open-cli": "^7.0.1",
     "puppeteer": "^19.7.3",
     "shelljs": "^0.8.5",
-    "style-loader": "^3.3.1",
+    "style-loader": "^3.3.3",
     "webpack": "^5.76.0",
     "webpack-cli": "^4.10.0"
   }
