@@ -29,7 +29,7 @@
     "@types/expect-puppeteer": "^5.0.1",
     "@types/jest-environment-puppeteer": "^5.0.2",
     "@types/puppeteer": "^5.4.6",
-    "css-loader": "^6.7.1",
+    "css-loader": "^6.8.1",
     "css-minimizer-webpack-plugin": "^4.0.0",
     "eslint": "^8.20.0",
     "eslint-config-standard": "^17.0.0",
