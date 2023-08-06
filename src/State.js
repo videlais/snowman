@@ -43,7 +43,6 @@ class State {
   static store = new Proxy({}, handler);
   /**
    * Update current state properties to previous state values.
-   *
    * @param {object} state - Object containing state properties.
    */
   static updateState (state) {

@@ -4,7 +4,6 @@ const State = require('./State.js');
 class Storage {
   /**
    * Remove save by name from the localStorage.
-   *
    * @function removeSave
    * @param {string} save Name of save string.
    * @returns {boolean} True if remove was successful.
@@ -22,7 +21,6 @@ class Storage {
 
   /**
    * Returns if save string exists in localStorage
-   *
    * @function doesSaveExist
    * @param {string} save Name of save string
    * @returns {boolean} True if save string exists
@@ -39,7 +37,6 @@ class Storage {
 
   /**
    * Save history using optional string prefix
-   *
    * @function createSave
    * @param {string} save Optional name of save string
    * @returns {boolean} Returns true if save was successful
@@ -57,7 +54,6 @@ class Storage {
 
   /**
    * Attempts to restore the history and store based on optional save name
-   *
    * @function restoreSave
    * @param {string} save Optional name of save string
    * @returns {boolean} Returns true if restore was successful
@@ -85,7 +81,6 @@ class Storage {
 
   /**
    * Returns if localStorage is available or not in browser context.
-   *
    * @function available
    * @returns {boolean} Returns true if localStorage can be used.
    */
@@ -108,7 +103,6 @@ class Storage {
 
   /**
    * Clears localStorage, if available.
-   *
    * @function removeAll
    * @returns {boolean} Returns true if removal was possible.
    */

@@ -4,7 +4,6 @@ class Utilities {
   /**
    * Accepts a function, wait, and optional set of arguments.
    * After the wait, the function will run with the passed arguments.
-   *
    * @function delay
    * @param {Function}    func    Function to run.
    * @param {number}      wait    Number of milliseconds to wait.
@@ -23,7 +22,6 @@ class Utilities {
    * Examples:
    * - either(1,2,3);
    * - either(1,[2],[4,5]);
-   *
    * @function either
    * @param   {object|Array} args Array or comma-separated list.
    * @returns {object|null}       Random entry or null.
@@ -56,7 +54,6 @@ class Utilities {
 
   /**
    * Applies external CSS files.
-   *
    * @function applyExternalStyles
    * @param {Array} files Array of one or more external files to load.
    */
@@ -76,7 +73,6 @@ class Utilities {
 
   /**
    * Return random integer within range.
-   *
    * @function randomInt
    * @param   {number}  min   Start of range (default 0).
    * @param   {number}  max   End of range (default 0).

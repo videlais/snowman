@@ -3,8 +3,7 @@ const State = require('./State.js');
 
 /**
  * An object containing none, one, or multiple passages based
- *  on their use of the 'storylet' passage tag and `<requirements>` element.
- *
+ * on their use of the 'storylet' passage tag and `<requirements>` element.
  * @class Storylets
  */
 class Storylets {
@@ -71,10 +70,9 @@ class Storylets {
 
   /**
    * For each passage in the internal collection,
-   *  test their requirements against State.store.
+   * test their requirements against State.store.
    *
    * Returns highest priority passages first.
-   *
    * @function getAvailablePassages
    * @param {number} limit Number of passages to return
    * @returns {Array} Array of none, one, or many available passages.
@@ -114,7 +112,6 @@ class Storylets {
 
   /**
    * Add a passage to the Storylets collection.
-   *
    * @function addPassage
    * @param {string} newName Name of existing passage to add.
    * @param {object} newRequirements Requirements of passage.
@@ -158,7 +155,6 @@ class Storylets {
    *
    * As passage names are unique to a story, the Storylets collection
    * cannot hold two entries with the same name.
-   *
    * @function includes
    * @param {string} name Name of passage to search.
    * @returns {boolean} True if passage is in collection.
@@ -175,7 +171,6 @@ class Storylets {
 
   /**
    * Remove a passage from the collection by name.
-   *
    * @function removePassage
    * @param {string} name Name of existing passage to remove.
    */
