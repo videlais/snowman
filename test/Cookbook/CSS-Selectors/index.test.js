@@ -18,6 +18,6 @@ describe('Cookbook - CSS Selectors', () => {
  
   it('Should have border color of red', async () => {
     await page.click('[data-passage="Second"]');
-    await expect(page).toMatch('This passage also has a red border.');
+    await expect(page).toMatchTextContent('This passage also has a red border.');
   });
 });

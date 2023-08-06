@@ -22,6 +22,6 @@ describe('Cookbook - Timed Progress Bars', () => {
     it('Should display "too late"', async () => {
         // Wait for 7 seconds
         await page.waitForTimeout(7000);
-        await expect(page).toMatch('Too late!');
+        await expect(page).toMatchTextContent('Too late!');
     });
 });

@@ -19,6 +19,6 @@ describe('Cookbook - CSS and Passage Tags', () => {
   it('Should use "tags="yellow"', async () => {
     await page.click('[data-passage="Second"]');
     await page.waitForSelector('[tags="yellow"]');
-    await expect(page).toMatch("black text");
+    await expect(page).toMatchTextContent("black text");
   });
 });

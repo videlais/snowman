@@ -17,6 +17,6 @@ describe('Cookbook - Passage Events', () => {
     });
    
     it('Should display "This is the footer!"', async () => {
-        await expect(page).toMatch("This is the footer!");
+        await expect(page).toMatchTextContent("This is the footer!");
     });
 });

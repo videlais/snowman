@@ -19,6 +19,6 @@
  
    it('Should display "Hi!"', async () => {
         await page.click('[data-passage="Another"]');
-        await expect(page).toMatch('Hi!');
+        await expect(page).toMatchTextContent('Hi!');
    });
  });

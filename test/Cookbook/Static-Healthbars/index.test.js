@@ -20,6 +20,6 @@ describe('Cookbook - Static Healthbars', () => {
         // Wait for the <meter>.
         await page.waitForSelector('meter');
         // Check for the text before it.
-        await expect(page).toMatch('Show a healthbar using a Meter element:');
+        await expect(page).toMatchTextContent('Show a healthbar using a Meter element:');
     });
 });

@@ -18,6 +18,6 @@
    });
  
    it('Should display 5', async () => {
-        await expect(page).toMatch('Value is 5');
+        await expect(page).toMatchTextContent('Value is 5');
    });
  });

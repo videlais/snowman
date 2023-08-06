@@ -17,6 +17,6 @@ describe('Cookbook - Images', () => {
   });
  
   it('Should display result', async () => {
-    await expect(page).toMatch('This is a Base64-encoded CSS image background:');
+    await expect(page).toMatchTextContent('This is a Base64-encoded CSS image background:');
   });
 });

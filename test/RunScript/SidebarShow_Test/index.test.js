@@ -17,6 +17,6 @@ describe('RunScript - SidebarShow Test', () => {
     });
    
     it('Should display paragraph', async () => {
-        await expect(page).toMatch('Show me!');
+        await expect(page).toMatchTextContent('Show me!');
     });
  });

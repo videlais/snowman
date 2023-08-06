@@ -17,6 +17,6 @@ describe('Cookbook - Passages in Passages', () => {
     });
  
     it('Should display "And this is Another passage!"', async () => {
-        await expect(page).toMatch('And this is Another passage!');
+        await expect(page).toMatchTextContent('And this is Another passage!');
    });
  });

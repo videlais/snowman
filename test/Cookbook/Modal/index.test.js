@@ -19,6 +19,6 @@ describe('Cookbook - Modal', () => {
     it('Should display and close modal', async () => {
         await page.click('[id="myBtn"]');
         await page.click('[class="close"]');
-        await expect(page).toMatch('Example text in the modal');
+        await expect(page).toMatchTextContent('Example text in the modal');
     });
   });

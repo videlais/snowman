@@ -17,6 +17,6 @@ describe('Cookbook - Fairmath System', () => {
   });
  
   it('Should display "50"', async () => {
-    await expect(page).toMatch(/Decrease 100 by 50% using Fairmath: \d\d/g);
+    await expect(page).toMatchTextContent(/Decrease 100 by 50% using Fairmath: \d\d/g);
   });
 });

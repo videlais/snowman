@@ -18,6 +18,6 @@ describe('Cookbook - Passage Transitions', () => {
     
     it('Should display "A Third Passage"', async () => {
         await page.click('[data-passage="Another Passage"]');
-        await expect(page).toMatch("A Third Passage");
+        await expect(page).toMatchTextContent("A Third Passage");
     });
  });

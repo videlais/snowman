@@ -19,6 +19,6 @@
  
    it('Should display "This one."', async () => {
         await page.click('[role="link"]');
-        await expect(page).toMatch('This one.');
+        await expect(page).toMatchTextContent('This one.');
    });
  });

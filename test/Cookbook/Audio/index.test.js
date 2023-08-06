@@ -17,6 +17,6 @@ describe('Cookbook - Audio', () => {
   });
  
   it('Should not load audio', async () => {
-    await expect(page).toMatch("Your browser does not support the audio element.");
+    await expect(page).toMatchTextContent("Your browser does not support the audio element.");
   });
 });

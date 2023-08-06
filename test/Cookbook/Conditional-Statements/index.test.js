@@ -17,6 +17,6 @@ describe('Cookbook - Conditional Statements', () => {
   });
  
   it(`Should display "It's a horse!"`, async () => {
-    await expect(page).toMatch("It's a horse!");
+    await expect(page).toMatchTextContent("It's a horse!");
   });
 });

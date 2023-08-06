@@ -22,6 +22,6 @@ describe('Cookbook - Dropdown', () => {
         // Go to next passage.
         await page.click('[data-passage="Show Direction"]');
         // Expect to see "up".
-        await expect(page).toMatch('The direction was up.');
+        await expect(page).toMatchTextContent('The direction was up.');
     });
  });

@@ -18,6 +18,6 @@ describe('Cookbook - Setting and Showing Variables', () => {
   });
  
   it('Should display result', async () => {
-    await expect(page).toMatch('The value is 6 and five.');
+    await expect(page).toMatchTextContent('The value is 6 and five.');
   });
 });

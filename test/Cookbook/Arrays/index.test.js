@@ -19,6 +19,6 @@ describe('Cookbook - Arrays', () => {
   it('Should display "a sword, a shield, a suit of armor" after opening chest', async () => {
     await page.click('[data-passage="hallway"]');
     await page.click('[data-passage="chest"]');
-    await expect(page).toMatch("a sword, a shield, a suit of armor");
+    await expect(page).toMatchTextContent("a sword, a shield, a suit of armor");
   });
 });

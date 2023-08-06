@@ -19,6 +19,6 @@ describe('Cookbook - Passage Visits', () => {
   it('Should display 1 visit count', async () => {
     await page.click('[data-passage="Another Passage"]');
     await page.click('[data-passage="Start"]');
-    await expect(page).toMatch("been visited? 1");
+    await expect(page).toMatchTextContent("been visited? 1");
   });
 });

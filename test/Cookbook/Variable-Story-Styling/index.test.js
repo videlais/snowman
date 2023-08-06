@@ -18,6 +18,6 @@ describe('Cookbook - Variable Story Styling', () => {
   
     it('Should display "This text is white on a black background."', async () => {
         await page.click('[data-passage="Next Passage"]');
-        await expect(page).toMatch("This text is white on a black background.");
+        await expect(page).toMatchTextContent("This text is white on a black background.");
     });
 });

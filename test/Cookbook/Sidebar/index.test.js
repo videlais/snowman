@@ -17,6 +17,6 @@ describe('Cookbook - Left Sidebar', () => {
     });
   
     it('Should display "Name: Jane Doe" after story start', async () => {
-        await expect(page).toMatch('Name: Jane Doe');
+        await expect(page).toMatchTextContent('Name: Jane Doe');
     });
  });
