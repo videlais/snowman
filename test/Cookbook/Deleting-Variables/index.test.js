@@ -19,6 +19,6 @@ describe('Cookbook - Deleting Variables', () => {
   it('Should display "Does "example" still exist as part of the object window.story? false" after opening chest', async () => {
     await page.click('[data-passage="Delete the value!"]');
     await page.click('[data-passage="Test for value"]');
-    await expect(page).toMatch('Does "example" still exist as part of the global store? false');
+    await expect(page).toMatchTextContent('Does "example" still exist as part of the global store? false');
   });
 });

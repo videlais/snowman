@@ -17,6 +17,6 @@ describe('Cookbook - Importing External JavaScript', () => {
   });
  
   it('Should load external script', async () => {
-    await expect(page).toMatch('Click on the grey box');
+    await expect(page).toMatchTextContent('Click on the grey box');
   });
 });

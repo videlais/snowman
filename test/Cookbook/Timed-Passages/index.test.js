@@ -22,6 +22,6 @@ describe('Cookbook - Timed Passages', () => {
     it('Should display "world ended"', async () => {
         // Wait for 11 seconds
         await page.waitForTimeout(11000);
-        await expect(page).toMatch('The world ended.');
+        await expect(page).toMatchTextContent('The world ended.');
     });
 });

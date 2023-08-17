@@ -18,6 +18,6 @@ describe('Cookbook - Moving through a dungeon', () => {
   
     it('Should display "#.P.#.....#"', async () => {
         await page.click('[data-move="e"]');
-        await expect(page).toMatch("#.P.#.....#");
+        await expect(page).toMatchTextContent("#.P.#.....#");
     });
 });

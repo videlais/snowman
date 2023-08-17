@@ -17,7 +17,7 @@
     });
     
     it('Should not produce any errors and run passage template', async () => {
-        await expect(page).toMatch('Hi');
+        await expect(page).toMatchTextContent('Hi');
     });
  });
  

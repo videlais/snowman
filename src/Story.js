@@ -16,7 +16,6 @@ const Storage = require('./Storage.js');
 /**
  * An object representing the entire story. After the document has completed
  * loading, an instance of this class will be available at `window.Story`.
- *
  * @class Story
  */
 class Story {
@@ -30,7 +29,6 @@ class Story {
 
     /**
      * An array of all passages.
-     *
      * @property {Array} passages - Passages array.
      * @type {Array}
      */
@@ -63,7 +61,6 @@ class Story {
 
     /**
      * Passage element.
-     *
      * @property {Element} passageElement Passage element.
      * @type {Element}
      */
@@ -71,7 +68,6 @@ class Story {
 
     /**
      * Sidebar.
-     *
      * @property {Element} sidebar Sidebar instance.
      * @type {Element}
      */
@@ -82,7 +78,6 @@ class Story {
 
     /**
      * History reference.
-     *
      * @property {History} history Reference to History.
      * @type {History}
      */
@@ -90,7 +85,6 @@ class Story {
 
     /**
      * Screen reference.
-     *
      * @property {Screen} screen Reference to Screen.
      * @type {Screen}
      */
@@ -98,7 +92,6 @@ class Story {
 
     /**
      * Storage reference.
-     *
      * @property {Storage} screen Reference to Storage.
      * @type {Storage}
      */
@@ -109,7 +102,6 @@ class Story {
 
     /**
      * State.events reference.
-     *
      * @property {EventEmitter} events Reference to State.events.
      * @type {EventEmitter}
      */
@@ -117,7 +109,6 @@ class Story {
 
     /**
      * State.store reference.
-     *
      * @property {Proxy} store Reference to State.store.
      * @type {Proxy}
      */
@@ -161,7 +152,6 @@ class Story {
 
     /**
      * The current passage.
-     *
      * @property {Passage|null} currentPassage Currently showing passage, if any.
      * @type {Passage|null}
      */
@@ -171,8 +161,7 @@ class Story {
      * Reference to internal Storylets object.
      *
      * Starts as null. During Story.start(), a new object is
-     *  created based on initial passages.
-     *
+     * created based on initial passages.
      * @property {Storylets} storylets Internal reference to Storylets
      * @type {Storylets|null}
      */
@@ -187,7 +176,6 @@ class Story {
    * 4. Add to starting passage to History.history
    * 5. Show starting passage
    * 6. Trigger 'start' event
-   *
    * @function start
    */
   start () {
@@ -269,7 +257,6 @@ class Story {
 
     /**
      * Triggered when the story starts.
-     *
      * @event State#start
      * @type {string}
      */
@@ -278,7 +265,6 @@ class Story {
 
   /**
    * Returns an array of none, one, or many passages matching a specific tag.
-   *
    * @function getPassagesByTag
    * @param {string} tag - Tag to search for.
    * @returns {Array} Array containing none, one, or many passage objects.
@@ -293,8 +279,7 @@ class Story {
   /**
    * Returns a Passage object by name from internal collection. If none exists, returns null.
    * The Twine editor prevents multiple passages from having the same name, so
-   *  this always returns the first search result.
-   *
+   * this always returns the first search result.
    * @function getPassageByName
    * @param {string} name - name of the passage
    * @returns {Passage|null} Passage object or null
@@ -319,7 +304,6 @@ class Story {
   /**
    * Replaces current passage shown to reader with rendered source of named passage.
    * If the named passage does not exist, an error is thrown.
-   *
    * @function show
    * @param {string} name name of the passage.
    */
@@ -364,7 +348,6 @@ class Story {
 
     /**
      * Triggered when a passage is shown.
-     *
      * @event State#show
      * @type {string}
      */
@@ -373,7 +356,6 @@ class Story {
 
   /**
    * Returns the rendered source of a passage by name.
-   *
    * @function include
    * @param {string} name - name of the passage.
    * @returns {string} Rendered passage source.
@@ -407,7 +389,6 @@ class Story {
 
   /**
    * Render a passage to any/all element(s) matching query selector
-   *
    * @function renderPassageToSelector
    * @param {object} passageName - The passage to render
    * @param {string} selector - jQuery selector
@@ -422,7 +403,6 @@ class Story {
 
   /**
    * Add a new passage to the story.
-   *
    * @function addPassage
    * @param {string} name name
    * @param {Array} tags tags
@@ -463,7 +443,6 @@ class Story {
    * throw an error.
    *
    * Note: Does not affect HTML elements.
-   *
    * @function removePassage
    * @param {string} name name
    */
@@ -477,7 +456,6 @@ class Story {
    * Go to an existing passage in the story. Unlike `Story.show()`, this will add to the history.
    *
    * Throws error if passage does not exist.
-   *
    * @function goto
    * @param {string} name name of passage
    */

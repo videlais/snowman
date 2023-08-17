@@ -18,6 +18,6 @@ describe('Cookbook - Hidden Link', () => {
  
   it('Should display result', async () => {
     await page.click('[data-passage="A hidden link"]');
-    await expect(page).toMatch('You found it!');
+    await expect(page).toMatchTextContent('You found it!');
   });
 });

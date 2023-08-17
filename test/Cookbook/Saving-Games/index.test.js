@@ -18,9 +18,9 @@ describe('Cookbook - Saving Games', () => {
      
     it('Should display session messages', async () => {
         await page.click('[data-passage="Save the session"]');
-        await expect(page).toMatch('Session has been saved!');
+        await expect(page).toMatchTextContent('Session has been saved!');
         await page.click('[data-passage="Start"]');
         await page.click('[data-passage="Delete previous session?"]');
-        await expect(page).toMatch('Save removed!');
+        await expect(page).toMatchTextContent('Save removed!');
     });
 });

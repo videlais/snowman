@@ -18,6 +18,6 @@ describe('Cookbook - Adding Functionality', () => {
 
   it('Should display current year on page', async () => {
     const year = new Date().getFullYear().toString();
-    await expect(page).toMatch(year);
+    await expect(page).toMatchTextContent(year);
   });
 });

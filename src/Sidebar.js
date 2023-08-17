@@ -5,7 +5,6 @@ class Sidebar {
   constructor () {
     /**
      * Reference to undo icon.
-     *
      * @property {Element} undoIcon - Undo element.
      * @type {Element}
      */
@@ -13,7 +12,6 @@ class Sidebar {
 
     /**
      * Reference to redo icon.
-     *
      * @property {Element} redoIcon - Redo element.
      * @type {Element}
      */
@@ -41,7 +39,6 @@ class Sidebar {
 
   /**
    * Show undo icon.
-   *
    * @function showUndo
    */
   showUndo () {
@@ -50,7 +47,6 @@ class Sidebar {
 
   /**
    * Hide undo icon.
-   *
    * @function hideUndo
    */
   hideUndo () {
@@ -59,7 +55,6 @@ class Sidebar {
 
   /**
    * Show redo icon.
-   *
    * @function showRedo
    */
   showRedo () {
@@ -68,7 +63,6 @@ class Sidebar {
 
   /**
    * Hide redo icon.
-   *
    * @function hideRedo
    */
   hideRedo () {
@@ -77,7 +71,6 @@ class Sidebar {
 
   /**
    * Trigger undo event.
-   *
    * @function undo
    */
   undo () {
@@ -86,7 +79,6 @@ class Sidebar {
 
   /**
    * Trigger redo event.
-   *
    * @function redo
    */
   redo () {
@@ -95,7 +87,6 @@ class Sidebar {
 
   /**
    * Shows sidebar.
-   *
    * @function show
    */
   show () {
@@ -105,7 +96,6 @@ class Sidebar {
 
   /**
    * Hides sidebar.
-   *
    * @function hide
    */
   hide () {

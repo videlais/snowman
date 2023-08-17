@@ -21,6 +21,6 @@ describe('Cookbook - Lock and Key: Variable', () => {
         await page.click('[class="key-item"]');
         await page.click('[data-passage="Front Room"]');
         await page.click('[data-passage="Exit"]');
-        await expect(page).toMatch('You found the key and went through the door!');
+        await expect(page).toMatchTextContent('You found the key and went through the door!');
    });
  });

@@ -3,7 +3,6 @@ const $ = require('jquery');
 class Screen {
   /**
    * Trigger screen-lock event.
-   *
    * @function lock
    */
   static lock () {
@@ -13,7 +12,6 @@ class Screen {
 
   /**
    * Trigger screen-unlock event.
-   *
    * @function unlock
    */
   static unlock () {

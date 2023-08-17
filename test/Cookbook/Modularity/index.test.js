@@ -17,6 +17,6 @@ describe('Cookbook - Modularity', () => {
   });
  
   it('Should display "Drop some knowledge"', async () => {
-    await expect(page).toMatch('Drop some knowledge');
+    await expect(page).toMatchTextContent('Drop some knowledge');
   });
 });

@@ -20,6 +20,6 @@
    it('Should display correct number of visits', async () => {
         await page.click('[data-passage="Another Passage"]');
         await page.click('[data-passage="Start"]');
-        await expect(page).toMatch("been visited? 1");
+        await expect(page).toMatchTextContent("been visited? 1");
    });
  });

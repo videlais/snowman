@@ -17,6 +17,6 @@ describe('Cookbook - Dice Rolling', () => {
   });
  
   it('Should display random 1d4 number', async () => {
-    await expect(page).toMatch(/Rolling a 1d4: \d/g);
+    await expect(page).toMatchTextContent(/Rolling a 1d4: \d/g);
   });
 });

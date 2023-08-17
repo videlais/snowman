@@ -17,6 +17,6 @@ describe('Cookbook - Style Markup', () => {
     });
   
     it('Should display "This line is part of the same quote."', async () => {
-        await expect(page).toMatch('This line is part of the same quote.');
+        await expect(page).toMatchTextContent('This line is part of the same quote.');
     });
 });

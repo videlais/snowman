@@ -18,6 +18,6 @@
    });
  
    it('Should display greeting', async () => {
-        await expect(page).toMatch('Hi');
+        await expect(page).toMatchTextContent('Hi');
    });
  });

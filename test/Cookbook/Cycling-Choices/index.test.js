@@ -18,6 +18,6 @@ describe('Cookbook - Cycling choices', () => {
  
   it('Should display "Two" after link is clicked once', async () => {
     await page.click('[class="cycle"]');
-    await expect(page).toMatch("Two");
+    await expect(page).toMatchTextContent("Two");
   });
 });

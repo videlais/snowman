@@ -17,6 +17,6 @@ describe('Cookbook - Render Passage to Element', () => {
     });
    
     it('Should display "This is the HUD!"', async () => {
-        await expect(page).toMatch('This is the HUD!');
+        await expect(page).toMatchTextContent('This is the HUD!');
     });
 });

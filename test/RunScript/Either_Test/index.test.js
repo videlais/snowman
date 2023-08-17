@@ -18,6 +18,6 @@
    });
  
    it('Should display number', async () => {
-        await expect(page).toMatch(/\d/g);
+        await expect(page).toMatchTextContent(/\d/g);
    });
  });

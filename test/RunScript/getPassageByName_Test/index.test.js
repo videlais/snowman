@@ -18,6 +18,6 @@
    });
  
    it('Should display storage passage content', async () => {
-        await expect(page).toMatch('This is content in the storage passage!');
+        await expect(page).toMatchTextContent('This is content in the storage passage!');
    });
  });

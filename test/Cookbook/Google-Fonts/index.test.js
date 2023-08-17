@@ -17,6 +17,6 @@ describe('Cookbook - Google Fonts', () => {
   });
  
   it('Should display message', async () => {
-    await expect(page).toMatch('This text is styled using a Google Font');
+    await expect(page).toMatchTextContent('This text is styled using a Google Font');
   });
 });

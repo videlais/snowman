@@ -17,6 +17,6 @@ describe('Cookbook - Looping', () => {
     });
   
     it('Should display inventory', async () => {
-        await expect(page).toMatch('You have Bread');
+        await expect(page).toMatchTextContent('You have Bread');
     });
   });

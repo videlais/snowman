@@ -18,6 +18,6 @@
    });
  
    it('Should display "Hey!"', async () => {
-        await expect(page).toMatch('Hey!');
+        await expect(page).toMatchTextContent('Hey!');
    });
  });

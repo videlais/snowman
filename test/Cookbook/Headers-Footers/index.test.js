@@ -17,6 +17,6 @@ describe('Cookbook - Headers and Footers', () => {
   });
  
   it('Should display footer', async () => {
-    await expect(page).toMatch('This is the footer!');
+    await expect(page).toMatchTextContent('This is the footer!');
   });
 });

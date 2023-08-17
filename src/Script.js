@@ -12,7 +12,6 @@ class Script {
   /**
    * Render JavaScript within a templated sandbox and return possible output.
    * Will throw error if code does.
-   *
    * @function run
    * @param {string} script - Code to run.
    * @param {Story} story - Current story object.

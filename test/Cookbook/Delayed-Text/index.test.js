@@ -23,6 +23,6 @@ describe('Cookbook - Delayed Text', () => {
     // Wait for #timer, which should be 5 seconds
     await page.waitForSelector('#timer');
     // Check page now has text
-    await expect(page).toMatch('It has been 5 seconds. Show the text!');
+    await expect(page).toMatchTextContent('It has been 5 seconds. Show the text!');
    });
  });

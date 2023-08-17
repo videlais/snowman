@@ -18,6 +18,6 @@ describe('Cookbook - Turn Counter', () => {
  
   it('Should display "It is morning." after opening chest', async () => {
     await page.click('[data-passage="Left Room"]');
-    await expect(page).toMatch("It is morning.");
+    await expect(page).toMatchTextContent("It is morning.");
   });
 });
