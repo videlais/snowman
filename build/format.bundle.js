@@ -1065,9 +1065,25 @@ exports.escapeXML = function (markup) {
     : String(markup)
       .replace(_MATCH_HTML, encode_char);
 };
-exports.escapeXML.toString = function () {
+
+function escapeXMLToString() {
   return Function.prototype.toString.call(this) + ';\n' + escapeFuncStr;
-};
+}
+
+try {
+  if (typeof Object.defineProperty === 'function') {
+  // If the Function prototype is frozen, the "toString" property is non-writable. This means that any objects which inherit this property
+  // cannot have the property changed using an assignment. If using strict mode, attempting that will cause an error. If not using strict
+  // mode, attempting that will be silently ignored.
+  // However, we can still explicitly shadow the prototype's "toString" property by defining a new "toString" property on this object.
+    Object.defineProperty(exports.escapeXML, 'toString', { value: escapeXMLToString });
+  } else {
+    // If Object.defineProperty() doesn't exist, attempt to shadow this property using the assignment operator.
+    exports.escapeXML.toString = escapeXMLToString;
+  }
+} catch (err) {
+  console.warn('Unable to set escapeXML.toString (is the Function prototype frozen?)');
+}
 
 /**
  * Naive copy of properties from one object to another.
@@ -1702,17 +1718,14 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
 /***/ (function(module, exports) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
- * jQuery JavaScript Library v3.6.0
+ * jQuery JavaScript Library v3.7.0
  * https://jquery.com/
- *
- * Includes Sizzle.js
- * https://sizzlejs.com/
  *
  * Copyright OpenJS Foundation and other contributors
  * Released under the MIT license
  * https://jquery.org/license
  *
- * Date: 2021-03-02T17:08Z
+ * Date: 2023-05-11T18:29Z
  */
 ( function( global, factory ) {
 
@@ -1726,7 +1739,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 		// (such as Node.js), expose a factory as module.exports.
 		// This accentuates the need for the creation of a real `window`.
 		// e.g. var jQuery = require("jquery")(window);
-		// See ticket #14549 for more info.
+		// See ticket trac-14549 for more info.
 		module.exports = global.document ?
 			factory( global, true ) :
 			function( w ) {
@@ -1853,8 +1866,9 @@ function toType( obj ) {
 
 
 
-var
-	version = "3.6.0",
+var version = "3.7.0",
+
+	rhtmlSuffix = /HTML$/i,
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -2100,6 +2114,33 @@ jQuery.extend( {
 		return obj;
 	},
 
+
+	// Retrieve the text value of an array of DOM nodes
+	text: function( elem ) {
+		var node,
+			ret = "",
+			i = 0,
+			nodeType = elem.nodeType;
+
+		if ( !nodeType ) {
+
+			// If no nodeType, this is expected to be an array
+			while ( ( node = elem[ i++ ] ) ) {
+
+				// Do not traverse comment nodes
+				ret += jQuery.text( node );
+			}
+		} else if ( nodeType === 1 || nodeType === 9 || nodeType === 11 ) {
+			return elem.textContent;
+		} else if ( nodeType === 3 || nodeType === 4 ) {
+			return elem.nodeValue;
+		}
+
+		// Do not include comment or processing instruction nodes
+
+		return ret;
+	},
+
 	// results is for internal usage only
 	makeArray: function( arr, results ) {
 		var ret = results || [];
@@ -2120,6 +2161,15 @@ jQuery.extend( {
 
 	inArray: function( elem, arr, i ) {
 		return arr == null ? -1 : indexOf.call( arr, elem, i );
+	},
+
+	isXMLDoc: function( elem ) {
+		var namespace = elem && elem.namespaceURI,
+			docElem = elem && ( elem.ownerDocument || elem ).documentElement;
+
+		// Assume HTML when documentElement doesn't yet exist, such as inside
+		// document fragments.
+		return !rhtmlSuffix.test( namespace || docElem && docElem.nodeName || "HTML" );
 	},
 
 	// Support: Android <=4.0 only, PhantomJS 1 only
@@ -2223,43 +2273,98 @@ function isArrayLike( obj ) {
 	return type === "array" || length === 0 ||
 		typeof length === "number" && length > 0 && ( length - 1 ) in obj;
 }
-var Sizzle =
-/*!
- * Sizzle CSS Selector Engine v2.3.6
- * https://sizzlejs.com/
- *
- * Copyright JS Foundation and other contributors
- * Released under the MIT license
- * https://js.foundation/
- *
- * Date: 2021-02-16
- */
-( function( window ) {
+
+
+function nodeName( elem, name ) {
+
+	return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
+
+}
+var pop = arr.pop;
+
+
+var sort = arr.sort;
+
+
+var splice = arr.splice;
+
+
+var whitespace = "[\\x20\\t\\r\\n\\f]";
+
+
+var rtrimCSS = new RegExp(
+	"^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" + whitespace + "+$",
+	"g"
+);
+
+
+
+
+// Note: an element does not contain itself
+jQuery.contains = function( a, b ) {
+	var bup = b && b.parentNode;
+
+	return a === bup || !!( bup && bup.nodeType === 1 && (
+
+		// Support: IE 9 - 11+
+		// IE doesn't have `contains` on SVG.
+		a.contains ?
+			a.contains( bup ) :
+			a.compareDocumentPosition && a.compareDocumentPosition( bup ) & 16
+	) );
+};
+
+
+
+
+// CSS string/identifier serialization
+// https://drafts.csswg.org/cssom/#common-serializing-idioms
+var rcssescape = /([\0-\x1f\x7f]|^-?\d)|^-$|[^\x80-\uFFFF\w-]/g;
+
+function fcssescape( ch, asCodePoint ) {
+	if ( asCodePoint ) {
+
+		// U+0000 NULL becomes U+FFFD REPLACEMENT CHARACTER
+		if ( ch === "\0" ) {
+			return "\uFFFD";
+		}
+
+		// Control characters and (dependent upon position) numbers get escaped as code points
+		return ch.slice( 0, -1 ) + "\\" + ch.charCodeAt( ch.length - 1 ).toString( 16 ) + " ";
+	}
+
+	// Other potentially-special ASCII characters get backslash-escaped
+	return "\\" + ch;
+}
+
+jQuery.escapeSelector = function( sel ) {
+	return ( sel + "" ).replace( rcssescape, fcssescape );
+};
+
+
+
+
+var preferredDoc = document,
+	pushNative = push;
+
+( function() {
+
 var i,
-	support,
 	Expr,
-	getText,
-	isXML,
-	tokenize,
-	compile,
-	select,
 	outermostContext,
 	sortInput,
 	hasDuplicate,
+	push = pushNative,
 
 	// Local document vars
-	setDocument,
 	document,
-	docElem,
+	documentElement,
 	documentIsHTML,
 	rbuggyQSA,
-	rbuggyMatches,
 	matches,
-	contains,
 
 	// Instance-specific data
-	expando = "sizzle" + 1 * new Date(),
-	preferredDoc = window.document,
+	expando = jQuery.expando,
 	dirruns = 0,
 	done = 0,
 	classCache = createCache(),
@@ -2273,47 +2378,22 @@ var i,
 		return 0;
 	},
 
-	// Instance methods
-	hasOwn = ( {} ).hasOwnProperty,
-	arr = [],
-	pop = arr.pop,
-	pushNative = arr.push,
-	push = arr.push,
-	slice = arr.slice,
-
-	// Use a stripped-down indexOf as it's faster than native
-	// https://jsperf.com/thor-indexof-vs-for/5
-	indexOf = function( list, elem ) {
-		var i = 0,
-			len = list.length;
-		for ( ; i < len; i++ ) {
-			if ( list[ i ] === elem ) {
-				return i;
-			}
-		}
-		return -1;
-	},
-
-	booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|" +
-		"ismap|loop|multiple|open|readonly|required|scoped",
+	booleans = "checked|selected|async|autofocus|autoplay|controls|defer|disabled|hidden|ismap|" +
+		"loop|multiple|open|readonly|required|scoped",
 
 	// Regular expressions
-
-	// http://www.w3.org/TR/css3-selectors/#whitespace
-	whitespace = "[\\x20\\t\\r\\n\\f]",
 
 	// https://www.w3.org/TR/css-syntax-3/#ident-token-diagram
 	identifier = "(?:\\\\[\\da-fA-F]{1,6}" + whitespace +
 		"?|\\\\[^\\r\\n\\f]|[\\w-]|[^\0-\\x7f])+",
 
-	// Attribute selectors: http://www.w3.org/TR/selectors/#attribute-selectors
+	// Attribute selectors: https://www.w3.org/TR/selectors/#attribute-selectors
 	attributes = "\\[" + whitespace + "*(" + identifier + ")(?:" + whitespace +
 
 		// Operator (capture 2)
 		"*([*^$|!~]?=)" + whitespace +
 
-		// "Attribute values must be CSS identifiers [capture 5]
-		// or strings [capture 3 or capture 4]"
+		// "Attribute values must be CSS identifiers [capture 5] or strings [capture 3 or capture 4]"
 		"*(?:'((?:\\\\.|[^\\\\'])*)'|\"((?:\\\\.|[^\\\\\"])*)\"|(" + identifier + "))|)" +
 		whitespace + "*\\]",
 
@@ -2332,40 +2412,36 @@ var i,
 
 	// Leading and non-escaped trailing whitespace, capturing some non-whitespace characters preceding the latter
 	rwhitespace = new RegExp( whitespace + "+", "g" ),
-	rtrim = new RegExp( "^" + whitespace + "+|((?:^|[^\\\\])(?:\\\\.)*)" +
-		whitespace + "+$", "g" ),
 
 	rcomma = new RegExp( "^" + whitespace + "*," + whitespace + "*" ),
-	rcombinators = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" + whitespace +
-		"*" ),
+	rleadingCombinator = new RegExp( "^" + whitespace + "*([>+~]|" + whitespace + ")" +
+		whitespace + "*" ),
 	rdescend = new RegExp( whitespace + "|>" ),
 
 	rpseudo = new RegExp( pseudos ),
 	ridentifier = new RegExp( "^" + identifier + "$" ),
 
 	matchExpr = {
-		"ID": new RegExp( "^#(" + identifier + ")" ),
-		"CLASS": new RegExp( "^\\.(" + identifier + ")" ),
-		"TAG": new RegExp( "^(" + identifier + "|[*])" ),
-		"ATTR": new RegExp( "^" + attributes ),
-		"PSEUDO": new RegExp( "^" + pseudos ),
-		"CHILD": new RegExp( "^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" +
-			whitespace + "*(even|odd|(([+-]|)(\\d*)n|)" + whitespace + "*(?:([+-]|)" +
-			whitespace + "*(\\d+)|))" + whitespace + "*\\)|)", "i" ),
-		"bool": new RegExp( "^(?:" + booleans + ")$", "i" ),
+		ID: new RegExp( "^#(" + identifier + ")" ),
+		CLASS: new RegExp( "^\\.(" + identifier + ")" ),
+		TAG: new RegExp( "^(" + identifier + "|[*])" ),
+		ATTR: new RegExp( "^" + attributes ),
+		PSEUDO: new RegExp( "^" + pseudos ),
+		CHILD: new RegExp(
+			"^:(only|first|last|nth|nth-last)-(child|of-type)(?:\\(" +
+				whitespace + "*(even|odd|(([+-]|)(\\d*)n|)" + whitespace + "*(?:([+-]|)" +
+				whitespace + "*(\\d+)|))" + whitespace + "*\\)|)", "i" ),
+		bool: new RegExp( "^(?:" + booleans + ")$", "i" ),
 
 		// For use in libraries implementing .is()
 		// We use this for POS matching in `select`
-		"needsContext": new RegExp( "^" + whitespace +
+		needsContext: new RegExp( "^" + whitespace +
 			"*[>+~]|:(even|odd|eq|gt|lt|nth|first|last)(?:\\(" + whitespace +
 			"*((?:-\\d)?\\d*)" + whitespace + "*\\)|)(?=[^-]|$)", "i" )
 	},
 
-	rhtml = /HTML$/i,
 	rinputs = /^(?:input|select|textarea|button)$/i,
 	rheader = /^h\d$/i,
-
-	rnative = /^[^{]+\{\s*\[native \w/,
 
 	// Easily-parseable/retrievable ID or TAG or CLASS selectors
 	rquickExpr = /^(?:#([\w-]+)|(\w+)|\.([\w-]+))$/,
@@ -2373,59 +2449,50 @@ var i,
 	rsibling = /[+~]/,
 
 	// CSS escapes
-	// http://www.w3.org/TR/CSS21/syndata.html#escaped-characters
-	runescape = new RegExp( "\\\\[\\da-fA-F]{1,6}" + whitespace + "?|\\\\([^\\r\\n\\f])", "g" ),
+	// https://www.w3.org/TR/CSS21/syndata.html#escaped-characters
+	runescape = new RegExp( "\\\\[\\da-fA-F]{1,6}" + whitespace +
+		"?|\\\\([^\\r\\n\\f])", "g" ),
 	funescape = function( escape, nonHex ) {
 		var high = "0x" + escape.slice( 1 ) - 0x10000;
 
-		return nonHex ?
+		if ( nonHex ) {
 
 			// Strip the backslash prefix from a non-hex escape sequence
-			nonHex :
-
-			// Replace a hexadecimal escape sequence with the encoded Unicode code point
-			// Support: IE <=11+
-			// For values outside the Basic Multilingual Plane (BMP), manually construct a
-			// surrogate pair
-			high < 0 ?
-				String.fromCharCode( high + 0x10000 ) :
-				String.fromCharCode( high >> 10 | 0xD800, high & 0x3FF | 0xDC00 );
-	},
-
-	// CSS string/identifier serialization
-	// https://drafts.csswg.org/cssom/#common-serializing-idioms
-	rcssescape = /([\0-\x1f\x7f]|^-?\d)|^-$|[^\0-\x1f\x7f-\uFFFF\w-]/g,
-	fcssescape = function( ch, asCodePoint ) {
-		if ( asCodePoint ) {
-
-			// U+0000 NULL becomes U+FFFD REPLACEMENT CHARACTER
-			if ( ch === "\0" ) {
-				return "\uFFFD";
-			}
-
-			// Control characters and (dependent upon position) numbers get escaped as code points
-			return ch.slice( 0, -1 ) + "\\" +
-				ch.charCodeAt( ch.length - 1 ).toString( 16 ) + " ";
+			return nonHex;
 		}
 
-		// Other potentially-special ASCII characters get backslash-escaped
-		return "\\" + ch;
+		// Replace a hexadecimal escape sequence with the encoded Unicode code point
+		// Support: IE <=11+
+		// For values outside the Basic Multilingual Plane (BMP), manually construct a
+		// surrogate pair
+		return high < 0 ?
+			String.fromCharCode( high + 0x10000 ) :
+			String.fromCharCode( high >> 10 | 0xD800, high & 0x3FF | 0xDC00 );
 	},
 
-	// Used for iframes
-	// See setDocument()
+	// Used for iframes; see `setDocument`.
+	// Support: IE 9 - 11+, Edge 12 - 18+
 	// Removing the function wrapper causes a "Permission Denied"
-	// error in IE
+	// error in IE/Edge.
 	unloadHandler = function() {
 		setDocument();
 	},
 
 	inDisabledFieldset = addCombinator(
 		function( elem ) {
-			return elem.disabled === true && elem.nodeName.toLowerCase() === "fieldset";
+			return elem.disabled === true && nodeName( elem, "fieldset" );
 		},
 		{ dir: "parentNode", next: "legend" }
 	);
+
+// Support: IE <=9 only
+// Accessing document.activeElement can throw unexpectedly
+// https://bugs.jquery.com/ticket/13393
+function safeActiveElement() {
+	try {
+		return document.activeElement;
+	} catch ( err ) { }
+}
 
 // Optimize for push.apply( _, NodeList )
 try {
@@ -2434,32 +2501,22 @@ try {
 		preferredDoc.childNodes
 	);
 
-	// Support: Android<4.0
+	// Support: Android <=4.0
 	// Detect silently failing push.apply
 	// eslint-disable-next-line no-unused-expressions
 	arr[ preferredDoc.childNodes.length ].nodeType;
 } catch ( e ) {
-	push = { apply: arr.length ?
-
-		// Leverage slice if possible
-		function( target, els ) {
+	push = {
+		apply: function( target, els ) {
 			pushNative.apply( target, slice.call( els ) );
-		} :
-
-		// Support: IE<9
-		// Otherwise append directly
-		function( target, els ) {
-			var j = target.length,
-				i = 0;
-
-			// Can't trust NodeList.length
-			while ( ( target[ j++ ] = els[ i++ ] ) ) {}
-			target.length = j - 1;
+		},
+		call: function( target ) {
+			pushNative.apply( target, slice.call( arguments, 1 ) );
 		}
 	};
 }
 
-function Sizzle( selector, context, results, seed ) {
+function find( selector, context, results, seed ) {
 	var m, i, elem, nid, match, groups, newSelector,
 		newContext = context && context.ownerDocument,
 
@@ -2493,11 +2550,10 @@ function Sizzle( selector, context, results, seed ) {
 					if ( nodeType === 9 ) {
 						if ( ( elem = context.getElementById( m ) ) ) {
 
-							// Support: IE, Opera, Webkit
-							// TODO: identify versions
+							// Support: IE 9 only
 							// getElementById can match elements by name instead of ID
 							if ( elem.id === m ) {
-								results.push( elem );
+								push.call( results, elem );
 								return results;
 							}
 						} else {
@@ -2507,14 +2563,13 @@ function Sizzle( selector, context, results, seed ) {
 					// Element context
 					} else {
 
-						// Support: IE, Opera, Webkit
-						// TODO: identify versions
+						// Support: IE 9 only
 						// getElementById can match elements by name instead of ID
 						if ( newContext && ( elem = newContext.getElementById( m ) ) &&
-							contains( context, elem ) &&
+							find.contains( context, elem ) &&
 							elem.id === m ) {
 
-							results.push( elem );
+							push.call( results, elem );
 							return results;
 						}
 					}
@@ -2525,22 +2580,15 @@ function Sizzle( selector, context, results, seed ) {
 					return results;
 
 				// Class selector
-				} else if ( ( m = match[ 3 ] ) && support.getElementsByClassName &&
-					context.getElementsByClassName ) {
-
+				} else if ( ( m = match[ 3 ] ) && context.getElementsByClassName ) {
 					push.apply( results, context.getElementsByClassName( m ) );
 					return results;
 				}
 			}
 
 			// Take advantage of querySelectorAll
-			if ( support.qsa &&
-				!nonnativeSelectorCache[ selector + " " ] &&
-				( !rbuggyQSA || !rbuggyQSA.test( selector ) ) &&
-
-				// Support: IE 8 only
-				// Exclude object elements
-				( nodeType !== 1 || context.nodeName.toLowerCase() !== "object" ) ) {
+			if ( !nonnativeSelectorCache[ selector + " " ] &&
+				( !rbuggyQSA || !rbuggyQSA.test( selector ) ) ) {
 
 				newSelector = selector;
 				newContext = context;
@@ -2553,7 +2601,7 @@ function Sizzle( selector, context, results, seed ) {
 				// as such selectors are not recognized by querySelectorAll.
 				// Thanks to Andrew Dupont for this technique.
 				if ( nodeType === 1 &&
-					( rdescend.test( selector ) || rcombinators.test( selector ) ) ) {
+					( rdescend.test( selector ) || rleadingCombinator.test( selector ) ) ) {
 
 					// Expand context for sibling selectors
 					newContext = rsibling.test( selector ) && testContext( context.parentNode ) ||
@@ -2561,11 +2609,15 @@ function Sizzle( selector, context, results, seed ) {
 
 					// We can use :scope instead of the ID hack if the browser
 					// supports it & if we're not changing the context.
-					if ( newContext !== context || !support.scope ) {
+					// Support: IE 11+, Edge 17 - 18+
+					// IE/Edge sometimes throw a "Permission denied" error when
+					// strict-comparing two documents; shallow comparisons work.
+					// eslint-disable-next-line eqeqeq
+					if ( newContext != context || !support.scope ) {
 
 						// Capture the context ID, setting it first if necessary
 						if ( ( nid = context.getAttribute( "id" ) ) ) {
-							nid = nid.replace( rcssescape, fcssescape );
+							nid = jQuery.escapeSelector( nid );
 						} else {
 							context.setAttribute( "id", ( nid = expando ) );
 						}
@@ -2598,7 +2650,7 @@ function Sizzle( selector, context, results, seed ) {
 	}
 
 	// All others
-	return select( selector.replace( rtrim, "$1" ), context, results, seed );
+	return select( selector.replace( rtrimCSS, "$1" ), context, results, seed );
 }
 
 /**
@@ -2612,7 +2664,8 @@ function createCache() {
 
 	function cache( key, value ) {
 
-		// Use (key + " ") to avoid collision with native prototype properties (see Issue #157)
+		// Use (key + " ") to avoid collision with native prototype properties
+		// (see https://github.com/jquery/sizzle/issues/157)
 		if ( keys.push( key + " " ) > Expr.cacheLength ) {
 
 			// Only keep the most recent entries
@@ -2624,7 +2677,7 @@ function createCache() {
 }
 
 /**
- * Mark a function for special use by Sizzle
+ * Mark a function for special use by jQuery selector module
  * @param {Function} fn The function to mark
  */
 function markFunction( fn ) {
@@ -2656,55 +2709,12 @@ function assert( fn ) {
 }
 
 /**
- * Adds the same handler for all of the specified attrs
- * @param {String} attrs Pipe-separated list of attributes
- * @param {Function} handler The method that will be applied
- */
-function addHandle( attrs, handler ) {
-	var arr = attrs.split( "|" ),
-		i = arr.length;
-
-	while ( i-- ) {
-		Expr.attrHandle[ arr[ i ] ] = handler;
-	}
-}
-
-/**
- * Checks document order of two siblings
- * @param {Element} a
- * @param {Element} b
- * @returns {Number} Returns less than 0 if a precedes b, greater than 0 if a follows b
- */
-function siblingCheck( a, b ) {
-	var cur = b && a,
-		diff = cur && a.nodeType === 1 && b.nodeType === 1 &&
-			a.sourceIndex - b.sourceIndex;
-
-	// Use IE sourceIndex if available on both nodes
-	if ( diff ) {
-		return diff;
-	}
-
-	// Check if b follows a
-	if ( cur ) {
-		while ( ( cur = cur.nextSibling ) ) {
-			if ( cur === b ) {
-				return -1;
-			}
-		}
-	}
-
-	return a ? 1 : -1;
-}
-
-/**
  * Returns a function to use in pseudos for input types
  * @param {String} type
  */
 function createInputPseudo( type ) {
 	return function( elem ) {
-		var name = elem.nodeName.toLowerCase();
-		return name === "input" && elem.type === type;
+		return nodeName( elem, "input" ) && elem.type === type;
 	};
 }
 
@@ -2714,8 +2724,8 @@ function createInputPseudo( type ) {
  */
 function createButtonPseudo( type ) {
 	return function( elem ) {
-		var name = elem.nodeName.toLowerCase();
-		return ( name === "input" || name === "button" ) && elem.type === type;
+		return ( nodeName( elem, "input" ) || nodeName( elem, "button" ) ) &&
+			elem.type === type;
 	};
 }
 
@@ -2751,14 +2761,13 @@ function createDisabledPseudo( disabled ) {
 					}
 				}
 
-				// Support: IE 6 - 11
+				// Support: IE 6 - 11+
 				// Use the isDisabled shortcut property to check for disabled fieldset ancestors
 				return elem.isDisabled === disabled ||
 
 					// Where there is no isDisabled, check manually
-					/* jshint -W018 */
 					elem.isDisabled !== !disabled &&
-					inDisabledFieldset( elem ) === disabled;
+						inDisabledFieldset( elem ) === disabled;
 			}
 
 			return elem.disabled === disabled;
@@ -2798,7 +2807,7 @@ function createPositionalPseudo( fn ) {
 }
 
 /**
- * Checks a node for validity as a Sizzle context
+ * Checks a node for validity as a jQuery selector context
  * @param {Element|Object=} context
  * @returns {Element|Object|Boolean} The input node if acceptable, otherwise a falsy value
  */
@@ -2806,31 +2815,13 @@ function testContext( context ) {
 	return context && typeof context.getElementsByTagName !== "undefined" && context;
 }
 
-// Expose support vars for convenience
-support = Sizzle.support = {};
-
-/**
- * Detects XML nodes
- * @param {Element|Object} elem An element or a document
- * @returns {Boolean} True iff elem is a non-HTML XML node
- */
-isXML = Sizzle.isXML = function( elem ) {
-	var namespace = elem && elem.namespaceURI,
-		docElem = elem && ( elem.ownerDocument || elem ).documentElement;
-
-	// Support: IE <=8
-	// Assume HTML when documentElement doesn't yet exist, such as inside loading iframes
-	// https://bugs.jquery.com/ticket/4833
-	return !rhtml.test( namespace || docElem && docElem.nodeName || "HTML" );
-};
-
 /**
  * Sets document-related variables once based on the current document
- * @param {Element|Object} [doc] An element or document object to use to set the document
+ * @param {Element|Object} [node] An element or document object to use to set the document
  * @returns {Object} Returns the current document
  */
-setDocument = Sizzle.setDocument = function( node ) {
-	var hasCompare, subWindow,
+function setDocument( node ) {
+	var subWindow,
 		doc = node ? node.ownerDocument || node : preferredDoc;
 
 	// Return early if doc is invalid or already selected
@@ -2844,11 +2835,17 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	// Update global variables
 	document = doc;
-	docElem = document.documentElement;
-	documentIsHTML = !isXML( document );
+	documentElement = document.documentElement;
+	documentIsHTML = !jQuery.isXMLDoc( document );
+
+	// Support: iOS 7 only, IE 9 - 11+
+	// Older browsers didn't support unprefixed `matches`.
+	matches = documentElement.matches ||
+		documentElement.webkitMatchesSelector ||
+		documentElement.msMatchesSelector;
 
 	// Support: IE 9 - 11+, Edge 12 - 18+
-	// Accessing iframe documents after unload throws "permission denied" errors (jQuery #13936)
+	// Accessing iframe documents after unload throws "permission denied" errors (see trac-13936)
 	// Support: IE 11+, Edge 17 - 18+
 	// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
 	// two documents; shallow comparisons work.
@@ -2856,75 +2853,67 @@ setDocument = Sizzle.setDocument = function( node ) {
 	if ( preferredDoc != document &&
 		( subWindow = document.defaultView ) && subWindow.top !== subWindow ) {
 
-		// Support: IE 11, Edge
-		if ( subWindow.addEventListener ) {
-			subWindow.addEventListener( "unload", unloadHandler, false );
-
-		// Support: IE 9 - 10 only
-		} else if ( subWindow.attachEvent ) {
-			subWindow.attachEvent( "onunload", unloadHandler );
-		}
+		// Support: IE 9 - 11+, Edge 12 - 18+
+		subWindow.addEventListener( "unload", unloadHandler );
 	}
 
-	// Support: IE 8 - 11+, Edge 12 - 18+, Chrome <=16 - 25 only, Firefox <=3.6 - 31 only,
-	// Safari 4 - 5 only, Opera <=11.6 - 12.x only
-	// IE/Edge & older browsers don't support the :scope pseudo-class.
-	// Support: Safari 6.0 only
-	// Safari 6.0 supports :scope but it's an alias of :root there.
-	support.scope = assert( function( el ) {
-		docElem.appendChild( el ).appendChild( document.createElement( "div" ) );
-		return typeof el.querySelectorAll !== "undefined" &&
-			!el.querySelectorAll( ":scope fieldset div" ).length;
-	} );
-
-	/* Attributes
-	---------------------------------------------------------------------- */
-
-	// Support: IE<8
-	// Verify that getAttribute really returns attributes and not properties
-	// (excepting IE8 booleans)
-	support.attributes = assert( function( el ) {
-		el.className = "i";
-		return !el.getAttribute( "className" );
-	} );
-
-	/* getElement(s)By*
-	---------------------------------------------------------------------- */
-
-	// Check if getElementsByTagName("*") returns only elements
-	support.getElementsByTagName = assert( function( el ) {
-		el.appendChild( document.createComment( "" ) );
-		return !el.getElementsByTagName( "*" ).length;
-	} );
-
-	// Support: IE<9
-	support.getElementsByClassName = rnative.test( document.getElementsByClassName );
-
-	// Support: IE<10
+	// Support: IE <10
 	// Check if getElementById returns elements by name
 	// The broken getElementById methods don't pick up programmatically-set names,
 	// so use a roundabout getElementsByName test
 	support.getById = assert( function( el ) {
-		docElem.appendChild( el ).id = expando;
-		return !document.getElementsByName || !document.getElementsByName( expando ).length;
+		documentElement.appendChild( el ).id = jQuery.expando;
+		return !document.getElementsByName ||
+			!document.getElementsByName( jQuery.expando ).length;
+	} );
+
+	// Support: IE 9 only
+	// Check to see if it's possible to do matchesSelector
+	// on a disconnected node.
+	support.disconnectedMatch = assert( function( el ) {
+		return matches.call( el, "*" );
+	} );
+
+	// Support: IE 9 - 11+, Edge 12 - 18+
+	// IE/Edge don't support the :scope pseudo-class.
+	support.scope = assert( function() {
+		return document.querySelectorAll( ":scope" );
+	} );
+
+	// Support: Chrome 105 - 111 only, Safari 15.4 - 16.3 only
+	// Make sure the `:has()` argument is parsed unforgivingly.
+	// We include `*` in the test to detect buggy implementations that are
+	// _selectively_ forgiving (specifically when the list includes at least
+	// one valid selector).
+	// Note that we treat complete lack of support for `:has()` as if it were
+	// spec-compliant support, which is fine because use of `:has()` in such
+	// environments will fail in the qSA path and fall back to jQuery traversal
+	// anyway.
+	support.cssHas = assert( function() {
+		try {
+			document.querySelector( ":has(*,:jqfake)" );
+			return false;
+		} catch ( e ) {
+			return true;
+		}
 	} );
 
 	// ID filter and find
 	if ( support.getById ) {
-		Expr.filter[ "ID" ] = function( id ) {
+		Expr.filter.ID = function( id ) {
 			var attrId = id.replace( runescape, funescape );
 			return function( elem ) {
 				return elem.getAttribute( "id" ) === attrId;
 			};
 		};
-		Expr.find[ "ID" ] = function( id, context ) {
+		Expr.find.ID = function( id, context ) {
 			if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
 				var elem = context.getElementById( id );
 				return elem ? [ elem ] : [];
 			}
 		};
 	} else {
-		Expr.filter[ "ID" ] =  function( id ) {
+		Expr.filter.ID =  function( id ) {
 			var attrId = id.replace( runescape, funescape );
 			return function( elem ) {
 				var node = typeof elem.getAttributeNode !== "undefined" &&
@@ -2935,7 +2924,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 		// Support: IE 6 - 7 only
 		// getElementById is not reliable as a find shortcut
-		Expr.find[ "ID" ] = function( id, context ) {
+		Expr.find.ID = function( id, context ) {
 			if ( typeof context.getElementById !== "undefined" && documentIsHTML ) {
 				var node, i, elems,
 					elem = context.getElementById( id );
@@ -2965,40 +2954,18 @@ setDocument = Sizzle.setDocument = function( node ) {
 	}
 
 	// Tag
-	Expr.find[ "TAG" ] = support.getElementsByTagName ?
-		function( tag, context ) {
-			if ( typeof context.getElementsByTagName !== "undefined" ) {
-				return context.getElementsByTagName( tag );
+	Expr.find.TAG = function( tag, context ) {
+		if ( typeof context.getElementsByTagName !== "undefined" ) {
+			return context.getElementsByTagName( tag );
 
-			// DocumentFragment nodes don't have gEBTN
-			} else if ( support.qsa ) {
-				return context.querySelectorAll( tag );
-			}
-		} :
-
-		function( tag, context ) {
-			var elem,
-				tmp = [],
-				i = 0,
-
-				// By happy coincidence, a (broken) gEBTN appears on DocumentFragment nodes too
-				results = context.getElementsByTagName( tag );
-
-			// Filter out possible comments
-			if ( tag === "*" ) {
-				while ( ( elem = results[ i++ ] ) ) {
-					if ( elem.nodeType === 1 ) {
-						tmp.push( elem );
-					}
-				}
-
-				return tmp;
-			}
-			return results;
-		};
+		// DocumentFragment nodes don't have gEBTN
+		} else {
+			return context.querySelectorAll( tag );
+		}
+	};
 
 	// Class
-	Expr.find[ "CLASS" ] = support.getElementsByClassName && function( className, context ) {
+	Expr.find.CLASS = function( className, context ) {
 		if ( typeof context.getElementsByClassName !== "undefined" && documentIsHTML ) {
 			return context.getElementsByClassName( className );
 		}
@@ -3009,177 +2976,94 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	// QSA and matchesSelector support
 
-	// matchesSelector(:active) reports false when true (IE9/Opera 11.5)
-	rbuggyMatches = [];
-
-	// qSa(:focus) reports false when true (Chrome 21)
-	// We allow this because of a bug in IE8/9 that throws an error
-	// whenever `document.activeElement` is accessed on an iframe
-	// So, we allow :focus to pass through QSA all the time to avoid the IE error
-	// See https://bugs.jquery.com/ticket/13378
 	rbuggyQSA = [];
 
-	if ( ( support.qsa = rnative.test( document.querySelectorAll ) ) ) {
+	// Build QSA regex
+	// Regex strategy adopted from Diego Perini
+	assert( function( el ) {
 
-		// Build QSA regex
-		// Regex strategy adopted from Diego Perini
-		assert( function( el ) {
+		var input;
 
-			var input;
+		documentElement.appendChild( el ).innerHTML =
+			"<a id='" + expando + "' href='' disabled='disabled'></a>" +
+			"<select id='" + expando + "-\r\\' disabled='disabled'>" +
+			"<option selected=''></option></select>";
 
-			// Select is set to empty string on purpose
-			// This is to test IE's treatment of not explicitly
-			// setting a boolean content attribute,
-			// since its presence should be enough
-			// https://bugs.jquery.com/ticket/12359
-			docElem.appendChild( el ).innerHTML = "<a id='" + expando + "'></a>" +
-				"<select id='" + expando + "-\r\\' msallowcapture=''>" +
-				"<option selected=''></option></select>";
+		// Support: iOS <=7 - 8 only
+		// Boolean attributes and "value" are not treated correctly in some XML documents
+		if ( !el.querySelectorAll( "[selected]" ).length ) {
+			rbuggyQSA.push( "\\[" + whitespace + "*(?:value|" + booleans + ")" );
+		}
 
-			// Support: IE8, Opera 11-12.16
-			// Nothing should be selected when empty strings follow ^= or $= or *=
-			// The test attribute must be unknown in Opera but "safe" for WinRT
-			// https://msdn.microsoft.com/en-us/library/ie/hh465388.aspx#attribute_section
-			if ( el.querySelectorAll( "[msallowcapture^='']" ).length ) {
-				rbuggyQSA.push( "[*^$]=" + whitespace + "*(?:''|\"\")" );
-			}
+		// Support: iOS <=7 - 8 only
+		if ( !el.querySelectorAll( "[id~=" + expando + "-]" ).length ) {
+			rbuggyQSA.push( "~=" );
+		}
 
-			// Support: IE8
-			// Boolean attributes and "value" are not treated correctly
-			if ( !el.querySelectorAll( "[selected]" ).length ) {
-				rbuggyQSA.push( "\\[" + whitespace + "*(?:value|" + booleans + ")" );
-			}
+		// Support: iOS 8 only
+		// https://bugs.webkit.org/show_bug.cgi?id=136851
+		// In-page `selector#id sibling-combinator selector` fails
+		if ( !el.querySelectorAll( "a#" + expando + "+*" ).length ) {
+			rbuggyQSA.push( ".#.+[+~]" );
+		}
 
-			// Support: Chrome<29, Android<4.4, Safari<7.0+, iOS<7.0+, PhantomJS<1.9.8+
-			if ( !el.querySelectorAll( "[id~=" + expando + "-]" ).length ) {
-				rbuggyQSA.push( "~=" );
-			}
+		// Support: Chrome <=105+, Firefox <=104+, Safari <=15.4+
+		// In some of the document kinds, these selectors wouldn't work natively.
+		// This is probably OK but for backwards compatibility we want to maintain
+		// handling them through jQuery traversal in jQuery 3.x.
+		if ( !el.querySelectorAll( ":checked" ).length ) {
+			rbuggyQSA.push( ":checked" );
+		}
 
-			// Support: IE 11+, Edge 15 - 18+
-			// IE 11/Edge don't find elements on a `[name='']` query in some cases.
-			// Adding a temporary attribute to the document before the selection works
-			// around the issue.
-			// Interestingly, IE 10 & older don't seem to have the issue.
-			input = document.createElement( "input" );
-			input.setAttribute( "name", "" );
-			el.appendChild( input );
-			if ( !el.querySelectorAll( "[name='']" ).length ) {
-				rbuggyQSA.push( "\\[" + whitespace + "*name" + whitespace + "*=" +
-					whitespace + "*(?:''|\"\")" );
-			}
+		// Support: Windows 8 Native Apps
+		// The type and name attributes are restricted during .innerHTML assignment
+		input = document.createElement( "input" );
+		input.setAttribute( "type", "hidden" );
+		el.appendChild( input ).setAttribute( "name", "D" );
 
-			// Webkit/Opera - :checked should return selected option elements
-			// http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
-			// IE8 throws error here and will not see later tests
-			if ( !el.querySelectorAll( ":checked" ).length ) {
-				rbuggyQSA.push( ":checked" );
-			}
+		// Support: IE 9 - 11+
+		// IE's :disabled selector does not pick up the children of disabled fieldsets
+		// Support: Chrome <=105+, Firefox <=104+, Safari <=15.4+
+		// In some of the document kinds, these selectors wouldn't work natively.
+		// This is probably OK but for backwards compatibility we want to maintain
+		// handling them through jQuery traversal in jQuery 3.x.
+		documentElement.appendChild( el ).disabled = true;
+		if ( el.querySelectorAll( ":disabled" ).length !== 2 ) {
+			rbuggyQSA.push( ":enabled", ":disabled" );
+		}
 
-			// Support: Safari 8+, iOS 8+
-			// https://bugs.webkit.org/show_bug.cgi?id=136851
-			// In-page `selector#id sibling-combinator selector` fails
-			if ( !el.querySelectorAll( "a#" + expando + "+*" ).length ) {
-				rbuggyQSA.push( ".#.+[+~]" );
-			}
+		// Support: IE 11+, Edge 15 - 18+
+		// IE 11/Edge don't find elements on a `[name='']` query in some cases.
+		// Adding a temporary attribute to the document before the selection works
+		// around the issue.
+		// Interestingly, IE 10 & older don't seem to have the issue.
+		input = document.createElement( "input" );
+		input.setAttribute( "name", "" );
+		el.appendChild( input );
+		if ( !el.querySelectorAll( "[name='']" ).length ) {
+			rbuggyQSA.push( "\\[" + whitespace + "*name" + whitespace + "*=" +
+				whitespace + "*(?:''|\"\")" );
+		}
+	} );
 
-			// Support: Firefox <=3.6 - 5 only
-			// Old Firefox doesn't throw on a badly-escaped identifier.
-			el.querySelectorAll( "\\\f" );
-			rbuggyQSA.push( "[\\r\\n\\f]" );
-		} );
+	if ( !support.cssHas ) {
 
-		assert( function( el ) {
-			el.innerHTML = "<a href='' disabled='disabled'></a>" +
-				"<select disabled='disabled'><option/></select>";
-
-			// Support: Windows 8 Native Apps
-			// The type and name attributes are restricted during .innerHTML assignment
-			var input = document.createElement( "input" );
-			input.setAttribute( "type", "hidden" );
-			el.appendChild( input ).setAttribute( "name", "D" );
-
-			// Support: IE8
-			// Enforce case-sensitivity of name attribute
-			if ( el.querySelectorAll( "[name=d]" ).length ) {
-				rbuggyQSA.push( "name" + whitespace + "*[*^$|!~]?=" );
-			}
-
-			// FF 3.5 - :enabled/:disabled and hidden elements (hidden elements are still enabled)
-			// IE8 throws error here and will not see later tests
-			if ( el.querySelectorAll( ":enabled" ).length !== 2 ) {
-				rbuggyQSA.push( ":enabled", ":disabled" );
-			}
-
-			// Support: IE9-11+
-			// IE's :disabled selector does not pick up the children of disabled fieldsets
-			docElem.appendChild( el ).disabled = true;
-			if ( el.querySelectorAll( ":disabled" ).length !== 2 ) {
-				rbuggyQSA.push( ":enabled", ":disabled" );
-			}
-
-			// Support: Opera 10 - 11 only
-			// Opera 10-11 does not throw on post-comma invalid pseudos
-			el.querySelectorAll( "*,:x" );
-			rbuggyQSA.push( ",.*:" );
-		} );
-	}
-
-	if ( ( support.matchesSelector = rnative.test( ( matches = docElem.matches ||
-		docElem.webkitMatchesSelector ||
-		docElem.mozMatchesSelector ||
-		docElem.oMatchesSelector ||
-		docElem.msMatchesSelector ) ) ) ) {
-
-		assert( function( el ) {
-
-			// Check to see if it's possible to do matchesSelector
-			// on a disconnected node (IE 9)
-			support.disconnectedMatch = matches.call( el, "*" );
-
-			// This should fail with an exception
-			// Gecko does not error, returns false instead
-			matches.call( el, "[s!='']:x" );
-			rbuggyMatches.push( "!=", pseudos );
-		} );
+		// Support: Chrome 105 - 110+, Safari 15.4 - 16.3+
+		// Our regular `try-catch` mechanism fails to detect natively-unsupported
+		// pseudo-classes inside `:has()` (such as `:has(:contains("Foo"))`)
+		// in browsers that parse the `:has()` argument as a forgiving selector list.
+		// https://drafts.csswg.org/selectors/#relational now requires the argument
+		// to be parsed unforgivingly, but browsers have not yet fully adjusted.
+		rbuggyQSA.push( ":has" );
 	}
 
 	rbuggyQSA = rbuggyQSA.length && new RegExp( rbuggyQSA.join( "|" ) );
-	rbuggyMatches = rbuggyMatches.length && new RegExp( rbuggyMatches.join( "|" ) );
-
-	/* Contains
-	---------------------------------------------------------------------- */
-	hasCompare = rnative.test( docElem.compareDocumentPosition );
-
-	// Element contains another
-	// Purposefully self-exclusive
-	// As in, an element does not contain itself
-	contains = hasCompare || rnative.test( docElem.contains ) ?
-		function( a, b ) {
-			var adown = a.nodeType === 9 ? a.documentElement : a,
-				bup = b && b.parentNode;
-			return a === bup || !!( bup && bup.nodeType === 1 && (
-				adown.contains ?
-					adown.contains( bup ) :
-					a.compareDocumentPosition && a.compareDocumentPosition( bup ) & 16
-			) );
-		} :
-		function( a, b ) {
-			if ( b ) {
-				while ( ( b = b.parentNode ) ) {
-					if ( b === a ) {
-						return true;
-					}
-				}
-			}
-			return false;
-		};
 
 	/* Sorting
 	---------------------------------------------------------------------- */
 
 	// Document order sorting
-	sortOrder = hasCompare ?
-	function( a, b ) {
+	sortOrder = function( a, b ) {
 
 		// Flag for duplicate removal
 		if ( a === b ) {
@@ -3213,8 +3097,8 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
 			// two documents; shallow comparisons work.
 			// eslint-disable-next-line eqeqeq
-			if ( a == document || a.ownerDocument == preferredDoc &&
-				contains( preferredDoc, a ) ) {
+			if ( a === document || a.ownerDocument == preferredDoc &&
+				find.contains( preferredDoc, a ) ) {
 				return -1;
 			}
 
@@ -3222,100 +3106,33 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
 			// two documents; shallow comparisons work.
 			// eslint-disable-next-line eqeqeq
-			if ( b == document || b.ownerDocument == preferredDoc &&
-				contains( preferredDoc, b ) ) {
+			if ( b === document || b.ownerDocument == preferredDoc &&
+				find.contains( preferredDoc, b ) ) {
 				return 1;
 			}
 
 			// Maintain original order
 			return sortInput ?
-				( indexOf( sortInput, a ) - indexOf( sortInput, b ) ) :
+				( indexOf.call( sortInput, a ) - indexOf.call( sortInput, b ) ) :
 				0;
 		}
 
 		return compare & 4 ? -1 : 1;
-	} :
-	function( a, b ) {
-
-		// Exit early if the nodes are identical
-		if ( a === b ) {
-			hasDuplicate = true;
-			return 0;
-		}
-
-		var cur,
-			i = 0,
-			aup = a.parentNode,
-			bup = b.parentNode,
-			ap = [ a ],
-			bp = [ b ];
-
-		// Parentless nodes are either documents or disconnected
-		if ( !aup || !bup ) {
-
-			// Support: IE 11+, Edge 17 - 18+
-			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
-			// two documents; shallow comparisons work.
-			/* eslint-disable eqeqeq */
-			return a == document ? -1 :
-				b == document ? 1 :
-				/* eslint-enable eqeqeq */
-				aup ? -1 :
-				bup ? 1 :
-				sortInput ?
-				( indexOf( sortInput, a ) - indexOf( sortInput, b ) ) :
-				0;
-
-		// If the nodes are siblings, we can do a quick check
-		} else if ( aup === bup ) {
-			return siblingCheck( a, b );
-		}
-
-		// Otherwise we need full lists of their ancestors for comparison
-		cur = a;
-		while ( ( cur = cur.parentNode ) ) {
-			ap.unshift( cur );
-		}
-		cur = b;
-		while ( ( cur = cur.parentNode ) ) {
-			bp.unshift( cur );
-		}
-
-		// Walk down the tree looking for a discrepancy
-		while ( ap[ i ] === bp[ i ] ) {
-			i++;
-		}
-
-		return i ?
-
-			// Do a sibling check if the nodes have a common ancestor
-			siblingCheck( ap[ i ], bp[ i ] ) :
-
-			// Otherwise nodes in our document sort first
-			// Support: IE 11+, Edge 17 - 18+
-			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
-			// two documents; shallow comparisons work.
-			/* eslint-disable eqeqeq */
-			ap[ i ] == preferredDoc ? -1 :
-			bp[ i ] == preferredDoc ? 1 :
-			/* eslint-enable eqeqeq */
-			0;
 	};
 
 	return document;
+}
+
+find.matches = function( expr, elements ) {
+	return find( expr, null, null, elements );
 };
 
-Sizzle.matches = function( expr, elements ) {
-	return Sizzle( expr, null, null, elements );
-};
-
-Sizzle.matchesSelector = function( elem, expr ) {
+find.matchesSelector = function( elem, expr ) {
 	setDocument( elem );
 
-	if ( support.matchesSelector && documentIsHTML &&
+	if ( documentIsHTML &&
 		!nonnativeSelectorCache[ expr + " " ] &&
-		( !rbuggyMatches || !rbuggyMatches.test( expr ) ) &&
-		( !rbuggyQSA     || !rbuggyQSA.test( expr ) ) ) {
+		( !rbuggyQSA || !rbuggyQSA.test( expr ) ) ) {
 
 		try {
 			var ret = matches.call( elem, expr );
@@ -3323,9 +3140,9 @@ Sizzle.matchesSelector = function( elem, expr ) {
 			// IE 9's matchesSelector returns false on disconnected nodes
 			if ( ret || support.disconnectedMatch ||
 
-				// As well, disconnected nodes are said to be in a document
-				// fragment in IE 9
-				elem.document && elem.document.nodeType !== 11 ) {
+					// As well, disconnected nodes are said to be in a document
+					// fragment in IE 9
+					elem.document && elem.document.nodeType !== 11 ) {
 				return ret;
 			}
 		} catch ( e ) {
@@ -3333,10 +3150,10 @@ Sizzle.matchesSelector = function( elem, expr ) {
 		}
 	}
 
-	return Sizzle( expr, document, null, [ elem ] ).length > 0;
+	return find( expr, document, null, [ elem ] ).length > 0;
 };
 
-Sizzle.contains = function( context, elem ) {
+find.contains = function( context, elem ) {
 
 	// Set document vars if needed
 	// Support: IE 11+, Edge 17 - 18+
@@ -3346,10 +3163,11 @@ Sizzle.contains = function( context, elem ) {
 	if ( ( context.ownerDocument || context ) != document ) {
 		setDocument( context );
 	}
-	return contains( context, elem );
+	return jQuery.contains( context, elem );
 };
 
-Sizzle.attr = function( elem, name ) {
+
+find.attr = function( elem, name ) {
 
 	// Set document vars if needed
 	// Support: IE 11+, Edge 17 - 18+
@@ -3362,25 +3180,19 @@ Sizzle.attr = function( elem, name ) {
 
 	var fn = Expr.attrHandle[ name.toLowerCase() ],
 
-		// Don't get fooled by Object.prototype properties (jQuery #13807)
+		// Don't get fooled by Object.prototype properties (see trac-13807)
 		val = fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
 			fn( elem, name, !documentIsHTML ) :
 			undefined;
 
-	return val !== undefined ?
-		val :
-		support.attributes || !documentIsHTML ?
-			elem.getAttribute( name ) :
-			( val = elem.getAttributeNode( name ) ) && val.specified ?
-				val.value :
-				null;
+	if ( val !== undefined ) {
+		return val;
+	}
+
+	return elem.getAttribute( name );
 };
 
-Sizzle.escape = function( sel ) {
-	return ( sel + "" ).replace( rcssescape, fcssescape );
-};
-
-Sizzle.error = function( msg ) {
+find.error = function( msg ) {
 	throw new Error( "Syntax error, unrecognized expression: " + msg );
 };
 
@@ -3388,16 +3200,20 @@ Sizzle.error = function( msg ) {
  * Document sorting and removing duplicates
  * @param {ArrayLike} results
  */
-Sizzle.uniqueSort = function( results ) {
+jQuery.uniqueSort = function( results ) {
 	var elem,
 		duplicates = [],
 		j = 0,
 		i = 0;
 
 	// Unless we *know* we can detect duplicates, assume their presence
-	hasDuplicate = !support.detectDuplicates;
-	sortInput = !support.sortStable && results.slice( 0 );
-	results.sort( sortOrder );
+	//
+	// Support: Android <=4.0+
+	// Testing for detecting duplicates is unpredictable so instead assume we can't
+	// depend on duplicate detection in all browsers without a stable sort.
+	hasDuplicate = !support.sortStable;
+	sortInput = !support.sortStable && slice.call( results, 0 );
+	sort.call( results, sortOrder );
 
 	if ( hasDuplicate ) {
 		while ( ( elem = results[ i++ ] ) ) {
@@ -3406,7 +3222,7 @@ Sizzle.uniqueSort = function( results ) {
 			}
 		}
 		while ( j-- ) {
-			results.splice( duplicates[ j ], 1 );
+			splice.call( results, duplicates[ j ], 1 );
 		}
 	}
 
@@ -3417,47 +3233,11 @@ Sizzle.uniqueSort = function( results ) {
 	return results;
 };
 
-/**
- * Utility function for retrieving the text value of an array of DOM nodes
- * @param {Array|Element} elem
- */
-getText = Sizzle.getText = function( elem ) {
-	var node,
-		ret = "",
-		i = 0,
-		nodeType = elem.nodeType;
-
-	if ( !nodeType ) {
-
-		// If no nodeType, this is expected to be an array
-		while ( ( node = elem[ i++ ] ) ) {
-
-			// Do not traverse comment nodes
-			ret += getText( node );
-		}
-	} else if ( nodeType === 1 || nodeType === 9 || nodeType === 11 ) {
-
-		// Use textContent for elements
-		// innerText usage removed for consistency of new lines (jQuery #11153)
-		if ( typeof elem.textContent === "string" ) {
-			return elem.textContent;
-		} else {
-
-			// Traverse its children
-			for ( elem = elem.firstChild; elem; elem = elem.nextSibling ) {
-				ret += getText( elem );
-			}
-		}
-	} else if ( nodeType === 3 || nodeType === 4 ) {
-		return elem.nodeValue;
-	}
-
-	// Do not include comment or processing instruction nodes
-
-	return ret;
+jQuery.fn.uniqueSort = function() {
+	return this.pushStack( jQuery.uniqueSort( slice.apply( this ) ) );
 };
 
-Expr = Sizzle.selectors = {
+Expr = jQuery.expr = {
 
 	// Can be adjusted by the user
 	cacheLength: 50,
@@ -3478,12 +3258,12 @@ Expr = Sizzle.selectors = {
 	},
 
 	preFilter: {
-		"ATTR": function( match ) {
+		ATTR: function( match ) {
 			match[ 1 ] = match[ 1 ].replace( runescape, funescape );
 
 			// Move the given value to match[3] whether quoted or unquoted
-			match[ 3 ] = ( match[ 3 ] || match[ 4 ] ||
-				match[ 5 ] || "" ).replace( runescape, funescape );
+			match[ 3 ] = ( match[ 3 ] || match[ 4 ] || match[ 5 ] || "" )
+				.replace( runescape, funescape );
 
 			if ( match[ 2 ] === "~=" ) {
 				match[ 3 ] = " " + match[ 3 ] + " ";
@@ -3492,7 +3272,7 @@ Expr = Sizzle.selectors = {
 			return match.slice( 0, 4 );
 		},
 
-		"CHILD": function( match ) {
+		CHILD: function( match ) {
 
 			/* matches from matchExpr["CHILD"]
 				1 type (only|nth|...)
@@ -3510,29 +3290,30 @@ Expr = Sizzle.selectors = {
 
 				// nth-* requires argument
 				if ( !match[ 3 ] ) {
-					Sizzle.error( match[ 0 ] );
+					find.error( match[ 0 ] );
 				}
 
 				// numeric x and y parameters for Expr.filter.CHILD
 				// remember that false/true cast respectively to 0/1
 				match[ 4 ] = +( match[ 4 ] ?
 					match[ 5 ] + ( match[ 6 ] || 1 ) :
-					2 * ( match[ 3 ] === "even" || match[ 3 ] === "odd" ) );
+					2 * ( match[ 3 ] === "even" || match[ 3 ] === "odd" )
+				);
 				match[ 5 ] = +( ( match[ 7 ] + match[ 8 ] ) || match[ 3 ] === "odd" );
 
-				// other types prohibit arguments
+			// other types prohibit arguments
 			} else if ( match[ 3 ] ) {
-				Sizzle.error( match[ 0 ] );
+				find.error( match[ 0 ] );
 			}
 
 			return match;
 		},
 
-		"PSEUDO": function( match ) {
+		PSEUDO: function( match ) {
 			var excess,
 				unquoted = !match[ 6 ] && match[ 2 ];
 
-			if ( matchExpr[ "CHILD" ].test( match[ 0 ] ) ) {
+			if ( matchExpr.CHILD.test( match[ 0 ] ) ) {
 				return null;
 			}
 
@@ -3561,36 +3342,36 @@ Expr = Sizzle.selectors = {
 
 	filter: {
 
-		"TAG": function( nodeNameSelector ) {
-			var nodeName = nodeNameSelector.replace( runescape, funescape ).toLowerCase();
+		TAG: function( nodeNameSelector ) {
+			var expectedNodeName = nodeNameSelector.replace( runescape, funescape ).toLowerCase();
 			return nodeNameSelector === "*" ?
 				function() {
 					return true;
 				} :
 				function( elem ) {
-					return elem.nodeName && elem.nodeName.toLowerCase() === nodeName;
+					return nodeName( elem, expectedNodeName );
 				};
 		},
 
-		"CLASS": function( className ) {
+		CLASS: function( className ) {
 			var pattern = classCache[ className + " " ];
 
 			return pattern ||
-				( pattern = new RegExp( "(^|" + whitespace +
-					")" + className + "(" + whitespace + "|$)" ) ) && classCache(
-						className, function( elem ) {
-							return pattern.test(
-								typeof elem.className === "string" && elem.className ||
-								typeof elem.getAttribute !== "undefined" &&
-									elem.getAttribute( "class" ) ||
-								""
-							);
+				( pattern = new RegExp( "(^|" + whitespace + ")" + className +
+					"(" + whitespace + "|$)" ) ) &&
+				classCache( className, function( elem ) {
+					return pattern.test(
+						typeof elem.className === "string" && elem.className ||
+							typeof elem.getAttribute !== "undefined" &&
+								elem.getAttribute( "class" ) ||
+							""
+					);
 				} );
 		},
 
-		"ATTR": function( name, operator, check ) {
+		ATTR: function( name, operator, check ) {
 			return function( elem ) {
-				var result = Sizzle.attr( elem, name );
+				var result = find.attr( elem, name );
 
 				if ( result == null ) {
 					return operator === "!=";
@@ -3601,22 +3382,34 @@ Expr = Sizzle.selectors = {
 
 				result += "";
 
-				/* eslint-disable max-len */
+				if ( operator === "=" ) {
+					return result === check;
+				}
+				if ( operator === "!=" ) {
+					return result !== check;
+				}
+				if ( operator === "^=" ) {
+					return check && result.indexOf( check ) === 0;
+				}
+				if ( operator === "*=" ) {
+					return check && result.indexOf( check ) > -1;
+				}
+				if ( operator === "$=" ) {
+					return check && result.slice( -check.length ) === check;
+				}
+				if ( operator === "~=" ) {
+					return ( " " + result.replace( rwhitespace, " " ) + " " )
+						.indexOf( check ) > -1;
+				}
+				if ( operator === "|=" ) {
+					return result === check || result.slice( 0, check.length + 1 ) === check + "-";
+				}
 
-				return operator === "=" ? result === check :
-					operator === "!=" ? result !== check :
-					operator === "^=" ? check && result.indexOf( check ) === 0 :
-					operator === "*=" ? check && result.indexOf( check ) > -1 :
-					operator === "$=" ? check && result.slice( -check.length ) === check :
-					operator === "~=" ? ( " " + result.replace( rwhitespace, " " ) + " " ).indexOf( check ) > -1 :
-					operator === "|=" ? result === check || result.slice( 0, check.length + 1 ) === check + "-" :
-					false;
-				/* eslint-enable max-len */
-
+				return false;
 			};
 		},
 
-		"CHILD": function( type, what, _argument, first, last ) {
+		CHILD: function( type, what, _argument, first, last ) {
 			var simple = type.slice( 0, 3 ) !== "nth",
 				forward = type.slice( -4 ) !== "last",
 				ofType = what === "of-type";
@@ -3629,7 +3422,7 @@ Expr = Sizzle.selectors = {
 				} :
 
 				function( elem, _context, xml ) {
-					var cache, uniqueCache, outerCache, node, nodeIndex, start,
+					var cache, outerCache, node, nodeIndex, start,
 						dir = simple !== forward ? "nextSibling" : "previousSibling",
 						parent = elem.parentNode,
 						name = ofType && elem.nodeName.toLowerCase(),
@@ -3644,7 +3437,7 @@ Expr = Sizzle.selectors = {
 								node = elem;
 								while ( ( node = node[ dir ] ) ) {
 									if ( ofType ?
-										node.nodeName.toLowerCase() === name :
+										nodeName( node, name ) :
 										node.nodeType === 1 ) {
 
 										return false;
@@ -3663,17 +3456,8 @@ Expr = Sizzle.selectors = {
 						if ( forward && useCache ) {
 
 							// Seek `elem` from a previously-cached index
-
-							// ...in a gzip-friendly way
-							node = parent;
-							outerCache = node[ expando ] || ( node[ expando ] = {} );
-
-							// Support: IE <9 only
-							// Defend against cloned attroperties (jQuery gh-1709)
-							uniqueCache = outerCache[ node.uniqueID ] ||
-								( outerCache[ node.uniqueID ] = {} );
-
-							cache = uniqueCache[ type ] || [];
+							outerCache = parent[ expando ] || ( parent[ expando ] = {} );
+							cache = outerCache[ type ] || [];
 							nodeIndex = cache[ 0 ] === dirruns && cache[ 1 ];
 							diff = nodeIndex && cache[ 2 ];
 							node = nodeIndex && parent.childNodes[ nodeIndex ];
@@ -3685,7 +3469,7 @@ Expr = Sizzle.selectors = {
 
 								// When found, cache indexes on `parent` and break
 								if ( node.nodeType === 1 && ++diff && node === elem ) {
-									uniqueCache[ type ] = [ dirruns, nodeIndex, diff ];
+									outerCache[ type ] = [ dirruns, nodeIndex, diff ];
 									break;
 								}
 							}
@@ -3694,17 +3478,8 @@ Expr = Sizzle.selectors = {
 
 							// Use previously-cached element index if available
 							if ( useCache ) {
-
-								// ...in a gzip-friendly way
-								node = elem;
-								outerCache = node[ expando ] || ( node[ expando ] = {} );
-
-								// Support: IE <9 only
-								// Defend against cloned attroperties (jQuery gh-1709)
-								uniqueCache = outerCache[ node.uniqueID ] ||
-									( outerCache[ node.uniqueID ] = {} );
-
-								cache = uniqueCache[ type ] || [];
+								outerCache = elem[ expando ] || ( elem[ expando ] = {} );
+								cache = outerCache[ type ] || [];
 								nodeIndex = cache[ 0 ] === dirruns && cache[ 1 ];
 								diff = nodeIndex;
 							}
@@ -3718,7 +3493,7 @@ Expr = Sizzle.selectors = {
 									( diff = nodeIndex = 0 ) || start.pop() ) ) {
 
 									if ( ( ofType ?
-										node.nodeName.toLowerCase() === name :
+										nodeName( node, name ) :
 										node.nodeType === 1 ) &&
 										++diff ) {
 
@@ -3726,13 +3501,7 @@ Expr = Sizzle.selectors = {
 										if ( useCache ) {
 											outerCache = node[ expando ] ||
 												( node[ expando ] = {} );
-
-											// Support: IE <9 only
-											// Defend against cloned attroperties (jQuery gh-1709)
-											uniqueCache = outerCache[ node.uniqueID ] ||
-												( outerCache[ node.uniqueID ] = {} );
-
-											uniqueCache[ type ] = [ dirruns, diff ];
+											outerCache[ type ] = [ dirruns, diff ];
 										}
 
 										if ( node === elem ) {
@@ -3750,19 +3519,19 @@ Expr = Sizzle.selectors = {
 				};
 		},
 
-		"PSEUDO": function( pseudo, argument ) {
+		PSEUDO: function( pseudo, argument ) {
 
 			// pseudo-class names are case-insensitive
-			// http://www.w3.org/TR/selectors/#pseudo-classes
+			// https://www.w3.org/TR/selectors/#pseudo-classes
 			// Prioritize by case sensitivity in case custom pseudos are added with uppercase letters
 			// Remember that setFilters inherits from pseudos
 			var args,
 				fn = Expr.pseudos[ pseudo ] || Expr.setFilters[ pseudo.toLowerCase() ] ||
-					Sizzle.error( "unsupported pseudo: " + pseudo );
+					find.error( "unsupported pseudo: " + pseudo );
 
 			// The user may use createPseudo to indicate that
 			// arguments are needed to create the filter function
-			// just as Sizzle does
+			// just as jQuery does
 			if ( fn[ expando ] ) {
 				return fn( argument );
 			}
@@ -3776,7 +3545,7 @@ Expr = Sizzle.selectors = {
 							matched = fn( seed, argument ),
 							i = matched.length;
 						while ( i-- ) {
-							idx = indexOf( seed, matched[ i ] );
+							idx = indexOf.call( seed, matched[ i ] );
 							seed[ idx ] = !( matches[ idx ] = matched[ i ] );
 						}
 					} ) :
@@ -3792,14 +3561,14 @@ Expr = Sizzle.selectors = {
 	pseudos: {
 
 		// Potentially complex pseudos
-		"not": markFunction( function( selector ) {
+		not: markFunction( function( selector ) {
 
 			// Trim the selector passed to compile
 			// to avoid treating leading and trailing
 			// spaces as combinators
 			var input = [],
 				results = [],
-				matcher = compile( selector.replace( rtrim, "$1" ) );
+				matcher = compile( selector.replace( rtrimCSS, "$1" ) );
 
 			return matcher[ expando ] ?
 				markFunction( function( seed, matches, _context, xml ) {
@@ -3818,22 +3587,23 @@ Expr = Sizzle.selectors = {
 					input[ 0 ] = elem;
 					matcher( input, null, xml, results );
 
-					// Don't keep the element (issue #299)
+					// Don't keep the element
+					// (see https://github.com/jquery/sizzle/issues/299)
 					input[ 0 ] = null;
 					return !results.pop();
 				};
 		} ),
 
-		"has": markFunction( function( selector ) {
+		has: markFunction( function( selector ) {
 			return function( elem ) {
-				return Sizzle( selector, elem ).length > 0;
+				return find( selector, elem ).length > 0;
 			};
 		} ),
 
-		"contains": markFunction( function( text ) {
+		contains: markFunction( function( text ) {
 			text = text.replace( runescape, funescape );
 			return function( elem ) {
-				return ( elem.textContent || getText( elem ) ).indexOf( text ) > -1;
+				return ( elem.textContent || jQuery.text( elem ) ).indexOf( text ) > -1;
 			};
 		} ),
 
@@ -3843,12 +3613,12 @@ Expr = Sizzle.selectors = {
 		// or beginning with the identifier C immediately followed by "-".
 		// The matching of C against the element's language value is performed case-insensitively.
 		// The identifier C does not have to be a valid language name."
-		// http://www.w3.org/TR/selectors/#lang-pseudo
-		"lang": markFunction( function( lang ) {
+		// https://www.w3.org/TR/selectors/#lang-pseudo
+		lang: markFunction( function( lang ) {
 
 			// lang value must be a valid identifier
 			if ( !ridentifier.test( lang || "" ) ) {
-				Sizzle.error( "unsupported lang: " + lang );
+				find.error( "unsupported lang: " + lang );
 			}
 			lang = lang.replace( runescape, funescape ).toLowerCase();
 			return function( elem ) {
@@ -3867,38 +3637,39 @@ Expr = Sizzle.selectors = {
 		} ),
 
 		// Miscellaneous
-		"target": function( elem ) {
+		target: function( elem ) {
 			var hash = window.location && window.location.hash;
 			return hash && hash.slice( 1 ) === elem.id;
 		},
 
-		"root": function( elem ) {
-			return elem === docElem;
+		root: function( elem ) {
+			return elem === documentElement;
 		},
 
-		"focus": function( elem ) {
-			return elem === document.activeElement &&
-				( !document.hasFocus || document.hasFocus() ) &&
+		focus: function( elem ) {
+			return elem === safeActiveElement() &&
+				document.hasFocus() &&
 				!!( elem.type || elem.href || ~elem.tabIndex );
 		},
 
 		// Boolean properties
-		"enabled": createDisabledPseudo( false ),
-		"disabled": createDisabledPseudo( true ),
+		enabled: createDisabledPseudo( false ),
+		disabled: createDisabledPseudo( true ),
 
-		"checked": function( elem ) {
+		checked: function( elem ) {
 
 			// In CSS3, :checked should return both checked and selected elements
-			// http://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
-			var nodeName = elem.nodeName.toLowerCase();
-			return ( nodeName === "input" && !!elem.checked ) ||
-				( nodeName === "option" && !!elem.selected );
+			// https://www.w3.org/TR/2011/REC-css3-selectors-20110929/#checked
+			return ( nodeName( elem, "input" ) && !!elem.checked ) ||
+				( nodeName( elem, "option" ) && !!elem.selected );
 		},
 
-		"selected": function( elem ) {
+		selected: function( elem ) {
 
-			// Accessing this property makes selected-by-default
-			// options in Safari work properly
+			// Support: IE <=11+
+			// Accessing the selectedIndex property
+			// forces the browser to treat the default option as
+			// selected when in an optgroup.
 			if ( elem.parentNode ) {
 				// eslint-disable-next-line no-unused-expressions
 				elem.parentNode.selectedIndex;
@@ -3908,9 +3679,9 @@ Expr = Sizzle.selectors = {
 		},
 
 		// Contents
-		"empty": function( elem ) {
+		empty: function( elem ) {
 
-			// http://www.w3.org/TR/selectors/#empty-pseudo
+			// https://www.w3.org/TR/selectors/#empty-pseudo
 			// :empty is negated by element (1) or content nodes (text: 3; cdata: 4; entity ref: 5),
 			//   but not by others (comment: 8; processing instruction: 7; etc.)
 			// nodeType < 6 works because attributes (2) do not appear as children
@@ -3922,49 +3693,49 @@ Expr = Sizzle.selectors = {
 			return true;
 		},
 
-		"parent": function( elem ) {
-			return !Expr.pseudos[ "empty" ]( elem );
+		parent: function( elem ) {
+			return !Expr.pseudos.empty( elem );
 		},
 
 		// Element/input types
-		"header": function( elem ) {
+		header: function( elem ) {
 			return rheader.test( elem.nodeName );
 		},
 
-		"input": function( elem ) {
+		input: function( elem ) {
 			return rinputs.test( elem.nodeName );
 		},
 
-		"button": function( elem ) {
-			var name = elem.nodeName.toLowerCase();
-			return name === "input" && elem.type === "button" || name === "button";
+		button: function( elem ) {
+			return nodeName( elem, "input" ) && elem.type === "button" ||
+				nodeName( elem, "button" );
 		},
 
-		"text": function( elem ) {
+		text: function( elem ) {
 			var attr;
-			return elem.nodeName.toLowerCase() === "input" &&
-				elem.type === "text" &&
+			return nodeName( elem, "input" ) && elem.type === "text" &&
 
-				// Support: IE<8
-				// New HTML5 attribute values (e.g., "search") appear with elem.type === "text"
+				// Support: IE <10 only
+				// New HTML5 attribute values (e.g., "search") appear
+				// with elem.type === "text"
 				( ( attr = elem.getAttribute( "type" ) ) == null ||
 					attr.toLowerCase() === "text" );
 		},
 
 		// Position-in-collection
-		"first": createPositionalPseudo( function() {
+		first: createPositionalPseudo( function() {
 			return [ 0 ];
 		} ),
 
-		"last": createPositionalPseudo( function( _matchIndexes, length ) {
+		last: createPositionalPseudo( function( _matchIndexes, length ) {
 			return [ length - 1 ];
 		} ),
 
-		"eq": createPositionalPseudo( function( _matchIndexes, length, argument ) {
+		eq: createPositionalPseudo( function( _matchIndexes, length, argument ) {
 			return [ argument < 0 ? argument + length : argument ];
 		} ),
 
-		"even": createPositionalPseudo( function( matchIndexes, length ) {
+		even: createPositionalPseudo( function( matchIndexes, length ) {
 			var i = 0;
 			for ( ; i < length; i += 2 ) {
 				matchIndexes.push( i );
@@ -3972,7 +3743,7 @@ Expr = Sizzle.selectors = {
 			return matchIndexes;
 		} ),
 
-		"odd": createPositionalPseudo( function( matchIndexes, length ) {
+		odd: createPositionalPseudo( function( matchIndexes, length ) {
 			var i = 1;
 			for ( ; i < length; i += 2 ) {
 				matchIndexes.push( i );
@@ -3980,19 +3751,24 @@ Expr = Sizzle.selectors = {
 			return matchIndexes;
 		} ),
 
-		"lt": createPositionalPseudo( function( matchIndexes, length, argument ) {
-			var i = argument < 0 ?
-				argument + length :
-				argument > length ?
-					length :
-					argument;
+		lt: createPositionalPseudo( function( matchIndexes, length, argument ) {
+			var i;
+
+			if ( argument < 0 ) {
+				i = argument + length;
+			} else if ( argument > length ) {
+				i = length;
+			} else {
+				i = argument;
+			}
+
 			for ( ; --i >= 0; ) {
 				matchIndexes.push( i );
 			}
 			return matchIndexes;
 		} ),
 
-		"gt": createPositionalPseudo( function( matchIndexes, length, argument ) {
+		gt: createPositionalPseudo( function( matchIndexes, length, argument ) {
 			var i = argument < 0 ? argument + length : argument;
 			for ( ; ++i < length; ) {
 				matchIndexes.push( i );
@@ -4002,7 +3778,7 @@ Expr = Sizzle.selectors = {
 	}
 };
 
-Expr.pseudos[ "nth" ] = Expr.pseudos[ "eq" ];
+Expr.pseudos.nth = Expr.pseudos.eq;
 
 // Add button/input type pseudos
 for ( i in { radio: true, checkbox: true, file: true, password: true, image: true } ) {
@@ -4017,7 +3793,7 @@ function setFilters() {}
 setFilters.prototype = Expr.filters = Expr.pseudos;
 Expr.setFilters = new setFilters();
 
-tokenize = Sizzle.tokenize = function( selector, parseOnly ) {
+function tokenize( selector, parseOnly ) {
 	var matched, match, tokens, type,
 		soFar, groups, preFilters,
 		cached = tokenCache[ selector + " " ];
@@ -4045,13 +3821,13 @@ tokenize = Sizzle.tokenize = function( selector, parseOnly ) {
 		matched = false;
 
 		// Combinators
-		if ( ( match = rcombinators.exec( soFar ) ) ) {
+		if ( ( match = rleadingCombinator.exec( soFar ) ) ) {
 			matched = match.shift();
 			tokens.push( {
 				value: matched,
 
 				// Cast descendant combinators to space
-				type: match[ 0 ].replace( rtrim, " " )
+				type: match[ 0 ].replace( rtrimCSS, " " )
 			} );
 			soFar = soFar.slice( matched.length );
 		}
@@ -4078,14 +3854,16 @@ tokenize = Sizzle.tokenize = function( selector, parseOnly ) {
 	// Return the length of the invalid excess
 	// if we're just parsing
 	// Otherwise, throw an error or return tokens
-	return parseOnly ?
-		soFar.length :
-		soFar ?
-			Sizzle.error( selector ) :
+	if ( parseOnly ) {
+		return soFar.length;
+	}
 
-			// Cache the tokens
-			tokenCache( selector, groups ).slice( 0 );
-};
+	return soFar ?
+		find.error( selector ) :
+
+		// Cache the tokens
+		tokenCache( selector, groups ).slice( 0 );
+}
 
 function toSelector( tokens ) {
 	var i = 0,
@@ -4118,7 +3896,7 @@ function addCombinator( matcher, combinator, base ) {
 
 		// Check against all ancestor/preceding elements
 		function( elem, context, xml ) {
-			var oldCache, uniqueCache, outerCache,
+			var oldCache, outerCache,
 				newCache = [ dirruns, doneName ];
 
 			// We can't set arbitrary data on XML nodes, so they don't benefit from combinator caching
@@ -4135,14 +3913,9 @@ function addCombinator( matcher, combinator, base ) {
 					if ( elem.nodeType === 1 || checkNonElements ) {
 						outerCache = elem[ expando ] || ( elem[ expando ] = {} );
 
-						// Support: IE <9 only
-						// Defend against cloned attroperties (jQuery gh-1709)
-						uniqueCache = outerCache[ elem.uniqueID ] ||
-							( outerCache[ elem.uniqueID ] = {} );
-
-						if ( skip && skip === elem.nodeName.toLowerCase() ) {
+						if ( skip && nodeName( elem, skip ) ) {
 							elem = elem[ dir ] || elem;
-						} else if ( ( oldCache = uniqueCache[ key ] ) &&
+						} else if ( ( oldCache = outerCache[ key ] ) &&
 							oldCache[ 0 ] === dirruns && oldCache[ 1 ] === doneName ) {
 
 							// Assign to newCache so results back-propagate to previous elements
@@ -4150,7 +3923,7 @@ function addCombinator( matcher, combinator, base ) {
 						} else {
 
 							// Reuse newcache so results back-propagate to previous elements
-							uniqueCache[ key ] = newCache;
+							outerCache[ key ] = newCache;
 
 							// A match means we're done; a fail means we have to keep checking
 							if ( ( newCache[ 2 ] = matcher( elem, context, xml ) ) ) {
@@ -4182,7 +3955,7 @@ function multipleContexts( selector, contexts, results ) {
 	var i = 0,
 		len = contexts.length;
 	for ( ; i < len; i++ ) {
-		Sizzle( selector, contexts[ i ], results );
+		find( selector, contexts[ i ], results );
 	}
 	return results;
 }
@@ -4216,38 +3989,37 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 		postFinder = setMatcher( postFinder, postSelector );
 	}
 	return markFunction( function( seed, results, context, xml ) {
-		var temp, i, elem,
+		var temp, i, elem, matcherOut,
 			preMap = [],
 			postMap = [],
 			preexisting = results.length,
 
 			// Get initial elements from seed or context
-			elems = seed || multipleContexts(
-				selector || "*",
-				context.nodeType ? [ context ] : context,
-				[]
-			),
+			elems = seed ||
+				multipleContexts( selector || "*",
+					context.nodeType ? [ context ] : context, [] ),
 
 			// Prefilter to get matcher input, preserving a map for seed-results synchronization
 			matcherIn = preFilter && ( seed || !selector ) ?
 				condense( elems, preMap, preFilter, context, xml ) :
-				elems,
+				elems;
 
-			matcherOut = matcher ?
-
-				// If we have a postFinder, or filtered seed, or non-seed postFilter or preexisting results,
-				postFinder || ( seed ? preFilter : preexisting || postFilter ) ?
-
-					// ...intermediate processing is necessary
-					[] :
-
-					// ...otherwise use results directly
-					results :
-				matcherIn;
-
-		// Find primary matches
 		if ( matcher ) {
+
+			// If we have a postFinder, or filtered seed, or non-seed postFilter
+			// or preexisting results,
+			matcherOut = postFinder || ( seed ? preFilter : preexisting || postFilter ) ?
+
+				// ...intermediate processing is necessary
+				[] :
+
+				// ...otherwise use results directly
+				results;
+
+			// Find primary matches
 			matcher( matcherIn, matcherOut, context, xml );
+		} else {
+			matcherOut = matcherIn;
 		}
 
 		// Apply postFilter
@@ -4285,7 +4057,7 @@ function setMatcher( preFilter, selector, matcher, postFilter, postFinder, postS
 				i = matcherOut.length;
 				while ( i-- ) {
 					if ( ( elem = matcherOut[ i ] ) &&
-						( temp = postFinder ? indexOf( seed, elem ) : preMap[ i ] ) > -1 ) {
+						( temp = postFinder ? indexOf.call( seed, elem ) : preMap[ i ] ) > -1 ) {
 
 						seed[ temp ] = !( results[ temp ] = elem );
 					}
@@ -4320,15 +4092,21 @@ function matcherFromTokens( tokens ) {
 			return elem === checkContext;
 		}, implicitRelative, true ),
 		matchAnyContext = addCombinator( function( elem ) {
-			return indexOf( checkContext, elem ) > -1;
+			return indexOf.call( checkContext, elem ) > -1;
 		}, implicitRelative, true ),
 		matchers = [ function( elem, context, xml ) {
-			var ret = ( !leadingRelative && ( xml || context !== outermostContext ) ) || (
+
+			// Support: IE 11+, Edge 17 - 18+
+			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
+			// two documents; shallow comparisons work.
+			// eslint-disable-next-line eqeqeq
+			var ret = ( !leadingRelative && ( xml || context != outermostContext ) ) || (
 				( checkContext = context ).nodeType ?
 					matchContext( elem, context, xml ) :
 					matchAnyContext( elem, context, xml ) );
 
-			// Avoid hanging onto element (issue #299)
+			// Avoid hanging onto element
+			// (see https://github.com/jquery/sizzle/issues/299)
 			checkContext = null;
 			return ret;
 		} ];
@@ -4353,11 +4131,10 @@ function matcherFromTokens( tokens ) {
 					i > 1 && elementMatcher( matchers ),
 					i > 1 && toSelector(
 
-					// If the preceding token was a descendant combinator, insert an implicit any-element `*`
-					tokens
-						.slice( 0, i - 1 )
-						.concat( { value: tokens[ i - 2 ].type === " " ? "*" : "" } )
-					).replace( rtrim, "$1" ),
+						// If the preceding token was a descendant combinator, insert an implicit any-element `*`
+						tokens.slice( 0, i - 1 )
+							.concat( { value: tokens[ i - 2 ].type === " " ? "*" : "" } )
+					).replace( rtrimCSS, "$1" ),
 					matcher,
 					i < j && matcherFromTokens( tokens.slice( i, j ) ),
 					j < len && matcherFromTokens( ( tokens = tokens.slice( j ) ) ),
@@ -4383,7 +4160,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 				contextBackup = outermostContext,
 
 				// We must always have either seed elements or outermost context
-				elems = seed || byElement && Expr.find[ "TAG" ]( "*", outermost ),
+				elems = seed || byElement && Expr.find.TAG( "*", outermost ),
 
 				// Use integer dirruns iff this is the outermost matcher
 				dirrunsUnique = ( dirruns += contextBackup == null ? 1 : Math.random() || 0.1 ),
@@ -4399,8 +4176,9 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 			}
 
 			// Add elements passing elementMatchers directly to results
-			// Support: IE<9, Safari
-			// Tolerate NodeList properties (IE: "length"; Safari: <number>) matching elements by id
+			// Support: iOS <=7 - 9 only
+			// Tolerate NodeList properties (IE: "length"; Safari: <number>) matching
+			// elements by id. (see trac-14142)
 			for ( ; i !== len && ( elem = elems[ i ] ) != null; i++ ) {
 				if ( byElement && elem ) {
 					j = 0;
@@ -4415,7 +4193,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 					}
 					while ( ( matcher = elementMatchers[ j++ ] ) ) {
 						if ( matcher( elem, context || document, xml ) ) {
-							results.push( elem );
+							push.call( results, elem );
 							break;
 						}
 					}
@@ -4478,7 +4256,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 				if ( outermost && !seed && setMatched.length > 0 &&
 					( matchedCount + setMatchers.length ) > 1 ) {
 
-					Sizzle.uniqueSort( results );
+					jQuery.uniqueSort( results );
 				}
 			}
 
@@ -4496,7 +4274,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 		superMatcher;
 }
 
-compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
+function compile( selector, match /* Internal Use Only */ ) {
 	var i,
 		setMatchers = [],
 		elementMatchers = [],
@@ -4519,27 +4297,25 @@ compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
 		}
 
 		// Cache the compiled function
-		cached = compilerCache(
-			selector,
-			matcherFromGroupMatchers( elementMatchers, setMatchers )
-		);
+		cached = compilerCache( selector,
+			matcherFromGroupMatchers( elementMatchers, setMatchers ) );
 
 		// Save selector and tokenization
 		cached.selector = selector;
 	}
 	return cached;
-};
+}
 
 /**
- * A low-level selection function that works with Sizzle's compiled
+ * A low-level selection function that works with jQuery's compiled
  *  selector functions
  * @param {String|Function} selector A selector or a pre-compiled
- *  selector function built with Sizzle.compile
+ *  selector function built with jQuery selector compile
  * @param {Element} context
  * @param {Array} [results]
  * @param {Array} [seed] A set of elements to match against
  */
-select = Sizzle.select = function( selector, context, results, seed ) {
+function select( selector, context, results, seed ) {
 	var i, tokens, token, type, find,
 		compiled = typeof selector === "function" && selector,
 		match = !seed && tokenize( ( selector = compiled.selector || selector ) );
@@ -4553,10 +4329,12 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 		// Reduce context if the leading compound selector is an ID
 		tokens = match[ 0 ] = match[ 0 ].slice( 0 );
 		if ( tokens.length > 2 && ( token = tokens[ 0 ] ).type === "ID" &&
-			context.nodeType === 9 && documentIsHTML && Expr.relative[ tokens[ 1 ].type ] ) {
+				context.nodeType === 9 && documentIsHTML && Expr.relative[ tokens[ 1 ].type ] ) {
 
-			context = ( Expr.find[ "ID" ]( token.matches[ 0 ]
-				.replace( runescape, funescape ), context ) || [] )[ 0 ];
+			context = ( Expr.find.ID(
+				token.matches[ 0 ].replace( runescape, funescape ),
+				context
+			) || [] )[ 0 ];
 			if ( !context ) {
 				return results;
 
@@ -4569,7 +4347,7 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 		}
 
 		// Fetch a seed set for right-to-left matching
-		i = matchExpr[ "needsContext" ].test( selector ) ? 0 : tokens.length;
+		i = matchExpr.needsContext.test( selector ) ? 0 : tokens.length;
 		while ( i-- ) {
 			token = tokens[ i ];
 
@@ -4582,8 +4360,8 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 				// Search, expanding context for leading sibling combinators
 				if ( ( seed = find(
 					token.matches[ 0 ].replace( runescape, funescape ),
-					rsibling.test( tokens[ 0 ].type ) && testContext( context.parentNode ) ||
-						context
+					rsibling.test( tokens[ 0 ].type ) &&
+						testContext( context.parentNode ) || context
 				) ) ) {
 
 					// If seed is empty or no tokens remain, we can return early
@@ -4610,21 +4388,18 @@ select = Sizzle.select = function( selector, context, results, seed ) {
 		!context || rsibling.test( selector ) && testContext( context.parentNode ) || context
 	);
 	return results;
-};
+}
 
 // One-time assignments
 
+// Support: Android <=4.0 - 4.1+
 // Sort stability
 support.sortStable = expando.split( "" ).sort( sortOrder ).join( "" ) === expando;
-
-// Support: Chrome 14-35+
-// Always assume duplicates if they aren't passed to the comparison function
-support.detectDuplicates = !!hasDuplicate;
 
 // Initialize against the default document
 setDocument();
 
-// Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
+// Support: Android <=4.0 - 4.1+
 // Detached nodes confoundingly follow *each other*
 support.sortDetached = assert( function( el ) {
 
@@ -4632,68 +4407,29 @@ support.sortDetached = assert( function( el ) {
 	return el.compareDocumentPosition( document.createElement( "fieldset" ) ) & 1;
 } );
 
-// Support: IE<8
-// Prevent attribute/property "interpolation"
-// https://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
-if ( !assert( function( el ) {
-	el.innerHTML = "<a href='#'></a>";
-	return el.firstChild.getAttribute( "href" ) === "#";
-} ) ) {
-	addHandle( "type|href|height|width", function( elem, name, isXML ) {
-		if ( !isXML ) {
-			return elem.getAttribute( name, name.toLowerCase() === "type" ? 1 : 2 );
-		}
-	} );
-}
-
-// Support: IE<9
-// Use defaultValue in place of getAttribute("value")
-if ( !support.attributes || !assert( function( el ) {
-	el.innerHTML = "<input/>";
-	el.firstChild.setAttribute( "value", "" );
-	return el.firstChild.getAttribute( "value" ) === "";
-} ) ) {
-	addHandle( "value", function( elem, _name, isXML ) {
-		if ( !isXML && elem.nodeName.toLowerCase() === "input" ) {
-			return elem.defaultValue;
-		}
-	} );
-}
-
-// Support: IE<9
-// Use getAttributeNode to fetch booleans when getAttribute lies
-if ( !assert( function( el ) {
-	return el.getAttribute( "disabled" ) == null;
-} ) ) {
-	addHandle( booleans, function( elem, name, isXML ) {
-		var val;
-		if ( !isXML ) {
-			return elem[ name ] === true ? name.toLowerCase() :
-				( val = elem.getAttributeNode( name ) ) && val.specified ?
-					val.value :
-					null;
-		}
-	} );
-}
-
-return Sizzle;
-
-} )( window );
-
-
-
-jQuery.find = Sizzle;
-jQuery.expr = Sizzle.selectors;
+jQuery.find = find;
 
 // Deprecated
 jQuery.expr[ ":" ] = jQuery.expr.pseudos;
-jQuery.uniqueSort = jQuery.unique = Sizzle.uniqueSort;
-jQuery.text = Sizzle.getText;
-jQuery.isXMLDoc = Sizzle.isXML;
-jQuery.contains = Sizzle.contains;
-jQuery.escapeSelector = Sizzle.escape;
+jQuery.unique = jQuery.uniqueSort;
 
+// These have always been private, but they used to be documented
+// as part of Sizzle so let's maintain them in the 3.x line
+// for backwards compatibility purposes.
+find.compile = compile;
+find.select = select;
+find.setDocument = setDocument;
 
+find.escape = jQuery.escapeSelector;
+find.getText = jQuery.text;
+find.isXML = jQuery.isXMLDoc;
+find.selectors = jQuery.expr;
+find.support = jQuery.support;
+find.uniqueSort = jQuery.uniqueSort;
+
+	/* eslint-enable */
+
+} )();
 
 
 var dir = function( elem, dir, until ) {
@@ -4727,13 +4463,6 @@ var siblings = function( n, elem ) {
 
 var rneedsContext = jQuery.expr.match.needsContext;
 
-
-
-function nodeName( elem, name ) {
-
-	return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
-
-}
 var rsingleTag = ( /^<([a-z][^\/\0>:\x20\t\r\n\f]*)[\x20\t\r\n\f]*\/?>(?:<\/\1>|)$/i );
 
 
@@ -4832,8 +4561,8 @@ jQuery.fn.extend( {
 var rootjQuery,
 
 	// A simple way to check for HTML strings
-	// Prioritize #id over <tag> to avoid XSS via location.hash (#9521)
-	// Strict HTML recognition (#11290: must start with <)
+	// Prioritize #id over <tag> to avoid XSS via location.hash (trac-9521)
+	// Strict HTML recognition (trac-11290: must start with <)
 	// Shortcut simple #id case for speed
 	rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]+))$/,
 
@@ -4984,7 +4713,7 @@ jQuery.fn.extend( {
 					if ( cur.nodeType < 11 && ( targets ?
 						targets.index( cur ) > -1 :
 
-						// Don't pass non-elements to Sizzle
+						// Don't pass non-elements to jQuery#find
 						cur.nodeType === 1 &&
 							jQuery.find.matchesSelector( cur, selectors ) ) ) {
 
@@ -5539,7 +5268,7 @@ jQuery.extend( {
 
 											if ( jQuery.Deferred.exceptionHook ) {
 												jQuery.Deferred.exceptionHook( e,
-													process.stackTrace );
+													process.error );
 											}
 
 											// Support: Promises/A+ section 2.3.3.3.4.1
@@ -5567,10 +5296,17 @@ jQuery.extend( {
 								process();
 							} else {
 
-								// Call an optional hook to record the stack, in case of exception
+								// Call an optional hook to record the error, in case of exception
 								// since it's otherwise lost when execution goes async
-								if ( jQuery.Deferred.getStackHook ) {
-									process.stackTrace = jQuery.Deferred.getStackHook();
+								if ( jQuery.Deferred.getErrorHook ) {
+									process.error = jQuery.Deferred.getErrorHook();
+
+								// The deprecated alias of the above. While the name suggests
+								// returning the stack, not an error instance, jQuery just passes
+								// it directly to `console.warn` so both will work; an instance
+								// just better cooperates with source maps.
+								} else if ( jQuery.Deferred.getStackHook ) {
+									process.error = jQuery.Deferred.getStackHook();
 								}
 								window.setTimeout( process );
 							}
@@ -5745,12 +5481,16 @@ jQuery.extend( {
 // warn about them ASAP rather than swallowing them by default.
 var rerrorNames = /^(Eval|Internal|Range|Reference|Syntax|Type|URI)Error$/;
 
-jQuery.Deferred.exceptionHook = function( error, stack ) {
+// If `jQuery.Deferred.getErrorHook` is defined, `asyncError` is an error
+// captured before the async barrier to get the original error cause
+// which may otherwise be hidden.
+jQuery.Deferred.exceptionHook = function( error, asyncError ) {
 
 	// Support: IE 8 - 9 only
 	// Console exists when dev tools are open, which can happen at any time
 	if ( window.console && window.console.warn && error && rerrorNames.test( error.name ) ) {
-		window.console.warn( "jQuery.Deferred exception: " + error.message, error.stack, stack );
+		window.console.warn( "jQuery.Deferred exception: " + error.message,
+			error.stack, asyncError );
 	}
 };
 
@@ -5790,7 +5530,7 @@ jQuery.extend( {
 	isReady: false,
 
 	// A counter to track how many items to wait for before
-	// the ready event fires. See #6781
+	// the ready event fires. See trac-6781
 	readyWait: 1,
 
 	// Handle when the DOM is ready
@@ -5918,7 +5658,7 @@ function fcamelCase( _all, letter ) {
 
 // Convert dashed to camelCase; used by the css and data modules
 // Support: IE <=9 - 11, Edge 12 - 15
-// Microsoft forgot to hump their vendor prefix (#9572)
+// Microsoft forgot to hump their vendor prefix (trac-9572)
 function camelCase( string ) {
 	return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 }
@@ -5954,7 +5694,7 @@ Data.prototype = {
 			value = {};
 
 			// We can accept data for non-element nodes in modern browsers,
-			// but we should not, see #8335.
+			// but we should not, see trac-8335.
 			// Always return an empty object.
 			if ( acceptData( owner ) ) {
 
@@ -6193,7 +5933,7 @@ jQuery.fn.extend( {
 					while ( i-- ) {
 
 						// Support: IE 11 only
-						// The attrs elements can be null (#14894)
+						// The attrs elements can be null (trac-14894)
 						if ( attrs[ i ] ) {
 							name = attrs[ i ].name;
 							if ( name.indexOf( "data-" ) === 0 ) {
@@ -6616,9 +6356,9 @@ var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 		input = document.createElement( "input" );
 
 	// Support: Android 4.0 - 4.3 only
-	// Check state lost if the name is set (#11217)
+	// Check state lost if the name is set (trac-11217)
 	// Support: Windows Web Apps (WWA)
-	// `name` and `type` must use .setAttribute for WWA (#14901)
+	// `name` and `type` must use .setAttribute for WWA (trac-14901)
 	input.setAttribute( "type", "radio" );
 	input.setAttribute( "checked", "checked" );
 	input.setAttribute( "name", "t" );
@@ -6642,7 +6382,7 @@ var rscriptType = ( /^$|^module$|\/(?:java|ecma)script/i );
 } )();
 
 
-// We have to close these tags to support XHTML (#13200)
+// We have to close these tags to support XHTML (trac-13200)
 var wrapMap = {
 
 	// XHTML parsers do not magically insert elements in the
@@ -6668,7 +6408,7 @@ if ( !support.option ) {
 function getAll( context, tag ) {
 
 	// Support: IE <=9 - 11 only
-	// Use typeof to avoid zero-argument method invocation on host objects (#15151)
+	// Use typeof to avoid zero-argument method invocation on host objects (trac-15151)
 	var ret;
 
 	if ( typeof context.getElementsByTagName !== "undefined" ) {
@@ -6751,7 +6491,7 @@ function buildFragment( elems, context, scripts, selection, ignored ) {
 				// Remember the top-level container
 				tmp = fragment.firstChild;
 
-				// Ensure the created nodes are orphaned (#12392)
+				// Ensure the created nodes are orphaned (trac-12392)
 				tmp.textContent = "";
 			}
 		}
@@ -6804,25 +6544,6 @@ function returnTrue() {
 
 function returnFalse() {
 	return false;
-}
-
-// Support: IE <=9 - 11+
-// focus() and blur() are asynchronous, except when they are no-op.
-// So expect focus to be synchronous when the element is already active,
-// and blur to be synchronous when the element is not already active.
-// (focus and blur are always synchronous in other supported browsers,
-// this just defines when we can count on it).
-function expectSync( elem, type ) {
-	return ( elem === safeActiveElement() ) === ( type === "focus" );
-}
-
-// Support: IE <=9 only
-// Accessing document.activeElement can throw unexpectedly
-// https://bugs.jquery.com/ticket/13393
-function safeActiveElement() {
-	try {
-		return document.activeElement;
-	} catch ( err ) { }
 }
 
 function on( elem, types, selector, data, fn, one ) {
@@ -7172,15 +6893,15 @@ jQuery.event = {
 
 			for ( ; cur !== this; cur = cur.parentNode || this ) {
 
-				// Don't check non-elements (#13208)
-				// Don't process clicks on disabled elements (#6911, #8165, #11382, #11764)
+				// Don't check non-elements (trac-13208)
+				// Don't process clicks on disabled elements (trac-6911, trac-8165, trac-11382, trac-11764)
 				if ( cur.nodeType === 1 && !( event.type === "click" && cur.disabled === true ) ) {
 					matchedHandlers = [];
 					matchedSelectors = {};
 					for ( i = 0; i < delegateCount; i++ ) {
 						handleObj = handlers[ i ];
 
-						// Don't conflict with Object.prototype properties (#13203)
+						// Don't conflict with Object.prototype properties (trac-13203)
 						sel = handleObj.selector + " ";
 
 						if ( matchedSelectors[ sel ] === undefined ) {
@@ -7262,7 +6983,7 @@ jQuery.event = {
 					el.click && nodeName( el, "input" ) ) {
 
 					// dataPriv.set( el, "click", ... )
-					leverageNative( el, "click", returnTrue );
+					leverageNative( el, "click", true );
 				}
 
 				// Return false to allow normal processing in the caller
@@ -7313,10 +7034,10 @@ jQuery.event = {
 // synthetic events by interrupting progress until reinvoked in response to
 // *native* events that it fires directly, ensuring that state changes have
 // already occurred before other listeners are invoked.
-function leverageNative( el, type, expectSync ) {
+function leverageNative( el, type, isSetup ) {
 
-	// Missing expectSync indicates a trigger call, which must force setup through jQuery.event.add
-	if ( !expectSync ) {
+	// Missing `isSetup` indicates a trigger call, which must force setup through jQuery.event.add
+	if ( !isSetup ) {
 		if ( dataPriv.get( el, type ) === undefined ) {
 			jQuery.event.add( el, type, returnTrue );
 		}
@@ -7328,15 +7049,13 @@ function leverageNative( el, type, expectSync ) {
 	jQuery.event.add( el, type, {
 		namespace: false,
 		handler: function( event ) {
-			var notAsync, result,
+			var result,
 				saved = dataPriv.get( this, type );
 
 			if ( ( event.isTrigger & 1 ) && this[ type ] ) {
 
 				// Interrupt processing of the outer synthetic .trigger()ed event
-				// Saved data should be false in such cases, but might be a leftover capture object
-				// from an async native handler (gh-4350)
-				if ( !saved.length ) {
+				if ( !saved ) {
 
 					// Store arguments for use when handling the inner native event
 					// There will always be at least one argument (an event object), so this array
@@ -7345,33 +7064,22 @@ function leverageNative( el, type, expectSync ) {
 					dataPriv.set( this, type, saved );
 
 					// Trigger the native event and capture its result
-					// Support: IE <=9 - 11+
-					// focus() and blur() are asynchronous
-					notAsync = expectSync( this, type );
 					this[ type ]();
 					result = dataPriv.get( this, type );
-					if ( saved !== result || notAsync ) {
-						dataPriv.set( this, type, false );
-					} else {
-						result = {};
-					}
+					dataPriv.set( this, type, false );
+
 					if ( saved !== result ) {
 
 						// Cancel the outer synthetic event
 						event.stopImmediatePropagation();
 						event.preventDefault();
 
-						// Support: Chrome 86+
-						// In Chrome, if an element having a focusout handler is blurred by
-						// clicking outside of it, it invokes the handler synchronously. If
-						// that handler calls `.remove()` on the element, the data is cleared,
-						// leaving `result` undefined. We need to guard against this.
-						return result && result.value;
+						return result;
 					}
 
 				// If this is an inner synthetic event for an event with a bubbling surrogate
-				// (focus or blur), assume that the surrogate already propagated from triggering the
-				// native event and prevent that from happening again here.
+				// (focus or blur), assume that the surrogate already propagated from triggering
+				// the native event and prevent that from happening again here.
 				// This technically gets the ordering wrong w.r.t. to `.trigger()` (in which the
 				// bubbling surrogate propagates *after* the non-bubbling base), but that seems
 				// less bad than duplication.
@@ -7381,22 +7089,25 @@ function leverageNative( el, type, expectSync ) {
 
 			// If this is a native event triggered above, everything is now in order
 			// Fire an inner synthetic event with the original arguments
-			} else if ( saved.length ) {
+			} else if ( saved ) {
 
 				// ...and capture the result
-				dataPriv.set( this, type, {
-					value: jQuery.event.trigger(
+				dataPriv.set( this, type, jQuery.event.trigger(
+					saved[ 0 ],
+					saved.slice( 1 ),
+					this
+				) );
 
-						// Support: IE <=9 - 11+
-						// Extend with the prototype to reset the above stopImmediatePropagation()
-						jQuery.extend( saved[ 0 ], jQuery.Event.prototype ),
-						saved.slice( 1 ),
-						this
-					)
-				} );
-
-				// Abort handling of the native event
-				event.stopImmediatePropagation();
+				// Abort handling of the native event by all jQuery handlers while allowing
+				// native handlers on the same element to run. On target, this is achieved
+				// by stopping immediate propagation just on the jQuery event. However,
+				// the native event is re-wrapped by a jQuery one on each level of the
+				// propagation so the only way to stop it for jQuery is to stop it for
+				// everyone via native `stopPropagation()`. This is not a problem for
+				// focus/blur which don't bubble, but it does also stop click on checkboxes
+				// and radios. We accept this limitation.
+				event.stopPropagation();
+				event.isImmediatePropagationStopped = returnTrue;
 			}
 		}
 	} );
@@ -7434,7 +7145,7 @@ jQuery.Event = function( src, props ) {
 
 		// Create target properties
 		// Support: Safari <=6 - 7 only
-		// Target should not be a text node (#504, #13143)
+		// Target should not be a text node (trac-504, trac-13143)
 		this.target = ( src.target && src.target.nodeType === 3 ) ?
 			src.target.parentNode :
 			src.target;
@@ -7535,18 +7246,73 @@ jQuery.each( {
 }, jQuery.event.addProp );
 
 jQuery.each( { focus: "focusin", blur: "focusout" }, function( type, delegateType ) {
+
+	function focusMappedHandler( nativeEvent ) {
+		if ( document.documentMode ) {
+
+			// Support: IE 11+
+			// Attach a single focusin/focusout handler on the document while someone wants
+			// focus/blur. This is because the former are synchronous in IE while the latter
+			// are async. In other browsers, all those handlers are invoked synchronously.
+
+			// `handle` from private data would already wrap the event, but we need
+			// to change the `type` here.
+			var handle = dataPriv.get( this, "handle" ),
+				event = jQuery.event.fix( nativeEvent );
+			event.type = nativeEvent.type === "focusin" ? "focus" : "blur";
+			event.isSimulated = true;
+
+			// First, handle focusin/focusout
+			handle( nativeEvent );
+
+			// ...then, handle focus/blur
+			//
+			// focus/blur don't bubble while focusin/focusout do; simulate the former by only
+			// invoking the handler at the lower level.
+			if ( event.target === event.currentTarget ) {
+
+				// The setup part calls `leverageNative`, which, in turn, calls
+				// `jQuery.event.add`, so event handle will already have been set
+				// by this point.
+				handle( event );
+			}
+		} else {
+
+			// For non-IE browsers, attach a single capturing handler on the document
+			// while someone wants focusin/focusout.
+			jQuery.event.simulate( delegateType, nativeEvent.target,
+				jQuery.event.fix( nativeEvent ) );
+		}
+	}
+
 	jQuery.event.special[ type ] = {
 
 		// Utilize native event if possible so blur/focus sequence is correct
 		setup: function() {
 
+			var attaches;
+
 			// Claim the first handler
 			// dataPriv.set( this, "focus", ... )
 			// dataPriv.set( this, "blur", ... )
-			leverageNative( this, type, expectSync );
+			leverageNative( this, type, true );
 
-			// Return false to allow normal processing in the caller
-			return false;
+			if ( document.documentMode ) {
+
+				// Support: IE 9 - 11+
+				// We use the same native handler for focusin & focus (and focusout & blur)
+				// so we need to coordinate setup & teardown parts between those events.
+				// Use `delegateType` as the key as `type` is already used by `leverageNative`.
+				attaches = dataPriv.get( this, delegateType );
+				if ( !attaches ) {
+					this.addEventListener( delegateType, focusMappedHandler );
+				}
+				dataPriv.set( this, delegateType, ( attaches || 0 ) + 1 );
+			} else {
+
+				// Return false to allow normal processing in the caller
+				return false;
+			}
 		},
 		trigger: function() {
 
@@ -7557,13 +7323,83 @@ jQuery.each( { focus: "focusin", blur: "focusout" }, function( type, delegateTyp
 			return true;
 		},
 
-		// Suppress native focus or blur as it's already being fired
-		// in leverageNative.
-		_default: function() {
-			return true;
+		teardown: function() {
+			var attaches;
+
+			if ( document.documentMode ) {
+				attaches = dataPriv.get( this, delegateType ) - 1;
+				if ( !attaches ) {
+					this.removeEventListener( delegateType, focusMappedHandler );
+					dataPriv.remove( this, delegateType );
+				} else {
+					dataPriv.set( this, delegateType, attaches );
+				}
+			} else {
+
+				// Return false to indicate standard teardown should be applied
+				return false;
+			}
+		},
+
+		// Suppress native focus or blur if we're currently inside
+		// a leveraged native-event stack
+		_default: function( event ) {
+			return dataPriv.get( event.target, type );
 		},
 
 		delegateType: delegateType
+	};
+
+	// Support: Firefox <=44
+	// Firefox doesn't have focus(in | out) events
+	// Related ticket - https://bugzilla.mozilla.org/show_bug.cgi?id=687787
+	//
+	// Support: Chrome <=48 - 49, Safari <=9.0 - 9.1
+	// focus(in | out) events fire after focus & blur events,
+	// which is spec violation - http://www.w3.org/TR/DOM-Level-3-Events/#events-focusevent-event-order
+	// Related ticket - https://bugs.chromium.org/p/chromium/issues/detail?id=449857
+	//
+	// Support: IE 9 - 11+
+	// To preserve relative focusin/focus & focusout/blur event order guaranteed on the 3.x branch,
+	// attach a single handler for both events in IE.
+	jQuery.event.special[ delegateType ] = {
+		setup: function() {
+
+			// Handle: regular nodes (via `this.ownerDocument`), window
+			// (via `this.document`) & document (via `this`).
+			var doc = this.ownerDocument || this.document || this,
+				dataHolder = document.documentMode ? this : doc,
+				attaches = dataPriv.get( dataHolder, delegateType );
+
+			// Support: IE 9 - 11+
+			// We use the same native handler for focusin & focus (and focusout & blur)
+			// so we need to coordinate setup & teardown parts between those events.
+			// Use `delegateType` as the key as `type` is already used by `leverageNative`.
+			if ( !attaches ) {
+				if ( document.documentMode ) {
+					this.addEventListener( delegateType, focusMappedHandler );
+				} else {
+					doc.addEventListener( type, focusMappedHandler, true );
+				}
+			}
+			dataPriv.set( dataHolder, delegateType, ( attaches || 0 ) + 1 );
+		},
+		teardown: function() {
+			var doc = this.ownerDocument || this.document || this,
+				dataHolder = document.documentMode ? this : doc,
+				attaches = dataPriv.get( dataHolder, delegateType ) - 1;
+
+			if ( !attaches ) {
+				if ( document.documentMode ) {
+					this.removeEventListener( delegateType, focusMappedHandler );
+				} else {
+					doc.removeEventListener( type, focusMappedHandler, true );
+				}
+				dataPriv.remove( dataHolder, delegateType );
+			} else {
+				dataPriv.set( dataHolder, delegateType, attaches );
+			}
+		}
 	};
 } );
 
@@ -7659,7 +7495,8 @@ var
 
 	// checked="checked" or checked
 	rchecked = /checked\s*(?:[^=]|=\s*.checked.)/i,
-	rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;
+
+	rcleanScript = /^\s*<!\[CDATA\[|\]\]>\s*$/g;
 
 // Prefer a tbody over its parent table for containing new rows
 function manipulationTarget( elem, content ) {
@@ -7773,7 +7610,7 @@ function domManip( collection, args, callback, ignored ) {
 
 			// Use the original fragment for the last item
 			// instead of the first because it can end up
-			// being emptied incorrectly in certain situations (#8070).
+			// being emptied incorrectly in certain situations (trac-8070).
 			for ( ; i < l; i++ ) {
 				node = fragment;
 
@@ -7814,6 +7651,12 @@ function domManip( collection, args, callback, ignored ) {
 								}, doc );
 							}
 						} else {
+
+							// Unwrap a CDATA section containing script contents. This shouldn't be
+							// needed as in XML documents they're already not visible when
+							// inspecting element contents and in HTML documents they have no
+							// meaning but we're preserving that logic for backwards compatibility.
+							// This will be removed completely in 4.0. See gh-4904.
 							DOMEval( node.textContent.replace( rcleanScript, "" ), node, doc );
 						}
 					}
@@ -7860,7 +7703,8 @@ jQuery.extend( {
 		if ( !support.noCloneChecked && ( elem.nodeType === 1 || elem.nodeType === 11 ) &&
 				!jQuery.isXMLDoc( elem ) ) {
 
-			// We eschew Sizzle here for performance reasons: https://jsperf.com/getall-vs-sizzle/2
+			// We eschew jQuery#find here for performance reasons:
+			// https://jsperf.com/getall-vs-sizzle/2
 			destElements = getAll( clone );
 			srcElements = getAll( elem );
 
@@ -8096,9 +7940,12 @@ jQuery.each( {
 } );
 var rnumnonpx = new RegExp( "^(" + pnum + ")(?!px)[a-z%]+$", "i" );
 
+var rcustomProp = /^--/;
+
+
 var getStyles = function( elem ) {
 
-		// Support: IE <=11 only, Firefox <=30 (#15098, #14150)
+		// Support: IE <=11 only, Firefox <=30 (trac-15098, trac-14150)
 		// IE throws on elements created in popups
 		// FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
 		var view = elem.ownerDocument.defaultView;
@@ -8198,7 +8045,7 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 	}
 
 	// Support: IE <=9 - 11 only
-	// Style of cloned element affects source element cloned (#8908)
+	// Style of cloned element affects source element cloned (trac-8908)
 	div.style.backgroundClip = "content-box";
 	div.cloneNode( true ).style.backgroundClip = "";
 	support.clearCloneStyle = div.style.backgroundClip === "content-box";
@@ -8278,6 +8125,7 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 
 function curCSS( elem, name, computed ) {
 	var width, minWidth, maxWidth, ret,
+		isCustomProp = rcustomProp.test( name ),
 
 		// Support: Firefox 51+
 		// Retrieving style before computed somehow
@@ -8288,10 +8136,41 @@ function curCSS( elem, name, computed ) {
 	computed = computed || getStyles( elem );
 
 	// getPropertyValue is needed for:
-	//   .css('filter') (IE 9 only, #12537)
-	//   .css('--customProperty) (#3144)
+	//   .css('filter') (IE 9 only, trac-12537)
+	//   .css('--customProperty) (gh-3144)
 	if ( computed ) {
+
+		// Support: IE <=9 - 11+
+		// IE only supports `"float"` in `getPropertyValue`; in computed styles
+		// it's only available as `"cssFloat"`. We no longer modify properties
+		// sent to `.css()` apart from camelCasing, so we need to check both.
+		// Normally, this would create difference in behavior: if
+		// `getPropertyValue` returns an empty string, the value returned
+		// by `.css()` would be `undefined`. This is usually the case for
+		// disconnected elements. However, in IE even disconnected elements
+		// with no styles return `"none"` for `getPropertyValue( "float" )`
 		ret = computed.getPropertyValue( name ) || computed[ name ];
+
+		if ( isCustomProp && ret ) {
+
+			// Support: Firefox 105+, Chrome <=105+
+			// Spec requires trimming whitespace for custom properties (gh-4926).
+			// Firefox only trims leading whitespace. Chrome just collapses
+			// both leading & trailing whitespace to a single space.
+			//
+			// Fall back to `undefined` if empty string returned.
+			// This collapses a missing definition with property defined
+			// and set to an empty string but there's no standard API
+			// allowing us to differentiate them without a performance penalty
+			// and returning `undefined` aligns with older jQuery.
+			//
+			// rtrimCSS treats U+000D CARRIAGE RETURN and U+000C FORM FEED
+			// as whitespace while CSS does not, but this is not a problem
+			// because CSS preprocessing replaces them with U+000A LINE FEED
+			// (which *is* CSS whitespace)
+			// https://www.w3.org/TR/css-syntax-3/#input-preprocessing
+			ret = ret.replace( rtrimCSS, "$1" ) || undefined;
+		}
 
 		if ( ret === "" && !isAttached( elem ) ) {
 			ret = jQuery.style( elem, name );
@@ -8388,7 +8267,6 @@ var
 	// except "table", "table-cell", or "table-caption"
 	// See here for display values: https://developer.mozilla.org/en-US/docs/CSS/display
 	rdisplayswap = /^(none|table(?!-c[ea]).+)/,
-	rcustomProp = /^--/,
 	cssShow = { position: "absolute", visibility: "hidden", display: "block" },
 	cssNormalTransform = {
 		letterSpacing: "0",
@@ -8410,7 +8288,8 @@ function setPositiveNumber( _elem, value, subtract ) {
 function boxModelAdjustment( elem, dimension, box, isBorderBox, styles, computedVal ) {
 	var i = dimension === "width" ? 1 : 0,
 		extra = 0,
-		delta = 0;
+		delta = 0,
+		marginDelta = 0;
 
 	// Adjustment may not be necessary
 	if ( box === ( isBorderBox ? "border" : "content" ) ) {
@@ -8420,8 +8299,10 @@ function boxModelAdjustment( elem, dimension, box, isBorderBox, styles, computed
 	for ( ; i < 4; i += 2 ) {
 
 		// Both box models exclude margin
+		// Count margin delta separately to only add it after scroll gutter adjustment.
+		// This is needed to make negative margins work with `outerHeight( true )` (gh-3982).
 		if ( box === "margin" ) {
-			delta += jQuery.css( elem, box + cssExpand[ i ], true, styles );
+			marginDelta += jQuery.css( elem, box + cssExpand[ i ], true, styles );
 		}
 
 		// If we get here with a content-box, we're seeking "padding" or "border" or "margin"
@@ -8472,7 +8353,7 @@ function boxModelAdjustment( elem, dimension, box, isBorderBox, styles, computed
 		) ) || 0;
 	}
 
-	return delta;
+	return delta + marginDelta;
 }
 
 function getWidthOrHeight( elem, dimension, extra ) {
@@ -8570,26 +8451,35 @@ jQuery.extend( {
 
 	// Don't automatically add "px" to these possibly-unitless properties
 	cssNumber: {
-		"animationIterationCount": true,
-		"columnCount": true,
-		"fillOpacity": true,
-		"flexGrow": true,
-		"flexShrink": true,
-		"fontWeight": true,
-		"gridArea": true,
-		"gridColumn": true,
-		"gridColumnEnd": true,
-		"gridColumnStart": true,
-		"gridRow": true,
-		"gridRowEnd": true,
-		"gridRowStart": true,
-		"lineHeight": true,
-		"opacity": true,
-		"order": true,
-		"orphans": true,
-		"widows": true,
-		"zIndex": true,
-		"zoom": true
+		animationIterationCount: true,
+		aspectRatio: true,
+		borderImageSlice: true,
+		columnCount: true,
+		flexGrow: true,
+		flexShrink: true,
+		fontWeight: true,
+		gridArea: true,
+		gridColumn: true,
+		gridColumnEnd: true,
+		gridColumnStart: true,
+		gridRow: true,
+		gridRowEnd: true,
+		gridRowStart: true,
+		lineHeight: true,
+		opacity: true,
+		order: true,
+		orphans: true,
+		scale: true,
+		widows: true,
+		zIndex: true,
+		zoom: true,
+
+		// SVG-related
+		fillOpacity: true,
+		floodOpacity: true,
+		stopOpacity: true,
+		strokeMiterlimit: true,
+		strokeOpacity: true
 	},
 
 	// Add in properties whose names you wish to fix before
@@ -8624,15 +8514,15 @@ jQuery.extend( {
 		if ( value !== undefined ) {
 			type = typeof value;
 
-			// Convert "+=" or "-=" to relative numbers (#7345)
+			// Convert "+=" or "-=" to relative numbers (trac-7345)
 			if ( type === "string" && ( ret = rcssNum.exec( value ) ) && ret[ 1 ] ) {
 				value = adjustCSS( elem, name, ret );
 
-				// Fixes bug #9237
+				// Fixes bug trac-9237
 				type = "number";
 			}
 
-			// Make sure that null and NaN values aren't set (#7116)
+			// Make sure that null and NaN values aren't set (trac-7116)
 			if ( value == null || value !== value ) {
 				return;
 			}
@@ -9256,7 +9146,7 @@ function Animation( elem, properties, options ) {
 				remaining = Math.max( 0, animation.startTime + animation.duration - currentTime ),
 
 				// Support: Android 2.3 only
-				// Archaic crash bug won't allow us to use `1 - ( 0.5 || 0 )` (#12497)
+				// Archaic crash bug won't allow us to use `1 - ( 0.5 || 0 )` (trac-12497)
 				temp = remaining / animation.duration || 0,
 				percent = 1 - temp,
 				index = 0,
@@ -9646,7 +9536,6 @@ jQuery.fx.speeds = {
 
 
 // Based off of the plugin by Clint Helfers, with permission.
-// https://web.archive.org/web/20100324014747/http://blindsignals.com/index.php/2009/07/jquery-delay/
 jQuery.fn.delay = function( time, type ) {
 	time = jQuery.fx ? jQuery.fx.speeds[ time ] || time : time;
 	type = type || "fx";
@@ -9871,8 +9760,7 @@ jQuery.extend( {
 				// Support: IE <=9 - 11 only
 				// elem.tabIndex doesn't always return the
 				// correct value when it hasn't been explicitly set
-				// https://web.archive.org/web/20141116233347/http://fluidproject.org/blog/2008/01/09/getting-setting-and-removing-tabindex-values-with-javascript/
-				// Use proper attribute retrieval(#12072)
+				// Use proper attribute retrieval (trac-12072)
 				var tabindex = jQuery.find.attr( elem, "tabindex" );
 
 				if ( tabindex ) {
@@ -9976,8 +9864,7 @@ function classesToArray( value ) {
 
 jQuery.fn.extend( {
 	addClass: function( value ) {
-		var classes, elem, cur, curValue, clazz, j, finalValue,
-			i = 0;
+		var classNames, cur, curValue, className, i, finalValue;
 
 		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
@@ -9985,36 +9872,35 @@ jQuery.fn.extend( {
 			} );
 		}
 
-		classes = classesToArray( value );
+		classNames = classesToArray( value );
 
-		if ( classes.length ) {
-			while ( ( elem = this[ i++ ] ) ) {
-				curValue = getClass( elem );
-				cur = elem.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
+		if ( classNames.length ) {
+			return this.each( function() {
+				curValue = getClass( this );
+				cur = this.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
 
 				if ( cur ) {
-					j = 0;
-					while ( ( clazz = classes[ j++ ] ) ) {
-						if ( cur.indexOf( " " + clazz + " " ) < 0 ) {
-							cur += clazz + " ";
+					for ( i = 0; i < classNames.length; i++ ) {
+						className = classNames[ i ];
+						if ( cur.indexOf( " " + className + " " ) < 0 ) {
+							cur += className + " ";
 						}
 					}
 
 					// Only assign if different to avoid unneeded rendering.
 					finalValue = stripAndCollapse( cur );
 					if ( curValue !== finalValue ) {
-						elem.setAttribute( "class", finalValue );
+						this.setAttribute( "class", finalValue );
 					}
 				}
-			}
+			} );
 		}
 
 		return this;
 	},
 
 	removeClass: function( value ) {
-		var classes, elem, cur, curValue, clazz, j, finalValue,
-			i = 0;
+		var classNames, cur, curValue, className, i, finalValue;
 
 		if ( isFunction( value ) ) {
 			return this.each( function( j ) {
@@ -10026,44 +9912,41 @@ jQuery.fn.extend( {
 			return this.attr( "class", "" );
 		}
 
-		classes = classesToArray( value );
+		classNames = classesToArray( value );
 
-		if ( classes.length ) {
-			while ( ( elem = this[ i++ ] ) ) {
-				curValue = getClass( elem );
+		if ( classNames.length ) {
+			return this.each( function() {
+				curValue = getClass( this );
 
 				// This expression is here for better compressibility (see addClass)
-				cur = elem.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
+				cur = this.nodeType === 1 && ( " " + stripAndCollapse( curValue ) + " " );
 
 				if ( cur ) {
-					j = 0;
-					while ( ( clazz = classes[ j++ ] ) ) {
+					for ( i = 0; i < classNames.length; i++ ) {
+						className = classNames[ i ];
 
 						// Remove *all* instances
-						while ( cur.indexOf( " " + clazz + " " ) > -1 ) {
-							cur = cur.replace( " " + clazz + " ", " " );
+						while ( cur.indexOf( " " + className + " " ) > -1 ) {
+							cur = cur.replace( " " + className + " ", " " );
 						}
 					}
 
 					// Only assign if different to avoid unneeded rendering.
 					finalValue = stripAndCollapse( cur );
 					if ( curValue !== finalValue ) {
-						elem.setAttribute( "class", finalValue );
+						this.setAttribute( "class", finalValue );
 					}
 				}
-			}
+			} );
 		}
 
 		return this;
 	},
 
 	toggleClass: function( value, stateVal ) {
-		var type = typeof value,
+		var classNames, className, i, self,
+			type = typeof value,
 			isValidValue = type === "string" || Array.isArray( value );
-
-		if ( typeof stateVal === "boolean" && isValidValue ) {
-			return stateVal ? this.addClass( value ) : this.removeClass( value );
-		}
 
 		if ( isFunction( value ) ) {
 			return this.each( function( i ) {
@@ -10074,17 +9957,20 @@ jQuery.fn.extend( {
 			} );
 		}
 
-		return this.each( function() {
-			var className, i, self, classNames;
+		if ( typeof stateVal === "boolean" && isValidValue ) {
+			return stateVal ? this.addClass( value ) : this.removeClass( value );
+		}
 
+		classNames = classesToArray( value );
+
+		return this.each( function() {
 			if ( isValidValue ) {
 
 				// Toggle individual class names
-				i = 0;
 				self = jQuery( this );
-				classNames = classesToArray( value );
 
-				while ( ( className = classNames[ i++ ] ) ) {
+				for ( i = 0; i < classNames.length; i++ ) {
+					className = classNames[ i ];
 
 					// Check each className given, space separated list
 					if ( self.hasClass( className ) ) {
@@ -10218,7 +10104,7 @@ jQuery.extend( {
 					val :
 
 					// Support: IE <=10 - 11 only
-					// option.text throws exceptions (#14686, #14858)
+					// option.text throws exceptions (trac-14686, trac-14858)
 					// Strip and collapse whitespace
 					// https://html.spec.whatwg.org/#strip-and-collapse-whitespace
 					stripAndCollapse( jQuery.text( elem ) );
@@ -10245,7 +10131,7 @@ jQuery.extend( {
 					option = options[ i ];
 
 					// Support: IE <=9 only
-					// IE8-9 doesn't update selected after form reset (#2551)
+					// IE8-9 doesn't update selected after form reset (trac-2551)
 					if ( ( option.selected || i === index ) &&
 
 							// Don't return options that are disabled or in a disabled optgroup
@@ -10319,9 +10205,39 @@ jQuery.each( [ "radio", "checkbox" ], function() {
 
 
 // Return jQuery for attributes-only inclusion
+var location = window.location;
+
+var nonce = { guid: Date.now() };
+
+var rquery = ( /\?/ );
 
 
-support.focusin = "onfocusin" in window;
+
+// Cross-browser xml parsing
+jQuery.parseXML = function( data ) {
+	var xml, parserErrorElem;
+	if ( !data || typeof data !== "string" ) {
+		return null;
+	}
+
+	// Support: IE 9 - 11 only
+	// IE throws on parseFromString with invalid input.
+	try {
+		xml = ( new window.DOMParser() ).parseFromString( data, "text/xml" );
+	} catch ( e ) {}
+
+	parserErrorElem = xml && xml.getElementsByTagName( "parsererror" )[ 0 ];
+	if ( !xml || parserErrorElem ) {
+		jQuery.error( "Invalid XML: " + (
+			parserErrorElem ?
+				jQuery.map( parserErrorElem.childNodes, function( el ) {
+					return el.textContent;
+				} ).join( "\n" ) :
+				data
+		) );
+	}
+	return xml;
+};
 
 
 var rfocusMorph = /^(?:focusinfocus|focusoutblur)$/,
@@ -10388,8 +10304,8 @@ jQuery.extend( jQuery.event, {
 			return;
 		}
 
-		// Determine event propagation path in advance, per W3C events spec (#9951)
-		// Bubble up to document, then to window; watch for a global ownerDocument var (#9724)
+		// Determine event propagation path in advance, per W3C events spec (trac-9951)
+		// Bubble up to document, then to window; watch for a global ownerDocument var (trac-9724)
 		if ( !onlyHandlers && !special.noBubble && !isWindow( elem ) ) {
 
 			bubbleType = special.delegateType || type;
@@ -10441,7 +10357,7 @@ jQuery.extend( jQuery.event, {
 				acceptData( elem ) ) {
 
 				// Call a native DOM method on the target with the same name as the event.
-				// Don't do default actions on window, that's where global variables be (#6170)
+				// Don't do default actions on window, that's where global variables be (trac-6170)
 				if ( ontype && isFunction( elem[ type ] ) && !isWindow( elem ) ) {
 
 					// Don't re-trigger an onFOO event when we call its FOO() method
@@ -10507,85 +10423,6 @@ jQuery.fn.extend( {
 		}
 	}
 } );
-
-
-// Support: Firefox <=44
-// Firefox doesn't have focus(in | out) events
-// Related ticket - https://bugzilla.mozilla.org/show_bug.cgi?id=687787
-//
-// Support: Chrome <=48 - 49, Safari <=9.0 - 9.1
-// focus(in | out) events fire after focus & blur events,
-// which is spec violation - http://www.w3.org/TR/DOM-Level-3-Events/#events-focusevent-event-order
-// Related ticket - https://bugs.chromium.org/p/chromium/issues/detail?id=449857
-if ( !support.focusin ) {
-	jQuery.each( { focus: "focusin", blur: "focusout" }, function( orig, fix ) {
-
-		// Attach a single capturing handler on the document while someone wants focusin/focusout
-		var handler = function( event ) {
-			jQuery.event.simulate( fix, event.target, jQuery.event.fix( event ) );
-		};
-
-		jQuery.event.special[ fix ] = {
-			setup: function() {
-
-				// Handle: regular nodes (via `this.ownerDocument`), window
-				// (via `this.document`) & document (via `this`).
-				var doc = this.ownerDocument || this.document || this,
-					attaches = dataPriv.access( doc, fix );
-
-				if ( !attaches ) {
-					doc.addEventListener( orig, handler, true );
-				}
-				dataPriv.access( doc, fix, ( attaches || 0 ) + 1 );
-			},
-			teardown: function() {
-				var doc = this.ownerDocument || this.document || this,
-					attaches = dataPriv.access( doc, fix ) - 1;
-
-				if ( !attaches ) {
-					doc.removeEventListener( orig, handler, true );
-					dataPriv.remove( doc, fix );
-
-				} else {
-					dataPriv.access( doc, fix, attaches );
-				}
-			}
-		};
-	} );
-}
-var location = window.location;
-
-var nonce = { guid: Date.now() };
-
-var rquery = ( /\?/ );
-
-
-
-// Cross-browser xml parsing
-jQuery.parseXML = function( data ) {
-	var xml, parserErrorElem;
-	if ( !data || typeof data !== "string" ) {
-		return null;
-	}
-
-	// Support: IE 9 - 11 only
-	// IE throws on parseFromString with invalid input.
-	try {
-		xml = ( new window.DOMParser() ).parseFromString( data, "text/xml" );
-	} catch ( e ) {}
-
-	parserErrorElem = xml && xml.getElementsByTagName( "parsererror" )[ 0 ];
-	if ( !xml || parserErrorElem ) {
-		jQuery.error( "Invalid XML: " + (
-			parserErrorElem ?
-				jQuery.map( parserErrorElem.childNodes, function( el ) {
-					return el.textContent;
-				} ).join( "\n" ) :
-				data
-		) );
-	}
-	return xml;
-};
 
 
 var
@@ -10715,7 +10552,7 @@ var
 	rantiCache = /([?&])_=[^&]*/,
 	rheaders = /^(.*?):[ \t]*([^\r\n]*)$/mg,
 
-	// #7653, #8125, #8152: local protocol detection
+	// trac-7653, trac-8125, trac-8152: local protocol detection
 	rlocalProtocol = /^(?:about|app|app-storage|.+-extension|file|res|widget):$/,
 	rnoContent = /^(?:GET|HEAD)$/,
 	rprotocol = /^\/\//,
@@ -10738,7 +10575,7 @@ var
 	 */
 	transports = {},
 
-	// Avoid comment-prolog char sequence (#10098); must appease lint and evade compression
+	// Avoid comment-prolog char sequence (trac-10098); must appease lint and evade compression
 	allTypes = "*/".concat( "*" ),
 
 	// Anchor tag for parsing the document origin
@@ -10809,7 +10646,7 @@ function inspectPrefiltersOrTransports( structure, options, originalOptions, jqX
 
 // A special extend for ajax options
 // that takes "flat" options (not to be deep extended)
-// Fixes #9887
+// Fixes trac-9887
 function ajaxExtend( target, src ) {
 	var key, deep,
 		flatOptions = jQuery.ajaxSettings.flatOptions || {};
@@ -11220,12 +11057,12 @@ jQuery.extend( {
 		deferred.promise( jqXHR );
 
 		// Add protocol if not provided (prefilters might expect it)
-		// Handle falsy url in the settings object (#10093: consistency with old signature)
+		// Handle falsy url in the settings object (trac-10093: consistency with old signature)
 		// We also use the url parameter if available
 		s.url = ( ( url || s.url || location.href ) + "" )
 			.replace( rprotocol, location.protocol + "//" );
 
-		// Alias method option to type as per ticket #12004
+		// Alias method option to type as per ticket trac-12004
 		s.type = options.method || options.type || s.method || s.type;
 
 		// Extract dataTypes list
@@ -11268,7 +11105,7 @@ jQuery.extend( {
 		}
 
 		// We can fire global events as of now if asked to
-		// Don't fire events if jQuery.event is undefined in an AMD-usage scenario (#15118)
+		// Don't fire events if jQuery.event is undefined in an AMD-usage scenario (trac-15118)
 		fireGlobals = jQuery.event && s.global;
 
 		// Watch for a new set of requests
@@ -11297,7 +11134,7 @@ jQuery.extend( {
 			if ( s.data && ( s.processData || typeof s.data === "string" ) ) {
 				cacheURL += ( rquery.test( cacheURL ) ? "&" : "?" ) + s.data;
 
-				// #9682: remove data so that it's not used in an eventual retry
+				// trac-9682: remove data so that it's not used in an eventual retry
 				delete s.data;
 			}
 
@@ -11570,7 +11407,7 @@ jQuery._evalUrl = function( url, options, doc ) {
 	return jQuery.ajax( {
 		url: url,
 
-		// Make this explicit, since user can override this through ajaxSetup (#11264)
+		// Make this explicit, since user can override this through ajaxSetup (trac-11264)
 		type: "GET",
 		dataType: "script",
 		cache: true,
@@ -11679,7 +11516,7 @@ var xhrSuccessStatus = {
 		0: 200,
 
 		// Support: IE <=9 only
-		// #1450: sometimes IE returns 1223 when it should be 204
+		// trac-1450: sometimes IE returns 1223 when it should be 204
 		1223: 204
 	},
 	xhrSupported = jQuery.ajaxSettings.xhr();
@@ -11751,7 +11588,7 @@ jQuery.ajaxTransport( function( options ) {
 								} else {
 									complete(
 
-										// File: protocol always yields status 0; see #8605, #14207
+										// File: protocol always yields status 0; see trac-8605, trac-14207
 										xhr.status,
 										xhr.statusText
 									);
@@ -11812,7 +11649,7 @@ jQuery.ajaxTransport( function( options ) {
 					xhr.send( options.hasContent && options.data || null );
 				} catch ( e ) {
 
-					// #14683: Only rethrow if this hasn't been notified as an error yet
+					// trac-14683: Only rethrow if this hasn't been notified as an error yet
 					if ( callback ) {
 						throw e;
 					}
@@ -12456,7 +12293,9 @@ jQuery.each(
 
 // Support: Android <=4.0 only
 // Make sure we trim BOM and NBSP
-var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+// Require that the "whitespace run" starts from a non-whitespace
+// to avoid O(N^2) behavior when the engine would try matching "\s+$" at each space position.
+var rtrim = /^[\s\uFEFF\xA0]+|([^\s\uFEFF\xA0])[\s\uFEFF\xA0]+$/g;
 
 // Bind a function to a context, optionally partially applying any
 // arguments.
@@ -12523,7 +12362,7 @@ jQuery.isNumeric = function( obj ) {
 jQuery.trim = function( text ) {
 	return text == null ?
 		"" :
-		( text + "" ).replace( rtrim, "" );
+		( text + "" ).replace( rtrim, "$1" );
 };
 
 
@@ -12572,8 +12411,8 @@ jQuery.noConflict = function( deep ) {
 };
 
 // Expose jQuery and $ identifiers, even in AMD
-// (#7102#comment:10, https://github.com/jquery/jquery/pull/557)
-// and CommonJS for browser emulators (#13566)
+// (trac-7102#comment:10, https://github.com/jquery/jquery/pull/557)
+// and CommonJS for browser emulators (trac-13566)
 if ( typeof noGlobal === "undefined" ) {
 	window.jQuery = window.$ = jQuery;
 }
@@ -13471,7 +13310,7 @@ module.exports = __webpack_require__(7024);
 
 
 /*eslint quotes:0*/
-module.exports = __webpack_require__(5485);
+module.exports = __webpack_require__(9323);
 
 
 /***/ }),
@@ -20842,16 +20681,16 @@ module.exports = urlParse;
 
 /***/ }),
 
-/***/ 8221:
+/***/ 7268:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Aggregator = void 0;
-var core_1 = __webpack_require__(7424);
-var lazy_1 = __webpack_require__(1088);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const lazy_1 = __webpack_require__(9176);
+const util_1 = __webpack_require__(7216);
 /**
  * Provides functionality for the mongoDB aggregation pipeline
  *
@@ -20859,37 +20698,35 @@ var util_1 = __webpack_require__(6588);
  * @param options An optional Options to pass the aggregator
  * @constructor
  */
-var Aggregator = /** @class */ (function () {
-    function Aggregator(pipeline, options) {
+class Aggregator {
+    constructor(pipeline, options) {
         this.pipeline = pipeline;
-        this.options = options;
         this.options = (0, core_1.initOptions)(options);
     }
     /**
      * Returns an `Lazy` iterator for processing results of pipeline
      *
      * @param {*} collection An array or iterator object
-     * @param {Query} query the `Query` object to use as context
      * @returns {Iterator} an iterator object
      */
-    Aggregator.prototype.stream = function (collection) {
-        var iterator = (0, lazy_1.Lazy)(collection);
-        var mode = this.options.processingMode;
+    stream(collection) {
+        let iterator = (0, lazy_1.Lazy)(collection);
+        const mode = this.options.processingMode;
         if (mode == core_1.ProcessingMode.CLONE_ALL ||
             mode == core_1.ProcessingMode.CLONE_INPUT) {
             iterator.map(util_1.cloneDeep);
         }
-        var pipelineOperators = [];
+        const pipelineOperators = new Array();
         if (!(0, util_1.isEmpty)(this.pipeline)) {
             // run aggregation pipeline
-            for (var _i = 0, _a = this.pipeline; _i < _a.length; _i++) {
-                var operator = _a[_i];
-                var operatorKeys = Object.keys(operator);
-                var op = operatorKeys[0];
-                var call = (0, core_1.getOperator)(core_1.OperatorType.PIPELINE, op);
-                (0, util_1.assert)(operatorKeys.length === 1 && !!call, "invalid aggregation operator " + op);
-                pipelineOperators.push(op);
-                iterator = call(iterator, operator[op], this.options);
+            for (const operator of this.pipeline) {
+                const operatorKeys = Object.keys(operator);
+                const opName = operatorKeys[0];
+                const call = (0, core_1.getOperator)(core_1.OperatorType.PIPELINE, opName, this.options);
+                (0, util_1.assert)(operatorKeys.length === 1 && !!call, `invalid pipeline operator ${opName}`);
+                pipelineOperators.push(opName);
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                iterator = call(iterator, operator[opName], this.options);
             }
         }
         // operators that may share object graphs of inputs.
@@ -20900,43 +20737,30 @@ var Aggregator = /** @class */ (function () {
             iterator.map(util_1.cloneDeep);
         }
         return iterator;
-    };
+    }
     /**
      * Return the results of the aggregation as an array.
      *
      * @param {*} collection
      * @param {*} query
      */
-    Aggregator.prototype.run = function (collection) {
+    run(collection) {
         return this.stream(collection).value();
-    };
-    return Aggregator;
-}());
+    }
+}
 exports.Aggregator = Aggregator;
 
 
 /***/ }),
 
-/***/ 7424:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 9587:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var _a;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.redact = exports.computeValue = exports.getOperator = exports.useOperators = exports.OperatorType = exports.initOptions = exports.ProcessingMode = void 0;
-var util_1 = __webpack_require__(6588);
+exports.redact = exports.computeValue = exports.getOperator = exports.useOperators = exports.Context = exports.OperatorType = exports.initOptions = exports.ComputeOptions = exports.ProcessingMode = void 0;
+const util_1 = __webpack_require__(7216);
 /**
  * This controls how input and output documents are processed to meet different application needs.
  * Each mode has different trade offs for; immutability, reference sharing, and performance.
@@ -20965,20 +20789,115 @@ var ProcessingMode;
     /**
      * Turn off cloning and modifies the input collection as needed.
      * This option will also return output objects with shared paths in their graph when specific operators are used.
-     *
-     * This option provides the greatest speedup for the biggest tradeoff. When using the aggregation pipeline, you can use
-     * the "$out" operator to collect immutable intermediate results.
+     * This option provides the greatest speedup for the biggest tradeoff.
+     * When using the aggregation pipeline, you can use the "$out" operator to collect immutable intermediate results.
      *
      * @default
      */
     ProcessingMode["CLONE_OFF"] = "CLONE_OFF";
 })(ProcessingMode = exports.ProcessingMode || (exports.ProcessingMode = {}));
+/** Custom type to facilitate type checking for global options */
+class ComputeOptions {
+    constructor(_opts, 
+    /** Reference to the root object when processing subgraphs of the object. */
+    _root, _local, 
+    /** The current time in milliseconds. Remains the same throughout all stages of the aggregation pipeline. */
+    timestamp = Date.now()) {
+        this._opts = _opts;
+        this._root = _root;
+        this._local = _local;
+        this.timestamp = timestamp;
+        this.update(_root, _local);
+    }
+    /**
+     * Initialize new ComputeOptions.
+     *
+     * @param options
+     * @param root
+     * @param local
+     * @returns {ComputeOptions}
+     */
+    static init(options, root, local) {
+        return options instanceof ComputeOptions
+            ? new ComputeOptions(options._opts, (0, util_1.isNil)(options.root) ? root : options.root, Object.assign({}, options.local, local))
+            : new ComputeOptions(options, root, local);
+    }
+    /** Updates the internal mutable state. */
+    update(root, local) {
+        var _a;
+        // NOTE: this is done for efficiency to avoid creating too many intermediate options objects.
+        this._root = root;
+        this._local = local
+            ? Object.assign({}, local, {
+                variables: Object.assign({}, (_a = this._local) === null || _a === void 0 ? void 0 : _a.variables, local === null || local === void 0 ? void 0 : local.variables)
+            })
+            : local;
+        return this;
+    }
+    getOptions() {
+        return Object.freeze(Object.assign(Object.assign({}, this._opts), { context: Context.from(this._opts.context) }));
+    }
+    get root() {
+        return this._root;
+    }
+    get local() {
+        return this._local;
+    }
+    get idKey() {
+        return this._opts.idKey;
+    }
+    get collation() {
+        var _a;
+        return (_a = this._opts) === null || _a === void 0 ? void 0 : _a.collation;
+    }
+    get processingMode() {
+        var _a;
+        return ((_a = this._opts) === null || _a === void 0 ? void 0 : _a.processingMode) || ProcessingMode.CLONE_OFF;
+    }
+    get useStrictMode() {
+        var _a;
+        return (_a = this._opts) === null || _a === void 0 ? void 0 : _a.useStrictMode;
+    }
+    get scriptEnabled() {
+        var _a;
+        return (_a = this._opts) === null || _a === void 0 ? void 0 : _a.scriptEnabled;
+    }
+    get useGlobalContext() {
+        var _a;
+        return (_a = this._opts) === null || _a === void 0 ? void 0 : _a.useGlobalContext;
+    }
+    get hashFunction() {
+        var _a;
+        return (_a = this._opts) === null || _a === void 0 ? void 0 : _a.hashFunction;
+    }
+    get collectionResolver() {
+        var _a;
+        return (_a = this._opts) === null || _a === void 0 ? void 0 : _a.collectionResolver;
+    }
+    get jsonSchemaValidator() {
+        var _a;
+        return (_a = this._opts) === null || _a === void 0 ? void 0 : _a.jsonSchemaValidator;
+    }
+    get variables() {
+        var _a;
+        return (_a = this._opts) === null || _a === void 0 ? void 0 : _a.variables;
+    }
+    get context() {
+        var _a;
+        return (_a = this._opts) === null || _a === void 0 ? void 0 : _a.context;
+    }
+}
+exports.ComputeOptions = ComputeOptions;
 /**
- * Creates an Option from another required keys are initialized
+ * Creates an Option from another where required keys are initialized.
  * @param options Options
  */
 function initOptions(options) {
-    return Object.freeze(__assign({ idKey: "_id", scriptEnabled: true, useStrictMode: true, processingMode: ProcessingMode.CLONE_OFF, currentTimestamp: Date.now() }, options));
+    return options instanceof ComputeOptions
+        ? options.getOptions()
+        : Object.freeze(Object.assign(Object.assign({ idKey: "_id", scriptEnabled: true, useStrictMode: true, useGlobalContext: true, processingMode: ProcessingMode.CLONE_OFF }, options), { context: (options === null || options === void 0 ? void 0 : options.context)
+                ? Context.from(options === null || options === void 0 ? void 0 : options.context)
+                : Context.init({}) }));
 }
 exports.initOptions = initOptions;
 /**
@@ -20993,15 +20912,58 @@ var OperatorType;
     OperatorType["QUERY"] = "query";
     OperatorType["WINDOW"] = "window";
 })(OperatorType = exports.OperatorType || (exports.OperatorType = {}));
+class Context {
+    constructor(ops) {
+        this.operators = (0, util_1.cloneDeep)(ops);
+    }
+    static init(ops) {
+        return new Context((0, util_1.merge)({
+            [OperatorType.ACCUMULATOR]: {},
+            [OperatorType.EXPRESSION]: {},
+            [OperatorType.PIPELINE]: {},
+            [OperatorType.PROJECTION]: {},
+            [OperatorType.QUERY]: {},
+            [OperatorType.WINDOW]: {}
+        }, ops, { skipValidation: true }));
+    }
+    static from(ctx) {
+        return new Context(ctx.operators);
+    }
+    addOperators(type, ops) {
+        for (const [name, fn] of Object.entries(ops)) {
+            if (!this.getOperator(type, name)) {
+                this.operators[type][name] = fn;
+            }
+        }
+        return this;
+    }
+    // register
+    addAccumulatorOps(ops) {
+        return this.addOperators(OperatorType.ACCUMULATOR, ops);
+    }
+    addExpressionOps(ops) {
+        return this.addOperators(OperatorType.EXPRESSION, ops);
+    }
+    addQueryOps(ops) {
+        return this.addOperators(OperatorType.QUERY, ops);
+    }
+    addPipelineOps(ops) {
+        return this.addOperators(OperatorType.PIPELINE, ops);
+    }
+    addProjectionOps(ops) {
+        return this.addOperators(OperatorType.PROJECTION, ops);
+    }
+    addWindowOps(ops) {
+        return this.addOperators(OperatorType.WINDOW, ops);
+    }
+    // getters
+    getOperator(type, name) {
+        return type in this.operators ? this.operators[type][name] || null : null;
+    }
+}
+exports.Context = Context;
 // operator definitions
-var OPERATORS = (_a = {},
-    _a[OperatorType.ACCUMULATOR] = {},
-    _a[OperatorType.EXPRESSION] = {},
-    _a[OperatorType.PIPELINE] = {},
-    _a[OperatorType.PROJECTION] = {},
-    _a[OperatorType.QUERY] = {},
-    _a[OperatorType.WINDOW] = {},
-    _a);
+const CONTEXT = Context.init({});
 /**
  * Register fully specified operators for the given operator class.
  *
@@ -21009,23 +20971,24 @@ var OPERATORS = (_a = {},
  * @param operators Map of the operators
  */
 function useOperators(type, operators) {
-    for (var _i = 0, _a = Object.entries(operators); _i < _a.length; _i++) {
-        var _b = _a[_i], name_1 = _b[0], func = _b[1];
-        (0, util_1.assert)(func instanceof Function && (0, util_1.isOperator)(name_1), "'" + name_1 + "' is not a valid operator");
-        // const call = getOperator(type, name);
-        // assert(!call, `${name} already exists for '${type}' operators`);
+    for (const [name, fn] of Object.entries(operators)) {
+        (0, util_1.assert)((0, util_1.isFunction)(fn) && (0, util_1.isOperator)(name), `'${name}' is not a valid operator`);
+        const currentFn = getOperator(type, name, null);
+        (0, util_1.assert)(!currentFn || fn === currentFn, `${name} already exists for '${type}' operators. Cannot change operator function once registered.`);
     }
     // toss the operator salad :)
-    (0, util_1.into)(OPERATORS[type], operators);
+    CONTEXT.addOperators(type, operators);
 }
 exports.useOperators = useOperators;
 /**
- * Returns the operator function or null if it is not found
+ * Returns the operator function or undefined if it is not found
  * @param type Type of operator
  * @param operator Name of the operator
  */
-function getOperator(type, operator) {
-    return OPERATORS[type][operator];
+function getOperator(type, operator, options) {
+    const { context: ctx, useGlobalContext: fallback } = options || {};
+    const fn = ctx ? ctx.getOperator(type, operator) : null;
+    return !fn && fallback ? CONTEXT.getOperator(type, operator) : fn;
 }
 exports.getOperator = getOperator;
 /* eslint-disable unused-imports/no-unused-vars-ts */
@@ -21033,19 +20996,19 @@ exports.getOperator = getOperator;
  * Implementation of system variables
  * @type {Object}
  */
-var systemVariables = {
-    $$ROOT: function (obj, expr, options) {
+const systemVariables = {
+    $$ROOT(obj, expr, options) {
         return options.root;
     },
-    $$CURRENT: function (obj, expr, options) {
+    $$CURRENT(obj, expr, options) {
         return obj;
     },
-    $$REMOVE: function (obj, expr, options) {
+    $$REMOVE(obj, expr, options) {
         return undefined;
     },
-    $$NOW: function (obj, expr, options) {
-        return new Date(options.currentTimestamp);
-    },
+    $$NOW(obj, expr, options) {
+        return new Date(options.timestamp);
+    }
 };
 /**
  * Implementation of $redact variables
@@ -21054,27 +21017,25 @@ var systemVariables = {
  *
  * @type {Object}
  */
-var redactVariables = {
-    $$KEEP: function (obj, expr, options) {
+const redactVariables = {
+    $$KEEP(obj, expr, options) {
         return obj;
     },
-    $$PRUNE: function (obj, expr, options) {
+    $$PRUNE(obj, expr, options) {
         return undefined;
     },
-    $$DESCEND: function (obj, expr, options) {
+    $$DESCEND(obj, expr, options) {
         // traverse nested documents iff there is a $cond
         if (!(0, util_1.has)(expr, "$cond"))
             return obj;
-        var result;
-        for (var _i = 0, _a = Object.entries(obj); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], current = _b[1];
+        let result;
+        for (const [key, current] of Object.entries(obj)) {
             if ((0, util_1.isObjectLike)(current)) {
                 if (current instanceof Array) {
-                    var array = [];
-                    for (var _c = 0, current_1 = current; _c < current_1.length; _c++) {
-                        var elem = current_1[_c];
+                    const array = [];
+                    for (let elem of current) {
                         if ((0, util_1.isObject)(elem)) {
-                            elem = redact(elem, expr, options);
+                            elem = redact(elem, expr, options.update(elem));
                         }
                         if (!(0, util_1.isNil)(elem)) {
                             array.push(elem);
@@ -21083,7 +21044,7 @@ var redactVariables = {
                     result = array;
                 }
                 else {
-                    result = redact(current, expr, options);
+                    result = redact(current, expr, options.update(current));
                 }
                 if ((0, util_1.isNil)(result)) {
                     delete obj[key]; // pruned result
@@ -21094,7 +21055,7 @@ var redactVariables = {
             }
         }
         return obj;
-    },
+    }
 };
 /* eslint-enable unused-imports/no-unused-vars-ts */
 /**
@@ -21107,73 +21068,86 @@ var redactVariables = {
  * @returns {*}
  */
 function computeValue(obj, expr, operator, options) {
+    var _a;
     // ensure valid options exist on first invocation
-    options = options || initOptions();
+    const copts = ComputeOptions.init(options, obj);
+    operator = operator || "";
     if ((0, util_1.isOperator)(operator)) {
         // if the field of the object is a valid operator
-        var call = getOperator(OperatorType.EXPRESSION, operator);
-        if (call)
-            return call(obj, expr, options);
+        const callExpression = getOperator(OperatorType.EXPRESSION, operator, options);
+        if (callExpression)
+            return callExpression(obj, expr, copts);
         // we also handle $group accumulator operators
-        call = getOperator(OperatorType.ACCUMULATOR, operator);
-        if (call) {
+        const callAccumulator = getOperator(OperatorType.ACCUMULATOR, operator, options);
+        if (callAccumulator) {
             // if object is not an array, first try to compute using the expression
             if (!(obj instanceof Array)) {
-                obj = computeValue(obj, expr, null, options);
+                obj = computeValue(obj, expr, null, copts);
                 expr = null;
             }
             // validate that we have an array
-            (0, util_1.assert)(obj instanceof Array, "'" + operator + "' target must be an array.");
-            // we pass a null expression because all values have been resolved
-            return call(obj, expr, options);
+            (0, util_1.assert)(obj instanceof Array, `'${operator}' target must be an array.`);
+            // for accumulators, we use the global options since the root is specific to each element within array.
+            return callAccumulator(obj, expr, 
+            // reset the root object for accumulators.
+            copts.update(null, copts.local));
         }
         // operator was not found
-        throw new Error("operator '" + operator + "' is not registered");
+        throw new Error(`operator '${operator}' is not registered`);
     }
-    // if expr is a variable for an object field
-    // field not used in this case
+    // if expr is a string and begins with "$$", then we have a variable.
+    //  this can be one of; redact variable, system variable, user-defined variable.
+    //  we check and process them in that order.
+    //
+    // if expr begins only a single "$", then it is a path to a field on the object.
     if ((0, util_1.isString)(expr) && expr.length > 0 && expr[0] === "$") {
         // we return redact variables as literals
         if ((0, util_1.has)(redactVariables, expr)) {
             return expr;
         }
+        // default to root for resolving path.
+        let context = copts.root;
         // handle selectors with explicit prefix
-        var arr = expr.split(".");
+        const arr = expr.split(".");
         if ((0, util_1.has)(systemVariables, arr[0])) {
             // set 'root' only the first time it is required to be used for all subsequent calls
             // if it already available on the options, it will be used
-            obj = systemVariables[arr[0]](obj, null, __assign({ root: obj }, options));
-            if (arr.length == 1)
-                return obj;
-            expr = expr.substr(arr[0].length); // '.' prefix will be sliced off below
+            context = systemVariables[arr[0]](obj, null, copts);
+            expr = expr.slice(arr[0].length + 1); //  +1 for '.'
         }
-        return (0, util_1.resolve)(obj, expr.slice(1));
+        else if (arr[0].slice(0, 2) === "$$") {
+            // handle user-defined variables
+            context = Object.assign({}, copts.variables, // global vars
+            // current item is added before local variables because the binding may be changed.
+            { this: obj }, (_a = copts.local) === null || _a === void 0 ? void 0 : _a.variables // local vars
+            );
+            const prefix = arr[0].slice(2);
+            (0, util_1.assert)((0, util_1.has)(context, prefix), `Use of undefined variable: ${prefix}`);
+            expr = expr.slice(2);
+        }
+        else {
+            // 'expr' is a path to a field on the object.
+            expr = expr.slice(1);
+        }
+        if (expr === "")
+            return context;
+        return (0, util_1.resolve)(context, expr);
     }
     // check and return value if already in a resolved state
-    if (expr instanceof Array) {
-        return expr.map(function (item) {
-            return computeValue(obj, item, null, options);
-        });
+    if ((0, util_1.isArray)(expr)) {
+        return expr.map((item) => computeValue(obj, item, null, copts));
     }
     else if ((0, util_1.isObject)(expr)) {
-        var result = {};
-        var _loop_1 = function (key, val) {
-            result[key] = computeValue(obj, val, key, options);
+        const result = {};
+        for (const [key, val] of Object.entries(expr)) {
+            result[key] = computeValue(obj, val, key, copts);
             // must run ONLY one aggregate operator per expression
             // if so, return result of the computed value
-            if ([OperatorType.EXPRESSION, OperatorType.ACCUMULATOR].some(function (c) {
-                return (0, util_1.has)(OPERATORS[c], key);
-            })) {
+            if ([OperatorType.EXPRESSION, OperatorType.ACCUMULATOR].some(t => !!getOperator(t, key, options))) {
                 // there should be only one operator
                 (0, util_1.assert)(Object.keys(expr).length === 1, "Invalid aggregation expression '" + JSON.stringify(expr) + "'");
-                return { value: result[key] };
+                return result[key];
             }
-        };
-        for (var _i = 0, _a = Object.entries(expr); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], val = _b[1];
-            var state_1 = _loop_1(key, val);
-            if (typeof state_1 === "object")
-                return state_1.value;
         }
         return result;
     }
@@ -21188,9 +21162,9 @@ exports.computeValue = computeValue;
  * @return {*} returns the result of the redacted object
  */
 function redact(obj, expr, options) {
-    var result = computeValue(obj, expr, null, options);
+    const result = computeValue(obj, expr, null, options);
     return (0, util_1.has)(redactVariables, result)
-        ? redactVariables[result](obj, expr, __assign({ root: obj }, options))
+        ? redactVariables[result](obj, expr, options)
         : result;
 }
 exports.redact = redact;
@@ -21198,36 +21172,16 @@ exports.redact = redact;
 
 /***/ }),
 
-/***/ 9537:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 3645:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Cursor = void 0;
-var aggregator_1 = __webpack_require__(8221);
-var lazy_1 = __webpack_require__(1088);
-var util_1 = __webpack_require__(6588);
+const aggregator_1 = __webpack_require__(7268);
+const lazy_1 = __webpack_require__(9176);
+const util_1 = __webpack_require__(7216);
 /**
  * Cursor to iterate and perform filtering on matched objects.
  * This object must not be used directly. A cursor may be obtaine from calling `find()` on an instance of `Query`.
@@ -21238,8 +21192,8 @@ var util_1 = __webpack_require__(6588);
  * @param options Options
  * @constructor
  */
-var Cursor = /** @class */ (function () {
-    function Cursor(source, predicate, projection, options) {
+class Cursor {
+    constructor(source, predicate, projection, options) {
         this.source = source;
         this.predicate = predicate;
         this.projection = projection;
@@ -21249,7 +21203,7 @@ var Cursor = /** @class */ (function () {
         this.buffer = [];
     }
     /** Returns the iterator from running the query */
-    Cursor.prototype.fetch = function () {
+    fetch() {
         if (this.result)
             return this.result;
         // add projection operator
@@ -21262,116 +21216,115 @@ var Cursor = /** @class */ (function () {
             this.result = new aggregator_1.Aggregator(this.operators, this.options).stream(this.result);
         }
         return this.result;
-    };
+    }
     /** Returns an iterator with the buffered data included */
-    Cursor.prototype.fetchAll = function () {
-        var buffered = (0, lazy_1.Lazy)(__spreadArray([], this.buffer, true));
+    fetchAll() {
+        const buffered = (0, lazy_1.Lazy)([...this.buffer]);
         this.buffer = [];
         return (0, lazy_1.compose)(buffered, this.fetch());
-    };
+    }
     /**
      * Return remaining objects in the cursor as an array. This method exhausts the cursor
      * @returns {Array}
      */
-    Cursor.prototype.all = function () {
+    all() {
         return this.fetchAll().value();
-    };
+    }
     /**
      * Returns the number of objects return in the cursor. This method exhausts the cursor
      * @returns {Number}
      */
-    Cursor.prototype.count = function () {
+    count() {
         return this.all().length;
-    };
+    }
     /**
      * Returns a cursor that begins returning results only after passing or skipping a number of documents.
      * @param {Number} n the number of results to skip.
      * @return {Cursor} Returns the cursor, so you can chain this call.
      */
-    Cursor.prototype.skip = function (n) {
+    skip(n) {
         this.operators.push({ $skip: n });
         return this;
-    };
+    }
     /**
      * Constrains the size of a cursor's result set.
      * @param {Number} n the number of results to limit to.
      * @return {Cursor} Returns the cursor, so you can chain this call.
      */
-    Cursor.prototype.limit = function (n) {
+    limit(n) {
         this.operators.push({ $limit: n });
         return this;
-    };
+    }
     /**
      * Returns results ordered according to a sort specification.
      * @param {Object} modifier an object of key and values specifying the sort order. 1 for ascending and -1 for descending
      * @return {Cursor} Returns the cursor, so you can chain this call.
      */
-    Cursor.prototype.sort = function (modifier) {
+    sort(modifier) {
         this.operators.push({ $sort: modifier });
         return this;
-    };
+    }
     /**
      * Specifies the collation for the cursor returned by the `mingo.Query.find`
      * @param {*} spec
      */
-    Cursor.prototype.collation = function (spec) {
-        this.options = __assign(__assign({}, this.options), { collation: spec });
+    collation(spec) {
+        this.options = Object.assign(Object.assign({}, this.options), { collation: spec });
         return this;
-    };
+    }
     /**
      * Returns the next document in a cursor.
      * @returns {Object | Boolean}
      */
-    Cursor.prototype.next = function () {
+    next() {
         // yield value obtains in hasNext()
         if (this.buffer.length > 0) {
             return this.buffer.pop();
         }
-        var o = this.fetch().next();
+        const o = this.fetch().next();
         if (o.done)
             return;
         return o.value;
-    };
+    }
     /**
      * Returns true if the cursor has documents and can be iterated.
      * @returns {boolean}
      */
-    Cursor.prototype.hasNext = function () {
+    hasNext() {
         // there is a value in the buffer
         if (this.buffer.length > 0)
             return true;
-        var o = this.fetch().next();
+        const o = this.fetch().next();
         if (o.done)
             return false;
         this.buffer.push(o.value);
         return true;
-    };
+    }
     /**
      * Applies a function to each document in a cursor and collects the return values in an array.
      * @param callback
      * @returns {Array}
      */
-    Cursor.prototype.map = function (callback) {
+    map(callback) {
         return this.all().map(callback);
-    };
+    }
     /**
      * Applies a JavaScript function for every document in a cursor.
      * @param callback
      */
-    Cursor.prototype.forEach = function (callback) {
+    forEach(callback) {
         this.all().forEach(callback);
-    };
-    Cursor.prototype[Symbol.iterator] = function () {
+    }
+    [Symbol.iterator]() {
         return this.fetchAll();
-    };
-    return Cursor;
-}());
+    }
+}
 exports.Cursor = Cursor;
 
 
 /***/ }),
 
-/***/ 4406:
+/***/ 6090:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -21379,12 +21332,12 @@ exports.Cursor = Cursor;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.aggregate = exports.remove = exports.find = exports.Query = exports.Aggregator = void 0;
 // loads basic operators
-__webpack_require__(7532);
-var aggregator_1 = __webpack_require__(8221);
-var query_1 = __webpack_require__(7732);
-var aggregator_2 = __webpack_require__(8221);
+__webpack_require__(9207);
+const aggregator_1 = __webpack_require__(7268);
+const query_1 = __webpack_require__(809);
+var aggregator_2 = __webpack_require__(7268);
 Object.defineProperty(exports, "Aggregator", ({ enumerable: true, get: function () { return aggregator_2.Aggregator; } }));
-var query_2 = __webpack_require__(7732);
+var query_2 = __webpack_require__(809);
 Object.defineProperty(exports, "Query", ({ enumerable: true, get: function () { return query_2.Query; } }));
 /**
  * Performs a query on a collection and returns a cursor object.
@@ -21429,33 +21382,26 @@ exports.aggregate = aggregate;
 exports["default"] = {
     Aggregator: aggregator_1.Aggregator,
     Query: query_1.Query,
-    aggregate: aggregate,
-    find: find,
-    remove: remove,
+    aggregate,
+    find,
+    remove
 };
 
 
 /***/ }),
 
-/***/ 7532:
+/***/ 9207:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -21473,24 +21419,42 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.BASIC_CONTEXT = void 0;
 /**
  * Loads all Query and Projection operators
  */
-var core_1 = __webpack_require__(7424);
-var booleanOperators = __importStar(__webpack_require__(5039));
-var comparisonOperators = __importStar(__webpack_require__(6312));
-var pipeline_1 = __webpack_require__(1091);
-var projectionOperators = __importStar(__webpack_require__(7086));
-var queryOperators = __importStar(__webpack_require__(581));
-(0, core_1.useOperators)(core_1.OperatorType.EXPRESSION, __assign(__assign({}, booleanOperators), comparisonOperators));
-(0, core_1.useOperators)(core_1.OperatorType.PIPELINE, { $project: pipeline_1.$project, $skip: pipeline_1.$skip, $limit: pipeline_1.$limit, $sort: pipeline_1.$sort });
+const core_1 = __webpack_require__(9587);
+const booleanOperators = __importStar(__webpack_require__(628));
+const comparisonOperators = __importStar(__webpack_require__(4591));
+const pipeline_1 = __webpack_require__(6582);
+const projectionOperators = __importStar(__webpack_require__(3791));
+const queryOperators = __importStar(__webpack_require__(5444));
+(0, core_1.useOperators)(core_1.OperatorType.EXPRESSION, Object.assign(Object.assign({}, booleanOperators), comparisonOperators));
+(0, core_1.useOperators)(core_1.OperatorType.PIPELINE, {
+    $project: pipeline_1.$project,
+    $skip: pipeline_1.$skip,
+    $limit: pipeline_1.$limit,
+    $sort: pipeline_1.$sort
+});
 (0, core_1.useOperators)(core_1.OperatorType.PROJECTION, projectionOperators);
 (0, core_1.useOperators)(core_1.OperatorType.QUERY, queryOperators);
+/** The basic context for queries. */
+exports.BASIC_CONTEXT = core_1.Context.init({
+    [core_1.OperatorType.EXPRESSION]: Object.assign(Object.assign({}, booleanOperators), comparisonOperators),
+    [core_1.OperatorType.PIPELINE]: {
+        $project: pipeline_1.$project,
+        $skip: pipeline_1.$skip,
+        $limit: pipeline_1.$limit,
+        $sort: pipeline_1.$sort
+    },
+    [core_1.OperatorType.PROJECTION]: projectionOperators,
+    [core_1.OperatorType.QUERY]: queryOperators
+});
 
 
 /***/ }),
 
-/***/ 1088:
+/***/ 9176:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -21505,15 +21469,11 @@ function Lazy(source) {
     return source instanceof Iterator ? source : new Iterator(source);
 }
 exports.Lazy = Lazy;
-function compose() {
-    var iterators = [];
-    for (var _i = 0; _i < arguments.length; _i++) {
-        iterators[_i] = arguments[_i];
-    }
-    var index = 0;
-    return Lazy(function () {
+function compose(...iterators) {
+    let index = 0;
+    return Lazy(() => {
         while (index < iterators.length) {
-            var o = iterators[index].next();
+            const o = iterators[index].next();
             if (!o.done)
                 return o;
             index++;
@@ -21527,16 +21487,15 @@ exports.compose = compose;
  * @param {*} o An object
  */
 function isGenerator(o) {
-    var _a;
-    return (!!o && typeof o === "object" && ((_a = o) === null || _a === void 0 ? void 0 : _a.next) instanceof Function);
+    return (!!o && typeof o === "object" && (o === null || o === void 0 ? void 0 : o.next) instanceof Function);
 }
 function dropItem(array, i) {
-    var rest = array.slice(i + 1);
+    const rest = array.slice(i + 1);
     array.splice(i);
     Array.prototype.push.apply(array, rest);
 }
 // stop iteration error
-var DONE = new Error();
+const DONE = new Error();
 // Lazy function actions
 var Action;
 (function (Action) {
@@ -21546,20 +21505,20 @@ var Action;
     Action[Action["DROP"] = 3] = "DROP";
 })(Action || (Action = {}));
 function createCallback(nextFn, iteratees, buffer) {
-    var done = false;
-    var index = -1;
-    var bufferIndex = 0; // index for the buffer
+    let done = false;
+    let index = -1;
+    let bufferIndex = 0; // index for the buffer
     return function (storeResult) {
         // special hack to collect all values into buffer
         try {
             outer: while (!done) {
-                var o = nextFn();
+                let o = nextFn();
                 index++;
-                var i = -1;
-                var size = iteratees.length;
-                var innerDone = false;
+                let i = -1;
+                const size = iteratees.length;
+                let innerDone = false;
                 while (++i < size) {
-                    var r = iteratees[i];
+                    const r = iteratees[i];
                     switch (r.action) {
                         case Action.MAP:
                             o = r.func(o, index);
@@ -21596,13 +21555,13 @@ function createCallback(nextFn, iteratees, buffer) {
                 throw e;
         }
         done = true;
-        return { done: done };
+        return { done };
     };
 }
 /**
  * A lazy collection iterator yields a single value at time upon request
  */
-var Iterator = /** @class */ (function () {
+class Iterator {
     /**
      * @param {*} source An iterable object or function.
      *    Array - return one element per cycle
@@ -21610,36 +21569,36 @@ var Iterator = /** @class */ (function () {
      *    Function - call to return the next value
      * @param {Function} fn An optional transformation function
      */
-    function Iterator(source) {
+    constructor(source) {
         this.iteratees = [];
         this.yieldedValues = [];
         this.isDone = false;
-        var nextVal;
+        let nextVal;
         if (source instanceof Function) {
             // make iterable
             source = { next: source };
         }
         if (isGenerator(source)) {
-            var src_1 = source;
-            nextVal = function () {
-                var o = src_1.next();
+            const src = source;
+            nextVal = () => {
+                const o = src.next();
                 if (o.done)
                     throw DONE;
                 return o.value;
             };
         }
         else if (source instanceof Array) {
-            var data_1 = source;
-            var size_1 = data_1.length;
-            var index_1 = 0;
-            nextVal = function () {
-                if (index_1 < size_1)
-                    return data_1[index_1++];
+            const data = source;
+            const size = data.length;
+            let index = 0;
+            nextVal = () => {
+                if (index < size)
+                    return data[index++];
                 throw DONE;
             };
         }
         else if (!(source instanceof Function)) {
-            throw new Error("Source is of type '" + typeof source + "'. Must be Array, Function, or Generator");
+            throw new Error(`Source is of type '${typeof source}'. Must be Array, Function, or Generator`);
         }
         // create next function
         this.getNext = createCallback(nextVal, this.iteratees, this.yieldedValues);
@@ -21647,47 +21606,47 @@ var Iterator = /** @class */ (function () {
     /**
      * Add an iteratee to this lazy sequence
      */
-    Iterator.prototype.push = function (action, value) {
+    push(action, value) {
         if (typeof value === "function") {
-            this.iteratees.push({ action: action, func: value });
+            this.iteratees.push({ action, func: value });
         }
         else if (typeof value === "number") {
-            this.iteratees.push({ action: action, count: value });
+            this.iteratees.push({ action, count: value });
         }
         return this;
-    };
-    Iterator.prototype.next = function () {
+    }
+    next() {
         return this.getNext();
-    };
+    }
     // Iteratees methods
     /**
      * Transform each item in the sequence to a new value
      * @param {Function} f
      */
-    Iterator.prototype.map = function (f) {
+    map(f) {
         return this.push(Action.MAP, f);
-    };
+    }
     /**
      * Select only items matching the given predicate
      * @param {Function} pred
      */
-    Iterator.prototype.filter = function (predicate) {
+    filter(predicate) {
         return this.push(Action.FILTER, predicate);
-    };
+    }
     /**
      * Take given numbe for values from sequence
      * @param {Number} n A number greater than 0
      */
-    Iterator.prototype.take = function (n) {
+    take(n) {
         return n > 0 ? this.push(Action.TAKE, n) : this;
-    };
+    }
     /**
      * Drop a number of values from the sequence
      * @param {Number} n Number of items to drop greater than 0
      */
-    Iterator.prototype.drop = function (n) {
+    drop(n) {
         return n > 0 ? this.push(Action.DROP, n) : this;
-    };
+    }
     // Transformations
     /**
      * Returns a new lazy object with results of the transformation
@@ -21695,120 +21654,107 @@ var Iterator = /** @class */ (function () {
      *
      * @param {Function} fn Tranform function of type (Array) => (Any)
      */
-    Iterator.prototype.transform = function (fn) {
-        var self = this;
-        var iter;
-        return Lazy(function () {
+    transform(fn) {
+        const self = this;
+        let iter;
+        return Lazy(() => {
             if (!iter) {
                 iter = Lazy(fn(self.value()));
             }
             return iter.next();
         });
-    };
+    }
     // Terminal methods
     /**
      * Returns the fully realized values of the iterators.
      * The return value will be an array unless `lazy.first()` was used.
      * The realized values are cached for subsequent calls
      */
-    Iterator.prototype.value = function () {
+    value() {
         if (!this.isDone) {
             this.isDone = this.getNext(true).done;
         }
         return this.yieldedValues;
-    };
+    }
     /**
      * Execute the funcion for each value. Will stop when an execution returns false.
      * @param {Function} f
      * @returns {Boolean} false iff `f` return false for AnyVal execution, otherwise true
      */
-    Iterator.prototype.each = function (f) {
+    each(f) {
         for (;;) {
-            var o = this.next();
+            const o = this.next();
             if (o.done)
                 break;
             if (f(o.value) === false)
                 return false;
         }
         return true;
-    };
+    }
     /**
      * Returns the reduction of sequence according the reducing function
      *
      * @param {*} f a reducing function
      * @param {*} init
      */
-    Iterator.prototype.reduce = function (f, initialValue) {
-        var o = this.next();
-        var i = 0;
+    reduce(f, initialValue) {
+        let o = this.next();
         if (initialValue === undefined && !o.done) {
             initialValue = o.value;
             o = this.next();
-            i++;
         }
         while (!o.done) {
             initialValue = f(initialValue, o.value);
             o = this.next();
         }
         return initialValue;
-    };
+    }
     /**
      * Returns the number of matched items in the sequence
      */
-    Iterator.prototype.size = function () {
-        return this.reduce(function (acc, _) { return ++acc; }, 0);
-    };
-    Iterator.prototype[Symbol.iterator] = function () {
+    size() {
+        return this.reduce(((acc, _) => ++acc), 0);
+    }
+    [Symbol.iterator]() {
         /* eslint-disable @typescript-eslint/no-unsafe-return */
         return this;
-    };
-    return Iterator;
-}());
+    }
+}
 exports.Iterator = Iterator;
 
 
 /***/ }),
 
-/***/ 2344:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 4414:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 /**
  * Predicates used for Query and Expression operators.
  */
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$type = exports.$elemMatch = exports.$size = exports.$all = exports.$exists = exports.$regex = exports.$mod = exports.$gte = exports.$gt = exports.$lte = exports.$lt = exports.$nin = exports.$in = exports.$ne = exports.$eq = exports.createExpressionOperator = exports.createQueryOperator = void 0;
-var core_1 = __webpack_require__(7424);
-var query_1 = __webpack_require__(7732);
-var types_1 = __webpack_require__(1463);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const query_1 = __webpack_require__(809);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns a query operator created from the predicate
  *
  * @param predicate Predicate function
  */
 function createQueryOperator(predicate) {
-    return function (selector, value, options) {
-        var opts = { unwrapArray: true };
-        var depth = Math.max(1, selector.split(".").length - 1);
-        return function (obj) {
+    const f = (selector, value, options) => {
+        const opts = { unwrapArray: true };
+        const depth = Math.max(1, selector.split(".").length - 1);
+        return (obj) => {
             // value of field must be fully resolved.
-            var lhs = (0, util_1.resolve)(obj, selector, opts);
-            return predicate(lhs, value, __assign(__assign({}, options), { depth: depth }));
+            const lhs = (0, util_1.resolve)(obj, selector, opts);
+            return predicate(lhs, value, Object.assign(Object.assign({}, options), { depth }));
         };
     };
+    f.op = "query";
+    return f; // as QueryOperator;
 }
 exports.createQueryOperator = createQueryOperator;
 /**
@@ -21817,9 +21763,9 @@ exports.createQueryOperator = createQueryOperator;
  * @param predicate Predicate function
  */
 function createExpressionOperator(predicate) {
-    return function (obj, expr, options) {
-        var args = (0, core_1.computeValue)(obj, expr, null, options);
-        return predicate.apply(void 0, args);
+    return (obj, expr, options) => {
+        const args = (0, core_1.computeValue)(obj, expr, null, options);
+        return predicate(...args);
     };
 }
 exports.createExpressionOperator = createExpressionOperator;
@@ -21839,8 +21785,8 @@ function $eq(a, b, options) {
         return true;
     // check
     if (a instanceof Array) {
-        var eq = util_1.isEqual.bind(null, b);
-        return a.some(eq) || (0, util_1.flatten)(a, options.depth).some(eq);
+        const eq = util_1.isEqual.bind(null, b);
+        return a.some(eq) || (0, util_1.flatten)(a, options === null || options === void 0 ? void 0 : options.depth).some(eq);
     }
     return false;
 }
@@ -21866,7 +21812,7 @@ exports.$ne = $ne;
 function $in(a, b, options) {
     // queries for null should be able to find undefined fields
     if ((0, util_1.isNil)(a))
-        return b.some(function (v) { return v === null; });
+        return b.some(v => v === null);
     return (0, util_1.intersection)([(0, util_1.ensureArray)(a), b], options === null || options === void 0 ? void 0 : options.hashFunction).length > 0;
 }
 exports.$in = $in;
@@ -21889,7 +21835,7 @@ exports.$nin = $nin;
  * @returns {boolean}
  */
 function $lt(a, b, options) {
-    return compare(a, b, function (x, y) { return x < y; });
+    return compare(a, b, (x, y) => (0, util_1.compare)(x, y) < 0);
 }
 exports.$lt = $lt;
 /**
@@ -21900,7 +21846,7 @@ exports.$lt = $lt;
  * @returns {boolean}
  */
 function $lte(a, b, options) {
-    return compare(a, b, function (x, y) { return x <= y; });
+    return compare(a, b, (x, y) => (0, util_1.compare)(x, y) <= 0);
 }
 exports.$lte = $lte;
 /**
@@ -21911,7 +21857,7 @@ exports.$lte = $lte;
  * @returns {boolean}
  */
 function $gt(a, b, options) {
-    return compare(a, b, function (x, y) { return x > y; });
+    return compare(a, b, (x, y) => (0, util_1.compare)(x, y) > 0);
 }
 exports.$gt = $gt;
 /**
@@ -21922,7 +21868,7 @@ exports.$gt = $gt;
  * @returns {boolean}
  */
 function $gte(a, b, options) {
-    return compare(a, b, function (x, y) { return x >= y; });
+    return compare(a, b, (x, y) => (0, util_1.compare)(x, y) >= 0);
 }
 exports.$gte = $gte;
 /**
@@ -21933,7 +21879,7 @@ exports.$gte = $gte;
  * @returns {boolean}
  */
 function $mod(a, b, options) {
-    return (0, util_1.ensureArray)(a).some(function (x) { return b.length === 2 && x % b[0] === b[1]; });
+    return (0, util_1.ensureArray)(a).some(((x) => b.length === 2 && x % b[0] === b[1]));
 }
 exports.$mod = $mod;
 /**
@@ -21944,8 +21890,8 @@ exports.$mod = $mod;
  * @returns {boolean}
  */
 function $regex(a, b, options) {
-    var lhs = (0, util_1.ensureArray)(a);
-    var match = function (x) { return (0, util_1.isString)(x) && !!b.exec(x); };
+    const lhs = (0, util_1.ensureArray)(a);
+    const match = (x) => (0, util_1.isString)(x) && (0, util_1.truthy)(b.exec(x), options === null || options === void 0 ? void 0 : options.useStrictMode);
     return lhs.some(match) || (0, util_1.flatten)(lhs, 1).some(match);
 }
 exports.$regex = $regex;
@@ -21975,26 +21921,20 @@ function $all(values, queries, options) {
         !queries.length) {
         return false;
     }
-    var matched = true;
-    var _loop_1 = function (query) {
+    let matched = true;
+    for (const query of queries) {
         // no need to check all the queries.
         if (!matched)
-            return "break";
+            break;
         if ((0, util_1.isObject)(query) && (0, util_1.inArray)(Object.keys(query), "$elemMatch")) {
             matched = $elemMatch(values, query["$elemMatch"], options);
         }
         else if (query instanceof RegExp) {
-            matched = values.some(function (s) { return typeof s === "string" && query.test(s); });
+            matched = values.some(s => typeof s === "string" && query.test(s));
         }
         else {
-            matched = values.some(function (v) { return (0, util_1.isEqual)(query, v); });
+            matched = values.some(v => (0, util_1.isEqual)(query, v));
         }
-    };
-    for (var _i = 0, queries_1 = queries; _i < queries_1.length; _i++) {
-        var query = queries_1[_i];
-        var state_1 = _loop_1(query);
-        if (state_1 === "break")
-            break;
     }
     return matched;
 }
@@ -22007,7 +21947,7 @@ exports.$all = $all;
  * @returns {*|boolean}
  */
 function $size(a, b, options) {
-    return a.length === b;
+    return Array.isArray(a) && a.length === b;
 }
 exports.$size = $size;
 function isNonBooleanOperator(name) {
@@ -22022,17 +21962,17 @@ function isNonBooleanOperator(name) {
 function $elemMatch(a, b, options) {
     // should return false for non-matching input
     if ((0, util_1.isArray)(a) && !(0, util_1.isEmpty)(a)) {
-        var format = function (x) { return x; };
-        var criteria = b;
+        let format = (x) => x;
+        let criteria = b;
         // If we find a boolean operator in the subquery, we fake a field to point to it. This is an
         // attempt to ensure that it is a valid criteria. We cannot make this substitution for operators
         // like $and/$or/$nor; as otherwise, this faking will break our query.
         if (Object.keys(b).every(isNonBooleanOperator)) {
             criteria = { temp: b };
-            format = function (x) { return ({ temp: x }); };
+            format = x => ({ temp: x });
         }
-        var query = new query_1.Query(criteria, options);
-        for (var i = 0, len = a.length; i < len; i++) {
+        const query = new query_1.Query(criteria, options);
+        for (let i = 0, len = a.length; i < len; i++) {
             if (query.test(format(a[i]))) {
                 return true;
             }
@@ -22041,6 +21981,51 @@ function $elemMatch(a, b, options) {
     return false;
 }
 exports.$elemMatch = $elemMatch;
+// helper functions
+const isNull = (a) => a === null;
+const isInt = (a) => (0, util_1.isNumber)(a) &&
+    a >= util_1.MIN_INT &&
+    a <= util_1.MAX_INT &&
+    a.toString().indexOf(".") === -1;
+const isLong = (a) => (0, util_1.isNumber)(a) &&
+    a >= util_1.MIN_LONG &&
+    a <= util_1.MAX_LONG &&
+    a.toString().indexOf(".") === -1;
+/** Mapping of type to predicate */
+const compareFuncs = {
+    array: util_1.isArray,
+    bool: util_1.isBoolean,
+    boolean: util_1.isBoolean,
+    date: util_1.isDate,
+    decimal: util_1.isNumber,
+    double: util_1.isNumber,
+    int: isInt,
+    long: isLong,
+    number: util_1.isNumber,
+    null: isNull,
+    object: util_1.isObject,
+    regex: util_1.isRegExp,
+    regexp: util_1.isRegExp,
+    string: util_1.isString,
+    // added for completeness
+    undefined: util_1.isNil,
+    function: (_) => {
+        throw new Error("unsupported type key `function`.");
+    },
+    // Mongo identifiers
+    1: util_1.isNumber,
+    2: util_1.isString,
+    3: util_1.isObject,
+    4: util_1.isArray,
+    6: util_1.isNil,
+    8: util_1.isBoolean,
+    9: util_1.isDate,
+    10: isNull,
+    11: util_1.isRegExp,
+    16: isInt,
+    18: isLong,
+    19: util_1.isNumber //decimal
+};
 /**
  * Selects documents if a field is of the specified type.
  *
@@ -22048,54 +22033,9 @@ exports.$elemMatch = $elemMatch;
  * @param b
  * @returns {boolean}
  */
-function compareType(a, b, options) {
-    switch (b) {
-        case 1:
-        case 19:
-        case types_1.BsonType.DOUBLE:
-        case types_1.BsonType.DECIMAL:
-            return (0, util_1.isNumber)(a);
-        case 2:
-        case types_1.JsType.STRING:
-            return (0, util_1.isString)(a);
-        case 3:
-        case types_1.JsType.OBJECT:
-            return (0, util_1.isObject)(a);
-        case 4:
-        case types_1.JsType.ARRAY:
-            return (0, util_1.isArray)(a);
-        case 6:
-        case types_1.JsType.UNDEFINED:
-            return (0, util_1.isNil)(a);
-        case 8:
-        case types_1.JsType.BOOLEAN:
-        case types_1.BsonType.BOOL:
-            return (0, util_1.isBoolean)(a);
-        case 9:
-        case types_1.JsType.DATE:
-            return (0, util_1.isDate)(a);
-        case 10:
-        case types_1.JsType.NULL:
-            return a === null;
-        case 11:
-        case types_1.JsType.REGEXP:
-        case types_1.BsonType.REGEX:
-            return (0, util_1.isRegExp)(a);
-        case 16:
-        case types_1.BsonType.INT:
-            return ((0, util_1.isNumber)(a) &&
-                a >= util_1.MIN_INT &&
-                a <= util_1.MAX_INT &&
-                a.toString().indexOf(".") === -1);
-        case 18:
-        case types_1.BsonType.LONG:
-            return ((0, util_1.isNumber)(a) &&
-                a >= util_1.MIN_LONG &&
-                a <= util_1.MAX_LONG &&
-                a.toString().indexOf(".") === -1);
-        default:
-            return false;
-    }
+function compareType(a, b, _) {
+    const f = compareFuncs[b];
+    return f ? f(a) : false;
 }
 /**
  * Selects documents if a field is of the specified type.
@@ -22106,18 +22046,18 @@ function compareType(a, b, options) {
  */
 function $type(a, b, options) {
     return Array.isArray(b)
-        ? b.findIndex(function (t) { return compareType(a, t, options); }) >= 0
+        ? b.findIndex(t => compareType(a, t, options)) >= 0
         : compareType(a, b, options);
 }
 exports.$type = $type;
 function compare(a, b, f) {
-    return (0, util_1.ensureArray)(a).some(function (x) { return (0, util_1.getType)(x) === (0, util_1.getType)(b) && f(x, b); });
+    return (0, util_1.ensureArray)(a).some(x => (0, util_1.getType)(x) === (0, util_1.getType)(b) && f(x, b));
 }
 
 
 /***/ }),
 
-/***/ 989:
+/***/ 8680:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -22130,33 +22070,29 @@ exports.covariance = exports.stddev = void 0;
  * @param {Boolean} if true calculates a sample standard deviation, otherwise calculates a population stddev
  * @return {Number}
  */
-function stddev(data, sampled) {
-    if (sampled === void 0) { sampled = true; }
-    var sum = data.reduce(function (acc, n) { return acc + n; }, 0);
-    var N = data.length || 1;
-    var avg = sum / N;
-    return Math.sqrt(data.reduce(function (acc, n) { return acc + Math.pow(n - avg, 2); }, 0) /
+function stddev(data, sampled = true) {
+    const sum = data.reduce((acc, n) => acc + n, 0);
+    const N = data.length || 1;
+    const avg = sum / N;
+    return Math.sqrt(data.reduce((acc, n) => acc + Math.pow(n - avg, 2), 0) /
         (N - Number(sampled)));
 }
 exports.stddev = stddev;
-function covariance(dataset, sampled) {
-    if (sampled === void 0) { sampled = true; }
+function covariance(dataset, sampled = true) {
     if (!dataset)
         return null;
     if (dataset.length < 2)
         return sampled ? null : 0;
-    var meanX = 0.0;
-    var meanY = 0.0;
-    for (var _i = 0, dataset_1 = dataset; _i < dataset_1.length; _i++) {
-        var _a = dataset_1[_i], x = _a[0], y = _a[1];
+    let meanX = 0.0;
+    let meanY = 0.0;
+    for (const [x, y] of dataset) {
         meanX += x;
         meanY += y;
     }
     meanX /= dataset.length;
     meanY /= dataset.length;
-    var result = 0;
-    for (var _b = 0, dataset_2 = dataset; _b < dataset_2.length; _b++) {
-        var _c = dataset_2[_b], x = _c[0], y = _c[1];
+    let result = 0;
+    for (const [x, y] of dataset) {
         result += (x - meanX) * (y - meanY);
     }
     return result / (dataset.length - Number(sampled));
@@ -22166,15 +22102,54 @@ exports.covariance = covariance;
 
 /***/ }),
 
-/***/ 4326:
+/***/ 9329:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+// Custom Aggregation Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#custom-aggregation-expression-operators
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$accumulator = void 0;
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+/**
+ * Defines a custom accumulator function.
+ *
+ * @param {Array} collection The input array
+ * @param {*} expr The expression for the operator
+ * @param {Options} options Options
+ */
+const $accumulator = (collection, expr, options) => {
+    var _a;
+    (0, util_1.assert)(!!options && options.scriptEnabled, "$accumulator operator requires 'scriptEnabled' option to be true");
+    if (collection.length == 0)
+        return expr.initArgs;
+    const copts = core_1.ComputeOptions.init(options);
+    const initArgs = (0, core_1.computeValue)({}, expr.initArgs || [], null, copts.update(((_a = copts === null || copts === void 0 ? void 0 : copts.local) === null || _a === void 0 ? void 0 : _a.groupId) || {}));
+    let state = expr.init.call(null, ...initArgs);
+    for (const doc of collection) {
+        // get arguments for document
+        const args = (0, core_1.computeValue)(doc, expr.accumulateArgs, null, copts.update(doc));
+        // update the state with each documents value
+        // eslint-disable-next-line
+        state = expr.accumulate.call(null, ...[state, ...args]);
+    }
+    return (expr.finalize ? expr.finalize.call(null, state) : state);
+};
+exports.$accumulator = $accumulator;
+
+
+/***/ }),
+
+/***/ 8911:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$addToSet = void 0;
-var util_1 = __webpack_require__(6588);
-var push_1 = __webpack_require__(9510);
+const util_1 = __webpack_require__(7216);
+const push_1 = __webpack_require__(7835);
 /**
  * Returns an array of all the unique values for the selected field among for each document in that group.
  *
@@ -22183,23 +22158,23 @@ var push_1 = __webpack_require__(9510);
  * @param {Options} options The options to use for this operation
  * @returns {*}
  */
-function $addToSet(collection, expr, options) {
+const $addToSet = (collection, expr, options) => {
     return (0, util_1.unique)((0, push_1.$push)(collection, expr, options), options === null || options === void 0 ? void 0 : options.hashFunction);
-}
+};
 exports.$addToSet = $addToSet;
 
 
 /***/ }),
 
-/***/ 1148:
+/***/ 9891:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$avg = void 0;
-var util_1 = __webpack_require__(6588);
-var push_1 = __webpack_require__(9510);
+const util_1 = __webpack_require__(7216);
+const push_1 = __webpack_require__(7835);
 /**
  * Returns an average of all the values in a group.
  *
@@ -22208,17 +22183,72 @@ var push_1 = __webpack_require__(9510);
  * @param {Options} options The options to use for this operation
  * @returns {Number}
  */
-function $avg(collection, expr, options) {
-    var data = (0, push_1.$push)(collection, expr, options).filter(util_1.isNumber);
-    var sum = data.reduce(function (acc, n) { return acc + n; }, 0);
+const $avg = (collection, expr, options) => {
+    const data = (0, push_1.$push)(collection, expr, options).filter(util_1.isNumber);
+    const sum = data.reduce((acc, n) => acc + n, 0);
     return sum / (data.length || 1);
-}
+};
 exports.$avg = $avg;
 
 
 /***/ }),
 
-/***/ 4487:
+/***/ 8474:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$bottom = void 0;
+const bottomN_1 = __webpack_require__(2102);
+/**
+ * Returns the bottom element within a group according to the specified sort order.
+ *
+ * @param {Array} collection The input array
+ * @param {Object} expr The right-hand side expression value of the operator
+ * @param {Options} options The options to use for this operation
+ * @returns {*}
+ */
+const $bottom = (collection, expr, options) => (0, bottomN_1.$bottomN)(collection, Object.assign(Object.assign({}, expr), { n: 1 }), options);
+exports.$bottom = $bottom;
+
+
+/***/ }),
+
+/***/ 2102:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$bottomN = void 0;
+// https://www.mongodb.com/docs/manual/reference/operator/aggregation/bottomN/#mongodb-group-grp.-bottomN
+const aggregator_1 = __webpack_require__(7268);
+const core_1 = __webpack_require__(9587);
+const push_1 = __webpack_require__(7835);
+/**
+ * Returns an aggregation of the bottom n elements within a group, according to the specified sort order.
+ * If the group contains fewer than n elements, $bottomN returns all elements in the group.
+ *
+ * @param {Array} collection The input array
+ * @param {Object} expr The right-hand side expression value of the operator
+ * @param {Options} options The options to use for this operation
+ * @returns {*}
+ */
+const $bottomN = (collection, expr, options) => {
+    const copts = core_1.ComputeOptions.init(options);
+    const { n, sortBy } = (0, core_1.computeValue)(copts.local.groupId, expr, null, copts);
+    const result = new aggregator_1.Aggregator([{ $sort: sortBy }], copts).run(collection);
+    const m = result.length;
+    const p = n;
+    return (0, push_1.$push)(m <= p ? result : result.slice(m - p), expr.output, copts);
+};
+exports.$bottomN = $bottomN;
+
+
+/***/ }),
+
+/***/ 1514:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -22232,68 +22262,62 @@ exports.$count = void 0;
  * @param {Object} expr The right-hand side expression value of the operator
  * @returns {*}
  */
-function $count(collection, expr, options) {
-    return collection.length;
-}
+const $count = (collection, _expr, _options) => collection.length;
 exports.$count = $count;
 
 
 /***/ }),
 
-/***/ 104:
+/***/ 7212:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$covariancePop = void 0;
-var _internal_1 = __webpack_require__(989);
-var push_1 = __webpack_require__(9510);
+const _internal_1 = __webpack_require__(8680);
+const push_1 = __webpack_require__(7835);
 /**
  * Returns the population covariance of two numeric expressions.
  * @param  {Array} collection
  * @param  {Object} expr
  * @return {Number|null}
  */
-function $covariancePop(collection, expr, options) {
-    return (0, _internal_1.covariance)((0, push_1.$push)(collection, expr, options), false);
-}
+const $covariancePop = (collection, expr, options) => (0, _internal_1.covariance)((0, push_1.$push)(collection, expr, options), false);
 exports.$covariancePop = $covariancePop;
 
 
 /***/ }),
 
-/***/ 4863:
+/***/ 1662:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$covarianceSamp = void 0;
-var _internal_1 = __webpack_require__(989);
-var push_1 = __webpack_require__(9510);
+const _internal_1 = __webpack_require__(8680);
+const push_1 = __webpack_require__(7835);
 /**
  * Returns the sample covariance of two numeric expressions.
  * @param  {Array} collection
  * @param  {Object} expr
  * @return {Number|null}
  */
-function $covarianceSamp(collection, expr, options) {
-    return (0, _internal_1.covariance)((0, push_1.$push)(collection, expr, options), true);
-}
+const $covarianceSamp = (collection, expr, options) => (0, _internal_1.covariance)((0, push_1.$push)(collection, expr, options), true);
 exports.$covarianceSamp = $covarianceSamp;
 
 
 /***/ }),
 
-/***/ 8786:
+/***/ 2452:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$first = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Returns the first value in a group.
  *
@@ -22301,17 +22325,48 @@ var core_1 = __webpack_require__(7424);
  * @param {Object} expr The right-hand side expression value of the operator
  * @returns {*}
  */
-function $first(collection, expr, options) {
+const $first = (collection, expr, options) => {
     return collection.length > 0
         ? (0, core_1.computeValue)(collection[0], expr, null, options)
         : undefined;
-}
+};
 exports.$first = $first;
 
 
 /***/ }),
 
-/***/ 1998:
+/***/ 3445:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$firstN = void 0;
+// https://www.mongodb.com/docs/manual/reference/operator/aggregation/firstN/
+const core_1 = __webpack_require__(9587);
+const push_1 = __webpack_require__(7835);
+/**
+ * Returns an aggregation of the first n elements within a group. The elements returned are meaningful only if in a specified sort order.
+ * If the group contains fewer than n elements, $firstN returns all elements in the group.
+ *
+ * @param {Array} collection The input array
+ * @param {Object} expr The right-hand side expression value of the operator
+ * @param {Options} options The options to use for this operation
+ * @returns {*}
+ */
+const $firstN = (collection, expr, options) => {
+    var _a;
+    const copts = core_1.ComputeOptions.init(options);
+    const m = collection.length;
+    const n = (0, core_1.computeValue)((_a = copts === null || copts === void 0 ? void 0 : copts.local) === null || _a === void 0 ? void 0 : _a.groupId, expr.n, null, copts);
+    return (0, push_1.$push)(m <= n ? collection : collection.slice(0, n), expr.input, options);
+};
+exports.$firstN = $firstN;
+
+
+/***/ }),
+
+/***/ 3424:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -22321,7 +22376,11 @@ exports.$first = $first;
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -22330,32 +22389,41 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(4326), exports);
-__exportStar(__webpack_require__(1148), exports);
-__exportStar(__webpack_require__(4487), exports);
-__exportStar(__webpack_require__(104), exports);
-__exportStar(__webpack_require__(4863), exports);
-__exportStar(__webpack_require__(8786), exports);
-__exportStar(__webpack_require__(8126), exports);
-__exportStar(__webpack_require__(209), exports);
-__exportStar(__webpack_require__(2879), exports);
-__exportStar(__webpack_require__(1702), exports);
-__exportStar(__webpack_require__(9510), exports);
-__exportStar(__webpack_require__(6672), exports);
-__exportStar(__webpack_require__(6094), exports);
-__exportStar(__webpack_require__(6988), exports);
+__exportStar(__webpack_require__(9329), exports);
+__exportStar(__webpack_require__(8911), exports);
+__exportStar(__webpack_require__(9891), exports);
+__exportStar(__webpack_require__(8474), exports);
+__exportStar(__webpack_require__(2102), exports);
+__exportStar(__webpack_require__(1514), exports);
+__exportStar(__webpack_require__(7212), exports);
+__exportStar(__webpack_require__(1662), exports);
+__exportStar(__webpack_require__(2452), exports);
+__exportStar(__webpack_require__(3445), exports);
+__exportStar(__webpack_require__(5026), exports);
+__exportStar(__webpack_require__(9799), exports);
+__exportStar(__webpack_require__(7133), exports);
+__exportStar(__webpack_require__(8542), exports);
+__exportStar(__webpack_require__(4785), exports);
+__exportStar(__webpack_require__(5613), exports);
+__exportStar(__webpack_require__(3946), exports);
+__exportStar(__webpack_require__(7835), exports);
+__exportStar(__webpack_require__(2257), exports);
+__exportStar(__webpack_require__(4393), exports);
+__exportStar(__webpack_require__(7970), exports);
+__exportStar(__webpack_require__(1382), exports);
+__exportStar(__webpack_require__(7097), exports);
 
 
 /***/ }),
 
-/***/ 8126:
+/***/ 5026:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$last = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Returns the last value in the collection.
  *
@@ -22364,24 +22432,56 @@ var core_1 = __webpack_require__(7424);
  * @param {Options} options The options to use for this operation
  * @returns {*}
  */
-function $last(collection, expr, options) {
+const $last = (collection, expr, options) => {
     return collection.length > 0
         ? (0, core_1.computeValue)(collection[collection.length - 1], expr, null, options)
         : undefined;
-}
+};
 exports.$last = $last;
 
 
 /***/ }),
 
-/***/ 209:
+/***/ 9799:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$lastN = void 0;
+// https://www.mongodb.com/docs/manual/reference/operator/aggregation/lastN/
+const core_1 = __webpack_require__(9587);
+const push_1 = __webpack_require__(7835);
+/**
+ * Returns an aggregation of the last n elements within a group. The elements returned are meaningful only if in a specified sort order.
+ * If the group contains fewer than n elements, $lastN returns all elements in the group.
+ *
+ * @param {Array} collection The input array
+ * @param {Object} expr The right-hand side expression value of the operator
+ * @param {Options} options The options to use for this operation
+ * @returns {*}
+ */
+const $lastN = (collection, expr, options) => {
+    var _a;
+    const copts = core_1.ComputeOptions.init(options);
+    const m = collection.length;
+    const n = (0, core_1.computeValue)((_a = copts === null || copts === void 0 ? void 0 : copts.local) === null || _a === void 0 ? void 0 : _a.groupId, expr.n, null, copts);
+    return (0, push_1.$push)(m <= n ? collection : collection.slice(m - n), expr.input, options);
+};
+exports.$lastN = $lastN;
+
+
+/***/ }),
+
+/***/ 7133:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$max = void 0;
-var push_1 = __webpack_require__(9510);
+const util_1 = __webpack_require__(7216);
+const push_1 = __webpack_require__(7835);
 /**
  * Returns the highest value in a group.
  *
@@ -22390,45 +22490,81 @@ var push_1 = __webpack_require__(9510);
  * @param {Options} options The options to use for this operation
  * @returns {*}
  */
-function $max(collection, expr, options) {
-    var nums = (0, push_1.$push)(collection, expr, options);
-    var n = nums.reduce(function (acc, n) { return (n > acc ? n : acc); }, -Infinity);
+const $max = (collection, expr, options) => {
+    const nums = (0, push_1.$push)(collection, expr, options).filter(util_1.isNotNaN);
+    const n = nums.reduce((acc, n) => ((0, util_1.compare)(n, acc) >= 0 ? n : acc), -Infinity);
     return n === -Infinity ? undefined : n;
-}
+};
 exports.$max = $max;
 
 
 /***/ }),
 
-/***/ 2879:
+/***/ 8542:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$maxN = void 0;
+// https://www.mongodb.com/docs/manual/reference/operator/aggregation/maxN
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const push_1 = __webpack_require__(7835);
+/**
+ * Returns an aggregation of the maxmimum value n elements within a group.
+ * If the group contains fewer than n elements, $maxN returns all elements in the group.
+ *
+ * @param {Array} collection The input array
+ * @param {Object} expr The right-hand side expression value of the operator
+ * @param {Options} options The options to use for this operation
+ * @returns {*}
+ */
+const $maxN = (collection, expr, options) => {
+    var _a;
+    const copts = core_1.ComputeOptions.init(options);
+    const m = collection.length;
+    const n = (0, core_1.computeValue)((_a = copts === null || copts === void 0 ? void 0 : copts.local) === null || _a === void 0 ? void 0 : _a.groupId, expr.n, null, copts);
+    const arr = (0, push_1.$push)(collection, expr.input, options).filter(o => !(0, util_1.isNil)(o));
+    arr.sort((a, b) => -1 * (0, util_1.compare)(a, b));
+    return m <= n ? arr : arr.slice(0, n);
+};
+exports.$maxN = $maxN;
+
+
+/***/ }),
+
+/***/ 4785:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$mergeObjects = void 0;
-var mergeObjects_1 = __webpack_require__(934);
+const mergeObjects_1 = __webpack_require__(9531);
 /**
  * Combines multiple documents into a single document.
  *
  * @param {Array} collection The input array
- * @param {Object} expr The right-hand side expression value of the operator
+ * @param {Object} _ The right-hand side expression value of the operator
  * @param {Options} options The options to use for this operation
  * @returns {Array|*}
  */
-exports.$mergeObjects = mergeObjects_1.$mergeObjects;
+const $mergeObjects = (collection, _, options) => (0, mergeObjects_1.$mergeObjects)({ docs: collection }, "$docs", options);
+exports.$mergeObjects = $mergeObjects;
 
 
 /***/ }),
 
-/***/ 1702:
+/***/ 5613:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$min = void 0;
-var push_1 = __webpack_require__(9510);
+const util_1 = __webpack_require__(7216);
+const push_1 = __webpack_require__(7835);
 /**
  * Returns the lowest value in a group.
  *
@@ -22437,25 +22573,59 @@ var push_1 = __webpack_require__(9510);
  * @param {Options} The options to use for this operator
  * @returns {*}
  */
-function $min(collection, expr, options) {
-    var nums = (0, push_1.$push)(collection, expr, options);
-    var n = nums.reduce(function (acc, n) { return (n < acc ? n : acc); }, Infinity);
+const $min = (collection, expr, options) => {
+    const nums = (0, push_1.$push)(collection, expr, options).filter(util_1.isNotNaN);
+    const n = nums.reduce((acc, n) => ((0, util_1.compare)(n, acc) <= 0 ? n : acc), Infinity);
     return n === Infinity ? undefined : n;
-}
+};
 exports.$min = $min;
 
 
 /***/ }),
 
-/***/ 9510:
+/***/ 3946:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$minN = void 0;
+// https://www.mongodb.com/docs/manual/reference/operator/aggregation/minN
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const push_1 = __webpack_require__(7835);
+/**
+ * Returns an aggregation of the minimum value n elements within a group.
+ * If the group contains fewer than n elements, $minN returns all elements in the group.
+ *
+ * @param {Array} collection The input array
+ * @param {Object} expr The right-hand side expression value of the operator
+ * @param {Options} options The options to use for this operation
+ * @returns {*}
+ */
+const $minN = (collection, expr, options) => {
+    var _a;
+    const copts = core_1.ComputeOptions.init(options);
+    const m = collection.length;
+    const n = (0, core_1.computeValue)((_a = copts === null || copts === void 0 ? void 0 : copts.local) === null || _a === void 0 ? void 0 : _a.groupId, expr.n, null, copts);
+    const arr = (0, push_1.$push)(collection, expr.input, options).filter(o => !(0, util_1.isNil)(o));
+    arr.sort(util_1.compare);
+    return m <= n ? arr : arr.slice(0, n);
+};
+exports.$minN = $minN;
+
+
+/***/ }),
+
+/***/ 7835:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$push = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns an array of all values for the selected field among for each document in that group.
  *
@@ -22464,26 +22634,27 @@ var util_1 = __webpack_require__(6588);
  * @param {Options} options The options to use for this operation
  * @returns {Array|*}
  */
-function $push(collection, expr, options) {
+const $push = (collection, expr, options) => {
     if ((0, util_1.isNil)(expr))
         return collection;
-    return collection.map(function (obj) { return (0, core_1.computeValue)(obj, expr, null, options); });
-}
+    const copts = core_1.ComputeOptions.init(options);
+    return collection.map(obj => (0, core_1.computeValue)(obj, expr, null, copts.update(obj)));
+};
 exports.$push = $push;
 
 
 /***/ }),
 
-/***/ 6672:
+/***/ 2257:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$stdDevPop = void 0;
-var util_1 = __webpack_require__(6588);
-var _internal_1 = __webpack_require__(989);
-var push_1 = __webpack_require__(9510);
+const util_1 = __webpack_require__(7216);
+const _internal_1 = __webpack_require__(8680);
+const push_1 = __webpack_require__(7835);
 /**
  * Returns the population standard deviation of the input values.
  *
@@ -22492,47 +22663,43 @@ var push_1 = __webpack_require__(9510);
  * @param {Options} options The options to use for this operation
  * @return {Number}
  */
-function $stdDevPop(collection, expr, options) {
-    return (0, _internal_1.stddev)((0, push_1.$push)(collection, expr, options).filter(util_1.isNumber), false);
-}
+const $stdDevPop = (collection, expr, options) => (0, _internal_1.stddev)((0, push_1.$push)(collection, expr, options).filter(util_1.isNumber), false);
 exports.$stdDevPop = $stdDevPop;
 
 
 /***/ }),
 
-/***/ 6094:
+/***/ 4393:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$stdDevSamp = void 0;
-var util_1 = __webpack_require__(6588);
-var _internal_1 = __webpack_require__(989);
-var push_1 = __webpack_require__(9510);
+const util_1 = __webpack_require__(7216);
+const _internal_1 = __webpack_require__(8680);
+const push_1 = __webpack_require__(7835);
 /**
  * Returns the sample standard deviation of the input values.
  * @param  {Array} collection
  * @param  {Object} expr
  * @return {Number|null}
  */
-function $stdDevSamp(collection, expr, options) {
-    return (0, _internal_1.stddev)((0, push_1.$push)(collection, expr, options).filter(util_1.isNumber), true);
-}
+const $stdDevSamp = (collection, expr, options) => (0, _internal_1.stddev)((0, push_1.$push)(collection, expr, options).filter(util_1.isNumber), true);
 exports.$stdDevSamp = $stdDevSamp;
 
 
 /***/ }),
 
-/***/ 6988:
+/***/ 7970:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$sum = void 0;
-var util_1 = __webpack_require__(6588);
-var push_1 = __webpack_require__(9510);
+const util_1 = __webpack_require__(7216);
+const push_1 = __webpack_require__(7835);
 /**
  * Returns the sum of all the values in a group.
  *
@@ -22540,21 +22707,74 @@ var push_1 = __webpack_require__(9510);
  * @param {Object} expr The right-hand side expression value of the operator
  * @returns {Number}
  */
-function $sum(collection, expr, options) {
+const $sum = (collection, expr, options) => {
     if (!(0, util_1.isArray)(collection))
         return 0;
     // take a short cut if expr is number literal
     if ((0, util_1.isNumber)(expr))
         return collection.length * expr;
-    var nums = (0, push_1.$push)(collection, expr, options).filter(util_1.isNumber);
-    return nums.reduce(function (acc, n) { return acc + n; }, 0);
-}
+    const nums = (0, push_1.$push)(collection, expr, options).filter(util_1.isNumber);
+    return nums.reduce((acc, n) => acc + n, 0);
+};
 exports.$sum = $sum;
 
 
 /***/ }),
 
-/***/ 612:
+/***/ 1382:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$top = void 0;
+const topN_1 = __webpack_require__(7097);
+/**
+ * Returns the top element within a group according to the specified sort order.
+ *
+ * @param {Array} collection The input array
+ * @param {Object} expr The right-hand side expression value of the operator
+ * @param {Options} options The options to use for this operation
+ * @returns {*}
+ */
+const $top = (collection, expr, options) => (0, topN_1.$topN)(collection, Object.assign(Object.assign({}, expr), { n: 1 }), options);
+exports.$top = $top;
+
+
+/***/ }),
+
+/***/ 7097:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$topN = void 0;
+// https://www.mongodb.com/docs/manual/reference/operator/aggregation/topN/#mongodb-group-grp.-topN
+const aggregator_1 = __webpack_require__(7268);
+const core_1 = __webpack_require__(9587);
+const push_1 = __webpack_require__(7835);
+/**
+ * Returns an aggregation of the top n elements within a group, according to the specified sort order.
+ * If the group contains fewer than n elements, $topN returns all elements in the group.
+ *
+ * @param {Array} collection The input array
+ * @param {Object} expr The right-hand side expression value of the operator
+ * @param {Options} options The options to use for this operation
+ * @returns {*}
+ */
+const $topN = (collection, expr, options) => {
+    const copts = core_1.ComputeOptions.init(options);
+    const { n, sortBy } = (0, core_1.computeValue)(copts.local.groupId, expr, null, copts);
+    const result = new aggregator_1.Aggregator([{ $sort: sortBy }, { $limit: n }], copts).run(collection);
+    return (0, push_1.$push)(result, expr.output, copts);
+};
+exports.$topN = $topN;
+
+
+/***/ }),
+
+/***/ 6026:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -22568,32 +22788,34 @@ exports.truncate = void 0;
  * @param {Boolean} roundOff
  */
 function truncate(num, places, roundOff) {
-    var sign = Math.abs(num) === num ? 1 : -1;
+    const sign = Math.abs(num) === num ? 1 : -1;
     num = Math.abs(num);
-    var result = Math.trunc(num);
-    var decimals = num - result;
+    let result = Math.trunc(num);
+    const decimals = parseFloat((num - result).toFixed(places + 1));
     if (places === 0) {
-        var firstDigit = Math.trunc(10 * decimals);
-        if (roundOff && (result & 1) === 1 && firstDigit >= 5) {
+        const firstDigit = Math.trunc(10 * decimals);
+        if (roundOff &&
+            (((result & 1) === 1 && firstDigit >= 5) || firstDigit > 5)) {
             result++;
         }
     }
     else if (places > 0) {
-        var offset = Math.pow(10, places);
-        var remainder = Math.trunc(decimals * offset);
+        const offset = Math.pow(10, places);
+        let remainder = Math.trunc(decimals * offset);
         // last digit before cut off
-        var lastDigit = Math.trunc(decimals * offset * 10) % 10;
+        const lastDigit = Math.trunc(decimals * offset * 10) % 10;
         // add one if last digit is greater than 5
         if (roundOff && lastDigit > 5) {
             remainder += 1;
         }
         // compute decimal remainder and add to whole number
-        result += remainder / offset;
+        // manually formatting float re
+        result = (result * offset + remainder) / offset;
     }
     else if (places < 0) {
         // handle negative decimal places
-        var offset = Math.pow(10, -1 * places);
-        var excess = result % offset;
+        const offset = Math.pow(10, -1 * places);
+        let excess = result % offset;
         result = Math.max(0, result - excess);
         // for negative values the absolute must increase so we round up the last digit if >= 5
         if (roundOff && sign === -1) {
@@ -22612,7 +22834,7 @@ exports.truncate = truncate;
 
 /***/ }),
 
-/***/ 7824:
+/***/ 2062:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22620,8 +22842,8 @@ exports.truncate = truncate;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$abs = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns the absolute value of a number.
  *
@@ -22629,16 +22851,16 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @return {Number|null|NaN}
  */
-function $abs(obj, expr, options) {
-    var n = (0, core_1.computeValue)(obj, expr, null, options);
+const $abs = (obj, expr, options) => {
+    const n = (0, core_1.computeValue)(obj, expr, null, options);
     return (0, util_1.isNil)(n) ? null : Math.abs(n);
-}
+};
 exports.$abs = $abs;
 
 
 /***/ }),
 
-/***/ 8631:
+/***/ 7254:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22646,8 +22868,8 @@ exports.$abs = $abs;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$add = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Computes the sum of an array of numbers.
  *
@@ -22655,10 +22877,10 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {Object}
  */
-function $add(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var foundDate = false;
-    var result = args.reduce(function (acc, val) {
+const $add = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    let foundDate = false;
+    const result = args.reduce((acc, val) => {
         if ((0, util_1.isDate)(val)) {
             (0, util_1.assert)(!foundDate, "'$add' can only have one date value");
             foundDate = true;
@@ -22669,13 +22891,13 @@ function $add(obj, expr, options) {
         return acc;
     }, 0);
     return foundDate ? new Date(result) : result;
-}
+};
 exports.$add = $add;
 
 
 /***/ }),
 
-/***/ 7296:
+/***/ 4489:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22683,8 +22905,8 @@ exports.$add = $add;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$ceil = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns the smallest integer greater than or equal to the specified number.
  *
@@ -22692,19 +22914,19 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {number}
  */
-function $ceil(obj, expr, options) {
-    var n = (0, core_1.computeValue)(obj, expr, null, options);
+const $ceil = (obj, expr, options) => {
+    const n = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(n))
         return null;
     (0, util_1.assert)((0, util_1.isNumber)(n) || isNaN(n), "$ceil expression must resolve to a number.");
     return Math.ceil(n);
-}
+};
 exports.$ceil = $ceil;
 
 
 /***/ }),
 
-/***/ 193:
+/***/ 4203:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22712,7 +22934,7 @@ exports.$ceil = $ceil;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$divide = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Takes two numbers and divides the first number by the second.
  *
@@ -22720,16 +22942,16 @@ var core_1 = __webpack_require__(7424);
  * @param expr
  * @returns {number}
  */
-function $divide(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $divide = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     return args[0] / args[1];
-}
+};
 exports.$divide = $divide;
 
 
 /***/ }),
 
-/***/ 2960:
+/***/ 8216:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22737,8 +22959,8 @@ exports.$divide = $divide;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$exp = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Raises Euler’s number (i.e. e ) to the specified exponent and returns the result.
  *
@@ -22746,19 +22968,19 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {number}
  */
-function $exp(obj, expr, options) {
-    var n = (0, core_1.computeValue)(obj, expr, null, options);
+const $exp = (obj, expr, options) => {
+    const n = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(n))
         return null;
     (0, util_1.assert)((0, util_1.isNumber)(n) || isNaN(n), "$exp expression must resolve to a number.");
     return Math.exp(n);
-}
+};
 exports.$exp = $exp;
 
 
 /***/ }),
 
-/***/ 4365:
+/***/ 7827:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22766,8 +22988,8 @@ exports.$exp = $exp;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$floor = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns the largest integer less than or equal to the specified number.
  *
@@ -22775,26 +22997,30 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {number}
  */
-function $floor(obj, expr, options) {
-    var n = (0, core_1.computeValue)(obj, expr, null, options);
+const $floor = (obj, expr, options) => {
+    const n = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(n))
         return null;
     (0, util_1.assert)((0, util_1.isNumber)(n) || isNaN(n), "$floor expression must resolve to a number.");
     return Math.floor(n);
-}
+};
 exports.$floor = $floor;
 
 
 /***/ }),
 
-/***/ 6665:
+/***/ 1744:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -22803,27 +23029,27 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(7824), exports);
-__exportStar(__webpack_require__(8631), exports);
-__exportStar(__webpack_require__(7296), exports);
-__exportStar(__webpack_require__(193), exports);
-__exportStar(__webpack_require__(2960), exports);
-__exportStar(__webpack_require__(4365), exports);
-__exportStar(__webpack_require__(7328), exports);
-__exportStar(__webpack_require__(1623), exports);
-__exportStar(__webpack_require__(1455), exports);
-__exportStar(__webpack_require__(707), exports);
-__exportStar(__webpack_require__(9332), exports);
-__exportStar(__webpack_require__(9430), exports);
-__exportStar(__webpack_require__(7817), exports);
-__exportStar(__webpack_require__(3341), exports);
-__exportStar(__webpack_require__(7951), exports);
-__exportStar(__webpack_require__(8973), exports);
+__exportStar(__webpack_require__(2062), exports);
+__exportStar(__webpack_require__(7254), exports);
+__exportStar(__webpack_require__(4489), exports);
+__exportStar(__webpack_require__(4203), exports);
+__exportStar(__webpack_require__(8216), exports);
+__exportStar(__webpack_require__(7827), exports);
+__exportStar(__webpack_require__(1424), exports);
+__exportStar(__webpack_require__(368), exports);
+__exportStar(__webpack_require__(7654), exports);
+__exportStar(__webpack_require__(5971), exports);
+__exportStar(__webpack_require__(4325), exports);
+__exportStar(__webpack_require__(8519), exports);
+__exportStar(__webpack_require__(2151), exports);
+__exportStar(__webpack_require__(7625), exports);
+__exportStar(__webpack_require__(7709), exports);
+__exportStar(__webpack_require__(8736), exports);
 
 
 /***/ }),
 
-/***/ 7328:
+/***/ 1424:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22831,8 +23057,8 @@ __exportStar(__webpack_require__(8973), exports);
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$ln = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Calculates the natural logarithm ln (i.e loge) of a number and returns the result as a double.
  *
@@ -22840,19 +23066,19 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {number}
  */
-function $ln(obj, expr, options) {
-    var n = (0, core_1.computeValue)(obj, expr, null, options);
+const $ln = (obj, expr, options) => {
+    const n = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(n))
         return null;
     (0, util_1.assert)((0, util_1.isNumber)(n) || isNaN(n), "$ln expression must resolve to a number.");
     return Math.log(n);
-}
+};
 exports.$ln = $ln;
 
 
 /***/ }),
 
-/***/ 1623:
+/***/ 368:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22860,8 +23086,8 @@ exports.$ln = $ln;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$log = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Calculates the log of a number in the specified base and returns the result as a double.
  *
@@ -22869,21 +23095,21 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {number}
  */
-function $log(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var msg = "$log expression must resolve to array(2) of numbers";
+const $log = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const msg = "$log expression must resolve to array(2) of numbers";
     (0, util_1.assert)((0, util_1.isArray)(args) && args.length === 2, msg);
     if (args.some(util_1.isNil))
         return null;
     (0, util_1.assert)(args.some(isNaN) || args.every(util_1.isNumber), msg);
     return Math.log10(args[0]) / Math.log10(args[1]);
-}
+};
 exports.$log = $log;
 
 
 /***/ }),
 
-/***/ 1455:
+/***/ 7654:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22891,8 +23117,8 @@ exports.$log = $log;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$log10 = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Calculates the log base 10 of a number and returns the result as a double.
  *
@@ -22900,19 +23126,19 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {number}
  */
-function $log10(obj, expr, options) {
-    var n = (0, core_1.computeValue)(obj, expr, null, options);
+const $log10 = (obj, expr, options) => {
+    const n = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(n))
         return null;
     (0, util_1.assert)((0, util_1.isNumber)(n) || isNaN(n), "$log10 expression must resolve to a number.");
     return Math.log10(n);
-}
+};
 exports.$log10 = $log10;
 
 
 /***/ }),
 
-/***/ 707:
+/***/ 5971:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22920,7 +23146,7 @@ exports.$log10 = $log10;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$mod = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Takes two numbers and calculates the modulo of the first number divided by the second.
  *
@@ -22928,16 +23154,16 @@ var core_1 = __webpack_require__(7424);
  * @param expr
  * @returns {number}
  */
-function $mod(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $mod = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     return args[0] % args[1];
-}
+};
 exports.$mod = $mod;
 
 
 /***/ }),
 
-/***/ 9332:
+/***/ 4325:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22945,7 +23171,7 @@ exports.$mod = $mod;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$multiply = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Computes the product of an array of numbers.
  *
@@ -22953,16 +23179,16 @@ var core_1 = __webpack_require__(7424);
  * @param expr
  * @returns {Object}
  */
-function $multiply(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    return args.reduce(function (acc, num) { return acc * num; }, 1);
-}
+const $multiply = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    return args.reduce((acc, num) => acc * num, 1);
+};
 exports.$multiply = $multiply;
 
 
 /***/ }),
 
-/***/ 9430:
+/***/ 8519:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22970,8 +23196,8 @@ exports.$multiply = $multiply;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$pow = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Raises a number to the specified exponent and returns the result.
  *
@@ -22979,18 +23205,18 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {Object}
  */
-function $pow(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $pow = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     (0, util_1.assert)((0, util_1.isArray)(args) && args.length === 2 && args.every(util_1.isNumber), "$pow expression must resolve to array(2) of numbers");
     (0, util_1.assert)(!(args[0] === 0 && args[1] < 0), "$pow cannot raise 0 to a negative exponent");
     return Math.pow(args[0], args[1]);
-}
+};
 exports.$pow = $pow;
 
 
 /***/ }),
 
-/***/ 7817:
+/***/ 2151:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -22998,29 +23224,29 @@ exports.$pow = $pow;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$round = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var _internal_1 = __webpack_require__(612);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const _internal_1 = __webpack_require__(6026);
 /**
  * Rounds a number to to a whole integer or to a specified decimal place.
  * @param {*} obj
  * @param {*} expr
  */
-function $round(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var num = args[0];
-    var place = args[1];
+const $round = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const num = args[0];
+    const place = args[1];
     if ((0, util_1.isNil)(num) || isNaN(num) || Math.abs(num) === Infinity)
         return num;
     (0, util_1.assert)((0, util_1.isNumber)(num), "$round expression must resolve to a number.");
     return (0, _internal_1.truncate)(num, place, true);
-}
+};
 exports.$round = $round;
 
 
 /***/ }),
 
-/***/ 3341:
+/***/ 7625:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23028,8 +23254,8 @@ exports.$round = $round;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$sqrt = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Calculates the square root of a positive number and returns the result as a double.
  *
@@ -23037,19 +23263,19 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {number}
  */
-function $sqrt(obj, expr, options) {
-    var n = (0, core_1.computeValue)(obj, expr, null, options);
+const $sqrt = (obj, expr, options) => {
+    const n = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(n))
         return null;
     (0, util_1.assert)(((0, util_1.isNumber)(n) && n > 0) || isNaN(n), "$sqrt expression must resolve to non-negative number.");
     return Math.sqrt(n);
-}
+};
 exports.$sqrt = $sqrt;
 
 
 /***/ }),
 
-/***/ 7951:
+/***/ 7709:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23057,7 +23283,7 @@ exports.$sqrt = $sqrt;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$subtract = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Takes an array that contains two numbers or two dates and subtracts the second value from the first.
  *
@@ -23065,16 +23291,16 @@ var core_1 = __webpack_require__(7424);
  * @param expr
  * @returns {number}
  */
-function $subtract(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $subtract = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     return args[0] - args[1];
-}
+};
 exports.$subtract = $subtract;
 
 
 /***/ }),
 
-/***/ 8973:
+/***/ 8736:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23082,9 +23308,9 @@ exports.$subtract = $subtract;
 // Arithmetic Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$trunc = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var _internal_1 = __webpack_require__(612);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const _internal_1 = __webpack_require__(6026);
 /**
  * Truncates a number to a whole integer or to a specified decimal place.
  *
@@ -23092,22 +23318,22 @@ var _internal_1 = __webpack_require__(612);
  * @param expr
  * @returns {number}
  */
-function $trunc(obj, expr, options) {
-    var arr = (0, core_1.computeValue)(obj, expr, null, options);
-    var num = arr[0];
-    var places = arr[1];
+const $trunc = (obj, expr, options) => {
+    const arr = (0, core_1.computeValue)(obj, expr, null, options);
+    const num = arr[0];
+    const places = arr[1];
     if ((0, util_1.isNil)(num) || isNaN(num) || Math.abs(num) === Infinity)
         return num;
     (0, util_1.assert)((0, util_1.isNumber)(num), "$trunc expression must resolve to a number.");
     (0, util_1.assert)((0, util_1.isNil)(places) || ((0, util_1.isNumber)(places) && places > -20 && places < 100), "$trunc expression has invalid place");
     return (0, _internal_1.truncate)(num, places, false);
-}
+};
 exports.$trunc = $trunc;
 
 
 /***/ }),
 
-/***/ 1194:
+/***/ 5614:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23115,8 +23341,8 @@ exports.$trunc = $trunc;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$arrayElemAt = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns the element at the specified array index.
  *
@@ -23124,13 +23350,13 @@ var util_1 = __webpack_require__(6588);
  * @param  {*} expr
  * @return {*}
  */
-function $arrayElemAt(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $arrayElemAt = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     (0, util_1.assert)(args instanceof Array && args.length === 2, "$arrayElemAt expression must resolve to array(2)");
     if (args.some(util_1.isNil))
         return null;
-    var index = args[1];
-    var arr = args[0];
+    const index = args[1];
+    const arr = args[0];
     if (index < 0 && Math.abs(index) <= arr.length) {
         return arr[(index + arr.length) % arr.length];
     }
@@ -23138,13 +23364,13 @@ function $arrayElemAt(obj, expr, options) {
         return arr[index];
     }
     return undefined;
-}
+};
 exports.$arrayElemAt = $arrayElemAt;
 
 
 /***/ }),
 
-/***/ 2212:
+/***/ 608:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23152,32 +23378,35 @@ exports.$arrayElemAt = $arrayElemAt;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$arrayToObject = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Converts an array of key value pairs to a document.
  */
-function $arrayToObject(obj, expr, options) {
-    var arr = (0, core_1.computeValue)(obj, expr, null, options);
+const $arrayToObject = (obj, expr, options) => {
+    const arr = (0, core_1.computeValue)(obj, expr, null, options);
     (0, util_1.assert)((0, util_1.isArray)(arr), "$arrayToObject expression must resolve to an array");
-    return arr.reduce(function (newObj, val) {
+    return arr.reduce((newObj, val) => {
+        // flatten
+        while ((0, util_1.isArray)(val) && val.length === 1)
+            val = val[0];
         if (val instanceof Array && val.length == 2) {
             newObj[val[0]] = val[1];
         }
         else {
-            var valObj = val;
+            const valObj = val;
             (0, util_1.assert)((0, util_1.isObject)(valObj) && (0, util_1.has)(valObj, "k") && (0, util_1.has)(valObj, "v"), "$arrayToObject expression is invalid.");
             newObj[valObj.k] = valObj.v;
         }
         return newObj;
     }, {});
-}
+};
 exports.$arrayToObject = $arrayToObject;
 
 
 /***/ }),
 
-/***/ 7356:
+/***/ 5579:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23185,8 +23414,8 @@ exports.$arrayToObject = $arrayToObject;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$concatArrays = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Concatenates arrays to return the concatenated array.
  *
@@ -23194,61 +23423,56 @@ var util_1 = __webpack_require__(6588);
  * @param  {*} expr
  * @return {*}
  */
-function $concatArrays(obj, expr, options) {
-    var arr = (0, core_1.computeValue)(obj, expr, null, options);
+const $concatArrays = (obj, expr, options) => {
+    const arr = (0, core_1.computeValue)(obj, expr, null, options);
     (0, util_1.assert)((0, util_1.isArray)(arr), "$concatArrays must resolve to an array");
     if (arr.some(util_1.isNil))
         return null;
-    return arr.reduce(function (acc, item) { return (0, util_1.into)(acc, item); }, []);
-}
+    return arr.reduce((acc, item) => (0, util_1.into)(acc, item), []);
+};
 exports.$concatArrays = $concatArrays;
 
 
 /***/ }),
 
-/***/ 5220:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 2903:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$filter = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Selects a subset of the array to return an array with only the elements that match the filter condition.
  *
- * @param  {Object} obj  [description]
- * @param  {*} expr [description]
- * @return {*}      [description]
+ * @param  {Object} obj The current document
+ * @param  {*} expr The filter spec
+ * @return {*}
  */
-function $filter(obj, expr, options) {
-    var input = (0, core_1.computeValue)(obj, expr.input, null, options);
+const $filter = (obj, expr, options) => {
+    const input = (0, core_1.computeValue)(obj, expr.input, null, options);
     (0, util_1.assert)((0, util_1.isArray)(input), "$filter 'input' expression must resolve to an array");
-    var tempKey = "$" + (expr.as || "this");
-    return input.filter(function (o) {
-        var _a;
-        return (0, core_1.computeValue)(__assign(__assign({}, obj), (_a = {}, _a[tempKey] = o, _a)), expr.cond, null, options) === true;
+    const copts = core_1.ComputeOptions.init(options, obj);
+    const k = expr.as || "this";
+    const local = {
+        variables: { [k]: null }
+    };
+    return input.filter((o) => {
+        local.variables[k] = o;
+        const b = (0, core_1.computeValue)(obj, expr.cond, null, copts.update(copts.root, local));
+        // allow empty strings only in strict MongoDB mode (default).
+        return (0, util_1.truthy)(b, options.useStrictMode);
     });
-}
+};
 exports.$filter = $filter;
 
 
 /***/ }),
 
-/***/ 6454:
+/***/ 9975:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23256,8 +23480,9 @@ exports.$filter = $filter;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$first = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const accumulator_1 = __webpack_require__(3424);
 /**
  * Returns the first element in an array.
  *
@@ -23265,21 +23490,55 @@ var util_1 = __webpack_require__(6588);
  * @param  {*} expr
  * @return {*}
  */
-function $first(obj, expr, options) {
-    var arr = (0, core_1.computeValue)(obj, expr, null, options);
-    if (arr == null)
+const $first = (obj, expr, options) => {
+    const copts = core_1.ComputeOptions.init(options);
+    if (obj instanceof Array)
+        return (0, accumulator_1.$first)(obj, expr, copts.update());
+    const arr = (0, core_1.computeValue)(obj, expr, null, options);
+    if ((0, util_1.isNil)(arr))
         return null;
     (0, util_1.assert)((0, util_1.isArray)(arr), "Must resolve to an array/null or missing");
-    if (arr.length > 0)
-        return arr[0];
-    return undefined;
-}
+    return (0, accumulator_1.$first)(arr, "$$this", options);
+};
 exports.$first = $first;
 
 
 /***/ }),
 
-/***/ 1706:
+/***/ 3425:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+// https://www.mongodb.com/docs/manual/reference/operator/aggregation/firstN-array-element/#mongodb-expression-exp.-firstN
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$firstN = void 0;
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const firstN_1 = __webpack_require__(3445);
+/**
+ * Returns a specified number of elements from the beginning of an array.
+ *
+ * @param  {Object} obj
+ * @param  {*} expr
+ * @return {*}
+ */
+const $firstN = (obj, expr, options) => {
+    // first try the accumulator if input is an array.
+    if (obj instanceof Array)
+        return (0, firstN_1.$firstN)(obj, expr, options);
+    const { input, n } = (0, core_1.computeValue)(obj, expr, null, options);
+    if ((0, util_1.isNil)(input))
+        return null;
+    (0, util_1.assert)((0, util_1.isArray)(input), "Must resolve to an array/null or missing");
+    return (0, firstN_1.$firstN)(input, { n, input: "$$this" }, options);
+};
+exports.$firstN = $firstN;
+
+
+/***/ }),
+
+/***/ 7485:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23287,34 +23546,36 @@ exports.$first = $first;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$in = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns a boolean indicating whether a specified value is in an array.
  *
  * @param {Object} obj
  * @param {Array} expr
  */
-function $in(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var item = args[0];
-    var arr = args[1];
+const $in = (obj, expr, options) => {
+    const [item, arr] = (0, core_1.computeValue)(obj, expr, null, options);
     (0, util_1.assert)((0, util_1.isArray)(arr), "$in second argument must be an array");
     return arr.some(util_1.isEqual.bind(null, item));
-}
+};
 exports.$in = $in;
 
 
 /***/ }),
 
-/***/ 3142:
+/***/ 1613:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -23323,28 +23584,33 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(1194), exports);
-__exportStar(__webpack_require__(2212), exports);
-__exportStar(__webpack_require__(7356), exports);
-__exportStar(__webpack_require__(5220), exports);
-__exportStar(__webpack_require__(6454), exports);
-__exportStar(__webpack_require__(1706), exports);
-__exportStar(__webpack_require__(2220), exports);
-__exportStar(__webpack_require__(4479), exports);
-__exportStar(__webpack_require__(5130), exports);
-__exportStar(__webpack_require__(8561), exports);
-__exportStar(__webpack_require__(5538), exports);
-__exportStar(__webpack_require__(2941), exports);
-__exportStar(__webpack_require__(8274), exports);
-__exportStar(__webpack_require__(4547), exports);
-__exportStar(__webpack_require__(4967), exports);
-__exportStar(__webpack_require__(78), exports);
-__exportStar(__webpack_require__(2305), exports);
+__exportStar(__webpack_require__(5614), exports);
+__exportStar(__webpack_require__(608), exports);
+__exportStar(__webpack_require__(5579), exports);
+__exportStar(__webpack_require__(2903), exports);
+__exportStar(__webpack_require__(9975), exports);
+__exportStar(__webpack_require__(3425), exports);
+__exportStar(__webpack_require__(7485), exports);
+__exportStar(__webpack_require__(2686), exports);
+__exportStar(__webpack_require__(5499), exports);
+__exportStar(__webpack_require__(1410), exports);
+__exportStar(__webpack_require__(3927), exports);
+__exportStar(__webpack_require__(1965), exports);
+__exportStar(__webpack_require__(8245), exports);
+__exportStar(__webpack_require__(3051), exports);
+__exportStar(__webpack_require__(893), exports);
+__exportStar(__webpack_require__(9633), exports);
+__exportStar(__webpack_require__(2641), exports);
+__exportStar(__webpack_require__(1951), exports);
+__exportStar(__webpack_require__(5052), exports);
+__exportStar(__webpack_require__(5000), exports);
+__exportStar(__webpack_require__(5450), exports);
+__exportStar(__webpack_require__(7393), exports);
 
 
 /***/ }),
 
-/***/ 2220:
+/***/ 2686:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23352,8 +23618,8 @@ __exportStar(__webpack_require__(2305), exports);
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$indexOfArray = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Searches an array for an occurrence of a specified value and returns the array index of the first occurrence.
  * If the substring is not found, returns -1.
@@ -23362,17 +23628,17 @@ var util_1 = __webpack_require__(6588);
  * @param  {*} expr
  * @return {*}
  */
-function $indexOfArray(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $indexOfArray = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(args))
         return null;
-    var arr = args[0];
-    var searchValue = args[1];
+    let arr = args[0];
+    const searchValue = args[1];
     if ((0, util_1.isNil)(arr))
         return null;
     (0, util_1.assert)((0, util_1.isArray)(arr), "$indexOfArray expression must resolve to an array.");
-    var start = args[2] || 0;
-    var end = args[3];
+    const start = args[2] || 0;
+    let end = args[3];
     if ((0, util_1.isNil)(end))
         end = arr.length;
     if (start > end)
@@ -23382,21 +23648,21 @@ function $indexOfArray(obj, expr, options) {
         arr = arr.slice(start, end);
     }
     // Array.prototype.findIndex not supported in IE9 hence this workaround
-    var index = -1;
-    arr.some(function (v, i) {
-        var b = (0, util_1.isEqual)(v, searchValue);
+    let index = -1;
+    arr.some((v, i) => {
+        const b = (0, util_1.isEqual)(v, searchValue);
         if (b)
             index = i;
         return b;
     });
     return index + start;
-}
+};
 exports.$indexOfArray = $indexOfArray;
 
 
 /***/ }),
 
-/***/ 4479:
+/***/ 5499:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23404,7 +23670,7 @@ exports.$indexOfArray = $indexOfArray;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$isArray = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Determines if the operand is an array. Returns a boolean.
  *
@@ -23412,15 +23678,15 @@ var core_1 = __webpack_require__(7424);
  * @param  {*}  expr
  * @return {Boolean}
  */
-function $isArray(obj, expr, options) {
+const $isArray = (obj, expr, options) => {
     return (0, core_1.computeValue)(obj, expr[0], null, options) instanceof Array;
-}
+};
 exports.$isArray = $isArray;
 
 
 /***/ }),
 
-/***/ 5130:
+/***/ 1410:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23428,8 +23694,9 @@ exports.$isArray = $isArray;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$last = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const accumulator_1 = __webpack_require__(3424);
 /**
  * Returns the last element in an array.
  *
@@ -23437,41 +23704,64 @@ var util_1 = __webpack_require__(6588);
  * @param  {*} expr
  * @return {*}
  */
-function $last(obj, expr, options) {
-    var arr = (0, core_1.computeValue)(obj, expr, null, options);
-    if (arr == null)
+const $last = (obj, expr, options) => {
+    const copts = core_1.ComputeOptions.init(options);
+    if (obj instanceof Array)
+        return (0, accumulator_1.$last)(obj, expr, copts.update());
+    const arr = (0, core_1.computeValue)(obj, expr, null, options);
+    if ((0, util_1.isNil)(arr))
         return null;
     (0, util_1.assert)((0, util_1.isArray)(arr), "Must resolve to an array/null or missing");
-    if (arr.length > 0)
-        return arr[arr.length - 1];
-    return undefined;
-}
+    return (0, accumulator_1.$last)(arr, "$$this", options);
+};
 exports.$last = $last;
 
 
 /***/ }),
 
-/***/ 8561:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 3927:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+// https://www.mongodb.com/docs/manual/reference/operator/aggregation/lastN-array-element/#mongodb-expression-exp.-lastN
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$lastN = void 0;
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const lastN_1 = __webpack_require__(9799);
+/**
+ * Returns a specified number of elements from the end of an array.
+ *
+ * @param  {Object} obj
+ * @param  {*} expr
+ * @return {*}
+ */
+const $lastN = (obj, expr, options) => {
+    // first try the accumulator if input is an array.
+    if (obj instanceof Array)
+        return (0, lastN_1.$lastN)(obj, expr, options);
+    const { input, n } = (0, core_1.computeValue)(obj, expr, null, options);
+    if ((0, util_1.isNil)(input))
+        return null;
+    (0, util_1.assert)((0, util_1.isArray)(input), "Must resolve to an array/null or missing");
+    return (0, lastN_1.$lastN)(input, { n, input: "$$this" }, options);
+};
+exports.$lastN = $lastN;
+
+
+/***/ }),
+
+/***/ 1965:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$map = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Applies a sub-expression to each element of an array and returns the array of resulting values in order.
  *
@@ -23479,21 +23769,89 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {Array|*}
  */
-function $map(obj, expr, options) {
-    var input = (0, core_1.computeValue)(obj, expr.input, null, options);
-    (0, util_1.assert)((0, util_1.isArray)(input), "$map 'input' expression must resolve to an array");
-    var tempKey = "$" + (expr.as || "this");
-    return input.map(function (o) {
-        var _a;
-        return (0, core_1.computeValue)(__assign(__assign({}, obj), (_a = {}, _a[tempKey] = o, _a)), expr.in, null, options);
+const $map = (obj, expr, options) => {
+    const input = (0, core_1.computeValue)(obj, expr.input, null, options);
+    (0, util_1.assert)((0, util_1.isArray)(input), `$map 'input' expression must resolve to an array`);
+    const copts = core_1.ComputeOptions.init(options);
+    const k = expr.as || "this";
+    return input.map((o) => {
+        return (0, core_1.computeValue)(obj, expr.in, null, copts.update(copts.root, {
+            variables: { [k]: o }
+        }));
     });
-}
+};
 exports.$map = $map;
 
 
 /***/ }),
 
-/***/ 5538:
+/***/ 8245:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+// https://www.mongodb.com/docs/manual/reference/operator/aggregation/maxN-array-element/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$maxN = void 0;
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const maxN_1 = __webpack_require__(8542);
+/**
+ * Returns the n largest values in an array.
+ *
+ * @param  {Object} obj
+ * @param  {*} expr
+ * @return {*}
+ */
+const $maxN = (obj, expr, options) => {
+    // first try the accumulator if input is an array.
+    if (obj instanceof Array)
+        return (0, maxN_1.$maxN)(obj, expr, options);
+    const { input, n } = (0, core_1.computeValue)(obj, expr, null, options);
+    if ((0, util_1.isNil)(input))
+        return null;
+    (0, util_1.assert)((0, util_1.isArray)(input), "Must resolve to an array/null or missing");
+    return (0, maxN_1.$maxN)(input, { n, input: "$$this" }, options);
+};
+exports.$maxN = $maxN;
+
+
+/***/ }),
+
+/***/ 3051:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+// https://www.mongodb.com/docs/manual/reference/operator/aggregation/minN-array-element/
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$minN = void 0;
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const minN_1 = __webpack_require__(3946);
+/**
+ * Returns the n smallest values in an array.
+ *
+ * @param  {Object} obj
+ * @param  {*} expr
+ * @return {*}
+ */
+const $minN = (obj, expr, options) => {
+    // first try the accumulator if input is an array.
+    if (obj instanceof Array)
+        return (0, minN_1.$minN)(obj, expr, options);
+    const { input, n } = (0, core_1.computeValue)(obj, expr, null, options);
+    if ((0, util_1.isNil)(input))
+        return null;
+    (0, util_1.assert)((0, util_1.isArray)(input), "Must resolve to an array/null or missing");
+    return (0, minN_1.$minN)(input, { n, input: "$$this" }, options);
+};
+exports.$minN = $minN;
+
+
+/***/ }),
+
+/***/ 893:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23501,7 +23859,7 @@ exports.$map = $map;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$nin = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Returns a boolean indicating whether a specified value is not an array.
  * Note: This expression operator is missing from the documentation
@@ -23514,7 +23872,7 @@ exports.$nin = (0, _predicates_1.createExpressionOperator)(_predicates_1.$nin);
 
 /***/ }),
 
-/***/ 2941:
+/***/ 9633:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23522,7 +23880,7 @@ exports.$nin = (0, _predicates_1.createExpressionOperator)(_predicates_1.$nin);
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$range = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Returns an array whose elements are a generated sequence of numbers.
  *
@@ -23530,25 +23888,25 @@ var core_1 = __webpack_require__(7424);
  * @param  {*} expr
  * @return {*}
  */
-function $range(obj, expr, options) {
-    var arr = (0, core_1.computeValue)(obj, expr, null, options);
-    var start = arr[0];
-    var end = arr[1];
-    var step = arr[2] || 1;
-    var result = new Array();
-    var counter = start;
+const $range = (obj, expr, options) => {
+    const arr = (0, core_1.computeValue)(obj, expr, null, options);
+    const start = arr[0];
+    const end = arr[1];
+    const step = arr[2] || 1;
+    const result = new Array();
+    let counter = start;
     while ((counter < end && step > 0) || (counter > end && step < 0)) {
         result.push(counter);
         counter += step;
     }
     return result;
-}
+};
 exports.$range = $range;
 
 
 /***/ }),
 
-/***/ 8274:
+/***/ 2641:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23556,29 +23914,34 @@ exports.$range = $range;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$reduce = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Applies an expression to each element in an array and combines them into a single value.
  *
  * @param {Object} obj
  * @param {*} expr
  */
-function $reduce(obj, expr, options) {
-    var input = (0, core_1.computeValue)(obj, expr.input, null, options);
-    var initialValue = (0, core_1.computeValue)(obj, expr.initialValue, null, options);
-    var inExpr = expr["in"];
+const $reduce = (obj, expr, options) => {
+    const copts = core_1.ComputeOptions.init(options);
+    const input = (0, core_1.computeValue)(obj, expr.input, null, copts);
+    const initialValue = (0, core_1.computeValue)(obj, expr.initialValue, null, copts);
+    const inExpr = expr["in"];
     if ((0, util_1.isNil)(input))
         return null;
     (0, util_1.assert)((0, util_1.isArray)(input), "$reduce 'input' expression must resolve to an array");
-    return input.reduce(function (acc, n) { return (0, core_1.computeValue)({ $value: acc, $this: n }, inExpr, null, options); }, initialValue);
-}
+    return input.reduce((acc, n) => {
+        return (0, core_1.computeValue)(n, inExpr, null, copts.update(copts.root, {
+            variables: { value: acc }
+        }));
+    }, initialValue);
+};
 exports.$reduce = $reduce;
 
 
 /***/ }),
 
-/***/ 4547:
+/***/ 1951:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23586,8 +23949,8 @@ exports.$reduce = $reduce;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$reverseArray = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns an array with the elements in reverse order.
  *
@@ -23595,22 +23958,21 @@ var util_1 = __webpack_require__(6588);
  * @param  {*} expr
  * @return {*}
  */
-function $reverseArray(obj, expr, options) {
-    var arr = (0, core_1.computeValue)(obj, expr, null, options);
+const $reverseArray = (obj, expr, options) => {
+    const arr = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(arr))
         return null;
     (0, util_1.assert)((0, util_1.isArray)(arr), "$reverseArray expression must resolve to an array");
-    var result = [];
-    (0, util_1.into)(result, arr);
+    const result = arr.slice(0);
     result.reverse();
     return result;
-}
+};
 exports.$reverseArray = $reverseArray;
 
 
 /***/ }),
 
-/***/ 4967:
+/***/ 5052:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23618,24 +23980,24 @@ exports.$reverseArray = $reverseArray;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$size = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Counts and returns the total the number of items in an array.
  *
  * @param obj
  * @param expr
  */
-function $size(obj, expr, options) {
-    var value = (0, core_1.computeValue)(obj, expr, null, options);
+const $size = (obj, expr, options) => {
+    const value = (0, core_1.computeValue)(obj, expr, null, options);
     return (0, util_1.isArray)(value) ? value.length : undefined;
-}
+};
 exports.$size = $size;
 
 
 /***/ }),
 
-/***/ 78:
+/***/ 5000:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23643,8 +24005,8 @@ exports.$size = $size;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$slice = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns a subset of an array.
  *
@@ -23652,11 +24014,11 @@ var util_1 = __webpack_require__(6588);
  * @param  {*} expr
  * @return {*}
  */
-function $slice(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var arr = args[0];
-    var skip = args[1];
-    var limit = args[2];
+const $slice = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const arr = args[0];
+    let skip = args[1];
+    let limit = args[2];
     // MongoDB $slice works a bit differently from Array.slice
     // Uses single argument for 'limit' and array argument [skip, limit]
     if ((0, util_1.isNil)(limit)) {
@@ -23673,17 +24035,55 @@ function $slice(obj, expr, options) {
         if (skip < 0) {
             skip = Math.max(0, arr.length + skip);
         }
-        (0, util_1.assert)(limit > 0, "Invalid argument for $slice operator. Limit must be a positive number");
+        (0, util_1.assert)(limit > 0, `Invalid argument for $slice operator. Limit must be a positive number`);
         limit += skip;
     }
     return arr.slice(skip, limit);
-}
+};
 exports.$slice = $slice;
 
 
 /***/ }),
 
-/***/ 2305:
+/***/ 5450:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+// https://www.mongodb.com/docs/manual/reference/operator/aggregation/sortArray/#mongodb-expression-exp.-sortArray
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$sortArray = void 0;
+const aggregator_1 = __webpack_require__(7268);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+/**
+ * Sorts an array based on its elements. The sort order is user specified.
+ *
+ * @param obj The target object
+ * @param expr The expression argument
+ * @param options Options
+ * @returns
+ */
+const $sortArray = (obj, expr, options) => {
+    const { input, sortBy } = (0, core_1.computeValue)(obj, expr, null, options);
+    if ((0, util_1.isNil)(input))
+        return null;
+    (0, util_1.assert)((0, util_1.isArray)(input), "$sortArray expression must resolve to an array");
+    if ((0, util_1.isObject)(sortBy)) {
+        return new aggregator_1.Aggregator([{ $sort: sortBy }]).run(input);
+    }
+    const result = [...input];
+    result.sort(util_1.compare);
+    if (sortBy === -1)
+        result.reverse();
+    return result;
+};
+exports.$sortArray = $sortArray;
+
+
+/***/ }),
+
+/***/ 7393:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23691,8 +24091,8 @@ exports.$slice = $slice;
 // Array Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$zip = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Merge two lists together.
  *
@@ -23703,17 +24103,17 @@ var util_1 = __webpack_require__(6588);
  * @param  {*} expr
  * @return {*}
  */
-function $zip(obj, expr, options) {
-    var inputs = (0, core_1.computeValue)(obj, expr.inputs, null, options);
-    var useLongestLength = expr.useLongestLength || false;
+const $zip = (obj, expr, options) => {
+    const inputs = (0, core_1.computeValue)(obj, expr.inputs, null, options);
+    const useLongestLength = expr.useLongestLength || false;
     (0, util_1.assert)((0, util_1.isArray)(inputs), "'inputs' expression must resolve to an array");
     (0, util_1.assert)((0, util_1.isBoolean)(useLongestLength), "'useLongestLength' must be a boolean");
     if ((0, util_1.isArray)(expr.defaults)) {
-        (0, util_1.assert)((0, util_1.truthy)(useLongestLength), "'useLongestLength' must be set to true to use 'defaults'");
+        (0, util_1.assert)(useLongestLength, "'useLongestLength' must be set to true to use 'defaults'");
     }
-    var zipCount = 0;
-    for (var i = 0, len = inputs.length; i < len; i++) {
-        var arr = inputs[i];
+    let zipCount = 0;
+    for (let i = 0, len = inputs.length; i < len; i++) {
+        const arr = inputs[i];
         if ((0, util_1.isNil)(arr))
             return null;
         (0, util_1.assert)((0, util_1.isArray)(arr), "'inputs' expression values must resolve to an array or null");
@@ -23721,25 +24121,22 @@ function $zip(obj, expr, options) {
             ? Math.max(zipCount, arr.length)
             : Math.min(zipCount || arr.length, arr.length);
     }
-    var result = [];
-    var defaults = expr.defaults || [];
-    var _loop_1 = function (i) {
-        var temp = inputs.map(function (val, index) {
+    const result = [];
+    const defaults = expr.defaults || [];
+    for (let i = 0; i < zipCount; i++) {
+        const temp = inputs.map((val, index) => {
             return (0, util_1.isNil)(val[i]) ? defaults[index] || null : val[i];
         });
         result.push(temp);
-    };
-    for (var i = 0; i < zipCount; i++) {
-        _loop_1(i);
     }
     return result;
-}
+};
 exports.$zip = $zip;
 
 
 /***/ }),
 
-/***/ 510:
+/***/ 6635:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23747,8 +24144,8 @@ exports.$zip = $zip;
 // Boolean Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#boolean-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$and = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns true only when all its expressions evaluate to true. Accepts any number of argument expressions.
  *
@@ -23756,23 +24153,28 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {boolean}
  */
-function $and(obj, expr, options) {
-    var value = (0, core_1.computeValue)(obj, expr, null, options);
-    return (0, util_1.truthy)(value) && value.every(util_1.truthy);
-}
+const $and = (obj, expr, options) => {
+    const value = (0, core_1.computeValue)(obj, expr, null, options);
+    return ((0, util_1.truthy)(value, options.useStrictMode) &&
+        value.every(v => (0, util_1.truthy)(v, options.useStrictMode)));
+};
 exports.$and = $and;
 
 
 /***/ }),
 
-/***/ 5039:
+/***/ 628:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -23781,14 +24183,14 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(510), exports);
-__exportStar(__webpack_require__(7846), exports);
-__exportStar(__webpack_require__(7405), exports);
+__exportStar(__webpack_require__(6635), exports);
+__exportStar(__webpack_require__(2560), exports);
+__exportStar(__webpack_require__(497), exports);
 
 
 /***/ }),
 
-/***/ 7846:
+/***/ 2560:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23796,8 +24198,8 @@ __exportStar(__webpack_require__(7405), exports);
 // Boolean Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#boolean-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$not = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns the boolean value that is the opposite of its argument expression. Accepts a single argument expression.
  *
@@ -23805,8 +24207,8 @@ var util_1 = __webpack_require__(6588);
  * @param expr Right hand side expression of operator
  * @returns {boolean}
  */
-function $not(obj, expr, options) {
-    var booleanExpr = (0, util_1.ensureArray)(expr);
+const $not = (obj, expr, options) => {
+    const booleanExpr = (0, util_1.ensureArray)(expr);
     // array values are truthy so an emty array is false
     if (booleanExpr.length == 0)
         return false;
@@ -23815,13 +24217,13 @@ function $not(obj, expr, options) {
         return !(0, core_1.computeValue)(obj, booleanExpr[0], null, options);
     // expects a single argument
     throw "Expression $not takes exactly 1 argument";
-}
+};
 exports.$not = $not;
 
 
 /***/ }),
 
-/***/ 7405:
+/***/ 497:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23829,8 +24231,8 @@ exports.$not = $not;
 // Boolean Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#boolean-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$or = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns true when any of its expressions evaluates to true. Accepts any number of argument expressions.
  *
@@ -23838,16 +24240,17 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {boolean}
  */
-function $or(obj, expr, options) {
-    var value = (0, core_1.computeValue)(obj, expr, null, options);
-    return (0, util_1.truthy)(value) && value.some(util_1.truthy);
-}
+const $or = (obj, expr, options) => {
+    const value = (0, core_1.computeValue)(obj, expr, null, options);
+    const strict = options.useStrictMode;
+    return (0, util_1.truthy)(value, strict) && value.some(v => (0, util_1.truthy)(v, strict));
+};
 exports.$or = $or;
 
 
 /***/ }),
 
-/***/ 3802:
+/***/ 9543:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23855,7 +24258,7 @@ exports.$or = $or;
 // Comparison Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#comparison-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$cmp = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Compares two values and returns the result of the comparison as an integer.
  *
@@ -23863,20 +24266,20 @@ var core_1 = __webpack_require__(7424);
  * @param expr
  * @returns {number}
  */
-function $cmp(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $cmp = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     if (args[0] > args[1])
         return 1;
     if (args[0] < args[1])
         return -1;
     return 0;
-}
+};
 exports.$cmp = $cmp;
 
 
 /***/ }),
 
-/***/ 7657:
+/***/ 5495:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23884,7 +24287,7 @@ exports.$cmp = $cmp;
 // Comparison Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#comparison-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$eq = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches values that are equal to a specified value.
  */
@@ -23893,7 +24296,7 @@ exports.$eq = (0, _predicates_1.createExpressionOperator)(_predicates_1.$eq);
 
 /***/ }),
 
-/***/ 4359:
+/***/ 2005:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23901,7 +24304,7 @@ exports.$eq = (0, _predicates_1.createExpressionOperator)(_predicates_1.$eq);
 // Comparison Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#comparison-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$gt = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches values that are greater than a specified value.
  */
@@ -23910,7 +24313,7 @@ exports.$gt = (0, _predicates_1.createExpressionOperator)(_predicates_1.$gt);
 
 /***/ }),
 
-/***/ 5948:
+/***/ 9070:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23918,7 +24321,7 @@ exports.$gt = (0, _predicates_1.createExpressionOperator)(_predicates_1.$gt);
 // Comparison Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#comparison-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$gte = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * 	Matches values that are greater than or equal to a specified value.
  */
@@ -23927,14 +24330,18 @@ exports.$gte = (0, _predicates_1.createExpressionOperator)(_predicates_1.$gte);
 
 /***/ }),
 
-/***/ 6312:
+/***/ 4591:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -23943,18 +24350,18 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(3802), exports);
-__exportStar(__webpack_require__(7657), exports);
-__exportStar(__webpack_require__(4359), exports);
-__exportStar(__webpack_require__(5948), exports);
-__exportStar(__webpack_require__(2618), exports);
-__exportStar(__webpack_require__(7160), exports);
-__exportStar(__webpack_require__(2850), exports);
+__exportStar(__webpack_require__(9543), exports);
+__exportStar(__webpack_require__(5495), exports);
+__exportStar(__webpack_require__(2005), exports);
+__exportStar(__webpack_require__(9070), exports);
+__exportStar(__webpack_require__(1337), exports);
+__exportStar(__webpack_require__(3701), exports);
+__exportStar(__webpack_require__(4267), exports);
 
 
 /***/ }),
 
-/***/ 2618:
+/***/ 1337:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23962,7 +24369,7 @@ __exportStar(__webpack_require__(2850), exports);
 // Comparison Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#comparison-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$lt = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches values that are less than the value specified in the query.
  */
@@ -23971,7 +24378,7 @@ exports.$lt = (0, _predicates_1.createExpressionOperator)(_predicates_1.$lt);
 
 /***/ }),
 
-/***/ 7160:
+/***/ 3701:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23979,7 +24386,7 @@ exports.$lt = (0, _predicates_1.createExpressionOperator)(_predicates_1.$lt);
 // Comparison Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#comparison-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$lte = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches values that are less than or equal to the value specified in the query.
  */
@@ -23988,7 +24395,7 @@ exports.$lte = (0, _predicates_1.createExpressionOperator)(_predicates_1.$lte);
 
 /***/ }),
 
-/***/ 2850:
+/***/ 4267:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -23996,7 +24403,7 @@ exports.$lte = (0, _predicates_1.createExpressionOperator)(_predicates_1.$lte);
 // Comparison Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#comparison-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$ne = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches all values that are not equal to the value specified in the query.
  */
@@ -24005,7 +24412,7 @@ exports.$ne = (0, _predicates_1.createExpressionOperator)(_predicates_1.$ne);
 
 /***/ }),
 
-/***/ 6379:
+/***/ 3833:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24015,8 +24422,8 @@ exports.$ne = (0, _predicates_1.createExpressionOperator)(_predicates_1.$ne);
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$cond = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * A ternary operator that evaluates one expression,
  * and depending on the result returns the value of one following expressions.
@@ -24024,11 +24431,11 @@ var util_1 = __webpack_require__(6588);
  * @param obj
  * @param expr
  */
-function $cond(obj, expr, options) {
-    var ifExpr;
-    var thenExpr;
-    var elseExpr;
-    var errorMsg = "$cond: invalid arguments";
+const $cond = (obj, expr, options) => {
+    let ifExpr;
+    let thenExpr;
+    let elseExpr;
+    const errorMsg = "$cond: invalid arguments";
     if (expr instanceof Array) {
         (0, util_1.assert)(expr.length === 3, errorMsg);
         ifExpr = expr[0];
@@ -24041,15 +24448,15 @@ function $cond(obj, expr, options) {
         thenExpr = expr.then;
         elseExpr = expr.else;
     }
-    var condition = (0, core_1.computeValue)(obj, ifExpr, null, options);
+    const condition = (0, util_1.truthy)((0, core_1.computeValue)(obj, ifExpr, null, options), options.useStrictMode);
     return (0, core_1.computeValue)(obj, condition ? thenExpr : elseExpr, null, options);
-}
+};
 exports.$cond = $cond;
 
 
 /***/ }),
 
-/***/ 3216:
+/***/ 419:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24059,34 +24466,36 @@ exports.$cond = $cond;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$ifNull = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
- * Evaluates an expression and returns the first expression if it evaluates to a non-null value.
- * Otherwise, $ifNull returns the second expression's value.
+ * Evaluates an expression and returns the first non-null value.
  *
  * @param obj
  * @param expr
  * @returns {*}
  */
-function $ifNull(obj, expr, options) {
-    (0, util_1.assert)((0, util_1.isArray)(expr) && expr.length === 2, "$ifNull expression must resolve to array(2)");
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    return (0, util_1.isNil)(args[0]) ? args[1] : args[0];
-}
+const $ifNull = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    return args.find(arg => !(0, util_1.isNil)(arg));
+};
 exports.$ifNull = $ifNull;
 
 
 /***/ }),
 
-/***/ 5528:
+/***/ 5112:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -24095,14 +24504,14 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(6379), exports);
-__exportStar(__webpack_require__(3216), exports);
-__exportStar(__webpack_require__(8499), exports);
+__exportStar(__webpack_require__(3833), exports);
+__exportStar(__webpack_require__(419), exports);
+__exportStar(__webpack_require__(9605), exports);
 
 
 /***/ }),
 
-/***/ 8499:
+/***/ 9605:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24112,7 +24521,8 @@ __exportStar(__webpack_require__(8499), exports);
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$switch = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * An operator that evaluates a series of case expressions. When it finds an expression which
  * evaluates to true, it returns the resulting expression for that case. If none of the cases
@@ -24121,69 +24531,23 @@ var core_1 = __webpack_require__(7424);
  * @param obj
  * @param expr
  */
-function $switch(obj, expr, options) {
-    var thenExpr = null;
+const $switch = (obj, expr, options) => {
+    let thenExpr = null;
     // Array.prototype.find not supported in IE, hence the '.some()' proxy
-    expr.branches.some(function (b) {
-        var found = (0, core_1.computeValue)(obj, b.case, null, options);
-        if (found === true)
+    expr.branches.some((b) => {
+        const condition = (0, util_1.truthy)((0, core_1.computeValue)(obj, b.case, null, options), options.useStrictMode);
+        if (condition)
             thenExpr = b.then;
-        return found;
+        return condition;
     });
     return (0, core_1.computeValue)(obj, thenExpr !== null ? thenExpr : expr.default, null, options);
-}
+};
 exports.$switch = $switch;
 
 
 /***/ }),
 
-/***/ 7308:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-// Custom Aggregation Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#custom-aggregation-expression-operators
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.$accumulator = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-/**
- * Defines a custom accumulator function.
- *
- * @param {Array} collection The input array
- * @param {*} expr The expression for the operator
- * @param {Options} options Options
- */
-function $accumulator(collection, expr, options) {
-    var _a, _b;
-    (0, util_1.assert)(options.scriptEnabled, "$accumulator operator requires 'scriptEnabled' option to be true");
-    if (collection.length == 0)
-        return expr.initArgs;
-    var initArgs = (0, core_1.computeValue)(options["groupId"] || {}, expr.initArgs || [], null, options);
-    var state = (_a = expr.init).call.apply(_a, __spreadArray([null], initArgs, false));
-    for (var i = 0; i < collection.length; i++) {
-        // get arguments for document
-        var args = (0, core_1.computeValue)(collection[i], expr.accumulateArgs, null, options);
-        // update the state with each documents value
-        state = (_b = expr.accumulate).call.apply(_b, __spreadArray([null], __spreadArray([state], args, true), false));
-    }
-    return (expr.finalize ? expr.finalize.call(null, state) : state);
-}
-exports.$accumulator = $accumulator;
-
-
-/***/ }),
-
-/***/ 7247:
+/***/ 1416:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24191,8 +24555,8 @@ exports.$accumulator = $accumulator;
 // Custom Aggregation Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#custom-aggregation-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$function = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Defines a custom function.
  *
@@ -24200,24 +24564,28 @@ var util_1 = __webpack_require__(6588);
  * @param {*} expr The expression for the operator
  * @param {Options} options Options
  */
-function $function(obj, expr, options) {
+const $function = (obj, expr, options) => {
     (0, util_1.assert)(options.scriptEnabled, "$function operator requires 'scriptEnabled' option to be true");
-    var fn = (0, core_1.computeValue)(obj, expr, null, options);
+    const fn = (0, core_1.computeValue)(obj, expr, null, options);
     return fn.body.apply(null, fn.args);
-}
+};
 exports.$function = $function;
 
 
 /***/ }),
 
-/***/ 7057:
+/***/ 4052:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -24226,45 +24594,38 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(7308), exports);
-__exportStar(__webpack_require__(7247), exports);
+__exportStar(__webpack_require__(1416), exports);
 
 
 /***/ }),
 
-/***/ 3954:
+/***/ 7974:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.regexStrip = exports.regexQuote = exports.padDigits = exports.computeDate = exports.adjustDate = exports.formatTimezone = exports.parseTimezone = exports.DATE_SYM_TABLE = exports.DATE_PART_INTERVAL = exports.DATE_FORMAT = exports.DURATION_IN_MILLIS = exports.MILLIS_PER_DAY = exports.MINUTES_PER_HOUR = exports.isoWeekYear = exports.isoWeek = exports.getDayOfYear = exports.isLeapYear = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var COMMON_YEAR_DAYS_OFFSET = [
-    0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334,
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const COMMON_YEAR_DAYS_OFFSET = [
+    0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
 ];
-var LEAP_YEAR_DAYS_OFFSET = [
-    0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335,
+const LEAP_YEAR_DAYS_OFFSET = [
+    0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335
 ];
 // https://en.wikipedia.org/wiki/ISO_week_date
-var p = function (y) {
-    return (y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400)) % 7;
-};
-var weeks = function (y) { return 52 + Number(p(y) == 4 || p(y - 1) == 3); };
-var isLeapYear = function (year) {
-    return (year & 3) == 0 && (year % 100 != 0 || year % 400 == 0);
-};
+const p = (y) => (y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400)) % 7;
+const weeks = (y) => 52 + Number(p(y) == 4 || p(y - 1) == 3);
+const isLeapYear = (year) => (year & 3) == 0 && (year % 100 != 0 || year % 400 == 0);
 exports.isLeapYear = isLeapYear;
-var getDayOfYear = function (d) {
-    return ((0, exports.isLeapYear)(d.getUTCFullYear())
-        ? LEAP_YEAR_DAYS_OFFSET
-        : COMMON_YEAR_DAYS_OFFSET)[d.getUTCMonth()] + d.getUTCDate();
-};
+const getDayOfYear = (d) => ((0, exports.isLeapYear)(d.getUTCFullYear())
+    ? LEAP_YEAR_DAYS_OFFSET
+    : COMMON_YEAR_DAYS_OFFSET)[d.getUTCMonth()] + d.getUTCDate();
 exports.getDayOfYear = getDayOfYear;
 function isoWeek(d) {
     // algorithm based on https://en.wikipedia.org/wiki/ISO_week_date
-    var w = Math.floor((10 + (0, exports.getDayOfYear)(d) - (d.getUTCDay() || 7)) / 7);
+    const w = Math.floor((10 + (0, exports.getDayOfYear)(d) - (d.getUTCDay() || 7)) / 7);
     if (w < 1)
         return weeks(d.getUTCFullYear() - 1);
     if (w > weeks(d.getUTCFullYear()))
@@ -24285,7 +24646,7 @@ exports.DURATION_IN_MILLIS = {
     hour: 1000 * 60 * 60,
     minute: 1000 * 60,
     second: 1000,
-    millisecond: 1,
+    millisecond: 1
 };
 // default format if unspecified
 exports.DATE_FORMAT = "%Y-%m-%dT%H:%M:%S.%LZ";
@@ -24297,7 +24658,7 @@ exports.DATE_PART_INTERVAL = [
     ["hour", 0, 23],
     ["minute", 0, 59],
     ["second", 0, 59],
-    ["millisecond", 0, 999],
+    ["millisecond", 0, 999]
 ];
 // used for formatting dates in $dateToString operator
 exports.DATE_SYM_TABLE = {
@@ -24309,14 +24670,15 @@ exports.DATE_SYM_TABLE = {
     "%M": { name: "minute", padding: 2, re: /([0-5][0-9])/ },
     "%S": { name: "second", padding: 2, re: /([0-5][0-9]|60)/ },
     "%L": { name: "millisecond", padding: 3, re: /([0-9]{3})/ },
-    "%u": { name: "weekDay", padding: 1, re: /([1-7])/ },
-    "%V": { name: "week", padding: 1, re: /([1-4][0-9]?|5[0-3]?)/ },
+    "%u": { name: "weekday", padding: 1, re: /([1-7])/ },
+    "%U": { name: "week", padding: 2, re: /([1-4][0-9]?|5[0-3]?)/ },
+    "%V": { name: "isoWeek", padding: 2, re: /([1-4][0-9]?|5[0-3]?)/ },
     "%z": {
         name: "timezone",
         padding: 2,
-        re: /(([+-][01][0-9]|2[0-3]):?([0-5][0-9])?)/,
+        re: /(([+-][01][0-9]|2[0-3]):?([0-5][0-9])?)/
     },
-    "%Z": { name: "minuteOffset", padding: 3, re: /([+-][0-9]{3})/ },
+    "%Z": { name: "minuteOffset", padding: 3, re: /([+-][0-9]{3})/ }
     // "%%": "%",
 };
 /**
@@ -24326,11 +24688,11 @@ exports.DATE_SYM_TABLE = {
 function parseTimezone(tzstr) {
     if ((0, util_1.isNil)(tzstr))
         return 0;
-    var m = exports.DATE_SYM_TABLE["%z"].re.exec(tzstr);
+    const m = exports.DATE_SYM_TABLE["%z"].re.exec(tzstr);
     if (!m)
-        throw Error("invalid or location-based timezone '" + tzstr + "' not supported");
-    var hr = parseInt(m[2]) || 0;
-    var min = parseInt(m[3]) || 0;
+        throw Error(`invalid or location-based timezone '${tzstr}' not supported`);
+    const hr = parseInt(m[2]) || 0;
+    const min = parseInt(m[3]) || 0;
     return (Math.abs(hr * exports.MINUTES_PER_HOUR) + min) * (hr < 0 ? -1 : 1);
 }
 exports.parseTimezone = parseTimezone;
@@ -24359,20 +24721,20 @@ exports.adjustDate = adjustDate;
  * @param expr Any value that resolves to a valid date expression. Valid expressions include a number, Date, or Object{date: number|Date, timezone?: string}
  */
 function computeDate(obj, expr, options) {
-    var d = (0, core_1.computeValue)(obj, expr, null, options);
+    const d = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isDate)(d))
         return new Date(d);
     // timestamp is in seconds
     if ((0, util_1.isNumber)(d))
         return new Date(d * 1000);
     if (d.date) {
-        var date = (0, util_1.isDate)(d.date) ? new Date(d.date) : new Date(d.date * 1000);
+        const date = (0, util_1.isDate)(d.date) ? new Date(d.date) : new Date(d.date * 1000);
         if (d.timezone) {
             adjustDate(date, parseTimezone(d.timezone));
         }
         return date;
     }
-    throw Error("cannot convert " + (expr === null || expr === void 0 ? void 0 : expr.toString()) + " to date");
+    throw Error(`cannot convert ${expr === null || expr === void 0 ? void 0 : expr.toString()} to date`);
 }
 exports.computeDate = computeDate;
 function padDigits(n, digits) {
@@ -24381,8 +24743,8 @@ function padDigits(n, digits) {
 }
 exports.padDigits = padDigits;
 function regexQuote(s) {
-    "^.-*?$".split("").forEach(function (c) {
-        s = s.replace(c, "\\" + c);
+    "^.-*?$".split("").forEach((c) => {
+        s = s.replace(c, `\\${c}`);
     });
     return s;
 }
@@ -24395,7 +24757,7 @@ exports.regexStrip = regexStrip;
 
 /***/ }),
 
-/***/ 8369:
+/***/ 9784:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24403,16 +24765,16 @@ exports.regexStrip = regexStrip;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$dateAdd = void 0;
-var core_1 = __webpack_require__(7424);
-var _internal_1 = __webpack_require__(3954);
+const core_1 = __webpack_require__(9587);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Increments a Date object by a specified number of time units.
  * @param obj
  * @param expr
  */
-function $dateAdd(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var d = (0, _internal_1.computeDate)(obj, expr.startDate, options);
+const $dateAdd = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const d = (0, _internal_1.computeDate)(obj, expr.startDate, options);
     switch (args.unit) {
         case "year":
             d.setUTCFullYear(d.getUTCFullYear() + args.amount);
@@ -24427,18 +24789,18 @@ function $dateAdd(obj, expr, options) {
             d.setTime(d.getTime() + _internal_1.DURATION_IN_MILLIS[args.unit] * args.amount);
     }
     if (args.timezone) {
-        var tz = (0, _internal_1.parseTimezone)(args.timezone);
+        const tz = (0, _internal_1.parseTimezone)(args.timezone);
         (0, _internal_1.adjustDate)(d, tz);
     }
     return d;
-}
+};
 exports.$dateAdd = $dateAdd;
 function addMonth(d, amount) {
     // months start from 0 to 11.
-    var m = d.getUTCMonth() + amount;
-    var yearOffset = Math.floor(m / 12);
+    const m = d.getUTCMonth() + amount;
+    const yearOffset = Math.floor(m / 12);
     if (m < 0) {
-        var month = (m % 12) + 12;
+        const month = (m % 12) + 12;
         d.setUTCFullYear(d.getUTCFullYear() + yearOffset, month, d.getUTCDate());
     }
     else {
@@ -24449,7 +24811,55 @@ function addMonth(d, amount) {
 
 /***/ }),
 
-/***/ 6354:
+/***/ 6145:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+// Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$dateDiff = void 0;
+const core_1 = __webpack_require__(9587);
+const _internal_1 = __webpack_require__(7974);
+/**
+ * Returns the difference between two dates.
+ * @param obj
+ * @param expr
+ * @param options Options
+ */
+const $dateDiff = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const d1 = (0, _internal_1.computeDate)(obj, expr.startDate, options);
+    const d2 = (0, _internal_1.computeDate)(obj, expr.endDate, options);
+    let diff;
+    switch (args.unit) {
+        case "year":
+        case "quarter":
+        case "month":
+            diff = diffYQM(d1, d2, args.unit);
+            break;
+        default:
+            diff = (d2.getTime() - d1.getTime()) / _internal_1.DURATION_IN_MILLIS[args.unit];
+    }
+    return diff;
+};
+exports.$dateDiff = $dateDiff;
+const unitMonths = {
+    year: 12,
+    quarter: 3,
+    month: 1
+};
+function diffYQM(d1, d2, unit) {
+    let months = (d2.getUTCFullYear() - d1.getUTCFullYear()) * 12;
+    months -= d1.getUTCMonth();
+    months += d2.getUTCMonth();
+    return Math.trunc(months / unitMonths[unit]);
+}
+
+
+/***/ }),
+
+/***/ 6723:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24457,10 +24867,10 @@ function addMonth(d, amount) {
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$dateFromParts = void 0;
-var core_1 = __webpack_require__(7424);
-var _internal_1 = __webpack_require__(3954);
-var DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-var getDaysInMonth = function (date) {
+const core_1 = __webpack_require__(9587);
+const _internal_1 = __webpack_require__(7974);
+const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+const getDaysInMonth = (date) => {
     return date.month == 2 && (0, _internal_1.isLeapYear)(date.year)
         ? 29
         : DAYS_IN_MONTH[date.month - 1];
@@ -24472,23 +24882,23 @@ var getDaysInMonth = function (date) {
  * @param expr The date expression
  * @param options Options
  */
-function $dateFromParts(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var minuteOffset = (0, _internal_1.parseTimezone)(args.timezone);
+const $dateFromParts = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const minuteOffset = (0, _internal_1.parseTimezone)(args.timezone);
     // assign default and adjust value ranges of the different parts
-    for (var i = _internal_1.DATE_PART_INTERVAL.length - 1, remainder = 0; i >= 0; i--) {
-        var datePartInterval = _internal_1.DATE_PART_INTERVAL[i];
-        var k = datePartInterval[0];
-        var min = datePartInterval[1];
-        var max = datePartInterval[2];
+    for (let i = _internal_1.DATE_PART_INTERVAL.length - 1, remainder = 0; i >= 0; i--) {
+        const datePartInterval = _internal_1.DATE_PART_INTERVAL[i];
+        const k = datePartInterval[0];
+        const min = datePartInterval[1];
+        const max = datePartInterval[2];
         // add remainder from previous part. units should already be correct
-        var part = (args[k] || 0) + remainder;
+        let part = (args[k] || 0) + remainder;
         // reset remainder now that it's been used.
         remainder = 0;
         // 1. compute the remainder for the next part
         // 2. adjust the current part to a valid range
         // 3. assign back to 'args'
-        var limit = max + 1;
+        const limit = max + 1;
         // invert timezone to adjust the hours to UTC
         if (k == "hour")
             part += Math.floor(minuteOffset / _internal_1.MINUTES_PER_HOUR) * -1;
@@ -24496,7 +24906,7 @@ function $dateFromParts(obj, expr, options) {
             part += (minuteOffset % _internal_1.MINUTES_PER_HOUR) * -1;
         // smaller than lower bound
         if (part < min) {
-            var delta = min - part;
+            const delta = min - part;
             remainder = -1 * Math.ceil(delta / limit);
             part = limit - (delta % limit);
         }
@@ -24512,73 +24922,62 @@ function $dateFromParts(obj, expr, options) {
     // adjust end of month to correctly handle overflows
     args.day = Math.min(args.day, getDaysInMonth(args));
     return new Date(Date.UTC(args.year, args.month - 1, args.day, args.hour, args.minute, args.second, args.millisecond));
-}
+};
 exports.$dateFromParts = $dateFromParts;
 
 
 /***/ }),
 
-/***/ 7491:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 5342:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$dateFromString = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var _internal_1 = __webpack_require__(3954);
-var buildMap = function (letters, sign) {
-    var h = {};
-    letters.split("").forEach(function (v, i) { return (h[v] = sign * (i + 1)); });
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const _internal_1 = __webpack_require__(7974);
+const buildMap = (letters, sign) => {
+    const h = {};
+    letters.split("").forEach((v, i) => (h[v] = sign * (i + 1)));
     return h;
 };
-var TZ_LETTER_OFFSETS = __assign(__assign(__assign({}, buildMap("ABCDEFGHIKLM", 1)), buildMap("NOPQRSTUVWXY", -1)), { Z: 0 });
+const TZ_LETTER_OFFSETS = Object.assign(Object.assign(Object.assign({}, buildMap("ABCDEFGHIKLM", 1)), buildMap("NOPQRSTUVWXY", -1)), { Z: 0 });
 /**
  * Converts a date/time string to a date object.
  * @param obj
  * @param expr
  */
-function $dateFromString(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $dateFromString = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     args.format = args.format || _internal_1.DATE_FORMAT;
     args.onNull = args.onNull || null;
-    var dateString = args.dateString;
+    let dateString = args.dateString;
     if ((0, util_1.isNil)(dateString))
         return args.onNull;
     // collect all separators of the format string
-    var separators = args.format.split(/%[YGmdHMSLuVzZ]/);
+    const separators = args.format.split(/%[YGmdHMSLuVzZ]/);
     separators.reverse();
-    var matches = args.format.match(/(%%|%Y|%G|%m|%d|%H|%M|%S|%L|%u|%V|%z|%Z)/g);
-    var dateParts = {};
+    const matches = args.format.match(/(%%|%Y|%G|%m|%d|%H|%M|%S|%L|%u|%V|%z|%Z)/g);
+    const dateParts = {};
     // holds the valid regex of parts that matches input date string
-    var expectedPattern = "";
-    for (var i = 0, len = matches.length; i < len; i++) {
-        var formatSpecifier = matches[i];
-        var props = _internal_1.DATE_SYM_TABLE[formatSpecifier];
+    let expectedPattern = "";
+    for (let i = 0, len = matches.length; i < len; i++) {
+        const formatSpecifier = matches[i];
+        const props = _internal_1.DATE_SYM_TABLE[formatSpecifier];
         if ((0, util_1.isObject)(props)) {
             // get pattern and alias from table
-            var m_1 = props.re.exec(dateString);
+            const m = props.re.exec(dateString);
             // get the next separtor
-            var delimiter = separators.pop() || "";
-            if (m_1 !== null) {
+            const delimiter = separators.pop() || "";
+            if (m !== null) {
                 // store and cut out matched part
-                dateParts[props.name] = /^\d+$/.exec(m_1[0]) ? parseInt(m_1[0]) : m_1[0];
+                dateParts[props.name] = /^\d+$/.exec(m[0]) ? parseInt(m[0]) : m[0];
                 dateString =
-                    dateString.substr(0, m_1.index) +
-                        dateString.substr(m_1.index + m_1[0].length);
+                    dateString.substr(0, m.index) +
+                        dateString.substr(m.index + m[0].length);
                 // construct expected pattern
                 expectedPattern +=
                     (0, _internal_1.regexQuote)(delimiter) + (0, _internal_1.regexStrip)(props.re.toString());
@@ -24596,15 +24995,15 @@ function $dateFromString(obj, expr, options) {
         !new RegExp("^" + expectedPattern + "[A-Z]?$").exec(args.dateString)) {
         return args.onError;
     }
-    var m = args.dateString.match(/([A-Z])$/);
+    const m = args.dateString.match(/([A-Z])$/);
     (0, util_1.assert)(
     // only one of in-date timeone or timezone argument but not both.
-    !(m && args.timezone), "$dateFromString: you cannot pass in a date/time string with time zone information ('" + (m && m[0]) + "') together with a timezone argument");
-    var minuteOffset = m
+    !(m && args.timezone), `$dateFromString: you cannot pass in a date/time string with time zone information ('${m && m[0]}') together with a timezone argument`);
+    const minuteOffset = m
         ? TZ_LETTER_OFFSETS[m[0]] * _internal_1.MINUTES_PER_HOUR
         : (0, _internal_1.parseTimezone)(args.timezone);
     // create the date. month is 0-based in Date
-    var d = new Date(Date.UTC(dateParts.year, dateParts.month - 1, dateParts.day, 0, 0, 0));
+    const d = new Date(Date.UTC(dateParts.year, dateParts.month - 1, dateParts.day, 0, 0, 0));
     if (!(0, util_1.isNil)(dateParts.hour))
         d.setUTCHours(dateParts.hour);
     if (!(0, util_1.isNil)(dateParts.minute))
@@ -24616,48 +25015,37 @@ function $dateFromString(obj, expr, options) {
     // adjust to the correct represention for UTC
     (0, _internal_1.adjustDate)(d, -minuteOffset);
     return d;
-}
+};
 exports.$dateFromString = $dateFromString;
 
 
 /***/ }),
 
-/***/ 1589:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 9051:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$dateSubtract = void 0;
-var core_1 = __webpack_require__(7424);
-var __1 = __webpack_require__(6234);
+const core_1 = __webpack_require__(9587);
+const dateAdd_1 = __webpack_require__(9784);
 /**
  * Decrements a Date object by a specified number of time units.
  * @param obj
  * @param expr
  */
-function $dateSubtract(obj, expr, options) {
-    var amount = (0, core_1.computeValue)(obj, expr === null || expr === void 0 ? void 0 : expr.amount, null, options);
-    return (0, __1.$dateAdd)(obj, __assign(__assign({}, expr), { amount: -1 * amount }), options);
-}
+const $dateSubtract = (obj, expr, options) => {
+    const amount = (0, core_1.computeValue)(obj, expr === null || expr === void 0 ? void 0 : expr.amount, null, options);
+    return (0, dateAdd_1.$dateAdd)(obj, Object.assign(Object.assign({}, expr), { amount: -1 * amount }), options);
+};
 exports.$dateSubtract = $dateSubtract;
 
 
 /***/ }),
 
-/***/ 2038:
+/***/ 281:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24665,8 +25053,8 @@ exports.$dateSubtract = $dateSubtract;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$dateToParts = void 0;
-var core_1 = __webpack_require__(7424);
-var _internal_1 = __webpack_require__(3954);
+const core_1 = __webpack_require__(9587);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns a document that contains the constituent parts of a given Date value as individual properties.
  * The properties returned are year, month, day, hour, minute, second and millisecond.
@@ -24675,37 +25063,36 @@ var _internal_1 = __webpack_require__(3954);
  * @param expr
  * @param options
  */
-function $dateToParts(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var d = new Date(args.date);
-    var tz = (0, _internal_1.parseTimezone)(args.timezone);
-    // invert timezone to construct value in UTC
-    (0, _internal_1.adjustDate)(d, -tz);
-    var timePart = {
+const $dateToParts = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const d = new Date(args.date);
+    const tz = (0, _internal_1.parseTimezone)(args.timezone);
+    (0, _internal_1.adjustDate)(d, tz);
+    const timePart = {
         hour: d.getUTCHours(),
         minute: d.getUTCMinutes(),
         second: d.getUTCSeconds(),
-        millisecond: d.getUTCMilliseconds(),
+        millisecond: d.getUTCMilliseconds()
     };
     if (args.iso8601 == true) {
         return Object.assign(timePart, {
             isoWeekYear: (0, _internal_1.isoWeekYear)(d),
             isoWeek: (0, _internal_1.isoWeek)(d),
-            isoDayOfWeek: d.getUTCDay() || 7,
+            isoDayOfWeek: d.getUTCDay() || 7
         });
     }
     return Object.assign(timePart, {
         year: d.getUTCFullYear(),
         month: d.getUTCMonth() + 1,
-        day: d.getUTCDate(),
+        day: d.getUTCDate()
     });
-}
+};
 exports.$dateToParts = $dateToParts;
 
 
 /***/ }),
 
-/***/ 943:
+/***/ 1300:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24713,20 +25100,21 @@ exports.$dateToParts = $dateToParts;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$dateToString = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var _internal_1 = __webpack_require__(3954);
-var dayOfMonth_1 = __webpack_require__(5803);
-var dayOfWeek_1 = __webpack_require__(6455);
-var hour_1 = __webpack_require__(6686);
-var millisecond_1 = __webpack_require__(2637);
-var minute_1 = __webpack_require__(9859);
-var month_1 = __webpack_require__(858);
-var second_1 = __webpack_require__(5457);
-var week_1 = __webpack_require__(473);
-var year_1 = __webpack_require__(9386);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const _internal_1 = __webpack_require__(7974);
+const dayOfMonth_1 = __webpack_require__(5327);
+const hour_1 = __webpack_require__(5882);
+const isoDayOfWeek_1 = __webpack_require__(404);
+const isoWeek_1 = __webpack_require__(9812);
+const millisecond_1 = __webpack_require__(1338);
+const minute_1 = __webpack_require__(5337);
+const month_1 = __webpack_require__(6879);
+const second_1 = __webpack_require__(743);
+const week_1 = __webpack_require__(626);
+const year_1 = __webpack_require__(8546);
 // date functions for format specifiers
-var DATE_FUNCTIONS = {
+const DATE_FUNCTIONS = {
     "%Y": year_1.$year,
     "%G": year_1.$year,
     "%m": month_1.$month,
@@ -24735,8 +25123,9 @@ var DATE_FUNCTIONS = {
     "%M": minute_1.$minute,
     "%S": second_1.$second,
     "%L": millisecond_1.$millisecond,
-    "%u": dayOfWeek_1.$dayOfWeek,
-    "%V": week_1.$week,
+    "%u": isoDayOfWeek_1.$isoDayOfWeek,
+    "%U": week_1.$week,
+    "%V": isoWeek_1.$isoWeek
 };
 /**
  * Returns the date as a formatted string.
@@ -24758,23 +25147,23 @@ var DATE_FUNCTIONS = {
  * @param obj current object
  * @param expr operator expression
  */
-function $dateToString(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $dateToString = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(args.onNull))
         args.onNull = null;
     if ((0, util_1.isNil)(args.date))
         return args.onNull;
-    var date = (0, _internal_1.computeDate)(obj, args.date, options);
-    var format = args.format || _internal_1.DATE_FORMAT;
-    var minuteOffset = (0, _internal_1.parseTimezone)(args.timezone);
-    var matches = format.match(/(%%|%Y|%G|%m|%d|%H|%M|%S|%L|%u|%V|%z|%Z)/g);
+    const date = (0, _internal_1.computeDate)(obj, args.date, options);
+    let format = args.format || _internal_1.DATE_FORMAT;
+    const minuteOffset = (0, _internal_1.parseTimezone)(args.timezone);
+    const matches = format.match(/(%%|%Y|%G|%m|%d|%H|%M|%S|%L|%u|%U|%V|%z|%Z)/g);
     // adjust the date to reflect timezone
     (0, _internal_1.adjustDate)(date, minuteOffset);
-    for (var i = 0, len = matches.length; i < len; i++) {
-        var formatSpecifier = matches[i];
-        var props = _internal_1.DATE_SYM_TABLE[formatSpecifier];
-        var operatorFn = DATE_FUNCTIONS[formatSpecifier];
-        var value = void 0;
+    for (let i = 0, len = matches.length; i < len; i++) {
+        const formatSpecifier = matches[i];
+        const props = _internal_1.DATE_SYM_TABLE[formatSpecifier];
+        const operatorFn = DATE_FUNCTIONS[formatSpecifier];
+        let value;
         if ((0, util_1.isObject)(props)) {
             // reuse date
             if (props.name === "timezone") {
@@ -24784,7 +25173,7 @@ function $dateToString(obj, expr, options) {
                 value = minuteOffset.toString();
             }
             else {
-                (0, util_1.assert)(!!operatorFn, "unsupported date format specifier '" + formatSpecifier + "'");
+                (0, util_1.assert)(!!operatorFn, `unsupported date format specifier '${formatSpecifier}'`);
                 value = (0, _internal_1.padDigits)(operatorFn(obj, date, options), props.padding);
             }
         }
@@ -24792,13 +25181,13 @@ function $dateToString(obj, expr, options) {
         format = format.replace(formatSpecifier, value);
     }
     return format;
-}
+};
 exports.$dateToString = $dateToString;
 
 
 /***/ }),
 
-/***/ 5803:
+/***/ 5327:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24806,21 +25195,21 @@ exports.$dateToString = $dateToString;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$dayOfMonth = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the day of the month for a date as a number between 1 and 31.
  * @param obj
  * @param expr
  */
-function $dayOfMonth(obj, expr, options) {
+const $dayOfMonth = (obj, expr, options) => {
     return (0, _internal_1.computeDate)(obj, expr, options).getUTCDate();
-}
+};
 exports.$dayOfMonth = $dayOfMonth;
 
 
 /***/ }),
 
-/***/ 6455:
+/***/ 982:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24828,21 +25217,21 @@ exports.$dayOfMonth = $dayOfMonth;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$dayOfWeek = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the day of the week for a date as a number between 1 (Sunday) and 7 (Saturday).
  * @param obj
  * @param expr
  */
-function $dayOfWeek(obj, expr, options) {
+const $dayOfWeek = (obj, expr, options) => {
     return (0, _internal_1.computeDate)(obj, expr, options).getUTCDay() + 1;
-}
+};
 exports.$dayOfWeek = $dayOfWeek;
 
 
 /***/ }),
 
-/***/ 9916:
+/***/ 623:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24850,21 +25239,21 @@ exports.$dayOfWeek = $dayOfWeek;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$dayOfYear = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the day of the year for a date as a number between 1 and 366 (leap year).
  * @param obj
  * @param expr
  */
-function $dayOfYear(obj, expr, options) {
+const $dayOfYear = (obj, expr, options) => {
     return (0, _internal_1.getDayOfYear)((0, _internal_1.computeDate)(obj, expr, options));
-}
+};
 exports.$dayOfYear = $dayOfYear;
 
 
 /***/ }),
 
-/***/ 6686:
+/***/ 5882:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24872,28 +25261,32 @@ exports.$dayOfYear = $dayOfYear;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$hour = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the hour for a date as a number between 0 and 23.
  * @param obj
  * @param expr
  */
-function $hour(obj, expr, options) {
+const $hour = (obj, expr, options) => {
     return (0, _internal_1.computeDate)(obj, expr, options).getUTCHours();
-}
+};
 exports.$hour = $hour;
 
 
 /***/ }),
 
-/***/ 5832:
+/***/ 9173:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -24902,30 +25295,31 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(8369), exports);
-__exportStar(__webpack_require__(6354), exports);
-__exportStar(__webpack_require__(7491), exports);
-__exportStar(__webpack_require__(1589), exports);
-__exportStar(__webpack_require__(2038), exports);
-__exportStar(__webpack_require__(943), exports);
-__exportStar(__webpack_require__(5803), exports);
-__exportStar(__webpack_require__(6455), exports);
-__exportStar(__webpack_require__(9916), exports);
-__exportStar(__webpack_require__(6686), exports);
-__exportStar(__webpack_require__(3834), exports);
-__exportStar(__webpack_require__(1211), exports);
-__exportStar(__webpack_require__(6532), exports);
-__exportStar(__webpack_require__(2637), exports);
-__exportStar(__webpack_require__(9859), exports);
-__exportStar(__webpack_require__(858), exports);
-__exportStar(__webpack_require__(5457), exports);
-__exportStar(__webpack_require__(473), exports);
-__exportStar(__webpack_require__(9386), exports);
+__exportStar(__webpack_require__(9784), exports);
+__exportStar(__webpack_require__(6145), exports);
+__exportStar(__webpack_require__(6723), exports);
+__exportStar(__webpack_require__(5342), exports);
+__exportStar(__webpack_require__(9051), exports);
+__exportStar(__webpack_require__(281), exports);
+__exportStar(__webpack_require__(1300), exports);
+__exportStar(__webpack_require__(5327), exports);
+__exportStar(__webpack_require__(982), exports);
+__exportStar(__webpack_require__(623), exports);
+__exportStar(__webpack_require__(5882), exports);
+__exportStar(__webpack_require__(404), exports);
+__exportStar(__webpack_require__(9812), exports);
+__exportStar(__webpack_require__(1123), exports);
+__exportStar(__webpack_require__(1338), exports);
+__exportStar(__webpack_require__(5337), exports);
+__exportStar(__webpack_require__(6879), exports);
+__exportStar(__webpack_require__(743), exports);
+__exportStar(__webpack_require__(626), exports);
+__exportStar(__webpack_require__(8546), exports);
 
 
 /***/ }),
 
-/***/ 3834:
+/***/ 404:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24933,21 +25327,21 @@ __exportStar(__webpack_require__(9386), exports);
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$isoDayOfWeek = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
- * Returns the weekday number in ISO 8601 format, ranging from 1 (for Monday) to 7 (for Sunday).
+ * Returns the weekday number in ISO 8601 format, ranging from 1 (Monday) to 7 (Sunday).
  * @param obj
  * @param expr
  */
-function $isoDayOfWeek(obj, expr, options) {
+const $isoDayOfWeek = (obj, expr, options) => {
     return (0, _internal_1.computeDate)(obj, expr, options).getUTCDay() || 7;
-}
+};
 exports.$isoDayOfWeek = $isoDayOfWeek;
 
 
 /***/ }),
 
-/***/ 1211:
+/***/ 9812:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24955,22 +25349,22 @@ exports.$isoDayOfWeek = $isoDayOfWeek;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$isoWeek = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the week number in ISO 8601 format, ranging from 1 to 53.
  * Week numbers start at 1 with the week (Monday through Sunday) that contains the year's first Thursday.
  * @param obj
  * @param expr
  */
-function $isoWeek(obj, expr, options) {
+const $isoWeek = (obj, expr, options) => {
     return (0, _internal_1.isoWeek)((0, _internal_1.computeDate)(obj, expr, options));
-}
+};
 exports.$isoWeek = $isoWeek;
 
 
 /***/ }),
 
-/***/ 6532:
+/***/ 1123:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -24978,23 +25372,23 @@ exports.$isoWeek = $isoWeek;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$isoWeekYear = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the year number in ISO 8601 format. The year starts with the Monday of week 1 and ends with the Sunday of the last week.
  * @param obj
  * @param expr
  */
-function $isoWeekYear(obj, expr, options) {
-    var d = (0, _internal_1.computeDate)(obj, expr, options);
+const $isoWeekYear = (obj, expr, options) => {
+    const d = (0, _internal_1.computeDate)(obj, expr, options);
     return (d.getUTCFullYear() -
         Number(d.getUTCMonth() == 0 && d.getUTCDate() == 1 && d.getUTCDay() < 1));
-}
+};
 exports.$isoWeekYear = $isoWeekYear;
 
 
 /***/ }),
 
-/***/ 2637:
+/***/ 1338:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25002,21 +25396,21 @@ exports.$isoWeekYear = $isoWeekYear;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$millisecond = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the milliseconds of a date as a number between 0 and 999.
  * @param obj
  * @param expr
  */
-function $millisecond(obj, expr, options) {
+const $millisecond = (obj, expr, options) => {
     return (0, _internal_1.computeDate)(obj, expr, options).getUTCMilliseconds();
-}
+};
 exports.$millisecond = $millisecond;
 
 
 /***/ }),
 
-/***/ 9859:
+/***/ 5337:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25024,21 +25418,21 @@ exports.$millisecond = $millisecond;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$minute = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the minute for a date as a number between 0 and 59.
  * @param obj
  * @param expr
  */
-function $minute(obj, expr, options) {
+const $minute = (obj, expr, options) => {
     return (0, _internal_1.computeDate)(obj, expr, options).getUTCMinutes();
-}
+};
 exports.$minute = $minute;
 
 
 /***/ }),
 
-/***/ 858:
+/***/ 6879:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25046,21 +25440,21 @@ exports.$minute = $minute;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$month = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the month for a date as a number between 1 (January) and 12 (December).
  * @param obj
  * @param expr
  */
-function $month(obj, expr, options) {
+const $month = (obj, expr, options) => {
     return (0, _internal_1.computeDate)(obj, expr, options).getUTCMonth() + 1;
-}
+};
 exports.$month = $month;
 
 
 /***/ }),
 
-/***/ 5457:
+/***/ 743:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25068,21 +25462,21 @@ exports.$month = $month;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$second = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the seconds for a date as a number between 0 and 60 (leap seconds).
  * @param obj
  * @param expr
  */
-function $second(obj, expr, options) {
+const $second = (obj, expr, options) => {
     return (0, _internal_1.computeDate)(obj, expr, options).getUTCSeconds();
-}
+};
 exports.$second = $second;
 
 
 /***/ }),
 
-/***/ 473:
+/***/ 626:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25090,16 +25484,16 @@ exports.$second = $second;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$week = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the week of the year for a date as a number between 0 and 53.
  * Weeks begin on Sundays, and week 1 begins with the first Sunday of the year. Days preceding the first Sunday of the year are in week 0
  * @param obj
  * @param expr
  */
-function $week(obj, expr, options) {
-    var d = (0, _internal_1.computeDate)(obj, expr, options);
-    var result = (0, _internal_1.isoWeek)(d);
+const $week = (obj, expr, options) => {
+    const d = (0, _internal_1.computeDate)(obj, expr, options);
+    const result = (0, _internal_1.isoWeek)(d);
     // check for starting of year and adjust accordingly
     if (d.getUTCDay() > 0 && d.getUTCDate() == 1 && d.getUTCMonth() == 0)
         return 0;
@@ -25108,13 +25502,13 @@ function $week(obj, expr, options) {
         return result + 1;
     // else
     return result;
-}
+};
 exports.$week = $week;
 
 
 /***/ }),
 
-/***/ 9386:
+/***/ 8546:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25122,28 +25516,32 @@ exports.$week = $week;
 // Date Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#date-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$year = void 0;
-var _internal_1 = __webpack_require__(3954);
+const _internal_1 = __webpack_require__(7974);
 /**
  * Returns the year for a date as a number (e.g. 2014).
  * @param obj
  * @param expr
  */
-function $year(obj, expr, options) {
+const $year = (obj, expr, options) => {
     return (0, _internal_1.computeDate)(obj, expr, options).getUTCFullYear();
-}
+};
 exports.$year = $year;
 
 
 /***/ }),
 
-/***/ 6234:
+/***/ 8985:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -25152,26 +25550,26 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(6665), exports);
-__exportStar(__webpack_require__(3142), exports);
-__exportStar(__webpack_require__(5039), exports);
-__exportStar(__webpack_require__(6312), exports);
-__exportStar(__webpack_require__(5528), exports);
-__exportStar(__webpack_require__(7057), exports);
-__exportStar(__webpack_require__(5832), exports);
-__exportStar(__webpack_require__(6103), exports);
-__exportStar(__webpack_require__(9925), exports);
-__exportStar(__webpack_require__(8981), exports);
-__exportStar(__webpack_require__(1767), exports);
-__exportStar(__webpack_require__(2937), exports);
-__exportStar(__webpack_require__(2090), exports);
-__exportStar(__webpack_require__(2040), exports);
-__exportStar(__webpack_require__(6752), exports);
+__exportStar(__webpack_require__(1744), exports);
+__exportStar(__webpack_require__(1613), exports);
+__exportStar(__webpack_require__(628), exports);
+__exportStar(__webpack_require__(4591), exports);
+__exportStar(__webpack_require__(5112), exports);
+__exportStar(__webpack_require__(4052), exports);
+__exportStar(__webpack_require__(9173), exports);
+__exportStar(__webpack_require__(5951), exports);
+__exportStar(__webpack_require__(2385), exports);
+__exportStar(__webpack_require__(6478), exports);
+__exportStar(__webpack_require__(8234), exports);
+__exportStar(__webpack_require__(9266), exports);
+__exportStar(__webpack_require__(4441), exports);
+__exportStar(__webpack_require__(1146), exports);
+__exportStar(__webpack_require__(4354), exports);
 
 
 /***/ }),
 
-/***/ 6103:
+/***/ 5951:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -25185,15 +25583,13 @@ exports.$literal = void 0;
  * @param expr
  * @param options
  */
-function $literal(obj, expr, options) {
-    return expr;
-}
+const $literal = (_obj, expr, _options) => expr;
 exports.$literal = $literal;
 
 
 /***/ }),
 
-/***/ 571:
+/***/ 8848:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25201,8 +25597,8 @@ exports.$literal = $literal;
 // Miscellaneous Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/rand/#mongodb-expression-exp.-rand
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$getField = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Adds, updates, or removes a specified field in a document.
  *
@@ -25210,10 +25606,10 @@ var util_1 = __webpack_require__(6588);
  * @param {*} expr The right-hand side of the operator
  * @param {Options} options Options to use for operation
  */
-function $getField(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var input = obj;
-    var field = args;
+const $getField = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    let input = obj;
+    let field = args;
     if ((0, util_1.isObject)(args) && args.input && args.field) {
         input = args.input;
         field = args.field;
@@ -25223,20 +25619,24 @@ function $getField(obj, expr, options) {
     (0, util_1.assert)((0, util_1.isObject)(input), "$getField expression 'input' must evaluate to an object");
     (0, util_1.assert)((0, util_1.isString)(field), "$getField expression 'field' must evaluate to a string");
     return input[field];
-}
+};
 exports.$getField = $getField;
 
 
 /***/ }),
 
-/***/ 9925:
+/***/ 2385:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -25245,14 +25645,14 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(571), exports);
-__exportStar(__webpack_require__(1227), exports);
-__exportStar(__webpack_require__(656), exports);
+__exportStar(__webpack_require__(8848), exports);
+__exportStar(__webpack_require__(2746), exports);
+__exportStar(__webpack_require__(9468), exports);
 
 
 /***/ }),
 
-/***/ 1227:
+/***/ 2746:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -25263,17 +25663,17 @@ exports.$rand = void 0;
 /**
  * Returns a random float between 0 and 1.
  *
- * @param {*} obj The target object for this expression
- * @param {*} expr The right-hand side of the operator
- * @param {Options} options Options to use for operation
+ * @param {*} _obj The target object for this expression
+ * @param {*} _expr The right-hand side of the operator
+ * @param {Options} _options Options to use for operation
  */
-var $rand = function (obj, expr, options) { return Math.random(); };
+const $rand = (_obj, _expr, _options) => Math.random();
 exports.$rand = $rand;
 
 
 /***/ }),
 
-/***/ 656:
+/***/ 9468:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25281,7 +25681,7 @@ exports.$rand = $rand;
 // Miscellaneous Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#miscellaneous-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$sampleRate = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Randomly select documents at a given rate.
  *
@@ -25289,20 +25689,24 @@ var core_1 = __webpack_require__(7424);
  * @param {*} expr The right-hand side of the operator
  * @param {Options} options Options to use for operation
  */
-var $sampleRate = function (obj, expr, options) { return Math.random() <= (0, core_1.computeValue)(obj, expr, null, options); };
+const $sampleRate = (obj, expr, options) => Math.random() <= (0, core_1.computeValue)(obj, expr, null, options);
 exports.$sampleRate = $sampleRate;
 
 
 /***/ }),
 
-/***/ 8981:
+/***/ 6478:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -25311,15 +25715,15 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(934), exports);
-__exportStar(__webpack_require__(9841), exports);
-__exportStar(__webpack_require__(7185), exports);
-__exportStar(__webpack_require__(8261), exports);
+__exportStar(__webpack_require__(9531), exports);
+__exportStar(__webpack_require__(4137), exports);
+__exportStar(__webpack_require__(3514), exports);
+__exportStar(__webpack_require__(5432), exports);
 
 
 /***/ }),
 
-/***/ 934:
+/***/ 9531:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25327,8 +25731,8 @@ __exportStar(__webpack_require__(8261), exports);
 // Object Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#object-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$mergeObjects = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Combines multiple documents into a single document.
  *
@@ -25336,18 +25740,18 @@ var util_1 = __webpack_require__(6588);
  * @param {*} expr The right-hand side of the operator
  * @param {Options} options Options to use for operation
  */
-function $mergeObjects(obj, expr, options) {
-    var docs = (0, core_1.computeValue)(obj, expr, null, options);
+const $mergeObjects = (obj, expr, options) => {
+    const docs = (0, core_1.computeValue)(obj, expr, null, options);
     return docs instanceof Array
-        ? docs.reduce(function (memo, o) { return (0, util_1.into)(memo, o); }, {})
+        ? docs.reduce((memo, o) => (0, util_1.into)(memo, o), {})
         : {};
-}
+};
 exports.$mergeObjects = $mergeObjects;
 
 
 /***/ }),
 
-/***/ 9841:
+/***/ 4137:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25355,8 +25759,8 @@ exports.$mergeObjects = $mergeObjects;
 // Object Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#object-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$objectToArray = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Converts a document to an array of documents representing key-value pairs.
  *
@@ -25364,22 +25768,23 @@ var util_1 = __webpack_require__(6588);
  * @param {*} expr The right-hand side of the operator
  * @param {Options} options Options to use for operation
  */
-function $objectToArray(obj, expr, options) {
-    var val = (0, core_1.computeValue)(obj, expr, null, options);
+const $objectToArray = (obj, expr, options) => {
+    const val = (0, core_1.computeValue)(obj, expr, null, options);
     (0, util_1.assert)((0, util_1.isObject)(val), "$objectToArray expression must resolve to an object");
-    var result = [];
-    for (var _i = 0, _a = Object.entries(val); _i < _a.length; _i++) {
-        var _b = _a[_i], k = _b[0], v = _b[1];
-        result.push({ k: k, v: v });
+    const entries = Object.entries(val);
+    const result = new Array(entries.length);
+    let i = 0;
+    for (const [k, v] of entries) {
+        result[i++] = { k, v };
     }
     return result;
-}
+};
 exports.$objectToArray = $objectToArray;
 
 
 /***/ }),
 
-/***/ 7185:
+/***/ 3514:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25387,8 +25792,8 @@ exports.$objectToArray = $objectToArray;
 // Object Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#object-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$setField = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Adds, updates, or removes a specified field in a document.
  *
@@ -25396,8 +25801,8 @@ var util_1 = __webpack_require__(6588);
  * @param {*} expr The right-hand side of the operator
  * @param {Options} options Options to use for operation
  */
-function $setField(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $setField = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(args.input))
         return null;
     (0, util_1.assert)((0, util_1.isObject)(args.input), "$setField expression 'input' must evaluate to an object");
@@ -25409,32 +25814,21 @@ function $setField(obj, expr, options) {
         obj[args.field] = args.value;
     }
     return obj;
-}
+};
 exports.$setField = $setField;
 
 
 /***/ }),
 
-/***/ 8261:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 5432:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 // Object Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#object-expression-operators
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$unsetField = void 0;
-var _1 = __webpack_require__(8981);
+const setField_1 = __webpack_require__(3514);
 /**
  * Adds, updates, or removes a specified field in a document.
  *
@@ -25442,15 +25836,15 @@ var _1 = __webpack_require__(8981);
  * @param {*} expr The right-hand side of the operator
  * @param {Options} options Options to use for operation
  */
-function $unsetField(obj, expr, options) {
-    return (0, _1.$setField)(obj, __assign(__assign({}, expr), { value: "$$REMOVE" }), options);
-}
+const $unsetField = (obj, expr, options) => {
+    return (0, setField_1.$setField)(obj, Object.assign(Object.assign({}, expr), { value: "$$REMOVE" }), options);
+};
 exports.$unsetField = $unsetField;
 
 
 /***/ }),
 
-/***/ 3280:
+/***/ 9462:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25460,24 +25854,24 @@ exports.$unsetField = $unsetField;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$allElementsTrue = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns true if all elements of a set evaluate to true, and false otherwise.
  * @param obj
  * @param expr
  */
-function $allElementsTrue(obj, expr, options) {
+const $allElementsTrue = (obj, expr, options) => {
     // mongodb nests the array expression in another
-    var args = (0, core_1.computeValue)(obj, expr, null, options)[0];
-    return args.every(util_1.truthy);
-}
+    const args = (0, core_1.computeValue)(obj, expr, null, options)[0];
+    return args.every(v => (0, util_1.truthy)(v, options.useStrictMode));
+};
 exports.$allElementsTrue = $allElementsTrue;
 
 
 /***/ }),
 
-/***/ 8248:
+/***/ 5459:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25487,31 +25881,35 @@ exports.$allElementsTrue = $allElementsTrue;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$anyElementTrue = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns true if any elements of a set evaluate to true, and false otherwise.
  * @param obj
  * @param expr
  */
-function $anyElementTrue(obj, expr, options) {
+const $anyElementTrue = (obj, expr, options) => {
     // mongodb nests the array expression in another
-    var args = (0, core_1.computeValue)(obj, expr, null, options)[0];
-    return args.some(util_1.truthy);
-}
+    const args = (0, core_1.computeValue)(obj, expr, null, options)[0];
+    return args.some(v => (0, util_1.truthy)(v, options.useStrictMode));
+};
 exports.$anyElementTrue = $anyElementTrue;
 
 
 /***/ }),
 
-/***/ 1767:
+/***/ 8234:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -25520,18 +25918,18 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(3280), exports);
-__exportStar(__webpack_require__(8248), exports);
-__exportStar(__webpack_require__(5910), exports);
-__exportStar(__webpack_require__(7972), exports);
-__exportStar(__webpack_require__(3855), exports);
-__exportStar(__webpack_require__(979), exports);
-__exportStar(__webpack_require__(8903), exports);
+__exportStar(__webpack_require__(9462), exports);
+__exportStar(__webpack_require__(5459), exports);
+__exportStar(__webpack_require__(5403), exports);
+__exportStar(__webpack_require__(6155), exports);
+__exportStar(__webpack_require__(1860), exports);
+__exportStar(__webpack_require__(5810), exports);
+__exportStar(__webpack_require__(2409), exports);
 
 
 /***/ }),
 
-/***/ 5910:
+/***/ 5403:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25541,23 +25939,23 @@ __exportStar(__webpack_require__(8903), exports);
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$setDifference = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns elements of a set that do not appear in a second set.
  * @param obj
  * @param expr
  */
-function $setDifference(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $setDifference = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     return args[0].filter(util_1.notInArray.bind(null, args[1]));
-}
+};
 exports.$setDifference = $setDifference;
 
 
 /***/ }),
 
-/***/ 7972:
+/***/ 6155:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25567,26 +25965,26 @@ exports.$setDifference = $setDifference;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$setEquals = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns true if two sets have the same elements.
  * @param obj
  * @param expr
  */
-function $setEquals(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var xs = (0, util_1.unique)(args[0], options === null || options === void 0 ? void 0 : options.hashFunction);
-    var ys = (0, util_1.unique)(args[1], options === null || options === void 0 ? void 0 : options.hashFunction);
+const $setEquals = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const xs = (0, util_1.unique)(args[0], options === null || options === void 0 ? void 0 : options.hashFunction);
+    const ys = (0, util_1.unique)(args[1], options === null || options === void 0 ? void 0 : options.hashFunction);
     return (xs.length === ys.length &&
         xs.length === (0, util_1.intersection)([xs, ys], options === null || options === void 0 ? void 0 : options.hashFunction).length);
-}
+};
 exports.$setEquals = $setEquals;
 
 
 /***/ }),
 
-/***/ 3855:
+/***/ 1860:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25596,24 +25994,24 @@ exports.$setEquals = $setEquals;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$setIntersection = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns the common elements of the input sets.
  * @param obj
  * @param expr
  */
-function $setIntersection(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $setIntersection = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     (0, util_1.assert)((0, util_1.isArray)(args) && args.every(util_1.isArray), "$setIntersection: expresssion must resolve to array of arrays");
     return (0, util_1.intersection)(args, options === null || options === void 0 ? void 0 : options.hashFunction);
-}
+};
 exports.$setIntersection = $setIntersection;
 
 
 /***/ }),
 
-/***/ 979:
+/***/ 5810:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25623,23 +26021,23 @@ exports.$setIntersection = $setIntersection;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$setIsSubset = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns true if all elements of a set appear in a second set.
  * @param obj
  * @param expr
  */
-function $setIsSubset(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $setIsSubset = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     return (0, util_1.intersection)(args, options === null || options === void 0 ? void 0 : options.hashFunction).length === args[0].length;
-}
+};
 exports.$setIsSubset = $setIsSubset;
 
 
 /***/ }),
 
-/***/ 8903:
+/***/ 2409:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25649,33 +26047,34 @@ exports.$setIsSubset = $setIsSubset;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$setUnion = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns a set that holds all elements of the input sets.
  * @param obj
  * @param expr
  */
-function $setUnion(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $setUnion = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     (0, util_1.assert)((0, util_1.isArray)(args) && args.length == 2 && args.every(util_1.isArray), "$setUnion: arguments must be arrays");
     return (0, util_1.unique)(args[0].concat(args[1]), options === null || options === void 0 ? void 0 : options.hashFunction);
-}
+};
 exports.$setUnion = $setUnion;
 
 
 /***/ }),
 
-/***/ 9875:
+/***/ 3421:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.regexSearch = exports.trimString = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var WHITESPACE_CHARS = [
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+/* eslint-disable*/
+const WHITESPACE_CHARS = [
     0x0000,
     0x0020,
     0x0009,
@@ -25695,7 +26094,7 @@ var WHITESPACE_CHARS = [
     0x2007,
     0x2008,
     0x2009,
-    0x200a, // Hair space
+    0x200a // Hair space
 ];
 /**
  * Trims the resolved string
@@ -25705,15 +26104,15 @@ var WHITESPACE_CHARS = [
  * @param options
  */
 function trimString(obj, expr, options, trimOpts) {
-    var val = (0, core_1.computeValue)(obj, expr, null, options);
-    var s = val.input;
+    const val = (0, core_1.computeValue)(obj, expr, null, options);
+    const s = val.input;
     if ((0, util_1.isNil)(s))
         return null;
-    var codepoints = (0, util_1.isNil)(val.chars)
+    const codepoints = (0, util_1.isNil)(val.chars)
         ? WHITESPACE_CHARS
-        : val.chars.split("").map(function (c) { return c.codePointAt(0); });
-    var i = 0;
-    var j = s.length - 1;
+        : val.chars.split("").map((c) => c.codePointAt(0));
+    let i = 0;
+    let j = s.length - 1;
     while (trimOpts.left &&
         i <= j &&
         codepoints.indexOf(s[i].codePointAt(0)) !== -1)
@@ -25733,42 +26132,42 @@ exports.trimString = trimString;
  * @param opts
  */
 function regexSearch(obj, expr, options, reOpts) {
-    var val = (0, core_1.computeValue)(obj, expr, null, options);
+    const val = (0, core_1.computeValue)(obj, expr, null, options);
     if (!(0, util_1.isString)(val.input))
         return [];
-    var regexOptions = val.options;
+    const regexOptions = val.options;
     if (regexOptions) {
         (0, util_1.assert)(regexOptions.indexOf("x") === -1, "extended capability option 'x' not supported");
         (0, util_1.assert)(regexOptions.indexOf("g") === -1, "global option 'g' not supported");
     }
-    var input = val.input;
-    var re = new RegExp(val.regex, regexOptions);
-    var m;
-    var matches = [];
-    var offset = 0;
+    let input = val.input;
+    const re = new RegExp(val.regex, regexOptions);
+    let m;
+    const matches = new Array();
+    let offset = 0;
     while ((m = re.exec(input))) {
-        var result = {
+        const result = {
             match: m[0],
             idx: m.index + offset,
-            captures: [],
+            captures: []
         };
-        for (var i = 1; i < m.length; i++) {
+        for (let i = 1; i < m.length; i++)
             result.captures.push(m[i] || null);
-        }
         matches.push(result);
         if (!reOpts.global)
             break;
         offset = m.index + m[0].length;
-        input = input.substr(offset);
+        input = input.substring(offset);
     }
     return matches;
 }
 exports.regexSearch = regexSearch;
+/*eslint-enable*/
 
 
 /***/ }),
 
-/***/ 6210:
+/***/ 8995:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25778,8 +26177,8 @@ exports.regexSearch = regexSearch;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$concat = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Concatenates two strings.
  *
@@ -25787,26 +26186,30 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {string|*}
  */
-function $concat(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $concat = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     // does not allow concatenation with nulls
     if ([null, undefined].some(util_1.inArray.bind(null, args)))
         return null;
     return args.join("");
-}
+};
 exports.$concat = $concat;
 
 
 /***/ }),
 
-/***/ 2937:
+/***/ 9266:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -25815,30 +26218,30 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(6210), exports);
-__exportStar(__webpack_require__(3405), exports);
-__exportStar(__webpack_require__(2599), exports);
-__exportStar(__webpack_require__(362), exports);
-__exportStar(__webpack_require__(2539), exports);
-__exportStar(__webpack_require__(4506), exports);
-__exportStar(__webpack_require__(7304), exports);
-__exportStar(__webpack_require__(5881), exports);
-__exportStar(__webpack_require__(4133), exports);
-__exportStar(__webpack_require__(7874), exports);
-__exportStar(__webpack_require__(5363), exports);
-__exportStar(__webpack_require__(6095), exports);
-__exportStar(__webpack_require__(5547), exports);
-__exportStar(__webpack_require__(2051), exports);
-__exportStar(__webpack_require__(2060), exports);
-__exportStar(__webpack_require__(8224), exports);
-__exportStar(__webpack_require__(1110), exports);
-__exportStar(__webpack_require__(9826), exports);
-__exportStar(__webpack_require__(597), exports);
+__exportStar(__webpack_require__(8995), exports);
+__exportStar(__webpack_require__(3375), exports);
+__exportStar(__webpack_require__(1366), exports);
+__exportStar(__webpack_require__(5649), exports);
+__exportStar(__webpack_require__(7258), exports);
+__exportStar(__webpack_require__(7433), exports);
+__exportStar(__webpack_require__(4385), exports);
+__exportStar(__webpack_require__(3869), exports);
+__exportStar(__webpack_require__(3648), exports);
+__exportStar(__webpack_require__(7066), exports);
+__exportStar(__webpack_require__(3868), exports);
+__exportStar(__webpack_require__(3837), exports);
+__exportStar(__webpack_require__(5292), exports);
+__exportStar(__webpack_require__(8378), exports);
+__exportStar(__webpack_require__(7476), exports);
+__exportStar(__webpack_require__(4098), exports);
+__exportStar(__webpack_require__(7013), exports);
+__exportStar(__webpack_require__(310), exports);
+__exportStar(__webpack_require__(8745), exports);
 
 
 /***/ }),
 
-/***/ 3405:
+/***/ 3375:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25848,8 +26251,8 @@ __exportStar(__webpack_require__(597), exports);
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$indexOfBytes = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Searches a string for an occurrence of a substring and returns the UTF-8 code point index of the first occurence.
  * If the substring is not found, returns -1.
@@ -25858,17 +26261,17 @@ var util_1 = __webpack_require__(6588);
  * @param  {*} expr
  * @return {*}
  */
-function $indexOfBytes(obj, expr, options) {
-    var arr = (0, core_1.computeValue)(obj, expr, null, options);
-    var errorMsg = "$indexOfBytes expression resolves to invalid an argument";
+const $indexOfBytes = (obj, expr, options) => {
+    const arr = (0, core_1.computeValue)(obj, expr, null, options);
+    const errorMsg = "$indexOfBytes expression resolves to invalid an argument";
     if ((0, util_1.isNil)(arr[0]))
         return null;
     (0, util_1.assert)((0, util_1.isString)(arr[0]) && (0, util_1.isString)(arr[1]), errorMsg);
-    var str = arr[0];
-    var searchStr = arr[1];
-    var start = arr[2];
-    var end = arr[3];
-    var valid = (0, util_1.isNil)(start) ||
+    const str = arr[0];
+    const searchStr = arr[1];
+    let start = arr[2];
+    let end = arr[3];
+    let valid = (0, util_1.isNil)(start) ||
         ((0, util_1.isNumber)(start) && start >= 0 && Math.round(start) === start);
     valid =
         valid &&
@@ -25878,15 +26281,15 @@ function $indexOfBytes(obj, expr, options) {
     end = end || str.length;
     if (start > end)
         return -1;
-    var index = str.substring(start, end).indexOf(searchStr);
+    const index = str.substring(start, end).indexOf(searchStr);
     return index > -1 ? index + start : index;
-}
+};
 exports.$indexOfBytes = $indexOfBytes;
 
 
 /***/ }),
 
-/***/ 2599:
+/***/ 1366:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25896,22 +26299,22 @@ exports.$indexOfBytes = $indexOfBytes;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$ltrim = void 0;
-var _internal_1 = __webpack_require__(9875);
+const _internal_1 = __webpack_require__(3421);
 /**
  * Removes whitespace characters, including null, or the specified characters from the beginning of a string.
  *
  * @param obj
  * @param expr
  */
-function $ltrim(obj, expr, options) {
+const $ltrim = (obj, expr, options) => {
     return (0, _internal_1.trimString)(obj, expr, options, { left: true, right: false });
-}
+};
 exports.$ltrim = $ltrim;
 
 
 /***/ }),
 
-/***/ 362:
+/***/ 5649:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25921,23 +26324,23 @@ exports.$ltrim = $ltrim;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$regexFind = void 0;
-var _internal_1 = __webpack_require__(9875);
+const _internal_1 = __webpack_require__(3421);
 /**
  * Applies a regular expression (regex) to a string and returns information on the first matched substring.
  *
  * @param obj
  * @param expr
  */
-function $regexFind(obj, expr, options) {
-    var result = (0, _internal_1.regexSearch)(obj, expr, options, { global: false });
-    return result.length === 0 ? null : result[0];
-}
+const $regexFind = (obj, expr, options) => {
+    const result = (0, _internal_1.regexSearch)(obj, expr, options, { global: false });
+    return result && result.length > 0 ? result[0] : null;
+};
 exports.$regexFind = $regexFind;
 
 
 /***/ }),
 
-/***/ 2539:
+/***/ 7258:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25947,22 +26350,22 @@ exports.$regexFind = $regexFind;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$regexFindAll = void 0;
-var _internal_1 = __webpack_require__(9875);
+const _internal_1 = __webpack_require__(3421);
 /**
  * Applies a regular expression (regex) to a string and returns information on the all matched substrings.
  *
  * @param obj
  * @param expr
  */
-function $regexFindAll(obj, expr, options) {
+const $regexFindAll = (obj, expr, options) => {
     return (0, _internal_1.regexSearch)(obj, expr, options, { global: true });
-}
+};
 exports.$regexFindAll = $regexFindAll;
 
 
 /***/ }),
 
-/***/ 4506:
+/***/ 7433:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25972,22 +26375,22 @@ exports.$regexFindAll = $regexFindAll;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$regexMatch = void 0;
-var _internal_1 = __webpack_require__(9875);
+const _internal_1 = __webpack_require__(3421);
 /**
  * Applies a regular expression (regex) to a string and returns a boolean that indicates if a match is found or not.
  *
  * @param obj
  * @param expr
  */
-function $regexMatch(obj, expr, options) {
+const $regexMatch = (obj, expr, options) => {
     return (0, _internal_1.regexSearch)(obj, expr, options, { global: false }).length != 0;
-}
+};
 exports.$regexMatch = $regexMatch;
 
 
 /***/ }),
 
-/***/ 7304:
+/***/ 4385:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -25997,28 +26400,28 @@ exports.$regexMatch = $regexMatch;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$replaceAll = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Replaces all instances of a matched string in a given input.
  *
  * @param  {Object} obj
  * @param  {Array} expr
  */
-function $replaceAll(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var arr = [args.input, args.find, args.replacement];
+const $replaceAll = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const arr = [args.input, args.find, args.replacement];
     if (arr.some(util_1.isNil))
         return null;
     (0, util_1.assert)(arr.every(util_1.isString), "$replaceAll expression fields must evaluate to string");
     return args.input.replace(new RegExp(args.find, "g"), args.replacement);
-}
+};
 exports.$replaceAll = $replaceAll;
 
 
 /***/ }),
 
-/***/ 5881:
+/***/ 3869:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26028,28 +26431,28 @@ exports.$replaceAll = $replaceAll;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$replaceOne = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Replaces the first instance of a matched string in a given input.
  *
  * @param  {Object} obj
  * @param  {Array} expr
  */
-function $replaceOne(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var arr = [args.input, args.find, args.replacement];
+const $replaceOne = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const arr = [args.input, args.find, args.replacement];
     if (arr.some(util_1.isNil))
         return null;
     (0, util_1.assert)(arr.every(util_1.isString), "$replaceOne expression fields must evaluate to string");
     return args.input.replace(args.find, args.replacement);
-}
+};
 exports.$replaceOne = $replaceOne;
 
 
 /***/ }),
 
-/***/ 4133:
+/***/ 3648:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26059,22 +26462,22 @@ exports.$replaceOne = $replaceOne;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$rtrim = void 0;
-var _internal_1 = __webpack_require__(9875);
+const _internal_1 = __webpack_require__(3421);
 /**
  * Removes whitespace characters, including null, or the specified characters from the end of a string.
  *
  * @param obj
  * @param expr
  */
-function $rtrim(obj, expr, options) {
+const $rtrim = (obj, expr, options) => {
     return (0, _internal_1.trimString)(obj, expr, options, { left: false, right: true });
-}
+};
 exports.$rtrim = $rtrim;
 
 
 /***/ }),
 
-/***/ 7874:
+/***/ 7066:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26084,8 +26487,8 @@ exports.$rtrim = $rtrim;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$split = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Splits a string into substrings based on a delimiter.
  * If the delimiter is not found within the string, returns an array containing the original string.
@@ -26094,19 +26497,19 @@ var util_1 = __webpack_require__(6588);
  * @param  {Array} expr
  * @return {Array} Returns an array of substrings.
  */
-function $split(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $split = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(args[0]))
         return null;
     (0, util_1.assert)(args.every(util_1.isString), "$split expression must result to array(2) of strings");
     return args[0].split(args[1]);
-}
+};
 exports.$split = $split;
 
 
 /***/ }),
 
-/***/ 6095:
+/***/ 3837:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26116,7 +26519,7 @@ exports.$split = $split;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$strLenBytes = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Returns the number of UTF-8 encoded bytes in the specified string.
  *
@@ -26124,15 +26527,15 @@ var core_1 = __webpack_require__(7424);
  * @param  {String} expr
  * @return {Number}
  */
-function $strLenBytes(obj, expr, options) {
+const $strLenBytes = (obj, expr, options) => {
     return ~-encodeURI((0, core_1.computeValue)(obj, expr, null, options)).split(/%..|./).length;
-}
+};
 exports.$strLenBytes = $strLenBytes;
 
 
 /***/ }),
 
-/***/ 5547:
+/***/ 5292:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26142,7 +26545,7 @@ exports.$strLenBytes = $strLenBytes;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$strLenCP = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Returns the number of UTF-8 code points in the specified string.
  *
@@ -26150,15 +26553,15 @@ var core_1 = __webpack_require__(7424);
  * @param  {String} expr
  * @return {Number}
  */
-function $strLenCP(obj, expr, options) {
+const $strLenCP = (obj, expr, options) => {
     return (0, core_1.computeValue)(obj, expr, null, options).length;
-}
+};
 exports.$strLenCP = $strLenCP;
 
 
 /***/ }),
 
-/***/ 5363:
+/***/ 3868:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26168,8 +26571,8 @@ exports.$strLenCP = $strLenCP;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$strcasecmp = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Compares two strings and returns an integer that reflects the comparison.
  *
@@ -26177,23 +26580,23 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {number}
  */
-function $strcasecmp(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var a = args[0];
-    var b = args[1];
+const $strcasecmp = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    let a = args[0];
+    let b = args[1];
     if ((0, util_1.isEqual)(a, b) || args.every(util_1.isNil))
         return 0;
     (0, util_1.assert)(args.every(util_1.isString), "$strcasecmp must resolve to array(2) of strings");
     a = a.toUpperCase();
     b = b.toUpperCase();
     return (a > b && 1) || (a < b && -1) || 0;
-}
+};
 exports.$strcasecmp = $strcasecmp;
 
 
 /***/ }),
 
-/***/ 2051:
+/***/ 8378:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26203,8 +26606,8 @@ exports.$strcasecmp = $strcasecmp;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$substr = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns a substring of a string, starting at a specified index position and including the specified number of characters.
  * The index is zero-based.
@@ -26213,11 +26616,11 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {string}
  */
-function $substr(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var s = args[0];
-    var index = args[1];
-    var count = args[2];
+const $substr = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const s = args[0];
+    const index = args[1];
+    const count = args[2];
     if ((0, util_1.isString)(s)) {
         if (index < 0) {
             return "";
@@ -26230,13 +26633,13 @@ function $substr(obj, expr, options) {
         }
     }
     return "";
-}
+};
 exports.$substr = $substr;
 
 
 /***/ }),
 
-/***/ 2060:
+/***/ 7476:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26246,24 +26649,24 @@ exports.$substr = $substr;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$substrBytes = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var UTF8_MASK = [0xc0, 0xe0, 0xf0];
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const UTF8_MASK = [0xc0, 0xe0, 0xf0];
 // encodes a unicode code point to a utf8 byte sequence
 // https://encoding.spec.whatwg.org/#utf-8
 function toUtf8(n) {
     if (n < 0x80)
         return [n];
-    var count = (n < 0x0800 && 1) || (n < 0x10000 && 2) || 3;
-    var offset = UTF8_MASK[count - 1];
-    var utf8 = [(n >> (6 * count)) + offset];
+    let count = (n < 0x0800 && 1) || (n < 0x10000 && 2) || 3;
+    const offset = UTF8_MASK[count - 1];
+    const utf8 = [(n >> (6 * count)) + offset];
     while (count > 0)
         utf8.push(0x80 | ((n >> (6 * --count)) & 0x3f));
     return utf8;
 }
 function utf8Encode(s) {
-    var buf = [];
-    for (var i = 0, len = s.length; i < len; i++) {
+    const buf = [];
+    for (let i = 0, len = s.length; i < len; i++) {
         buf.push(toUtf8(s.codePointAt(i)));
     }
     return buf;
@@ -26276,34 +26679,34 @@ function utf8Encode(s) {
  * @param expr
  * @returns {string}
  */
-function $substrBytes(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
-    var s = args[0];
-    var index = args[1];
-    var count = args[2];
+const $substrBytes = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
+    const s = args[0];
+    const index = args[1];
+    const count = args[2];
     (0, util_1.assert)((0, util_1.isString)(s) &&
         (0, util_1.isNumber)(index) &&
         index >= 0 &&
         (0, util_1.isNumber)(count) &&
         count >= 0, "$substrBytes: invalid arguments");
-    var buf = utf8Encode(s);
-    var validIndex = [];
-    var acc = 0;
-    for (var i = 0; i < buf.length; i++) {
+    const buf = utf8Encode(s);
+    const validIndex = [];
+    let acc = 0;
+    for (let i = 0; i < buf.length; i++) {
         validIndex.push(acc);
         acc += buf[i].length;
     }
-    var begin = validIndex.indexOf(index);
-    var end = validIndex.indexOf(index + count);
+    const begin = validIndex.indexOf(index);
+    const end = validIndex.indexOf(index + count);
     (0, util_1.assert)(begin > -1 && end > -1, "$substrBytes: invalid range, start or end index is a UTF-8 continuation byte.");
     return s.substring(begin, end);
-}
+};
 exports.$substrBytes = $substrBytes;
 
 
 /***/ }),
 
-/***/ 8224:
+/***/ 4098:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26313,16 +26716,16 @@ exports.$substrBytes = $substrBytes;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$substrCP = void 0;
-var substr_1 = __webpack_require__(2051);
-function $substrCP(obj, expr, options) {
+const substr_1 = __webpack_require__(8378);
+const $substrCP = (obj, expr, options) => {
     return (0, substr_1.$substr)(obj, expr, options);
-}
+};
 exports.$substrCP = $substrCP;
 
 
 /***/ }),
 
-/***/ 1110:
+/***/ 7013:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26332,8 +26735,8 @@ exports.$substrCP = $substrCP;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$toLower = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Converts a string to lowercase.
  *
@@ -26341,16 +26744,16 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {string}
  */
-function $toLower(obj, expr, options) {
-    var value = (0, core_1.computeValue)(obj, expr, null, options);
+const $toLower = (obj, expr, options) => {
+    const value = (0, core_1.computeValue)(obj, expr, null, options);
     return (0, util_1.isEmpty)(value) ? "" : value.toLowerCase();
-}
+};
 exports.$toLower = $toLower;
 
 
 /***/ }),
 
-/***/ 9826:
+/***/ 310:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26360,8 +26763,8 @@ exports.$toLower = $toLower;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$toUpper = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Converts a string to uppercase.
  *
@@ -26369,16 +26772,16 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {string}
  */
-function $toUpper(obj, expr, options) {
-    var value = (0, core_1.computeValue)(obj, expr, null, options);
+const $toUpper = (obj, expr, options) => {
+    const value = (0, core_1.computeValue)(obj, expr, null, options);
     return (0, util_1.isEmpty)(value) ? "" : value.toUpperCase();
-}
+};
 exports.$toUpper = $toUpper;
 
 
 /***/ }),
 
-/***/ 597:
+/***/ 8745:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26388,22 +26791,22 @@ exports.$toUpper = $toUpper;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$trim = void 0;
-var _internal_1 = __webpack_require__(9875);
+const _internal_1 = __webpack_require__(3421);
 /**
  * Removes whitespace characters, including null, or the specified characters from the beginning and end of a string.
  *
  * @param obj
  * @param expr
  */
-function $trim(obj, expr, options) {
+const $trim = (obj, expr, options) => {
     return (0, _internal_1.trimString)(obj, expr, options, { left: true, right: true });
-}
+};
 exports.$trim = $trim;
 
 
 /***/ }),
 
-/***/ 2409:
+/***/ 725:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26411,22 +26814,30 @@ exports.$trim = $trim;
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createTrignometryOperator = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const FIXED_POINTS = {
+    undefined: null,
+    null: null,
+    NaN: NaN,
+    Infinity: new Error(),
+    "-Infinity": new Error()
+};
 /**
  * Returns an operator for a given trignometric function
  *
  * @param f The trignometric function
  */
-function createTrignometryOperator(f, returnInfinity) {
-    return function (obj, expr, options) {
-        var n = (0, core_1.computeValue)(obj, expr, null, options);
-        if (isNaN(n) || (0, util_1.isNil)(n))
-            return n;
-        if (n === Infinity || n === -Infinity) {
-            if (returnInfinity)
-                return n;
-            throw new Error("cannot apply $" + f.name + " to -inf, value must in (-inf,inf)");
+function createTrignometryOperator(f, fixedPoints = FIXED_POINTS) {
+    const fp = Object.assign({}, FIXED_POINTS, fixedPoints);
+    const keySet = new Set(Object.keys(fp));
+    return (obj, expr, options) => {
+        const n = (0, core_1.computeValue)(obj, expr, null, options);
+        if (keySet.has(`${n}`)) {
+            const res = fp[`${n}`];
+            if (res instanceof Error) {
+                throw new Error(`cannot apply $${f.name} to -inf, value must in (-inf,inf)`);
+            }
+            return res;
         }
         return f(n);
     };
@@ -26436,7 +26847,7 @@ exports.createTrignometryOperator = createTrignometryOperator;
 
 /***/ }),
 
-/***/ 899:
+/***/ 4349:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26444,14 +26855,17 @@ exports.createTrignometryOperator = createTrignometryOperator;
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$acos = void 0;
-var _internal_1 = __webpack_require__(2409);
+const _internal_1 = __webpack_require__(725);
 /** Returns the inverse cosine (arc cosine) of a value in radians. */
-exports.$acos = (0, _internal_1.createTrignometryOperator)(Math.acos);
+exports.$acos = (0, _internal_1.createTrignometryOperator)(Math.acos, {
+    Infinity: Infinity,
+    0: new Error(),
+});
 
 
 /***/ }),
 
-/***/ 2140:
+/***/ 1699:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26459,14 +26873,17 @@ exports.$acos = (0, _internal_1.createTrignometryOperator)(Math.acos);
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$acosh = void 0;
-var _internal_1 = __webpack_require__(2409);
+const _internal_1 = __webpack_require__(725);
 /** Returns the inverse hyperbolic cosine (hyperbolic arc cosine) of a value in radians. */
-exports.$acosh = (0, _internal_1.createTrignometryOperator)(Math.acosh);
+exports.$acosh = (0, _internal_1.createTrignometryOperator)(Math.acosh, {
+    Infinity: Infinity,
+    0: new Error(),
+});
 
 
 /***/ }),
 
-/***/ 9323:
+/***/ 160:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26474,14 +26891,14 @@ exports.$acosh = (0, _internal_1.createTrignometryOperator)(Math.acosh);
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$asin = void 0;
-var _internal_1 = __webpack_require__(2409);
+const _internal_1 = __webpack_require__(725);
 /** Returns the inverse sin (arc sine) of a value in radians. */
 exports.$asin = (0, _internal_1.createTrignometryOperator)(Math.asin);
 
 
 /***/ }),
 
-/***/ 5427:
+/***/ 5805:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26489,14 +26906,17 @@ exports.$asin = (0, _internal_1.createTrignometryOperator)(Math.asin);
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$asinh = void 0;
-var _internal_1 = __webpack_require__(2409);
+const _internal_1 = __webpack_require__(725);
 /** Returns the inverse hyperbolic sine (hyperbolic arc sine) of a value in radians. */
-exports.$asinh = (0, _internal_1.createTrignometryOperator)(Math.asinh);
+exports.$asinh = (0, _internal_1.createTrignometryOperator)(Math.asinh, {
+    Infinity: Infinity,
+    "-Infinity": -Infinity,
+});
 
 
 /***/ }),
 
-/***/ 6545:
+/***/ 8335:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26504,14 +26924,14 @@ exports.$asinh = (0, _internal_1.createTrignometryOperator)(Math.asinh);
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$atan = void 0;
-var _internal_1 = __webpack_require__(2409);
+const _internal_1 = __webpack_require__(725);
 /** Returns the inverse tangent (arc tangent) of a value in radians. */
 exports.$atan = (0, _internal_1.createTrignometryOperator)(Math.atan);
 
 
 /***/ }),
 
-/***/ 8442:
+/***/ 5106:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26519,24 +26939,24 @@ exports.$atan = (0, _internal_1.createTrignometryOperator)(Math.atan);
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$atan2 = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns the inverse tangent (arc tangent) of y / x in radians, where y and x are the first and second values passed to the expression respectively. */
-function $atan2(obj, expr, options) {
-    var _a = (0, core_1.computeValue)(obj, expr, null, options), y = _a[0], x = _a[1];
+const $atan2 = (obj, expr, options) => {
+    const [y, x] = (0, core_1.computeValue)(obj, expr, null, options);
     if (isNaN(y) || (0, util_1.isNil)(y))
         return y;
     if (isNaN(x) || (0, util_1.isNil)(x))
         return x;
     return Math.atan2(y, x);
-}
+};
 exports.$atan2 = $atan2;
 
 
 /***/ }),
 
-/***/ 372:
+/***/ 5133:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26544,14 +26964,17 @@ exports.$atan2 = $atan2;
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$atanh = void 0;
-var _internal_1 = __webpack_require__(2409);
+const _internal_1 = __webpack_require__(725);
 /** Returns the inverse hyperbolic tangent (hyperbolic arc tangent) of a value in radians. */
-exports.$atanh = (0, _internal_1.createTrignometryOperator)(Math.atanh);
+exports.$atanh = (0, _internal_1.createTrignometryOperator)(Math.atanh, {
+    1: Infinity,
+    "-1": -Infinity,
+});
 
 
 /***/ }),
 
-/***/ 8237:
+/***/ 4925:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26559,14 +26982,33 @@ exports.$atanh = (0, _internal_1.createTrignometryOperator)(Math.atanh);
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$cos = void 0;
-var _internal_1 = __webpack_require__(2409);
+const _internal_1 = __webpack_require__(725);
 /** Returns the cosine of a value that is measured in radians. */
 exports.$cos = (0, _internal_1.createTrignometryOperator)(Math.cos);
 
 
 /***/ }),
 
-/***/ 4724:
+/***/ 3138:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+// Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$cosh = void 0;
+const _internal_1 = __webpack_require__(725);
+/** Returns the hyperbolic cosine of a value that is measured in radians. */
+exports.$cosh = (0, _internal_1.createTrignometryOperator)(Math.cosh, {
+    "-Infinity": Infinity,
+    Infinity: Infinity,
+    // [Math.PI]: -1,
+});
+
+
+/***/ }),
+
+/***/ 2989:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26574,22 +27016,29 @@ exports.$cos = (0, _internal_1.createTrignometryOperator)(Math.cos);
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$degreesToRadians = void 0;
-var _internal_1 = __webpack_require__(2409);
-var RADIANS_FACTOR = Math.PI / 180;
+const _internal_1 = __webpack_require__(725);
+const RADIANS_FACTOR = Math.PI / 180;
 /** Converts a value from degrees to radians. */
-exports.$degreesToRadians = (0, _internal_1.createTrignometryOperator)(function (n) { return n * RADIANS_FACTOR; }, true /*returnInfinity*/);
+exports.$degreesToRadians = (0, _internal_1.createTrignometryOperator)((n) => n * RADIANS_FACTOR, {
+    Infinity: Infinity,
+    "-Infinity": Infinity,
+});
 
 
 /***/ }),
 
-/***/ 2090:
+/***/ 4441:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -26598,23 +27047,25 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(899), exports);
-__exportStar(__webpack_require__(2140), exports);
-__exportStar(__webpack_require__(9323), exports);
-__exportStar(__webpack_require__(5427), exports);
-__exportStar(__webpack_require__(6545), exports);
-__exportStar(__webpack_require__(8442), exports);
-__exportStar(__webpack_require__(372), exports);
-__exportStar(__webpack_require__(8237), exports);
-__exportStar(__webpack_require__(4724), exports);
-__exportStar(__webpack_require__(7499), exports);
-__exportStar(__webpack_require__(3666), exports);
-__exportStar(__webpack_require__(5270), exports);
+__exportStar(__webpack_require__(4349), exports);
+__exportStar(__webpack_require__(1699), exports);
+__exportStar(__webpack_require__(160), exports);
+__exportStar(__webpack_require__(5805), exports);
+__exportStar(__webpack_require__(8335), exports);
+__exportStar(__webpack_require__(5106), exports);
+__exportStar(__webpack_require__(5133), exports);
+__exportStar(__webpack_require__(4925), exports);
+__exportStar(__webpack_require__(3138), exports);
+__exportStar(__webpack_require__(2989), exports);
+__exportStar(__webpack_require__(6019), exports);
+__exportStar(__webpack_require__(8534), exports);
+__exportStar(__webpack_require__(4738), exports);
+__exportStar(__webpack_require__(5295), exports);
 
 
 /***/ }),
 
-/***/ 7499:
+/***/ 6019:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26622,15 +27073,18 @@ __exportStar(__webpack_require__(5270), exports);
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$radiansToDegrees = void 0;
-var _internal_1 = __webpack_require__(2409);
-var DEGREES_FACTOR = 180 / Math.PI;
+const _internal_1 = __webpack_require__(725);
+const DEGREES_FACTOR = 180 / Math.PI;
 /** Converts a value from radians to degrees. */
-exports.$radiansToDegrees = (0, _internal_1.createTrignometryOperator)(function (n) { return n * DEGREES_FACTOR; }, true /*returnInfinity*/);
+exports.$radiansToDegrees = (0, _internal_1.createTrignometryOperator)((n) => n * DEGREES_FACTOR, {
+    Infinity: Infinity,
+    "-Infinity": -Infinity,
+});
 
 
 /***/ }),
 
-/***/ 3666:
+/***/ 8534:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26638,14 +27092,32 @@ exports.$radiansToDegrees = (0, _internal_1.createTrignometryOperator)(function 
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$sin = void 0;
-var _internal_1 = __webpack_require__(2409);
+const _internal_1 = __webpack_require__(725);
 /** Returns the sine of a value that is measured in radians. */
 exports.$sin = (0, _internal_1.createTrignometryOperator)(Math.sin);
 
 
 /***/ }),
 
-/***/ 5270:
+/***/ 4738:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+// Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$sinh = void 0;
+const _internal_1 = __webpack_require__(725);
+/** Returns the hyperbolic sine of a value that is measured in radians. */
+exports.$sinh = (0, _internal_1.createTrignometryOperator)(Math.sinh, {
+    "-Infinity": -Infinity,
+    Infinity: Infinity,
+});
+
+
+/***/ }),
+
+/***/ 5295:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26653,47 +27125,30 @@ exports.$sin = (0, _internal_1.createTrignometryOperator)(Math.sin);
 // Trignometry Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#trigonometry-expression-operators
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$tan = void 0;
-var _internal_1 = __webpack_require__(2409);
+const _internal_1 = __webpack_require__(725);
 /** Returns the tangent of a value that is measured in radians. */
 exports.$tan = (0, _internal_1.createTrignometryOperator)(Math.tan);
 
 
 /***/ }),
 
-/***/ 7457:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 1288:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.toInteger = exports.TypeConvertError = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var TypeConvertError = /** @class */ (function (_super) {
-    __extends(TypeConvertError, _super);
-    function TypeConvertError(message) {
-        return _super.call(this, message) || this;
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+class TypeConvertError extends Error {
+    constructor(message) {
+        super(message);
     }
-    return TypeConvertError;
-}(Error));
+}
 exports.TypeConvertError = TypeConvertError;
 function toInteger(obj, expr, options, max, min, typename) {
-    var val = (0, core_1.computeValue)(obj, expr, null, options);
+    const val = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(val))
         return null;
     if (val instanceof Date)
@@ -26702,7 +27157,7 @@ function toInteger(obj, expr, options, max, min, typename) {
         return 1;
     if (val === false)
         return 0;
-    var n = Number(val);
+    const n = Number(val);
     if ((0, util_1.isNumber)(n) && n >= min && n <= max) {
         // weirdly a decimal in string format cannot be converted to int.
         // so we must check input if not string or if it is, not in decimal format
@@ -26710,14 +27165,14 @@ function toInteger(obj, expr, options, max, min, typename) {
             return Math.trunc(n);
         }
     }
-    throw new TypeConvertError("cannot convert '" + val + "' to " + typename);
+    throw new TypeConvertError(`cannot convert '${val}' to ${typename}`);
 }
 exports.toInteger = toInteger;
 
 
 /***/ }),
 
-/***/ 7291:
+/***/ 4910:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26727,50 +27182,49 @@ exports.toInteger = toInteger;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$convert = void 0;
-var core_1 = __webpack_require__(7424);
-var types_1 = __webpack_require__(1463);
-var util_1 = __webpack_require__(6588);
-var _internal_1 = __webpack_require__(7457);
-var toBool_1 = __webpack_require__(5654);
-var toDate_1 = __webpack_require__(1693);
-var toDouble_1 = __webpack_require__(5271);
-var toInt_1 = __webpack_require__(2284);
-var toLong_1 = __webpack_require__(375);
-var toString_1 = __webpack_require__(2179);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const _internal_1 = __webpack_require__(1288);
+const toBool_1 = __webpack_require__(4586);
+const toDate_1 = __webpack_require__(7309);
+const toDouble_1 = __webpack_require__(1753);
+const toInt_1 = __webpack_require__(3706);
+const toLong_1 = __webpack_require__(6488);
+const toString_1 = __webpack_require__(6617);
 /**
  * Converts a value to a specified type.
  *
  * @param obj
  * @param expr
  */
-function $convert(obj, expr, options) {
-    var args = (0, core_1.computeValue)(obj, expr, null, options);
+const $convert = (obj, expr, options) => {
+    const args = (0, core_1.computeValue)(obj, expr, null, options);
     args.onNull = args.onNull === undefined ? null : args.onNull;
     if ((0, util_1.isNil)(args.input))
         return args.onNull;
     try {
         switch (args.to) {
             case 2:
-            case types_1.JsType.STRING:
+            case "string":
                 return (0, toString_1.$toString)(obj, args.input, options);
             case 8:
-            case types_1.JsType.BOOLEAN:
-            case types_1.BsonType.BOOL:
+            case "boolean":
+            case "bool":
                 return (0, toBool_1.$toBool)(obj, args.input, options);
             case 9:
-            case types_1.JsType.DATE:
+            case "date":
                 return (0, toDate_1.$toDate)(obj, args.input, options);
             case 1:
             case 19:
-            case types_1.BsonType.DOUBLE:
-            case types_1.BsonType.DECIMAL:
-            case types_1.JsType.NUMBER:
+            case "double":
+            case "decimal":
+            case "number":
                 return (0, toDouble_1.$toDouble)(obj, args.input, options);
             case 16:
-            case types_1.BsonType.INT:
+            case "int":
                 return (0, toInt_1.$toInt)(obj, args.input, options);
             case 18:
-            case types_1.BsonType.LONG:
+            case "long":
                 return (0, toLong_1.$toLong)(obj, args.input, options);
         }
     }
@@ -26779,21 +27233,25 @@ function $convert(obj, expr, options) {
     }
     if (args.onError !== undefined)
         return args.onError;
-    throw new _internal_1.TypeConvertError("could not convert to type " + args.to + ".");
-}
+    throw new _internal_1.TypeConvertError(`could not convert to type ${args.to}.`);
+};
 exports.$convert = $convert;
 
 
 /***/ }),
 
-/***/ 2040:
+/***/ 1146:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -26802,21 +27260,21 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(7291), exports);
-__exportStar(__webpack_require__(3416), exports);
-__exportStar(__webpack_require__(5654), exports);
-__exportStar(__webpack_require__(1693), exports);
-__exportStar(__webpack_require__(5507), exports);
-__exportStar(__webpack_require__(5271), exports);
-__exportStar(__webpack_require__(2284), exports);
-__exportStar(__webpack_require__(375), exports);
-__exportStar(__webpack_require__(2179), exports);
-__exportStar(__webpack_require__(7026), exports);
+__exportStar(__webpack_require__(4910), exports);
+__exportStar(__webpack_require__(3429), exports);
+__exportStar(__webpack_require__(4586), exports);
+__exportStar(__webpack_require__(7309), exports);
+__exportStar(__webpack_require__(9239), exports);
+__exportStar(__webpack_require__(1753), exports);
+__exportStar(__webpack_require__(3706), exports);
+__exportStar(__webpack_require__(6488), exports);
+__exportStar(__webpack_require__(6617), exports);
+__exportStar(__webpack_require__(4446), exports);
 
 
 /***/ }),
 
-/***/ 3416:
+/***/ 3429:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26826,24 +27284,24 @@ __exportStar(__webpack_require__(7026), exports);
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$isNumber = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Checks if the specified expression resolves to a numeric value
  *
  * @param obj
  * @param expr
  */
-function $isNumber(obj, expr, options) {
-    var n = (0, core_1.computeValue)(obj, expr, null, options);
+const $isNumber = (obj, expr, options) => {
+    const n = (0, core_1.computeValue)(obj, expr, null, options);
     return (0, util_1.isNumber)(n);
-}
+};
 exports.$isNumber = $isNumber;
 
 
 /***/ }),
 
-/***/ 5654:
+/***/ 4586:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26853,28 +27311,28 @@ exports.$isNumber = $isNumber;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$toBool = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Converts a value to a boolean.
  *
  * @param obj
  * @param expr
  */
-function $toBool(obj, expr, options) {
-    var val = (0, core_1.computeValue)(obj, expr, null, options);
+const $toBool = (obj, expr, options) => {
+    const val = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(val))
         return null;
     if ((0, util_1.isString)(val))
         return true;
     return Boolean(val);
-}
+};
 exports.$toBool = $toBool;
 
 
 /***/ }),
 
-/***/ 1693:
+/***/ 7309:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26884,33 +27342,33 @@ exports.$toBool = $toBool;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$toDate = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var _internal_1 = __webpack_require__(7457);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const _internal_1 = __webpack_require__(1288);
 /**
  * Converts a value to a date. If the value cannot be converted to a date, $toDate errors. If the value is null or missing, $toDate returns null.
  *
  * @param obj
  * @param expr
  */
-function $toDate(obj, expr, options) {
-    var val = (0, core_1.computeValue)(obj, expr, null, options);
+const $toDate = (obj, expr, options) => {
+    const val = (0, core_1.computeValue)(obj, expr, null, options);
     if (val instanceof Date)
         return val;
     if ((0, util_1.isNil)(val))
         return null;
-    var d = new Date(val);
-    var n = d.getTime();
+    const d = new Date(val);
+    const n = d.getTime();
     if (!isNaN(n))
         return d;
-    throw new _internal_1.TypeConvertError("cannot convert '" + val + "' to date");
-}
+    throw new _internal_1.TypeConvertError(`cannot convert '${val}' to date`);
+};
 exports.$toDate = $toDate;
 
 
 /***/ }),
 
-/***/ 5507:
+/***/ 9239:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26920,7 +27378,7 @@ exports.$toDate = $toDate;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$toDecimal = void 0;
-var toDouble_1 = __webpack_require__(5271);
+const toDouble_1 = __webpack_require__(1753);
 /**
  * Converts a value to a decimal. If the value cannot be converted to a decimal, $toDecimal errors.
  * If the value is null or missing, $toDecimal returns null.
@@ -26931,7 +27389,7 @@ exports.$toDecimal = toDouble_1.$toDouble;
 
 /***/ }),
 
-/***/ 5271:
+/***/ 1753:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26941,17 +27399,17 @@ exports.$toDecimal = toDouble_1.$toDouble;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$toDouble = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var _internal_1 = __webpack_require__(7457);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const _internal_1 = __webpack_require__(1288);
 /**
  * Converts a value to a double. If the value cannot be converted to an double, $toDouble errors. If the value is null or missing, $toDouble returns null.
  *
  * @param obj
  * @param expr
  */
-function $toDouble(obj, expr, options) {
-    var val = (0, core_1.computeValue)(obj, expr, null, options);
+const $toDouble = (obj, expr, options) => {
+    const val = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(val))
         return null;
     if (val instanceof Date)
@@ -26960,17 +27418,17 @@ function $toDouble(obj, expr, options) {
         return 1;
     if (val === false)
         return 0;
-    var n = Number(val);
+    const n = Number(val);
     if ((0, util_1.isNumber)(n))
         return n;
-    throw new _internal_1.TypeConvertError("cannot convert '" + val + "' to double/decimal");
-}
+    throw new _internal_1.TypeConvertError(`cannot convert '${val}' to double/decimal`);
+};
 exports.$toDouble = $toDouble;
 
 
 /***/ }),
 
-/***/ 2284:
+/***/ 3706:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -26980,22 +27438,22 @@ exports.$toDouble = $toDouble;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$toInt = void 0;
-var util_1 = __webpack_require__(6588);
-var _internal_1 = __webpack_require__(7457);
+const util_1 = __webpack_require__(7216);
+const _internal_1 = __webpack_require__(1288);
 /**
  * Converts a value to an integer. If the value cannot be converted to an integer, $toInt errors. If the value is null or missing, $toInt returns null.
  * @param obj
  * @param expr
  */
-function $toInt(obj, expr, options) {
+const $toInt = (obj, expr, options) => {
     return (0, _internal_1.toInteger)(obj, expr, options, util_1.MAX_INT, util_1.MIN_INT, "int");
-}
+};
 exports.$toInt = $toInt;
 
 
 /***/ }),
 
-/***/ 375:
+/***/ 6488:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -27005,22 +27463,22 @@ exports.$toInt = $toInt;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$toLong = void 0;
-var util_1 = __webpack_require__(6588);
-var _internal_1 = __webpack_require__(7457);
+const util_1 = __webpack_require__(7216);
+const _internal_1 = __webpack_require__(1288);
 /**
  * Converts a value to a long. If the value cannot be converted to a long, $toLong errors. If the value is null or missing, $toLong returns null.
  * @param obj
  * @param expr
  */
-function $toLong(obj, expr, options) {
+const $toLong = (obj, expr, options) => {
     return (0, _internal_1.toInteger)(obj, expr, options, util_1.MAX_LONG, util_1.MIN_LONG, "long");
-}
+};
 exports.$toLong = $toLong;
 
 
 /***/ }),
 
-/***/ 2179:
+/***/ 6617:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -27030,30 +27488,30 @@ exports.$toLong = $toLong;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$toString = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var date_1 = __webpack_require__(5832);
-function $toString(obj, expr, options) {
-    var val = (0, core_1.computeValue)(obj, expr, null, options);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const dateToString_1 = __webpack_require__(1300);
+const $toString = (obj, expr, options) => {
+    const val = (0, core_1.computeValue)(obj, expr, null, options);
     if ((0, util_1.isNil)(val))
         return null;
     if (val instanceof Date) {
-        var dateExpr = {
+        const dateExpr = {
             date: expr,
-            format: "%Y-%m-%dT%H:%M:%S.%LZ",
+            format: "%Y-%m-%dT%H:%M:%S.%LZ"
         };
-        return (0, date_1.$dateToString)(obj, dateExpr, options);
+        return (0, dateToString_1.$dateToString)(obj, dateExpr, options);
     }
     else {
         return val.toString();
     }
-}
+};
 exports.$toString = $toString;
 
 
 /***/ }),
 
-/***/ 7026:
+/***/ 4446:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -27063,39 +27521,42 @@ exports.$toString = $toString;
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$type = void 0;
-var core_1 = __webpack_require__(7424);
-var types_1 = __webpack_require__(1463);
-var util_1 = __webpack_require__(6588);
-function $type(obj, expr, options) {
-    var val = (0, core_1.computeValue)(obj, expr, null, options);
-    var typename = (0, util_1.getType)(val);
-    var nativeType = typename.toLowerCase();
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const $type = (obj, expr, options) => {
+    const val = (0, core_1.computeValue)(obj, expr, null, options);
+    const typename = (0, util_1.getType)(val);
+    const nativeType = typename.toLowerCase();
     switch (nativeType) {
-        case types_1.JsType.BOOLEAN:
-            return types_1.BsonType.BOOL;
-        case types_1.JsType.NUMBER:
+        case "boolean":
+            return "bool";
+        case "number":
             if (val.toString().indexOf(".") >= 0)
-                return types_1.BsonType.DOUBLE;
-            return val >= util_1.MIN_INT && val <= util_1.MAX_INT ? types_1.BsonType.INT : types_1.BsonType.LONG;
-        case types_1.JsType.REGEXP:
-            return types_1.BsonType.REGEX;
+                return "double";
+            return val >= util_1.MIN_INT && val <= util_1.MAX_INT ? "int" : "long";
+        case "regexp":
+            return "regex";
         default:
             return nativeType;
     }
-}
+};
 exports.$type = $type;
 
 
 /***/ }),
 
-/***/ 6752:
+/***/ 4354:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -27104,33 +27565,22 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(3794), exports);
+__exportStar(__webpack_require__(9442), exports);
 
 
 /***/ }),
 
-/***/ 3794:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 9442:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 /**
  * Variable Expression Operators: https://docs.mongodb.com/manual/reference/operator/aggregation/#variable-expression-operators
  */
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$let = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Defines variables for use within the scope of a sub-expression and returns the result of the sub-expression.
  *
@@ -27139,40 +27589,45 @@ var core_1 = __webpack_require__(7424);
  * @param options Options to use for this operattion
  * @returns {*}
  */
-function $let(obj, expr, options) {
+const $let = (obj, expr, options) => {
     // resolve vars
-    var vars = {};
-    for (var _i = 0, _a = Object.entries(expr.vars); _i < _a.length; _i++) {
-        var _b = _a[_i], key = _b[0], val = _b[1];
-        vars["$" + key] = (0, core_1.computeValue)(obj, val, null, options);
+    const variables = {};
+    for (const [key, val] of Object.entries(expr.vars)) {
+        variables[key] = (0, core_1.computeValue)(obj, val, null, options);
     }
-    return (0, core_1.computeValue)(__assign({ obj: obj }, vars), expr.in, null, options);
-}
+    return (0, core_1.computeValue)(obj, expr.in, null, core_1.ComputeOptions.init(options, obj, { variables }));
+};
 exports.$let = $let;
 
 
 /***/ }),
 
-/***/ 5292:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 2899:
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isUnbounded = void 0;
+/** Checks whether the specified window is unbounded. */
+const isUnbounded = (window) => {
+    const boundary = (window === null || window === void 0 ? void 0 : window.documents) || (window === null || window === void 0 ? void 0 : window.range);
+    return (!boundary || (boundary[0] === "unbounded" && boundary[1] === "unbounded"));
 };
+exports.isUnbounded = isUnbounded;
+
+
+/***/ }),
+
+/***/ 1692:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$addFields = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Adds new fields to documents.
  * Outputs documents that contain all existing fields from the input documents and newly added fields.
@@ -27181,15 +27636,14 @@ var util_1 = __webpack_require__(6588);
  * @param {Object} expr
  * @param {Options} options
  */
-function $addFields(collection, expr, options) {
-    var newFields = Object.keys(expr);
+const $addFields = (collection, expr, options) => {
+    const newFields = Object.keys(expr);
     if (newFields.length === 0)
         return collection;
-    return collection.map(function (obj) {
-        var newObj = __assign({}, obj);
-        for (var _i = 0, newFields_1 = newFields; _i < newFields_1.length; _i++) {
-            var field = newFields_1[_i];
-            var newValue = (0, core_1.computeValue)(obj, expr[field], null, options);
+    return collection.map(((obj) => {
+        const newObj = Object.assign({}, obj);
+        for (const field of newFields) {
+            const newValue = (0, core_1.computeValue)(obj, expr[field], null, options);
             if (newValue !== undefined) {
                 (0, util_1.setValue)(newObj, field, newValue);
             }
@@ -27198,32 +27652,23 @@ function $addFields(collection, expr, options) {
             }
         }
         return newObj;
-    });
-}
+    }));
+};
 exports.$addFields = $addFields;
 
 
 /***/ }),
 
-/***/ 624:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 2985:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$bucket = void 0;
-var core_1 = __webpack_require__(7424);
-var lazy_1 = __webpack_require__(1088);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const lazy_1 = __webpack_require__(9176);
+const util_1 = __webpack_require__(7216);
 /**
  * Categorizes incoming documents into groups, called buckets, based on a specified expression and bucket boundaries.
  * https://docs.mongodb.com/manual/reference/operator/aggregation/bucket/
@@ -27232,57 +27677,56 @@ var util_1 = __webpack_require__(6588);
  * @param {*} expr
  * @param {Options} opt Pipeline options
  */
-function $bucket(collection, expr, options) {
-    var boundaries = __spreadArray([], expr.boundaries, true);
-    var defaultKey = expr.default;
-    var lower = boundaries[0]; // inclusive
-    var upper = boundaries[boundaries.length - 1]; // exclusive
-    var outputExpr = expr.output || { count: { $sum: 1 } };
+const $bucket = (collection, expr, options) => {
+    const boundaries = [...expr.boundaries];
+    const defaultKey = expr.default;
+    const lower = boundaries[0]; // inclusive
+    const upper = boundaries[boundaries.length - 1]; // exclusive
+    const outputExpr = expr.output || { count: { $sum: 1 } };
     (0, util_1.assert)(expr.boundaries.length > 2, "$bucket 'boundaries' expression must have at least 3 elements");
-    var boundType = (0, util_1.getType)(lower);
-    for (var i = 0, len = boundaries.length - 1; i < len; i++) {
+    const boundType = (0, util_1.getType)(lower);
+    for (let i = 0, len = boundaries.length - 1; i < len; i++) {
         (0, util_1.assert)(boundType === (0, util_1.getType)(boundaries[i + 1]), "$bucket 'boundaries' must all be of the same type");
-        (0, util_1.assert)(boundaries[i] < boundaries[i + 1], "$bucket 'boundaries' must be sorted in ascending order");
+        (0, util_1.assert)((0, util_1.compare)(boundaries[i], boundaries[i + 1]) < 0, "$bucket 'boundaries' must be sorted in ascending order");
     }
     !(0, util_1.isNil)(defaultKey) &&
         (0, util_1.getType)(expr.default) === (0, util_1.getType)(lower) &&
-        (0, util_1.assert)(expr.default >= upper || expr.default < lower, "$bucket 'default' expression must be out of boundaries range");
-    var grouped = {};
-    for (var _i = 0, boundaries_1 = boundaries; _i < boundaries_1.length; _i++) {
-        var k = boundaries_1[_i];
+        (0, util_1.assert)((0, util_1.compare)(expr.default, upper) >= 0 || (0, util_1.compare)(expr.default, lower) < 0, "$bucket 'default' expression must be out of boundaries range");
+    const grouped = {};
+    for (const k of boundaries) {
         grouped[k] = [];
     }
     // add default key if provided
     if (!(0, util_1.isNil)(defaultKey))
         grouped[defaultKey] = [];
-    var iterator = null;
-    return (0, lazy_1.Lazy)(function () {
-        if (iterator === null) {
-            collection.each(function (obj) {
-                var key = (0, core_1.computeValue)(obj, expr.groupBy, null, options);
-                if ((0, util_1.isNil)(key) || key < lower || key >= upper) {
+    let iterator;
+    return (0, lazy_1.Lazy)(() => {
+        if (!iterator) {
+            collection.each(((obj) => {
+                const key = (0, core_1.computeValue)(obj, expr.groupBy, null, options);
+                if ((0, util_1.isNil)(key) || (0, util_1.compare)(key, lower) < 0 || (0, util_1.compare)(key, upper) >= 0) {
                     (0, util_1.assert)(!(0, util_1.isNil)(defaultKey), "$bucket require a default for out of range values");
                     grouped[defaultKey].push(obj);
                 }
                 else {
-                    (0, util_1.assert)(key >= lower && key < upper, "$bucket 'groupBy' expression must resolve to a value in range of boundaries");
-                    var index = findInsertIndex(boundaries, key);
-                    var boundKey = boundaries[Math.max(0, index - 1)];
+                    (0, util_1.assert)((0, util_1.compare)(key, lower) >= 0 && (0, util_1.compare)(key, upper) < 0, "$bucket 'groupBy' expression must resolve to a value in range of boundaries");
+                    const index = findInsertIndex(boundaries, key);
+                    const boundKey = boundaries[Math.max(0, index - 1)];
                     grouped[boundKey].push(obj);
                 }
-            });
+            }));
             // upper bound is exclusive so we remove it
             boundaries.pop();
             if (!(0, util_1.isNil)(defaultKey))
                 boundaries.push(defaultKey);
-            iterator = (0, lazy_1.Lazy)(boundaries).map(function (key) {
-                var acc = (0, core_1.computeValue)(grouped[key], outputExpr, null, options);
+            iterator = (0, lazy_1.Lazy)(boundaries).map(((key) => {
+                const acc = (0, core_1.computeValue)(grouped[key], outputExpr, null, options);
                 return (0, util_1.into)(acc, { _id: key });
-            });
+            }));
         }
         return iterator.next();
     });
-}
+};
 exports.$bucket = $bucket;
 /**
  * Find the insert index for the given key in a sorted array.
@@ -27292,14 +27736,14 @@ exports.$bucket = $bucket;
  */
 function findInsertIndex(sorted, item) {
     // uses binary search
-    var lo = 0;
-    var hi = sorted.length - 1;
+    let lo = 0;
+    let hi = sorted.length - 1;
     while (lo <= hi) {
-        var mid = Math.round(lo + (hi - lo) / 2);
-        if (item < sorted[mid]) {
+        const mid = Math.round(lo + (hi - lo) / 2);
+        if ((0, util_1.compare)(item, sorted[mid]) < 0) {
             hi = mid - 1;
         }
-        else if (item > sorted[mid]) {
+        else if ((0, util_1.compare)(item, sorted[mid]) > 0) {
             lo = mid + 1;
         }
         else {
@@ -27312,15 +27756,15 @@ function findInsertIndex(sorted, item) {
 
 /***/ }),
 
-/***/ 4943:
+/***/ 8683:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$bucketAuto = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Categorizes incoming documents into a specific number of groups, called buckets,
  * based on a specified expression. Bucket boundaries are automatically determined
@@ -27331,46 +27775,47 @@ var util_1 = __webpack_require__(6588);
  * @param {*} expr
  * @param {*} options
  */
-function $bucketAuto(collection, expr, options) {
-    var outputExpr = expr.output || { count: { $sum: 1 } };
-    var groupByExpr = expr.groupBy;
-    var bucketCount = expr.buckets;
-    (0, util_1.assert)(bucketCount > 0, "The $bucketAuto 'buckets' field must be greater than 0, but found: " + bucketCount);
-    var ID_KEY = "_id";
-    return collection.transform(function (coll) {
-        var approxBucketSize = Math.max(1, Math.round(coll.length / bucketCount));
-        var computeValueOptimized = (0, util_1.memoize)(core_1.computeValue, options === null || options === void 0 ? void 0 : options.hashFunction);
-        var grouped = {};
-        var remaining = [];
-        var sorted = (0, util_1.sortBy)(coll, function (o) {
-            var key = computeValueOptimized(o, groupByExpr, null, options);
+const $bucketAuto = (collection, expr, options) => {
+    const outputExpr = expr.output || { count: { $sum: 1 } };
+    const groupByExpr = expr.groupBy;
+    const bucketCount = expr.buckets;
+    (0, util_1.assert)(bucketCount > 0, `The $bucketAuto 'buckets' field must be greater than 0, but found: ${bucketCount}`);
+    const ID_KEY = "_id";
+    return collection.transform((coll) => {
+        const approxBucketSize = Math.max(1, Math.round(coll.length / bucketCount));
+        const computeValueOptimized = (0, util_1.memoize)(core_1.computeValue, options === null || options === void 0 ? void 0 : options.hashFunction);
+        const grouped = new Map();
+        const remaining = [];
+        const sorted = (0, util_1.sortBy)(coll, o => {
+            const key = computeValueOptimized(o, groupByExpr, null, options);
             if ((0, util_1.isNil)(key)) {
                 remaining.push(o);
             }
             else {
-                grouped[key] || (grouped[key] = []);
-                grouped[key].push(o);
+                if (!grouped.has(key))
+                    grouped.set(key, []);
+                grouped.get(key).push(o);
             }
             return key;
         });
-        var result = [];
-        var index = 0; // counter for sorted collection
-        for (var i = 0, len = sorted.length; i < bucketCount && index < len; i++) {
-            var boundaries = {};
-            var bucketItems = [];
-            for (var j = 0; j < approxBucketSize && index < len; j++) {
-                var key = computeValueOptimized(sorted[index], groupByExpr, null, options);
+        const result = [];
+        let index = 0; // counter for sorted collection
+        for (let i = 0, len = sorted.length; i < bucketCount && index < len; i++) {
+            const boundaries = {};
+            const bucketItems = [];
+            for (let j = 0; j < approxBucketSize && index < len; j++) {
+                let key = computeValueOptimized(sorted[index], groupByExpr, null, options);
                 if ((0, util_1.isNil)(key))
                     key = null;
                 // populate current bucket with all values for current key
-                (0, util_1.into)(bucketItems, (0, util_1.isNil)(key) ? remaining : grouped[key]);
+                (0, util_1.into)(bucketItems, (0, util_1.isNil)(key) ? remaining : grouped.get(key));
                 // increase sort index by number of items added
-                index += (0, util_1.isNil)(key) ? remaining.length : grouped[key].length;
+                index += (0, util_1.isNil)(key) ? remaining.length : grouped.get(key).length;
                 // set the min key boundary if not already present
                 if (!(0, util_1.has)(boundaries, "min"))
                     boundaries.min = key;
                 if (result.length > 0) {
-                    var lastBucket = result[result.length - 1];
+                    const lastBucket = result[result.length - 1];
                     lastBucket[ID_KEY].max = boundaries.min;
                 }
             }
@@ -27378,9 +27823,9 @@ function $bucketAuto(collection, expr, options) {
             if (i == bucketCount - 1) {
                 (0, util_1.into)(bucketItems, sorted.slice(index));
             }
-            var values = (0, core_1.computeValue)(bucketItems, outputExpr, null, options);
+            const values = (0, core_1.computeValue)(bucketItems, outputExpr, null, options);
             result.push((0, util_1.into)(values, {
-                _id: boundaries,
+                _id: boundaries
             }));
         }
         if (result.length > 0) {
@@ -27389,21 +27834,21 @@ function $bucketAuto(collection, expr, options) {
         }
         return result;
     });
-}
+};
 exports.$bucketAuto = $bucketAuto;
 
 
 /***/ }),
 
-/***/ 1688:
+/***/ 8980:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$count = void 0;
-var lazy_1 = __webpack_require__(1088);
-var util_1 = __webpack_require__(6588);
+const lazy_1 = __webpack_require__(9176);
+const util_1 = __webpack_require__(7216);
 /**
  * Returns a document that contains a count of the number of documents input to the stage.
  *
@@ -27412,82 +27857,132 @@ var util_1 = __webpack_require__(6588);
  * @param {Options} options
  * @return {Object}
  */
-function $count(collection, expr, options) {
-    var _a;
+const $count = (collection, expr, _) => {
     (0, util_1.assert)((0, util_1.isString)(expr) &&
         expr.trim() !== "" &&
         expr.indexOf(".") === -1 &&
         expr.trim()[0] !== "$", "Invalid expression value for $count");
     return (0, lazy_1.Lazy)([
-        (_a = {},
-            _a[expr] = collection.size(),
-            _a),
+        {
+            [expr]: collection.size()
+        }
     ]);
-}
+};
 exports.$count = $count;
 
 
 /***/ }),
 
-/***/ 1129:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 10:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$facet = void 0;
-var aggregator_1 = __webpack_require__(8221);
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const aggregator_1 = __webpack_require__(7268);
+const core_1 = __webpack_require__(9587);
 /**
  * Processes multiple aggregation pipelines within a single stage on the same set of input documents.
  * Enables the creation of multi-faceted aggregations capable of characterizing data across multiple dimensions, or facets, in a single stage.
  */
-function $facet(collection, expr, options) {
-    return collection.transform(function (array) {
-        return [
-            (0, util_1.objectMap)(expr, function (pipeline) {
-                return new aggregator_1.Aggregator(pipeline, __assign(__assign({}, options), { processingMode: core_1.ProcessingMode.CLONE_INPUT })).run(array);
-            }),
-        ];
-    });
-}
+const $facet = (collection, expr, options) => {
+    return collection.transform(((array) => {
+        const o = {};
+        for (const [k, pipeline] of Object.entries(expr)) {
+            o[k] = new aggregator_1.Aggregator(pipeline, Object.assign(Object.assign({}, options), { processingMode: core_1.ProcessingMode.CLONE_INPUT })).run(array);
+        }
+        return [o];
+    }));
+};
 exports.$facet = $facet;
 
 
 /***/ }),
 
-/***/ 4285:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 3090:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$fill = void 0;
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const ifNull_1 = __webpack_require__(419);
+const linearFill_1 = __webpack_require__(5120);
+const locf_1 = __webpack_require__(8242);
+const addFields_1 = __webpack_require__(1692);
+const setWindowFields_1 = __webpack_require__(8515);
+const FILL_METHODS = {
+    locf: "$locf",
+    linear: "$linearFill"
 };
+/**
+ * Populates null and missing field values within documents.
+ *
+ * @param {Iterator} collection
+ * @param {Object} expr
+ * @param {Options} options
+ */
+const $fill = (collection, expr, options) => {
+    var _a, _b;
+    (0, util_1.assert)(!expr.sortBy || (0, util_1.isObject)(expr.sortBy), "sortBy must be an object.");
+    (0, util_1.assert)(!!expr.sortBy || Object.values(expr.output).every(m => (0, util_1.has)(m, "value")), "sortBy required if any output field specifies a 'method'.");
+    (0, util_1.assert)(!(expr.partitionBy && expr.partitionByFields), "specify either partitionBy or partitionByFields.");
+    (0, util_1.assert)(!expr.partitionByFields ||
+        ((_a = expr === null || expr === void 0 ? void 0 : expr.partitionByFields) === null || _a === void 0 ? void 0 : _a.every(s => s[0] !== "$")), "fields in partitionByFields cannot begin with '$'.");
+    options = (0, core_1.initOptions)(options);
+    options.context.addExpressionOps({ $ifNull: ifNull_1.$ifNull });
+    options.context.addWindowOps({ $locf: locf_1.$locf, $linearFill: linearFill_1.$linearFill });
+    const partitionExpr = expr.partitionBy || ((_b = expr === null || expr === void 0 ? void 0 : expr.partitionByFields) === null || _b === void 0 ? void 0 : _b.map(s => `$${s}`));
+    // collect and remove all output fields using 'value' instead of 'method'.
+    // if there are any fields remaining, process collection using $setWindowFields.
+    // if the collected output fields is non-empty, use $addFields to add them to their respective partitions.
+    const valueExpr = {};
+    const methodExpr = {};
+    for (const [k, m] of Object.entries(expr.output)) {
+        if ((0, util_1.has)(m, "value")) {
+            // translate to expression for $addFields
+            valueExpr[k] = { $ifNull: [`$$CURRENT.${k}`, m["value"]] };
+        }
+        else {
+            // translate to output expression for $setWindowFields.
+            const fillOp = FILL_METHODS[m["method"]];
+            (0, util_1.assert)(!!fillOp, `invalid fill method '${m["method"]}'.`);
+            methodExpr[k] = { [fillOp]: "$" + k };
+        }
+    }
+    // perform filling with $setWindowFields
+    if (Object.keys(methodExpr).length > 0) {
+        collection = (0, setWindowFields_1.$setWindowFields)(collection, {
+            sortBy: expr.sortBy || {},
+            partitionBy: partitionExpr,
+            output: methodExpr
+        }, options);
+    }
+    // fill with values
+    if (Object.keys(valueExpr).length > 0) {
+        collection = (0, addFields_1.$addFields)(collection, valueExpr, options);
+    }
+    return collection;
+};
+exports.$fill = $fill;
+
+
+/***/ }),
+
+/***/ 2683:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$group = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+// lookup key for grouping
+const ID_KEY = "_id";
 /**
  * Groups documents together for the purpose of calculating aggregate values based on a collection of documents.
  *
@@ -27496,41 +27991,41 @@ var util_1 = __webpack_require__(6588);
  * @param options
  * @returns {Array}
  */
-function $group(collection, expr, options) {
-    // lookup key for grouping
-    var ID_KEY = "_id";
-    var id = expr[ID_KEY];
-    return collection.transform(function (coll) {
-        var partitions = (0, util_1.groupBy)(coll, function (obj) { return (0, core_1.computeValue)(obj, id, null, options); }, options === null || options === void 0 ? void 0 : options.hashFunction);
+const $group = (collection, expr, options) => {
+    (0, util_1.assert)((0, util_1.has)(expr, ID_KEY), "a group specification must include an _id");
+    const idExpr = expr[ID_KEY];
+    const copts = core_1.ComputeOptions.init(options);
+    return collection.transform(((coll) => {
+        const partitions = (0, util_1.groupBy)(coll, obj => (0, core_1.computeValue)(obj, idExpr, null, options), options.hashFunction);
         // remove the group key
-        expr = __assign({}, expr);
+        expr = Object.assign({}, expr);
         delete expr[ID_KEY];
-        var i = -1;
-        var size = partitions.keys.length;
-        return function () {
+        let i = -1;
+        const partitionKeys = Array.from(partitions.keys());
+        const size = partitions.size;
+        return () => {
             if (++i === size)
                 return { done: true };
-            var groupId = partitions.keys[i];
-            var obj = {};
+            const groupId = partitionKeys[i];
+            const obj = {};
             // exclude undefined key value
             if (groupId !== undefined) {
                 obj[ID_KEY] = groupId;
             }
             // compute remaining keys in expression
-            for (var _i = 0, _a = Object.entries(expr); _i < _a.length; _i++) {
-                var _b = _a[_i], key = _b[0], val = _b[1];
-                obj[key] = (0, core_1.computeValue)(partitions.groups[i], val, key, __assign({ groupId: groupId }, options));
+            for (const [key, val] of Object.entries(expr)) {
+                obj[key] = (0, core_1.computeValue)(partitions.get(groupId), val, key, copts.update(null, { groupId }));
             }
             return { value: obj, done: false };
         };
-    });
-}
+    }));
+};
 exports.$group = $group;
 
 
 /***/ }),
 
-/***/ 1091:
+/***/ 6582:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -27540,7 +28035,11 @@ exports.$group = $group;
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -27549,35 +28048,36 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(5292), exports);
-__exportStar(__webpack_require__(624), exports);
-__exportStar(__webpack_require__(4943), exports);
-__exportStar(__webpack_require__(1688), exports);
-__exportStar(__webpack_require__(1129), exports);
-__exportStar(__webpack_require__(4285), exports);
-__exportStar(__webpack_require__(854), exports);
-__exportStar(__webpack_require__(7672), exports);
-__exportStar(__webpack_require__(7533), exports);
-__exportStar(__webpack_require__(7391), exports);
-__exportStar(__webpack_require__(2250), exports);
-__exportStar(__webpack_require__(8203), exports);
-__exportStar(__webpack_require__(1229), exports);
-__exportStar(__webpack_require__(9251), exports);
-__exportStar(__webpack_require__(3042), exports);
-__exportStar(__webpack_require__(6486), exports);
-__exportStar(__webpack_require__(5702), exports);
-__exportStar(__webpack_require__(2702), exports);
-__exportStar(__webpack_require__(7642), exports);
-__exportStar(__webpack_require__(3469), exports);
-__exportStar(__webpack_require__(8734), exports);
-__exportStar(__webpack_require__(5609), exports);
-__exportStar(__webpack_require__(49), exports);
-__exportStar(__webpack_require__(8105), exports);
+__exportStar(__webpack_require__(1692), exports);
+__exportStar(__webpack_require__(2985), exports);
+__exportStar(__webpack_require__(8683), exports);
+__exportStar(__webpack_require__(8980), exports);
+__exportStar(__webpack_require__(10), exports);
+__exportStar(__webpack_require__(3090), exports);
+__exportStar(__webpack_require__(2683), exports);
+__exportStar(__webpack_require__(9749), exports);
+__exportStar(__webpack_require__(954), exports);
+__exportStar(__webpack_require__(9157), exports);
+__exportStar(__webpack_require__(159), exports);
+__exportStar(__webpack_require__(6212), exports);
+__exportStar(__webpack_require__(7911), exports);
+__exportStar(__webpack_require__(6402), exports);
+__exportStar(__webpack_require__(6366), exports);
+__exportStar(__webpack_require__(8755), exports);
+__exportStar(__webpack_require__(8027), exports);
+__exportStar(__webpack_require__(4707), exports);
+__exportStar(__webpack_require__(8515), exports);
+__exportStar(__webpack_require__(8377), exports);
+__exportStar(__webpack_require__(5396), exports);
+__exportStar(__webpack_require__(2311), exports);
+__exportStar(__webpack_require__(1655), exports);
+__exportStar(__webpack_require__(3871), exports);
+__exportStar(__webpack_require__(9789), exports);
 
 
 /***/ }),
 
-/***/ 854:
+/***/ 9749:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -27592,22 +28092,22 @@ exports.$limit = void 0;
  * @param options
  * @returns {Object|*}
  */
-function $limit(collection, expr, options) {
+const $limit = (collection, expr, options) => {
     return collection.take(expr);
-}
+};
 exports.$limit = $limit;
 
 
 /***/ }),
 
-/***/ 7672:
+/***/ 954:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$lookup = void 0;
-var util_1 = __webpack_require__(6588);
+const util_1 = __webpack_require__(7216);
 /**
  * Performs a left outer join to another collection in the same database to filter in documents from the “joined” collection for processing.
  *
@@ -27615,38 +28115,37 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @param opt
  */
-function $lookup(collection, expr, options) {
-    var joinColl = (0, util_1.isString)(expr.from)
+const $lookup = (collection, expr, options) => {
+    const joinColl = (0, util_1.isString)(expr.from)
         ? options === null || options === void 0 ? void 0 : options.collectionResolver(expr.from)
         : expr.from;
-    (0, util_1.assert)(joinColl instanceof Array, "'from' field must resolve to an array");
-    var hash = {};
-    for (var _i = 0, joinColl_1 = joinColl; _i < joinColl_1.length; _i++) {
-        var obj = joinColl_1[_i];
-        var k = (0, util_1.hashCode)((0, util_1.resolve)(obj, expr.foreignField), options === null || options === void 0 ? void 0 : options.hashFunction);
+    (0, util_1.assert)(joinColl instanceof Array, `'from' field must resolve to an array`);
+    const hash = {};
+    for (const obj of joinColl) {
+        const k = (0, util_1.hashCode)((0, util_1.resolve)(obj, expr.foreignField), options === null || options === void 0 ? void 0 : options.hashFunction);
         hash[k] = hash[k] || [];
         hash[k].push(obj);
     }
-    return collection.map(function (obj) {
-        var k = (0, util_1.hashCode)((0, util_1.resolve)(obj, expr.localField), options === null || options === void 0 ? void 0 : options.hashFunction);
-        var newObj = (0, util_1.into)({}, obj);
+    return collection.map((obj) => {
+        const k = (0, util_1.hashCode)((0, util_1.resolve)(obj, expr.localField), options === null || options === void 0 ? void 0 : options.hashFunction);
+        const newObj = (0, util_1.into)({}, obj);
         newObj[expr.as] = hash[k] || [];
         return newObj;
     });
-}
+};
 exports.$lookup = $lookup;
 
 
 /***/ }),
 
-/***/ 7533:
+/***/ 9157:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$match = void 0;
-var query_1 = __webpack_require__(7732);
+const query_1 = __webpack_require__(809);
 /**
  * Filters the document stream, and only allows matching documents to pass into the next pipeline stage.
  * $match uses standard MongoDB queries.
@@ -27656,26 +28155,26 @@ var query_1 = __webpack_require__(7732);
  * @param options
  * @returns {Array|*}
  */
-function $match(collection, expr, options) {
-    var q = new query_1.Query(expr, options);
-    return collection.filter(function (o) { return q.test(o); });
-}
+const $match = (collection, expr, options) => {
+    const q = new query_1.Query(expr, options);
+    return collection.filter((o) => q.test(o));
+};
 exports.$match = $match;
 
 
 /***/ }),
 
-/***/ 7391:
+/***/ 159:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$merge = void 0;
-var aggregator_1 = __webpack_require__(8221);
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
-var accumulator_1 = __webpack_require__(1998);
+const aggregator_1 = __webpack_require__(7268);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
+const expression_1 = __webpack_require__(8985);
 /**
  * Writes the resulting documents of the aggregation pipeline to a collection.
  *
@@ -27690,52 +28189,38 @@ var accumulator_1 = __webpack_require__(1998);
  * @param options
  * @returns {*}
  */
-function $merge(collection, expr, options) {
-    var output = (0, util_1.isString)(expr.into)
+const $merge = (collection, expr, options) => {
+    const output = (0, util_1.isString)(expr.into)
         ? options === null || options === void 0 ? void 0 : options.collectionResolver(expr.into)
         : expr.into;
-    (0, util_1.assert)(output instanceof Array, "$merge: option 'into' must resolve to an array");
-    var onField = expr.on || options.idKey;
-    var getHash = function (o) {
-        var val = (0, util_1.isString)(onField)
+    (0, util_1.assert)(output instanceof Array, `$merge: option 'into' must resolve to an array`);
+    const onField = expr.on || options.idKey;
+    const getHash = (o) => {
+        const val = (0, util_1.isString)(onField)
             ? (0, util_1.resolve)(o, onField)
-            : onField.map(function (s) { return (0, util_1.resolve)(o, s); });
+            : onField.map(s => (0, util_1.resolve)(o, s));
         return (0, util_1.hashCode)(val, options.hashFunction);
     };
-    var hash = {};
+    const hash = {};
     // we assuming the lookup expressions are unique
-    for (var i = 0; i < output.length; i++) {
-        var obj = output[i];
-        var k = getHash(obj);
+    for (let i = 0; i < output.length; i++) {
+        const obj = output[i];
+        const k = getHash(obj);
         (0, util_1.assert)(!hash[k], "$merge: 'into' collection must have unique entries for the 'on' field.");
         hash[k] = [obj, i];
     }
-    return collection.map(function (o) {
-        var k = getHash(o);
+    const copts = core_1.ComputeOptions.init(options);
+    return collection.map((o) => {
+        const k = getHash(o);
         if (hash[k]) {
-            var _a = hash[k], target = _a[0], i = _a[1];
+            const [target, i] = hash[k];
+            // compute variables
+            const variables = (0, core_1.computeValue)(target, expr.let || { new: "$$ROOT" }, null, 
+            // 'root' is the item from the iteration.
+            copts.update(o));
             if ((0, util_1.isArray)(expr.whenMatched)) {
-                var vars = expr.let
-                    ? (0, core_1.computeValue)(target, expr.let, null, options)
-                    : {};
-                var newObj = {};
-                try {
-                    var aggregator = new aggregator_1.Aggregator(expr.whenMatched, options);
-                    target["$new"] = o;
-                    for (var _i = 0, _b = Object.entries(vars); _i < _b.length; _i++) {
-                        var _c = _b[_i], name_1 = _c[0], val = _c[1];
-                        target["$" + name_1] = val;
-                    }
-                    Object.assign(newObj, aggregator.run([target])[0]);
-                }
-                finally {
-                    delete newObj["$new"];
-                    for (var _d = 0, _e = Object.keys(vars); _d < _e.length; _d++) {
-                        var name_2 = _e[_d];
-                        delete newObj["$" + name_2];
-                    }
-                }
-                output[i] = newObj;
+                const aggregator = new aggregator_1.Aggregator(expr.whenMatched, Object.assign(Object.assign({}, options), { variables }));
+                output[i] = aggregator.run([target])[0];
             }
             else {
                 switch (expr.whenMatched) {
@@ -27748,7 +28233,9 @@ function $merge(collection, expr, options) {
                         break;
                     case "merge":
                     default:
-                        output[i] = (0, accumulator_1.$mergeObjects)(o, [target, o], options);
+                        output[i] = (0, expression_1.$mergeObjects)(target, [target, o], 
+                        // 'root' is the item from the iteration.
+                        copts.update(o, { variables }));
                         break;
                 }
             }
@@ -27767,20 +28254,20 @@ function $merge(collection, expr, options) {
         }
         return o; // passthrough
     });
-}
+};
 exports.$merge = $merge;
 
 
 /***/ }),
 
-/***/ 2250:
+/***/ 6212:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$out = void 0;
-var util_1 = __webpack_require__(6588);
+const util_1 = __webpack_require__(7216);
 /**
  * Takes the documents returned by the aggregation pipeline and writes them to a specified collection.
  *
@@ -27794,30 +28281,30 @@ var util_1 = __webpack_require__(6588);
  * @param options
  * @returns {*}
  */
-function $out(collection, expr, options) {
-    var outputColl = (0, util_1.isString)(expr)
+const $out = (collection, expr, options) => {
+    const outputColl = (0, util_1.isString)(expr)
         ? options === null || options === void 0 ? void 0 : options.collectionResolver(expr)
         : expr;
-    (0, util_1.assert)(outputColl instanceof Array, "expression must resolve to an array");
-    return collection.map(function (o) {
+    (0, util_1.assert)(outputColl instanceof Array, `expression must resolve to an array`);
+    return collection.map((o) => {
         outputColl.push((0, util_1.cloneDeep)(o));
         return o; // passthrough
     });
-}
+};
 exports.$out = $out;
 
 
 /***/ }),
 
-/***/ 8203:
+/***/ 7911:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$project = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Reshapes a document stream.
  * $project can rename, add, or remove fields as well as create computed values and sub-documents.
@@ -27827,17 +28314,17 @@ var util_1 = __webpack_require__(6588);
  * @param opt
  * @returns {Array}
  */
-function $project(collection, expr, options) {
+const $project = (collection, expr, options) => {
     if ((0, util_1.isEmpty)(expr))
         return collection;
     // result collection
-    var expressionKeys = Object.keys(expr);
-    var idOnlyExcluded = false;
+    let expressionKeys = Object.keys(expr);
+    let idOnlyExcluded = false;
     // validate inclusion and exclusion
     validateExpression(expr, options);
-    var ID_KEY = options.idKey;
+    const ID_KEY = options.idKey;
     if ((0, util_1.inArray)(expressionKeys, ID_KEY)) {
-        var id = expr[ID_KEY];
+        const id = expr[ID_KEY];
         if (id === 0 || id === false) {
             expressionKeys = expressionKeys.filter(util_1.notInArray.bind(null, [ID_KEY]));
             idOnlyExcluded = expressionKeys.length == 0;
@@ -27847,10 +28334,9 @@ function $project(collection, expr, options) {
         // if not specified the add the ID field
         expressionKeys.push(ID_KEY);
     }
-    return collection.map(function (obj) {
-        return processObject(obj, expr, options, expressionKeys, idOnlyExcluded);
-    });
-}
+    const copts = core_1.ComputeOptions.init(options);
+    return collection.map(((obj) => processObject(obj, expr, copts.update(obj), expressionKeys, idOnlyExcluded)));
+};
 exports.$project = $project;
 /**
  * Process the expression value for $project operators
@@ -27861,18 +28347,18 @@ exports.$project = $project;
  * @param {Boolean} idOnlyExcluded Boolean value indicating whether only the ID key is excluded
  */
 function processObject(obj, expr, options, expressionKeys, idOnlyExcluded) {
-    var newObj = {};
-    var foundSlice = false;
-    var foundExclusion = false;
-    var dropKeys = [];
+    let newObj = {};
+    let foundSlice = false;
+    let foundExclusion = false;
+    const dropKeys = [];
     if (idOnlyExcluded) {
         dropKeys.push(options.idKey);
     }
-    var _loop_1 = function (key) {
+    for (const key of expressionKeys) {
         // final computed value of the key
-        var value = undefined;
+        let value = undefined;
         // expression to associate with key
-        var subExpr = expr[key];
+        const subExpr = expr[key];
         if (key !== options.idKey && (0, util_1.inArray)([0, false], subExpr)) {
             foundExclusion = true;
         }
@@ -27887,53 +28373,51 @@ function processObject(obj, expr, options, expressionKeys, idOnlyExcluded) {
             // For direct projections, we use the resolved object value
         }
         else if (subExpr instanceof Array) {
-            value = subExpr.map(function (v) {
-                var r = (0, core_1.computeValue)(obj, v, null, options);
+            value = subExpr.map(v => {
+                const r = (0, core_1.computeValue)(obj, v, null, options);
                 if ((0, util_1.isNil)(r))
                     return null;
                 return r;
             });
         }
         else if ((0, util_1.isObject)(subExpr)) {
-            var subExprObj_1 = subExpr;
-            var subExprKeys_1 = Object.keys(subExpr);
-            var operator = subExprKeys_1.length == 1 ? subExprKeys_1[0] : null;
+            const subExprObj = subExpr;
+            const subExprKeys = Object.keys(subExpr);
+            const operator = subExprKeys.length == 1 ? subExprKeys[0] : "";
             // first try a projection operator
-            var call = (0, core_1.getOperator)(core_1.OperatorType.PROJECTION, operator);
+            const call = (0, core_1.getOperator)(core_1.OperatorType.PROJECTION, operator, options);
             if (call) {
                 // apply the projection operator on the operator expression for the key
                 if (operator === "$slice") {
                     // $slice is handled differently for aggregation and projection operations
-                    if ((0, util_1.ensureArray)(subExprObj_1[operator]).every(util_1.isNumber)) {
+                    if ((0, util_1.ensureArray)(subExprObj[operator]).every(util_1.isNumber)) {
                         // $slice for projection operation
-                        value = call(obj, subExprObj_1[operator], key);
+                        value = call(obj, subExprObj[operator], key, options);
                         foundSlice = true;
                     }
                     else {
                         // $slice for aggregation operation
-                        value = (0, core_1.computeValue)(obj, subExprObj_1, key, options);
+                        value = (0, core_1.computeValue)(obj, subExprObj, key, options);
                     }
                 }
                 else {
-                    value = call(obj, subExprObj_1[operator], key, options);
+                    value = call(obj, subExprObj[operator], key, options);
                 }
             }
             else if ((0, util_1.isOperator)(operator)) {
                 // compute if operator key
-                value = (0, core_1.computeValue)(obj, subExprObj_1[operator], operator, options);
+                value = (0, core_1.computeValue)(obj, subExprObj[operator], operator, options);
             }
             else if ((0, util_1.has)(obj, key)) {
                 // compute the value for the sub expression for the key
-                validateExpression(subExprObj_1, options);
-                var target = obj[key];
+                validateExpression(subExprObj, options);
+                let target = obj[key];
                 if (target instanceof Array) {
-                    value = target.map(function (o) {
-                        return processObject(o, subExprObj_1, options, subExprKeys_1, false);
-                    });
+                    value = target.map((o) => processObject(o, subExprObj, options, subExprKeys, false));
                 }
                 else {
                     target = (0, util_1.isObject)(target) ? target : obj;
-                    value = processObject(target, subExprObj_1, options, subExprKeys_1, false);
+                    value = processObject(target, subExprObj, options, subExprKeys, false);
                 }
             }
             else {
@@ -27943,16 +28427,16 @@ function processObject(obj, expr, options, expressionKeys, idOnlyExcluded) {
         }
         else {
             dropKeys.push(key);
-            return "continue";
+            continue;
         }
         // get value with object graph
-        var objPathGraph = (0, util_1.resolveGraph)(obj, key, {
-            preserveMissing: true,
+        const objPathGraph = (0, util_1.resolveGraph)(obj, key, {
+            preserveMissing: true
         });
         // add the value at the path
         if (objPathGraph !== undefined) {
             (0, util_1.merge)(newObj, objPathGraph, {
-                flatten: true,
+                flatten: true
             });
         }
         // if computed add/or remove accordingly
@@ -27964,10 +28448,6 @@ function processObject(obj, expr, options, expressionKeys, idOnlyExcluded) {
                 (0, util_1.setValue)(newObj, key, value);
             }
         }
-    };
-    for (var _i = 0, expressionKeys_1 = expressionKeys; _i < expressionKeys_1.length; _i++) {
-        var key = expressionKeys_1[_i];
-        _loop_1(key);
     }
     // filter out all missing values preserved to support correct merging
     (0, util_1.filterMissing)(newObj);
@@ -27979,8 +28459,7 @@ function processObject(obj, expr, options, expressionKeys, idOnlyExcluded) {
     if (foundSlice || foundExclusion || idOnlyExcluded) {
         newObj = (0, util_1.into)({}, obj, newObj);
         if (dropKeys.length > 0) {
-            for (var _a = 0, dropKeys_1 = dropKeys; _a < dropKeys_1.length; _a++) {
-                var k = dropKeys_1[_a];
+            for (const k of dropKeys) {
                 (0, util_1.removeValue)(newObj, k, { descendArray: true });
             }
         }
@@ -27993,10 +28472,9 @@ function processObject(obj, expr, options, expressionKeys, idOnlyExcluded) {
  * @param {Object} expr The expression given for the projection
  */
 function validateExpression(expr, options) {
-    var check = [false, false];
-    for (var _i = 0, _a = Object.entries(expr); _i < _a.length; _i++) {
-        var _b = _a[_i], k = _b[0], v = _b[1];
-        if (k === options.idKey)
+    const check = [false, false];
+    for (const [k, v] of Object.entries(expr)) {
+        if (k === (options === null || options === void 0 ? void 0 : options.idKey))
             return;
         if (v === 0 || v === false) {
             check[0] = true;
@@ -28011,36 +28489,37 @@ function validateExpression(expr, options) {
 
 /***/ }),
 
-/***/ 1229:
+/***/ 6402:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$redact = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Restricts the contents of the documents based on information stored in the documents themselves.
  *
  * https://docs.mongodb.com/manual/reference/operator/aggregation/redact/
  */
-function $redact(collection, expr, options) {
-    return collection.map(function (obj) { return (0, core_1.redact)(obj, expr, options); });
-}
+const $redact = (collection, expr, options) => {
+    const copts = core_1.ComputeOptions.init(options);
+    return collection.map(((obj) => (0, core_1.redact)(obj, expr, copts.update(obj))));
+};
 exports.$redact = $redact;
 
 
 /***/ }),
 
-/***/ 9251:
+/***/ 6366:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$replaceRoot = void 0;
-var core_1 = __webpack_require__(7424);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const util_1 = __webpack_require__(7216);
 /**
  * Replaces a document with the specified embedded document or new one.
  * The replacement document can be any valid expression that resolves to a document.
@@ -28052,26 +28531,26 @@ var util_1 = __webpack_require__(6588);
  * @param  {Object} options
  * @return {*}
  */
-function $replaceRoot(collection, expr, options) {
-    return collection.map(function (obj) {
+const $replaceRoot = (collection, expr, options) => {
+    return collection.map(obj => {
         obj = (0, core_1.computeValue)(obj, expr.newRoot, null, options);
         (0, util_1.assert)((0, util_1.isObject)(obj), "$replaceRoot expression must return an object");
         return obj;
     });
-}
+};
 exports.$replaceRoot = $replaceRoot;
 
 
 /***/ }),
 
-/***/ 3042:
+/***/ 8755:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$replaceWith = void 0;
-var replaceRoot_1 = __webpack_require__(9251);
+const replaceRoot_1 = __webpack_require__(6366);
 /**
  * Alias for $replaceRoot
  */
@@ -28080,7 +28559,7 @@ exports.$replaceWith = replaceRoot_1.$replaceRoot;
 
 /***/ }),
 
-/***/ 6486:
+/***/ 8027:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -28093,34 +28572,34 @@ exports.$sample = void 0;
  *
  * @param  {Iterator} collection
  * @param  {Object} expr
- * @param  {Options} options
+ * @param  {Options} _options
  * @return {*}
  */
-function $sample(collection, expr, options) {
-    return collection.transform(function (xs) {
-        var len = xs.length;
-        var i = -1;
-        return function () {
+const $sample = (collection, expr, _options) => {
+    return collection.transform(((xs) => {
+        const len = xs.length;
+        let i = -1;
+        return () => {
             if (++i === expr.size)
                 return { done: true };
-            var n = Math.floor(Math.random() * len);
+            const n = Math.floor(Math.random() * len);
             return { value: xs[n], done: false };
         };
-    });
-}
+    }));
+};
 exports.$sample = $sample;
 
 
 /***/ }),
 
-/***/ 5702:
+/***/ 4707:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$set = void 0;
-var addFields_1 = __webpack_require__(5292);
+const addFields_1 = __webpack_require__(1692);
 /**
  * Alias for $addFields.
  */
@@ -28129,7 +28608,7 @@ exports.$set = addFields_1.$addFields;
 
 /***/ }),
 
-/***/ 2702:
+/***/ 8515:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28137,11 +28616,34 @@ exports.$set = addFields_1.$addFields;
 // $setWindowFields -  https://docs.mongodb.com/manual/reference/operator/aggregation/setWindowFields/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$setWindowFields = void 0;
-var core_1 = __webpack_require__(7424);
-var lazy_1 = __webpack_require__(1088);
-var util_1 = __webpack_require__(6588);
-var expression_1 = __webpack_require__(6234);
-var _1 = __webpack_require__(1091);
+const core_1 = __webpack_require__(9587);
+const lazy_1 = __webpack_require__(9176);
+const util_1 = __webpack_require__(7216);
+const expression_1 = __webpack_require__(8985);
+const dateAdd_1 = __webpack_require__(9784);
+const _internal_1 = __webpack_require__(2899);
+const addFields_1 = __webpack_require__(1692);
+const group_1 = __webpack_require__(2683);
+const sort_1 = __webpack_require__(5396);
+// Operators that require 'sortBy' option.
+const SORT_REQUIRED_OPS = new Set([
+    "$denseRank",
+    "$documentNumber",
+    "$first",
+    "$last",
+    "$linearFill",
+    "$rank",
+    "$shift"
+]);
+// Operators that require unbounded 'window' option.
+const WINDOW_UNBOUNDED_OPS = new Set([
+    "$denseRank",
+    "$expMovingAvg",
+    "$linearFill",
+    "$locf",
+    "$rank",
+    "$shift"
+]);
 /**
  * Randomly selects the specified number of documents from its input. The given iterator must have finite values
  *
@@ -28150,148 +28652,149 @@ var _1 = __webpack_require__(1091);
  * @param  {Options} options
  * @return {*}
  */
-function $setWindowFields(collection, expr, options) {
+const $setWindowFields = (collection, expr, options) => {
+    options = (0, core_1.initOptions)(options);
+    options.context.addExpressionOps({ $function: expression_1.$function });
     // validate inputs early since this can be an expensive operation.
-    for (var _i = 0, _a = Object.values(expr.output); _i < _a.length; _i++) {
-        var outputExpr = _a[_i];
-        var keys = Object.keys(outputExpr);
-        var op = keys.find(util_1.isOperator);
-        (0, util_1.assert)(!!(0, core_1.getOperator)(core_1.OperatorType.WINDOW, op) ||
-            !!(0, core_1.getOperator)(core_1.OperatorType.ACCUMULATOR, op), op + " is not a valid window operator");
+    for (const outputExpr of Object.values(expr.output)) {
+        const keys = Object.keys(outputExpr);
+        const op = keys.find(util_1.isOperator);
+        (0, util_1.assert)(!!(0, core_1.getOperator)(core_1.OperatorType.WINDOW, op, options) ||
+            !!(0, core_1.getOperator)(core_1.OperatorType.ACCUMULATOR, op, options), `'${op}' is not a valid window operator`);
         (0, util_1.assert)(keys.length > 0 &&
             keys.length <= 2 &&
-            (keys.length == 1 || keys.includes("window")), "$setWindowFields 'output' values should have a single window operator.");
+            (keys.length == 1 || keys.includes("window")), "'output' option should have a single window operator.");
         if (outputExpr === null || outputExpr === void 0 ? void 0 : outputExpr.window) {
-            var _b = outputExpr.window, documents = _b.documents, range = _b.range;
+            const { documents, range } = outputExpr.window;
             (0, util_1.assert)((!!documents && !range) ||
                 (!documents && !!range) ||
-                (!documents && !range), "$setWindowFields 'output.window' option supports only one of 'documents' or 'range'.");
+                (!documents && !range), "'window' option supports only one of 'documents' or 'range'.");
         }
     }
     // we sort first if required
     if (expr.sortBy) {
-        collection = (0, _1.$sort)(collection, expr.sortBy, options);
+        collection = (0, sort_1.$sort)(collection, expr.sortBy, options);
     }
     // then partition collection
-    if (expr.partitionBy) {
-        collection = (0, _1.$group)(collection, {
-            _id: expr.partitionBy,
-            items: { $push: "$$CURRENT" },
-        }, options);
-    }
-    else {
-        // single partition so we can keep the code uniform
-        collection = (0, lazy_1.Lazy)([
-            {
-                _id: 0,
-                items: collection.value(),
-            },
-        ]);
-    }
+    collection = (0, group_1.$group)(collection, {
+        _id: expr.partitionBy,
+        items: { $push: "$$CURRENT" }
+    }, options);
     // transform values
-    return collection.transform(function (partitions) {
+    return collection.transform(((partitions) => {
         // let iteratorIndex = 0;
-        var iterators = [];
-        var outputConfig = [];
-        for (var _i = 0, _a = Object.entries(expr.output); _i < _a.length; _i++) {
-            var _b = _a[_i], field = _b[0], outputExpr = _b[1];
-            var operatorName = Object.keys(outputExpr).find(util_1.isOperator);
-            outputConfig.push({
-                operatorName: operatorName,
+        const iterators = [];
+        const outputConfig = [];
+        for (const [field, outputExpr] of Object.entries(expr.output)) {
+            const op = Object.keys(outputExpr).find(util_1.isOperator);
+            const config = {
+                operatorName: op,
                 func: {
-                    left: (0, core_1.getOperator)(core_1.OperatorType.ACCUMULATOR, operatorName),
-                    right: (0, core_1.getOperator)(core_1.OperatorType.WINDOW, operatorName),
+                    left: (0, core_1.getOperator)(core_1.OperatorType.ACCUMULATOR, op, options),
+                    right: (0, core_1.getOperator)(core_1.OperatorType.WINDOW, op, options)
                 },
-                args: outputExpr[operatorName],
+                args: outputExpr[op],
                 field: field,
-                window: outputExpr.window,
-            });
+                window: outputExpr.window
+            };
+            // sortBy option required for specific operators or bounded window.
+            (0, util_1.assert)(!!expr.sortBy || !(SORT_REQUIRED_OPS.has(op) || !config.window), `${SORT_REQUIRED_OPS.has(op) ? `'${op}'` : "bounded window operation"} requires a sortBy.`);
+            // window must be unbounded for specific operators.
+            (0, util_1.assert)(!config.window || !WINDOW_UNBOUNDED_OPS.has(op), `${op} does not accept a 'window' field.`);
+            outputConfig.push(config);
         }
         // each parition maintains its own closure to process the documents in the window.
-        partitions.forEach(function (group) {
+        partitions.forEach(((group) => {
             // get the items to process
-            var items = group.items;
+            const items = group.items;
             // create an iterator per group.
             // we need the index of each document so we track it using a special field.
-            var iterator = (0, lazy_1.Lazy)(items);
+            let iterator = (0, lazy_1.Lazy)(items);
             // results map
-            var windowResultMap = {};
-            var _loop_1 = function (config) {
-                var _a;
-                var func = config.func, args = config.args, field = config.field, window_1 = config.window;
-                var makeResultFunc = function (getItemsFn) {
+            const windowResultMap = {};
+            for (const config of outputConfig) {
+                const { func, args, field, window } = config;
+                const makeResultFunc = (getItemsFn) => {
                     // closure for object index within the partition
-                    var index = -1;
-                    return function (obj) {
+                    let index = -1;
+                    return (obj) => {
                         ++index;
                         // process accumulator function
                         if (func.left) {
                             return func.left(getItemsFn(obj, index), args, options);
                         }
-                        // OR process window function
-                        return func.right(obj, getItemsFn(obj, index), {
-                            parentExpr: expr,
-                            inputExpr: args,
-                            documentNumber: index + 1,
-                            field: field,
-                        }, options);
+                        else if (func.right) {
+                            // OR process 'window' function
+                            return func.right(obj, getItemsFn(obj, index), {
+                                parentExpr: expr,
+                                inputExpr: args,
+                                documentNumber: index + 1,
+                                field
+                            }, 
+                            // must use raw options only since it operates over a collection.
+                            options);
+                        }
                     };
                 };
-                if (window_1) {
-                    var documents_1 = window_1.documents, range = window_1.range, unit_1 = window_1.unit;
-                    var boundary_1 = documents_1 || range;
-                    var begin_1 = boundary_1[0];
-                    var end_1 = boundary_1[1];
-                    if (boundary_1 && (begin_1 != "unbounded" || end_1 != "unbounded")) {
-                        var toBeginIndex_1 = function (currentIndex) {
-                            if (begin_1 == "current")
+                if (window) {
+                    const { documents, range, unit } = window;
+                    // TODO: fix the meaning of numeric values in range.
+                    //  See definition: https://www.mongodb.com/docs/manual/reference/operator/aggregation/setWindowFields/#std-label-setWindowFields-range
+                    //  - A number to add to the value of the sortBy field for the current document.
+                    //  - A document is in the window if the sortBy field value is inclusively within the lower and upper boundaries.
+                    // TODO: Need to reconcile the two above statments from the doc to implement 'range' option correctly.
+                    const boundary = documents || range;
+                    if (!(0, _internal_1.isUnbounded)(window)) {
+                        const [begin, end] = boundary;
+                        const toBeginIndex = (currentIndex) => {
+                            if (begin == "current")
                                 return currentIndex;
-                            if (begin_1 == "unbounded")
+                            if (begin == "unbounded")
                                 return 0;
-                            return Math.max(begin_1 + currentIndex, 0);
+                            return Math.max(begin + currentIndex, 0);
                         };
-                        var toEndIndex_1 = function (currentIndex) {
-                            if (end_1 == "current")
+                        const toEndIndex = (currentIndex) => {
+                            if (end == "current")
                                 return currentIndex + 1;
-                            if (end_1 == "unbounded")
+                            if (end == "unbounded")
                                 return items.length;
-                            return end_1 + currentIndex + 1;
+                            return end + currentIndex + 1;
                         };
-                        var getItems = function (current, index) {
+                        const getItems = (current, index) => {
                             // handle string boundaries or documents
-                            if (!!documents_1 || boundary_1.every(util_1.isString)) {
-                                return items.slice(toBeginIndex_1(index), toEndIndex_1(index));
+                            if (!!documents || boundary.every(util_1.isString)) {
+                                return items.slice(toBeginIndex(index), toEndIndex(index));
                             }
                             // handle range with numeric boundary values
-                            var sortKey = Object.keys(expr.sortBy)[0];
-                            var lower;
-                            var upper;
-                            if (unit_1) {
+                            const sortKey = Object.keys(expr.sortBy)[0];
+                            let lower;
+                            let upper;
+                            if (unit) {
                                 // we are dealing with datetimes
-                                var getTime = function (amount) {
-                                    return (0, expression_1.$dateAdd)(current, {
+                                const getTime = (amount) => {
+                                    return (0, dateAdd_1.$dateAdd)(current, {
                                         startDate: new Date(current[sortKey]),
-                                        unit: unit_1,
-                                        amount: amount,
-                                    }).getTime();
+                                        unit,
+                                        amount
+                                    }, options).getTime();
                                 };
-                                lower = (0, util_1.isNumber)(begin_1) ? getTime(begin_1) : -Infinity;
-                                upper = (0, util_1.isNumber)(end_1) ? getTime(end_1) : Infinity;
+                                lower = (0, util_1.isNumber)(begin) ? getTime(begin) : -Infinity;
+                                upper = (0, util_1.isNumber)(end) ? getTime(end) : Infinity;
                             }
                             else {
-                                var currentValue = current[sortKey];
-                                lower = (0, util_1.isNumber)(begin_1) ? currentValue + begin_1 : -Infinity;
-                                upper = (0, util_1.isNumber)(end_1) ? currentValue + end_1 : Infinity;
+                                const currentValue = current[sortKey];
+                                lower = (0, util_1.isNumber)(begin) ? currentValue + begin : -Infinity;
+                                upper = (0, util_1.isNumber)(end) ? currentValue + end : Infinity;
                             }
-                            var array = items;
-                            if (begin_1 == "current")
+                            let array = items;
+                            if (begin == "current")
                                 array = items.slice(index);
-                            if (end_1 == "current")
+                            if (end == "current")
                                 array = items.slice(0, index + 1);
                             // look within the boundary and filter down
-                            return array.filter(function (o) {
-                                var value = o[sortKey];
-                                var n = +value;
+                            return array.filter((o) => {
+                                const value = o[sortKey];
+                                const n = +value;
                                 return n >= lower && n <= upper;
                             });
                         };
@@ -28300,34 +28803,30 @@ function $setWindowFields(collection, expr, options) {
                 }
                 // default action is to utilize the entire set of items
                 if (!windowResultMap[field]) {
-                    windowResultMap[field] = makeResultFunc(function (_) { return items; });
+                    windowResultMap[field] = makeResultFunc(_ => items);
                 }
                 // invoke add fields to get the desired behaviour using a custom function.
-                iterator = (0, _1.$addFields)(iterator, (_a = {},
-                    _a[field] = {
+                iterator = (0, addFields_1.$addFields)(iterator, {
+                    [field]: {
                         $function: {
-                            body: function (obj) { return windowResultMap[field](obj); },
-                            args: ["$$CURRENT"],
-                        },
-                    },
-                    _a));
-            };
-            for (var _i = 0, outputConfig_1 = outputConfig; _i < outputConfig_1.length; _i++) {
-                var config = outputConfig_1[_i];
-                _loop_1(config);
+                            body: (obj) => windowResultMap[field](obj),
+                            args: ["$$CURRENT"]
+                        }
+                    }
+                }, options);
             }
             // add to iterator list
             iterators.push(iterator);
-        });
-        return lazy_1.compose.apply(void 0, iterators);
-    });
-}
+        }));
+        return (0, lazy_1.compose)(...iterators);
+    }));
+};
 exports.$setWindowFields = $setWindowFields;
 
 
 /***/ }),
 
-/***/ 7642:
+/***/ 8377:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -28342,22 +28841,22 @@ exports.$skip = void 0;
  * @param  {Options} options
  * @returns {*}
  */
-function $skip(collection, expr, options) {
+const $skip = (collection, expr, options) => {
     return collection.drop(expr);
-}
+};
 exports.$skip = $skip;
 
 
 /***/ }),
 
-/***/ 3469:
+/***/ 5396:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$sort = void 0;
-var util_1 = __webpack_require__(6588);
+const util_1 = __webpack_require__(7216);
 /**
  * Takes all input documents and returns them in a stream of sorted documents.
  *
@@ -28366,44 +28865,34 @@ var util_1 = __webpack_require__(6588);
  * @param  {Object} options
  * @returns {*}
  */
-function $sort(collection, sortKeys, options) {
+const $sort = (collection, sortKeys, options) => {
     if ((0, util_1.isEmpty)(sortKeys) || !(0, util_1.isObject)(sortKeys))
         return collection;
-    var cmp = util_1.compare;
+    let cmp = util_1.compare;
     // check for collation spec on the options
-    var collationSpec = options.collation;
+    const collationSpec = options.collation;
     // use collation comparator if provided
     if ((0, util_1.isObject)(collationSpec) && (0, util_1.isString)(collationSpec.locale)) {
         cmp = collationComparator(collationSpec);
     }
-    return collection.transform(function (coll) {
-        var modifiers = Object.keys(sortKeys);
-        var _loop_1 = function (key) {
-            var grouped = (0, util_1.groupBy)(coll, function (obj) { return (0, util_1.resolve)(obj, key); }, options === null || options === void 0 ? void 0 : options.hashFunction);
-            var sortedIndex = {};
-            var indexKeys = (0, util_1.sortBy)(grouped.keys, function (k, i) {
-                sortedIndex[k] = i;
-                return k;
-            }, cmp);
+    return collection.transform((coll) => {
+        const modifiers = Object.keys(sortKeys);
+        for (const key of modifiers.reverse()) {
+            const groups = (0, util_1.groupBy)(coll, (obj) => (0, util_1.resolve)(obj, key), options.hashFunction);
+            const sortedKeys = Array.from(groups.keys()).sort(cmp);
             if (sortKeys[key] === -1)
-                indexKeys.reverse();
+                sortedKeys.reverse();
+            // reuse collection so the data is available for the next iteration of the sort modifiers.
             coll = [];
-            for (var _b = 0, indexKeys_1 = indexKeys; _b < indexKeys_1.length; _b++) {
-                var k = indexKeys_1[_b];
-                (0, util_1.into)(coll, grouped.groups[sortedIndex[k]]);
-            }
-        };
-        for (var _i = 0, _a = modifiers.reverse(); _i < _a.length; _i++) {
-            var key = _a[_i];
-            _loop_1(key);
+            sortedKeys.reduce((acc, key) => (0, util_1.into)(acc, groups.get(key)), coll);
         }
         return coll;
     });
-}
+};
 exports.$sort = $sort;
 // MongoDB collation strength to JS localeCompare sensitivity mapping.
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/localeCompare
-var COLLATION_STRENGTH = {
+const COLLATION_STRENGTH = {
     // Only strings that differ in base letters compare as unequal. Examples: a ≠ b, a = á, a = A.
     1: "base",
     //  Only strings that differ in base letters or accents and other diacritic marks compare as unequal.
@@ -28411,7 +28900,7 @@ var COLLATION_STRENGTH = {
     2: "accent",
     // Strings that differ in base letters, accents and other diacritic marks, or case compare as unequal.
     // Other differences may also be taken into consideration. Examples: a ≠ b, a ≠ á, a ≠ A
-    3: "variant",
+    3: "variant"
     // case - Only strings that differ in base letters or case compare as unequal. Examples: a ≠ b, a = á, a ≠ A.
 };
 /**
@@ -28430,11 +28919,11 @@ var COLLATION_STRENGTH = {
  * }
  */
 function collationComparator(spec) {
-    var localeOpt = {
+    const localeOpt = {
         sensitivity: COLLATION_STRENGTH[spec.strength || 3],
         caseFirst: spec.caseFirst === "off" ? "false" : spec.caseFirst || "false",
         numeric: spec.numericOrdering || false,
-        ignorePunctuation: spec.alternate === "shifted",
+        ignorePunctuation: spec.alternate === "shifted"
     };
     // when caseLevel is true for strength  1:base and 2:accent, bump sensitivity to the nearest that supports case comparison
     if ((spec.caseLevel || false) === true) {
@@ -28443,13 +28932,13 @@ function collationComparator(spec) {
         if (localeOpt.sensitivity === "accent")
             localeOpt.sensitivity = "variant";
     }
-    var collator = new Intl.Collator(spec.locale, localeOpt);
-    return function (a, b) {
+    const collator = new Intl.Collator(spec.locale, localeOpt);
+    return (a, b) => {
         // non strings
         if (!(0, util_1.isString)(a) || !(0, util_1.isString)(b))
             return (0, util_1.compare)(a, b);
         // only for strings
-        var i = collator.compare(a, b);
+        const i = collator.compare(a, b);
         if (i < 0)
             return -1;
         if (i > 0)
@@ -28461,15 +28950,15 @@ function collationComparator(spec) {
 
 /***/ }),
 
-/***/ 8734:
+/***/ 2311:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$sortByCount = void 0;
-var group_1 = __webpack_require__(4285);
-var sort_1 = __webpack_require__(3469);
+const group_1 = __webpack_require__(2683);
+const sort_1 = __webpack_require__(5396);
 /**
  * Groups incoming documents based on the value of a specified expression,
  * then computes the count of documents in each distinct group.
@@ -28481,26 +28970,26 @@ var sort_1 = __webpack_require__(3469);
  * @param  {Object} options
  * @return {*}
  */
-function $sortByCount(collection, expr, options) {
-    var newExpr = { count: { $sum: 1 } };
+const $sortByCount = (collection, expr, options) => {
+    const newExpr = { count: { $sum: 1 } };
     newExpr["_id"] = expr;
     return (0, sort_1.$sort)((0, group_1.$group)(collection, newExpr, options), { count: -1 }, options);
-}
+};
 exports.$sortByCount = $sortByCount;
 
 
 /***/ }),
 
-/***/ 5609:
+/***/ 1655:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$unionWith = void 0;
-var aggregator_1 = __webpack_require__(8221);
-var lazy_1 = __webpack_require__(1088);
-var util_1 = __webpack_require__(6588);
+const aggregator_1 = __webpack_require__(7268);
+const lazy_1 = __webpack_require__(9176);
+const util_1 = __webpack_require__(7216);
 /**
  * Performs a union of two collections.
  *
@@ -28508,30 +28997,30 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @param opt
  */
-function $unionWith(collection, expr, options) {
-    var array = (0, util_1.isString)(expr.coll)
-        ? options === null || options === void 0 ? void 0 : options.collectionResolver(expr.coll)
+const $unionWith = (collection, expr, options) => {
+    const array = (0, util_1.isString)(expr.coll)
+        ? options.collectionResolver(expr.coll)
         : expr.coll;
-    var iterators = [collection];
+    const iterators = [collection];
     iterators.push(expr.pipeline
         ? new aggregator_1.Aggregator(expr.pipeline, options).stream(array)
         : (0, lazy_1.Lazy)(array));
-    return lazy_1.compose.apply(void 0, iterators);
-}
+    return (0, lazy_1.compose)(...iterators);
+};
 exports.$unionWith = $unionWith;
 
 
 /***/ }),
 
-/***/ 49:
+/***/ 3871:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$unset = void 0;
-var util_1 = __webpack_require__(6588);
-var project_1 = __webpack_require__(8203);
+const util_1 = __webpack_require__(7216);
+const project_1 = __webpack_require__(7911);
 /**
  * Removes/excludes fields from documents.
  *
@@ -28540,29 +29029,27 @@ var project_1 = __webpack_require__(8203);
  * @param options
  * @returns {Iterator}
  */
-function $unset(collection, expr, options) {
+const $unset = (collection, expr, options) => {
     expr = (0, util_1.ensureArray)(expr);
-    var doc = {};
-    for (var _i = 0, expr_1 = expr; _i < expr_1.length; _i++) {
-        var k = expr_1[_i];
+    const doc = {};
+    for (const k of expr)
         doc[k] = 0;
-    }
     return (0, project_1.$project)(collection, doc, options);
-}
+};
 exports.$unset = $unset;
 
 
 /***/ }),
 
-/***/ 8105:
+/***/ 9789:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$unwind = void 0;
-var lazy_1 = __webpack_require__(1088);
-var util_1 = __webpack_require__(6588);
+const lazy_1 = __webpack_require__(9176);
+const util_1 = __webpack_require__(7216);
 /**
  * Takes an array of documents and returns them as a stream of documents.
  *
@@ -28571,33 +29058,33 @@ var util_1 = __webpack_require__(6588);
  * @param options
  * @returns {Array}
  */
-function $unwind(collection, expr, options) {
+const $unwind = (collection, expr, _options) => {
     if ((0, util_1.isString)(expr))
         expr = { path: expr };
-    var path = expr.path;
-    var field = path.substr(1);
-    var includeArrayIndex = (expr === null || expr === void 0 ? void 0 : expr.includeArrayIndex) || false;
-    var preserveNullAndEmptyArrays = expr.preserveNullAndEmptyArrays || false;
-    var format = function (o, i) {
+    const path = expr.path;
+    const field = path.substring(1);
+    const includeArrayIndex = (expr === null || expr === void 0 ? void 0 : expr.includeArrayIndex) || false;
+    const preserveNullAndEmptyArrays = expr.preserveNullAndEmptyArrays || false;
+    const format = (o, i) => {
         if (includeArrayIndex !== false)
             o[includeArrayIndex] = i;
         return o;
     };
-    var value;
-    return (0, lazy_1.Lazy)(function () {
-        var _loop_1 = function () {
+    let value;
+    return (0, lazy_1.Lazy)(() => {
+        for (;;) {
             // take from lazy sequence if available
             if (value instanceof lazy_1.Iterator) {
-                var tmp = value.next();
+                const tmp = value.next();
                 if (!tmp.done)
-                    return { value: tmp };
+                    return tmp;
             }
             // fetch next object
-            var wrapper = collection.next();
+            const wrapper = collection.next();
             if (wrapper.done)
-                return { value: wrapper };
+                return wrapper;
             // unwrap value
-            var obj = wrapper.value;
+            const obj = wrapper.value;
             // get the value of the field to unwind
             value = (0, util_1.resolve)(obj, field);
             // throw error if value is not an array???
@@ -28605,36 +29092,31 @@ function $unwind(collection, expr, options) {
                 if (value.length === 0 && preserveNullAndEmptyArrays === true) {
                     value = null; // reset unwind value
                     (0, util_1.removeValue)(obj, field);
-                    return { value: { value: format(obj, null), done: false } };
+                    return { value: format(obj, null), done: false };
                 }
                 else {
                     // construct a lazy sequence for elements per value
-                    value = (0, lazy_1.Lazy)(value).map(function (item, i) {
-                        var newObj = (0, util_1.resolveGraph)(obj, field, {
-                            preserveKeys: true,
+                    value = (0, lazy_1.Lazy)(value).map(((item, i) => {
+                        const newObj = (0, util_1.resolveGraph)(obj, field, {
+                            preserveKeys: true
                         });
                         (0, util_1.setValue)(newObj, field, item);
                         return format(newObj, i);
-                    });
+                    }));
                 }
             }
             else if (!(0, util_1.isEmpty)(value) || preserveNullAndEmptyArrays === true) {
-                return { value: { value: format(obj, null), done: false } };
+                return { value: format(obj, null), done: false };
             }
-        };
-        for (;;) {
-            var state_1 = _loop_1();
-            if (typeof state_1 === "object")
-                return state_1.value;
         }
     });
-}
+};
 exports.$unwind = $unwind;
 
 
 /***/ }),
 
-/***/ 6842:
+/***/ 2781:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28642,8 +29124,8 @@ exports.$unwind = $unwind;
 // $elemMatch operator. https://docs.mongodb.com/manual/reference/operator/projection/elemMatch/#proj._S_elemMatch
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$elemMatch = void 0;
-var query_1 = __webpack_require__(7732);
-var util_1 = __webpack_require__(6588);
+const query_1 = __webpack_require__(809);
+const util_1 = __webpack_require__(7216);
 /**
  * Projects only the first element from an array that matches the specified $elemMatch condition.
  *
@@ -28652,12 +29134,12 @@ var util_1 = __webpack_require__(6588);
  * @param expr
  * @returns {*}
  */
-function $elemMatch(obj, expr, field, options) {
-    var arr = (0, util_1.resolve)(obj, field);
-    var query = new query_1.Query(expr, options);
+const $elemMatch = (obj, expr, field, options) => {
+    const arr = (0, util_1.resolve)(obj, field);
+    const query = new query_1.Query(expr, options);
     (0, util_1.assert)(arr instanceof Array, "$elemMatch: argument must resolve to array");
-    var result = [];
-    for (var i = 0; i < arr.length; i++) {
+    const result = [];
+    for (let i = 0; i < arr.length; i++) {
         if (query.test(arr[i])) {
             // MongoDB projects only the first nested document when using this operator.
             // For some use cases this can lead to complicated queries to selectively project nested documents.
@@ -28668,13 +29150,13 @@ function $elemMatch(obj, expr, field, options) {
         }
     }
     return result.length > 0 ? result : undefined;
-}
+};
 exports.$elemMatch = $elemMatch;
 
 
 /***/ }),
 
-/***/ 7086:
+/***/ 3791:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
@@ -28682,7 +29164,11 @@ exports.$elemMatch = $elemMatch;
 // Projection Operators. https://docs.mongodb.com/manual/reference/operator/projection/
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -28691,31 +29177,22 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(6842), exports);
-__exportStar(__webpack_require__(3526), exports);
+__exportStar(__webpack_require__(2781), exports);
+__exportStar(__webpack_require__(8083), exports);
 
 
 /***/ }),
 
-/***/ 3526:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+/***/ 8083:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 // $slice operator. https://docs.mongodb.com/manual/reference/operator/projection/slice/#proj._S_slice
-var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$slice = void 0;
-var util_1 = __webpack_require__(6588);
-var slice_1 = __webpack_require__(78);
+const util_1 = __webpack_require__(7216);
+const slice_1 = __webpack_require__(5000);
 /**
  * Limits the number of elements projected from an array. Supports skip and limit slices.
  *
@@ -28723,19 +29200,19 @@ var slice_1 = __webpack_require__(78);
  * @param field
  * @param expr
  */
-function $slice(obj, expr, field, options) {
-    var xs = (0, util_1.resolve)(obj, field);
-    var exprAsArray = expr;
+const $slice = (obj, expr, field, options) => {
+    const xs = (0, util_1.resolve)(obj, field);
+    const exprAsArray = expr;
     if (!(0, util_1.isArray)(xs))
         return xs;
-    return (0, slice_1.$slice)(obj, expr instanceof Array ? __spreadArray([xs], exprAsArray, true) : [xs, expr], options);
-}
+    return (0, slice_1.$slice)(obj, expr instanceof Array ? [xs, ...exprAsArray] : [xs, expr], options);
+};
 exports.$slice = $slice;
 
 
 /***/ }),
 
-/***/ 518:
+/***/ 1274:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28743,7 +29220,7 @@ exports.$slice = $slice;
 // Query Array Operators: https://docs.mongodb.com/manual/reference/operator/query-array/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$all = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches arrays that contain all elements specified in the query.
  */
@@ -28752,7 +29229,7 @@ exports.$all = (0, _predicates_1.createQueryOperator)(_predicates_1.$all);
 
 /***/ }),
 
-/***/ 9039:
+/***/ 6242:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28760,7 +29237,7 @@ exports.$all = (0, _predicates_1.createQueryOperator)(_predicates_1.$all);
 // Query Array Operators: https://docs.mongodb.com/manual/reference/operator/query-array/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$elemMatch = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Selects documents if element in the array field matches all the specified $elemMatch conditions.
  */
@@ -28769,14 +29246,18 @@ exports.$elemMatch = (0, _predicates_1.createQueryOperator)(_predicates_1.$elemM
 
 /***/ }),
 
-/***/ 844:
+/***/ 7562:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -28785,14 +29266,14 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(518), exports);
-__exportStar(__webpack_require__(9039), exports);
-__exportStar(__webpack_require__(9159), exports);
+__exportStar(__webpack_require__(1274), exports);
+__exportStar(__webpack_require__(6242), exports);
+__exportStar(__webpack_require__(6534), exports);
 
 
 /***/ }),
 
-/***/ 9159:
+/***/ 6534:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28800,7 +29281,7 @@ __exportStar(__webpack_require__(9159), exports);
 // Query Array Operators: https://docs.mongodb.com/manual/reference/operator/query-array/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$size = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Selects documents if the array field is a specified size.
  */
@@ -28809,22 +29290,20 @@ exports.$size = (0, _predicates_1.createQueryOperator)(_predicates_1.$size);
 
 /***/ }),
 
-/***/ 7012:
+/***/ 2579:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createBitwiseOperator = void 0;
-var _predicates_1 = __webpack_require__(2344);
-var createBitwiseOperator = function (predicate) {
-    return (0, _predicates_1.createQueryOperator)(function (value, mask, options) {
-        var b = 0;
+const _predicates_1 = __webpack_require__(4414);
+const createBitwiseOperator = (predicate) => {
+    return (0, _predicates_1.createQueryOperator)((value, mask, options) => {
+        let b = 0;
         if (mask instanceof Array) {
-            for (var _i = 0, mask_1 = mask; _i < mask_1.length; _i++) {
-                var n = mask_1[_i];
+            for (const n of mask)
                 b = b | (1 << n);
-            }
         }
         else {
             b = mask;
@@ -28837,7 +29316,7 @@ exports.createBitwiseOperator = createBitwiseOperator;
 
 /***/ }),
 
-/***/ 2604:
+/***/ 8706:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28845,16 +29324,16 @@ exports.createBitwiseOperator = createBitwiseOperator;
 // Query Bitwise Operators: https://docs.mongodb.com/manual/reference/operator/query-bitwise/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$bitsAllClear = void 0;
-var _internal_1 = __webpack_require__(7012);
+const _internal_1 = __webpack_require__(2579);
 /**
  * Matches numeric or binary values in which a set of bit positions all have a value of 0.
  */
-exports.$bitsAllClear = (0, _internal_1.createBitwiseOperator)(function (result, _) { return result == 0; });
+exports.$bitsAllClear = (0, _internal_1.createBitwiseOperator)((result, _) => result == 0);
 
 
 /***/ }),
 
-/***/ 5051:
+/***/ 7089:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28862,16 +29341,16 @@ exports.$bitsAllClear = (0, _internal_1.createBitwiseOperator)(function (result,
 // Query Bitwise Operators: https://docs.mongodb.com/manual/reference/operator/query-bitwise/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$bitsAllSet = void 0;
-var _internal_1 = __webpack_require__(7012);
+const _internal_1 = __webpack_require__(2579);
 /**
  * Matches numeric or binary values in which a set of bit positions all have a value of 1.
  */
-exports.$bitsAllSet = (0, _internal_1.createBitwiseOperator)(function (result, mask) { return result == mask; });
+exports.$bitsAllSet = (0, _internal_1.createBitwiseOperator)((result, mask) => result == mask);
 
 
 /***/ }),
 
-/***/ 9904:
+/***/ 8390:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28879,16 +29358,16 @@ exports.$bitsAllSet = (0, _internal_1.createBitwiseOperator)(function (result, m
 // Query Bitwise Operators: https://docs.mongodb.com/manual/reference/operator/query-bitwise/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$bitsAnyClear = void 0;
-var _internal_1 = __webpack_require__(7012);
+const _internal_1 = __webpack_require__(2579);
 /**
  * Matches numeric or binary values in which any bit from a set of bit positions has a value of 0.
  */
-exports.$bitsAnyClear = (0, _internal_1.createBitwiseOperator)(function (result, mask) { return result < mask; });
+exports.$bitsAnyClear = (0, _internal_1.createBitwiseOperator)((result, mask) => result < mask);
 
 
 /***/ }),
 
-/***/ 602:
+/***/ 6308:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28896,35 +29375,35 @@ exports.$bitsAnyClear = (0, _internal_1.createBitwiseOperator)(function (result,
 // Query Bitwise Operators: https://docs.mongodb.com/manual/reference/operator/query-bitwise/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$bitsAnySet = void 0;
-var _internal_1 = __webpack_require__(7012);
+const _internal_1 = __webpack_require__(2579);
 /**
  * Matches numeric or binary values in which any bit from a set of bit positions has a value of 1.
  */
-exports.$bitsAnySet = (0, _internal_1.createBitwiseOperator)(function (result, _) { return result > 0; });
+exports.$bitsAnySet = (0, _internal_1.createBitwiseOperator)((result, _) => result > 0);
 
 
 /***/ }),
 
-/***/ 1246:
+/***/ 4167:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$bitsAnySet = exports.$bitsAnyClear = exports.$bitsAllSet = exports.$bitsAllClear = void 0;
-var bitsAllClear_1 = __webpack_require__(2604);
+var bitsAllClear_1 = __webpack_require__(8706);
 Object.defineProperty(exports, "$bitsAllClear", ({ enumerable: true, get: function () { return bitsAllClear_1.$bitsAllClear; } }));
-var bitsAllSet_1 = __webpack_require__(5051);
+var bitsAllSet_1 = __webpack_require__(7089);
 Object.defineProperty(exports, "$bitsAllSet", ({ enumerable: true, get: function () { return bitsAllSet_1.$bitsAllSet; } }));
-var bitsAnyClear_1 = __webpack_require__(9904);
+var bitsAnyClear_1 = __webpack_require__(8390);
 Object.defineProperty(exports, "$bitsAnyClear", ({ enumerable: true, get: function () { return bitsAnyClear_1.$bitsAnyClear; } }));
-var bitsAnySet_1 = __webpack_require__(602);
+var bitsAnySet_1 = __webpack_require__(6308);
 Object.defineProperty(exports, "$bitsAnySet", ({ enumerable: true, get: function () { return bitsAnySet_1.$bitsAnySet; } }));
 
 
 /***/ }),
 
-/***/ 1253:
+/***/ 102:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28932,7 +29411,7 @@ Object.defineProperty(exports, "$bitsAnySet", ({ enumerable: true, get: function
 // Query Comparison Operators: https://docs.mongodb.com/manual/reference/operator/query-comparison/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$eq = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches values that are equal to a specified value.
  */
@@ -28941,7 +29420,7 @@ exports.$eq = (0, _predicates_1.createQueryOperator)(_predicates_1.$eq);
 
 /***/ }),
 
-/***/ 2288:
+/***/ 3916:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28949,7 +29428,7 @@ exports.$eq = (0, _predicates_1.createQueryOperator)(_predicates_1.$eq);
 // Query Comparison Operators: https://docs.mongodb.com/manual/reference/operator/query-comparison/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$gt = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches values that are greater than a specified value.
  */
@@ -28958,7 +29437,7 @@ exports.$gt = (0, _predicates_1.createQueryOperator)(_predicates_1.$gt);
 
 /***/ }),
 
-/***/ 6458:
+/***/ 4017:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28966,7 +29445,7 @@ exports.$gt = (0, _predicates_1.createQueryOperator)(_predicates_1.$gt);
 // Query Comparison Operators: https://docs.mongodb.com/manual/reference/operator/query-comparison/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$gte = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * 	Matches values that are greater than or equal to a specified value.
  */
@@ -28975,7 +29454,7 @@ exports.$gte = (0, _predicates_1.createQueryOperator)(_predicates_1.$gte);
 
 /***/ }),
 
-/***/ 7912:
+/***/ 220:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -28983,7 +29462,7 @@ exports.$gte = (0, _predicates_1.createQueryOperator)(_predicates_1.$gte);
 // Query Comparison Operators: https://docs.mongodb.com/manual/reference/operator/query-comparison/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$in = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches any of the values that exist in an array specified in the query.
  */
@@ -28992,34 +29471,34 @@ exports.$in = (0, _predicates_1.createQueryOperator)(_predicates_1.$in);
 
 /***/ }),
 
-/***/ 7701:
+/***/ 5630:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$nin = exports.$ne = exports.$lte = exports.$lt = exports.$in = exports.$gte = exports.$gt = exports.$eq = void 0;
-var eq_1 = __webpack_require__(1253);
+var eq_1 = __webpack_require__(102);
 Object.defineProperty(exports, "$eq", ({ enumerable: true, get: function () { return eq_1.$eq; } }));
-var gt_1 = __webpack_require__(2288);
+var gt_1 = __webpack_require__(3916);
 Object.defineProperty(exports, "$gt", ({ enumerable: true, get: function () { return gt_1.$gt; } }));
-var gte_1 = __webpack_require__(6458);
+var gte_1 = __webpack_require__(4017);
 Object.defineProperty(exports, "$gte", ({ enumerable: true, get: function () { return gte_1.$gte; } }));
-var in_1 = __webpack_require__(7912);
+var in_1 = __webpack_require__(220);
 Object.defineProperty(exports, "$in", ({ enumerable: true, get: function () { return in_1.$in; } }));
-var lt_1 = __webpack_require__(4198);
+var lt_1 = __webpack_require__(6391);
 Object.defineProperty(exports, "$lt", ({ enumerable: true, get: function () { return lt_1.$lt; } }));
-var lte_1 = __webpack_require__(4349);
+var lte_1 = __webpack_require__(2126);
 Object.defineProperty(exports, "$lte", ({ enumerable: true, get: function () { return lte_1.$lte; } }));
-var ne_1 = __webpack_require__(4708);
+var ne_1 = __webpack_require__(8481);
 Object.defineProperty(exports, "$ne", ({ enumerable: true, get: function () { return ne_1.$ne; } }));
-var nin_1 = __webpack_require__(8038);
+var nin_1 = __webpack_require__(8336);
 Object.defineProperty(exports, "$nin", ({ enumerable: true, get: function () { return nin_1.$nin; } }));
 
 
 /***/ }),
 
-/***/ 4198:
+/***/ 6391:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29027,7 +29506,7 @@ Object.defineProperty(exports, "$nin", ({ enumerable: true, get: function () { r
 // Query Comparison Operators: https://docs.mongodb.com/manual/reference/operator/query-comparison/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$lt = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches values that are less than the value specified in the query.
  */
@@ -29036,7 +29515,7 @@ exports.$lt = (0, _predicates_1.createQueryOperator)(_predicates_1.$lt);
 
 /***/ }),
 
-/***/ 4349:
+/***/ 2126:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29044,7 +29523,7 @@ exports.$lt = (0, _predicates_1.createQueryOperator)(_predicates_1.$lt);
 // Query Comparison Operators: https://docs.mongodb.com/manual/reference/operator/query-comparison/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$lte = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches values that are less than or equal to the value specified in the query.
  */
@@ -29053,7 +29532,7 @@ exports.$lte = (0, _predicates_1.createQueryOperator)(_predicates_1.$lte);
 
 /***/ }),
 
-/***/ 4708:
+/***/ 8481:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29061,7 +29540,7 @@ exports.$lte = (0, _predicates_1.createQueryOperator)(_predicates_1.$lte);
 // Query Comparison Operators: https://docs.mongodb.com/manual/reference/operator/query-comparison/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$ne = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches all values that are not equal to the value specified in the query.
  */
@@ -29070,7 +29549,7 @@ exports.$ne = (0, _predicates_1.createQueryOperator)(_predicates_1.$ne);
 
 /***/ }),
 
-/***/ 8038:
+/***/ 8336:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29078,7 +29557,7 @@ exports.$ne = (0, _predicates_1.createQueryOperator)(_predicates_1.$ne);
 // Query Comparison Operators: https://docs.mongodb.com/manual/reference/operator/query-comparison/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$nin = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches values that do not exist in an array specified to the query.
  */
@@ -29087,7 +29566,7 @@ exports.$nin = (0, _predicates_1.createQueryOperator)(_predicates_1.$nin);
 
 /***/ }),
 
-/***/ 7402:
+/***/ 7448:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29095,7 +29574,7 @@ exports.$nin = (0, _predicates_1.createQueryOperator)(_predicates_1.$nin);
 // Query Element Operators: https://docs.mongodb.com/manual/reference/operator/query-element/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$exists = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Matches documents that have the specified field.
  */
@@ -29104,14 +29583,18 @@ exports.$exists = (0, _predicates_1.createQueryOperator)(_predicates_1.$exists);
 
 /***/ }),
 
-/***/ 8252:
+/***/ 3318:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -29120,13 +29603,13 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(7402), exports);
-__exportStar(__webpack_require__(442), exports);
+__exportStar(__webpack_require__(7448), exports);
+__exportStar(__webpack_require__(8437), exports);
 
 
 /***/ }),
 
-/***/ 442:
+/***/ 8437:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29134,7 +29617,7 @@ __exportStar(__webpack_require__(442), exports);
 // Query Element Operators: https://docs.mongodb.com/manual/reference/operator/query-element/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$type = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Selects documents if a field is of the specified type.
  */
@@ -29143,7 +29626,7 @@ exports.$type = (0, _predicates_1.createQueryOperator)(_predicates_1.$type);
 
 /***/ }),
 
-/***/ 3597:
+/***/ 5468:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29151,30 +29634,34 @@ exports.$type = (0, _predicates_1.createQueryOperator)(_predicates_1.$type);
 // Query Evaluation Operators: https://docs.mongodb.com/manual/reference/operator/query-evaluation/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$expr = void 0;
-var core_1 = __webpack_require__(7424);
+const core_1 = __webpack_require__(9587);
 /**
  * Allows the use of aggregation expressions within the query language.
  *
  * @param selector
- * @param value
+ * @param rhs
  * @returns {Function}
  */
-function $expr(selector, value, options) {
-    return function (obj) { return (0, core_1.computeValue)(obj, value, null, options); };
+function $expr(_, rhs, options) {
+    return obj => (0, core_1.computeValue)(obj, rhs, null, options);
 }
 exports.$expr = $expr;
 
 
 /***/ }),
 
-/***/ 5864:
+/***/ 6738:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -29183,16 +29670,16 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(3597), exports);
-__exportStar(__webpack_require__(5615), exports);
-__exportStar(__webpack_require__(5971), exports);
-__exportStar(__webpack_require__(9789), exports);
-__exportStar(__webpack_require__(8133), exports);
+__exportStar(__webpack_require__(5468), exports);
+__exportStar(__webpack_require__(1777), exports);
+__exportStar(__webpack_require__(2841), exports);
+__exportStar(__webpack_require__(5787), exports);
+__exportStar(__webpack_require__(3953), exports);
 
 
 /***/ }),
 
-/***/ 5615:
+/***/ 1777:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
@@ -29207,19 +29694,19 @@ exports.$jsonSchema = void 0;
  * @param schema
  * @returns {Function}
  */
-function $jsonSchema(selector, schema, options) {
+function $jsonSchema(_, schema, options) {
     if (!(options === null || options === void 0 ? void 0 : options.jsonSchemaValidator)) {
         throw new Error("Missing option 'jsonSchemaValidator'. Configure to use '$jsonSchema' operator.");
     }
-    var validate = options === null || options === void 0 ? void 0 : options.jsonSchemaValidator(schema);
-    return function (obj) { return validate(obj); };
+    const validate = options === null || options === void 0 ? void 0 : options.jsonSchemaValidator(schema);
+    return (obj) => validate(obj);
 }
 exports.$jsonSchema = $jsonSchema;
 
 
 /***/ }),
 
-/***/ 5971:
+/***/ 2841:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29227,7 +29714,7 @@ exports.$jsonSchema = $jsonSchema;
 // Query Evaluation Operators: https://docs.mongodb.com/manual/reference/operator/query-evaluation/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$mod = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Performs a modulo operation on the value of a field and selects documents with a specified result.
  */
@@ -29236,7 +29723,7 @@ exports.$mod = (0, _predicates_1.createQueryOperator)(_predicates_1.$mod);
 
 /***/ }),
 
-/***/ 9789:
+/***/ 5787:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29244,7 +29731,7 @@ exports.$mod = (0, _predicates_1.createQueryOperator)(_predicates_1.$mod);
 // Query Evaluation Operators: https://docs.mongodb.com/manual/reference/operator/query-evaluation/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$regex = void 0;
-var _predicates_1 = __webpack_require__(2344);
+const _predicates_1 = __webpack_require__(4414);
 /**
  * Selects documents where values match a specified regular expression.
  */
@@ -29253,7 +29740,7 @@ exports.$regex = (0, _predicates_1.createQueryOperator)(_predicates_1.$regex);
 
 /***/ }),
 
-/***/ 8133:
+/***/ 3953:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29261,34 +29748,38 @@ exports.$regex = (0, _predicates_1.createQueryOperator)(_predicates_1.$regex);
 // Query Evaluation Operators: https://docs.mongodb.com/manual/reference/operator/query-evaluation/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$where = void 0;
-var util_1 = __webpack_require__(6588);
+const util_1 = __webpack_require__(7216);
 /* eslint-disable */
 /**
  * Matches documents that satisfy a JavaScript expression.
  *
  * @param selector
- * @param value
+ * @param rhs
  * @returns {Function}
  */
-function $where(selector, value, options) {
+function $where(_, rhs, options) {
     (0, util_1.assert)(options.scriptEnabled, "$where operator requires 'scriptEnabled' option to be true");
-    var f = value;
+    const f = rhs;
     (0, util_1.assert)((0, util_1.isFunction)(f), "$where only accepts a Function object");
-    return function (obj) { return f.call(obj) === true; };
+    return (obj) => (0, util_1.truthy)(f.call(obj), options === null || options === void 0 ? void 0 : options.useStrictMode);
 }
 exports.$where = $where;
 
 
 /***/ }),
 
-/***/ 581:
+/***/ 5444:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -29297,17 +29788,17 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(844), exports);
-__exportStar(__webpack_require__(1246), exports);
-__exportStar(__webpack_require__(7701), exports);
-__exportStar(__webpack_require__(8252), exports);
-__exportStar(__webpack_require__(5864), exports);
-__exportStar(__webpack_require__(7676), exports);
+__exportStar(__webpack_require__(7562), exports);
+__exportStar(__webpack_require__(4167), exports);
+__exportStar(__webpack_require__(5630), exports);
+__exportStar(__webpack_require__(3318), exports);
+__exportStar(__webpack_require__(6738), exports);
+__exportStar(__webpack_require__(1504), exports);
 
 
 /***/ }),
 
-/***/ 7770:
+/***/ 476:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29315,41 +29806,37 @@ __exportStar(__webpack_require__(7676), exports);
 // Query Logical Operators: https://docs.mongodb.com/manual/reference/operator/query-logical/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$and = void 0;
-var query_1 = __webpack_require__(7732);
-var util_1 = __webpack_require__(6588);
+const query_1 = __webpack_require__(809);
+const util_1 = __webpack_require__(7216);
 /**
  * Joins query clauses with a logical AND returns all documents that match the conditions of both clauses.
  *
  * @param selector
- * @param value
+ * @param rhs
  * @returns {Function}
  */
-function $and(selector, value, options) {
-    (0, util_1.assert)((0, util_1.isArray)(value), "Invalid expression: $and expects value to be an Array");
-    var queries = new Array();
-    value.forEach(function (expr) { return queries.push(new query_1.Query(expr, options)); });
-    return function (obj) {
-        for (var i = 0; i < queries.length; i++) {
-            if (!queries[i].test(obj)) {
-                return false;
-            }
-        }
-        return true;
-    };
-}
+const $and = (_, rhs, options) => {
+    (0, util_1.assert)((0, util_1.isArray)(rhs), "Invalid expression: $and expects value to be an Array.");
+    const queries = rhs.map(expr => new query_1.Query(expr, options));
+    return (obj) => queries.every(q => q.test(obj));
+};
 exports.$and = $and;
 
 
 /***/ }),
 
-/***/ 7676:
+/***/ 1504:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -29358,15 +29845,15 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-__exportStar(__webpack_require__(7770), exports);
-__exportStar(__webpack_require__(4538), exports);
-__exportStar(__webpack_require__(5002), exports);
-__exportStar(__webpack_require__(9967), exports);
+__exportStar(__webpack_require__(476), exports);
+__exportStar(__webpack_require__(43), exports);
+__exportStar(__webpack_require__(8663), exports);
+__exportStar(__webpack_require__(7653), exports);
 
 
 /***/ }),
 
-/***/ 4538:
+/***/ 43:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29374,26 +29861,26 @@ __exportStar(__webpack_require__(9967), exports);
 // Query Logical Operators: https://docs.mongodb.com/manual/reference/operator/query-logical/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$nor = void 0;
-var util_1 = __webpack_require__(6588);
-var or_1 = __webpack_require__(9967);
+const util_1 = __webpack_require__(7216);
+const or_1 = __webpack_require__(7653);
 /**
  * Joins query clauses with a logical NOR returns all documents that fail to match both clauses.
  *
  * @param selector
- * @param value
+ * @param rhs
  * @returns {Function}
  */
-function $nor(selector, value, options) {
-    (0, util_1.assert)((0, util_1.isArray)(value), "Invalid expression. $nor expects value to be an Array");
-    var f = (0, or_1.$or)("$or", value, options);
-    return function (obj) { return !f(obj); };
-}
+const $nor = (_, rhs, options) => {
+    (0, util_1.assert)((0, util_1.isArray)(rhs), "Invalid expression. $nor expects value to be an array.");
+    const f = (0, or_1.$or)("$or", rhs, options);
+    return (obj) => !f(obj);
+};
 exports.$nor = $nor;
 
 
 /***/ }),
 
-/***/ 5002:
+/***/ 8663:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29401,27 +29888,27 @@ exports.$nor = $nor;
 // Query Logical Operators: https://docs.mongodb.com/manual/reference/operator/query-logical/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$not = void 0;
-var query_1 = __webpack_require__(7732);
-var util_1 = __webpack_require__(6588);
+const query_1 = __webpack_require__(809);
+const util_1 = __webpack_require__(7216);
 /**
  * Inverts the effect of a query expression and returns documents that do not match the query expression.
  *
  * @param selector
- * @param value
+ * @param rhs
  * @returns {Function}
  */
-function $not(selector, value, options) {
-    var criteria = {};
-    criteria[selector] = (0, util_1.normalize)(value);
-    var query = new query_1.Query(criteria, options);
-    return function (obj) { return !query.test(obj); };
-}
+const $not = (selector, rhs, options) => {
+    const criteria = {};
+    criteria[selector] = (0, util_1.normalize)(rhs);
+    const query = new query_1.Query(criteria, options);
+    return (obj) => !query.test(obj);
+};
 exports.$not = $not;
 
 
 /***/ }),
 
-/***/ 9967:
+/***/ 7653:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
@@ -29429,101 +29916,270 @@ exports.$not = $not;
 // Query Logical Operators: https://docs.mongodb.com/manual/reference/operator/query-logical/
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.$or = void 0;
-var query_1 = __webpack_require__(7732);
-var util_1 = __webpack_require__(6588);
+const query_1 = __webpack_require__(809);
+const util_1 = __webpack_require__(7216);
 /**
  * Joins query clauses with a logical OR returns all documents that match the conditions of either clause.
  *
  * @param selector
- * @param value
+ * @param rhs
  * @returns {Function}
  */
-function $or(selector, value, options) {
-    (0, util_1.assert)((0, util_1.isArray)(value), "Invalid expression. $or expects value to be an Array");
-    var queries = value.map(function (expr) { return new query_1.Query(expr, options); });
-    return function (obj) {
-        for (var i = 0; i < queries.length; i++) {
-            if (queries[i].test(obj)) {
-                return true;
-            }
-        }
-        return false;
-    };
-}
+const $or = (_, rhs, options) => {
+    (0, util_1.assert)((0, util_1.isArray)(rhs), "Invalid expression. $or expects value to be an Array");
+    const queries = rhs.map(expr => new query_1.Query(expr, options));
+    return (obj) => queries.some(q => q.test(obj));
+};
 exports.$or = $or;
 
 
 /***/ }),
 
-/***/ 7732:
+/***/ 3480:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.rank = exports.withMemo = exports.MILLIS_PER_UNIT = void 0;
+const util_1 = __webpack_require__(7216);
+const accumulator_1 = __webpack_require__(3424);
+const _internal_1 = __webpack_require__(7974);
+const _internal_2 = __webpack_require__(2899);
+// millis map to diffirent time units
+exports.MILLIS_PER_UNIT = {
+    week: _internal_1.MILLIS_PER_DAY * 7,
+    day: _internal_1.MILLIS_PER_DAY,
+    hour: _internal_1.MILLIS_PER_DAY / 24,
+    minute: 60000,
+    second: 1000,
+    millisecond: 1
+};
+// internal cache to store precomputed series once to avoid O(N^2) calls to over the collection
+const memo = new WeakMap();
+/**
+ * Caches all computed values in a window sequence for reuse.
+ * This is only useful for operations with unbounded documents.
+ */
+function withMemo(collection, expr, cacheFn, fn) {
+    // no caching done for bounded inputs
+    if (!(0, _internal_2.isUnbounded)(expr.parentExpr.output[expr.field].window)) {
+        return fn(cacheFn());
+    }
+    // first time using collection
+    if (!memo.has(collection)) {
+        memo.set(collection, { [expr.field]: cacheFn() });
+    }
+    const data = memo.get(collection);
+    // subsequent computations over the same collection.
+    if (data[expr.field] === undefined) {
+        data[expr.field] = cacheFn();
+    }
+    let failed = false;
+    try {
+        return fn(data[expr.field]);
+    }
+    catch (e) {
+        failed = true;
+    }
+    finally {
+        // cleanup on failure or last element in collection.
+        if (failed || expr.documentNumber === collection.length) {
+            delete data[expr.field];
+            if (Object.keys(data).length === 0)
+                memo.delete(collection);
+        }
+    }
+}
+exports.withMemo = withMemo;
+/** Returns the position of a document in the $setWindowFields stage partition. */
+function rank(_, collection, expr, options, dense) {
+    return withMemo(collection, expr, () => {
+        const sortKey = "$" + Object.keys(expr.parentExpr.sortBy)[0];
+        const values = (0, accumulator_1.$push)(collection, sortKey, options);
+        const groups = (0, util_1.groupBy)(values, ((_, n) => values[n]), options.hashFunction);
+        return { values, groups };
+    }, input => {
+        const { values, groups: partitions } = input;
+        // same number of paritions as length means all sort keys are unique
+        if (partitions.size == collection.length) {
+            return expr.documentNumber;
+        }
+        const current = values[expr.documentNumber - 1];
+        let i = 0;
+        let offset = 0;
+        // partition keys are already dense so just return the value on match
+        for (const key of partitions.keys()) {
+            if ((0, util_1.isEqual)(current, key)) {
+                return dense ? i + 1 : offset + 1;
+            }
+            i++;
+            offset += partitions.get(key).length;
+        }
+        // should be unreachable
+        throw new Error("rank: invalid return value. please submit a bug report.");
+    });
+}
+exports.rank = rank;
+
+
+/***/ }),
+
+/***/ 5120:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$linearFill = void 0;
+const util_1 = __webpack_require__(7216);
+const accumulator_1 = __webpack_require__(3424);
+const _internal_1 = __webpack_require__(3480);
+/**
+ * Given two points (x1, y1) and (x2, y2) and a value 'x' that lies between those two points,
+ * solve for 'y' with: y = y1 + (x - x1) * ((y2 - y1)/(x2 - x1)).
+ * @see https://en.wikipedia.org/wiki/Linear_interpolation
+ */
+const interpolate = (x1, y1, x2, y2, x) => y1 + (x - x1) * ((y2 - y1) / (x2 - x1));
+/**
+ * Fills null and missing fields in a window using linear interpolation based on surrounding field values.
+ */
+function $linearFill(_, collection, expr, options) {
+    return (0, _internal_1.withMemo)(collection, expr, (() => {
+        const sortKey = "$" + Object.keys(expr.parentExpr.sortBy)[0];
+        const points = (0, accumulator_1.$push)(collection, [sortKey, expr.inputExpr], options).filter((([x, _]) => (0, util_1.isNumber)(+x)));
+        if (points.length !== collection.length)
+            return null;
+        let lindex = -1;
+        let rindex = 0;
+        while (rindex < points.length) {
+            // use sliding window over missing values and fill as we go.
+            // determine nearest left value index
+            while (lindex + 1 < points.length && (0, util_1.isNumber)(points[lindex + 1][1])) {
+                lindex++;
+                rindex = lindex;
+            }
+            // determine nearest right value index.
+            while (rindex + 1 < points.length && !(0, util_1.isNumber)(points[rindex + 1][1])) {
+                rindex++;
+            }
+            // we reached the end of our array. nothing more to do.
+            if (rindex + 1 >= points.length)
+                break;
+            // otherwise, we found a number so move rindex pointer to it.
+            rindex++;
+            // now fill everything between lindex and rindex by their proportions to the difference.
+            while (lindex + 1 < rindex) {
+                points[lindex + 1][1] = interpolate(points[lindex][0], points[lindex][1], points[rindex][0], points[rindex][1], points[lindex + 1][0]);
+                lindex++;
+            }
+            // move lindex to right
+            lindex = rindex;
+        }
+        return points.map(([_, y]) => y);
+    }), (values) => values[expr.documentNumber - 1]);
+}
+exports.$linearFill = $linearFill;
+
+
+/***/ }),
+
+/***/ 8242:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.$locf = void 0;
+const util_1 = __webpack_require__(7216);
+const push_1 = __webpack_require__(7835);
+const _internal_1 = __webpack_require__(3480);
+/**
+ * Last observation carried forward. Sets values for null and missing fields in a window to the last non-null value for the field.
+ */
+function $locf(_, collection, expr, options) {
+    return (0, _internal_1.withMemo)(collection, expr, () => {
+        const values = (0, push_1.$push)(collection, expr.inputExpr, options);
+        for (let i = 1; i < values.length; i++) {
+            if ((0, util_1.isNil)(values[i]))
+                values[i] = values[i - 1];
+        }
+        return values;
+    }, (series) => series[expr.documentNumber - 1]);
+}
+exports.$locf = $locf;
+
+
+/***/ }),
+
+/***/ 809:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Query = void 0;
-var core_1 = __webpack_require__(7424);
-var cursor_1 = __webpack_require__(9537);
-var util_1 = __webpack_require__(6588);
+const core_1 = __webpack_require__(9587);
+const cursor_1 = __webpack_require__(3645);
+const util_1 = __webpack_require__(7216);
 /**
  * An object used to filter input documents
  *
- * @param {Object} criteria The criteria for constructing predicates
+ * @param {Object} condition The condition for constructing predicates
  * @param {Options} options Options for use by operators
  * @constructor
  */
-var Query = /** @class */ (function () {
-    function Query(criteria, options) {
-        this.criteria = criteria;
-        this.options = options;
+class Query {
+    constructor(condition, options) {
+        this.condition = condition;
         this.options = (0, core_1.initOptions)(options);
         this.compiled = [];
         this.compile();
     }
-    Query.prototype.compile = function () {
-        (0, util_1.assert)((0, util_1.isObject)(this.criteria), "query criteria must be an object");
-        var whereOperator;
-        for (var _i = 0, _a = Object.entries(this.criteria); _i < _a.length; _i++) {
-            var _b = _a[_i], field = _b[0], expr = _b[1];
+    compile() {
+        (0, util_1.assert)((0, util_1.isObject)(this.condition), "query criteria must be an object");
+        const whereOperator = {};
+        for (const [field, expr] of Object.entries(this.condition)) {
             if ("$where" === field) {
-                whereOperator = { field: field, expr: expr };
+                Object.assign(whereOperator, { field: field, expr: expr });
             }
             else if ((0, util_1.inArray)(["$and", "$or", "$nor", "$expr", "$jsonSchema"], field)) {
                 this.processOperator(field, field, expr);
             }
             else {
                 // normalize expression
-                (0, util_1.assert)(!(0, util_1.isOperator)(field), "unknown top level operator: " + field);
-                for (var _c = 0, _d = Object.entries((0, util_1.normalize)(expr)); _c < _d.length; _c++) {
-                    var _e = _d[_c], operator = _e[0], val = _e[1];
+                (0, util_1.assert)(!(0, util_1.isOperator)(field), `unknown top level operator: ${field}`);
+                for (const [operator, val] of Object.entries((0, util_1.normalize)(expr))) {
                     this.processOperator(field, operator, val);
                 }
             }
-            if ((0, util_1.isObject)(whereOperator)) {
+            if (whereOperator.field) {
                 this.processOperator(whereOperator.field, whereOperator.field, whereOperator.expr);
             }
         }
-    };
-    Query.prototype.processOperator = function (field, operator, value) {
-        var call = (0, core_1.getOperator)(core_1.OperatorType.QUERY, operator);
-        (0, util_1.assert)(!!call, "unknown operator " + operator);
-        var fn = call(field, value, this.options);
+    }
+    processOperator(field, operator, value) {
+        const call = (0, core_1.getOperator)(core_1.OperatorType.QUERY, operator, this.options);
+        if (!call) {
+            throw new Error(`unknown operator ${operator}`);
+        }
+        const fn = call(field, value, this.options);
         this.compiled.push(fn);
-    };
+    }
     /**
      * Checks if the object passes the query criteria. Returns true if so, false otherwise.
      *
      * @param obj The object to test
      * @returns {boolean} True or false
      */
-    Query.prototype.test = function (obj) {
-        for (var i = 0, len = this.compiled.length; i < len; i++) {
+    test(obj) {
+        for (let i = 0, len = this.compiled.length; i < len; i++) {
             if (!this.compiled[i](obj)) {
                 return false;
             }
         }
         return true;
-    };
+    }
     /**
      * Returns a cursor to select matching documents from the input source.
      *
@@ -29531,259 +30187,239 @@ var Query = /** @class */ (function () {
      * @param projection An optional projection criteria
      * @returns {Cursor} A Cursor for iterating over the results
      */
-    Query.prototype.find = function (collection, projection) {
-        var _this = this;
-        return new cursor_1.Cursor(collection, function (x) { return _this.test(x); }, projection || {}, this.options);
-    };
+    find(collection, projection) {
+        return new cursor_1.Cursor(collection, ((x) => this.test(x)), projection || {}, this.options);
+    }
     /**
      * Remove matched documents from the collection returning the remainder
      *
      * @param collection An array of documents
      * @returns {Array} A new array with matching elements removed
      */
-    Query.prototype.remove = function (collection) {
-        var _this = this;
-        return collection.reduce(function (acc, obj) {
-            if (!_this.test(obj))
+    remove(collection) {
+        return collection.reduce((acc, obj) => {
+            if (!this.test(obj))
                 acc.push(obj);
             return acc;
         }, []);
-    };
-    return Query;
-}());
+    }
+}
 exports.Query = Query;
 
 
 /***/ }),
 
-/***/ 1463:
+/***/ 7216:
 /***/ ((__unused_webpack_module, exports) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.BsonType = exports.JsType = void 0;
-// Javascript native types
-var JsType;
-(function (JsType) {
-    JsType["NULL"] = "null";
-    JsType["UNDEFINED"] = "undefined";
-    JsType["BOOLEAN"] = "boolean";
-    JsType["NUMBER"] = "number";
-    JsType["STRING"] = "string";
-    JsType["DATE"] = "date";
-    JsType["REGEXP"] = "regexp";
-    JsType["ARRAY"] = "array";
-    JsType["OBJECT"] = "object";
-    JsType["FUNCTION"] = "function";
-})(JsType = exports.JsType || (exports.JsType = {}));
-// MongoDB BSON types
-var BsonType;
-(function (BsonType) {
-    BsonType["BOOL"] = "bool";
-    BsonType["INT"] = "int";
-    BsonType["LONG"] = "long";
-    BsonType["DOUBLE"] = "double";
-    BsonType["DECIMAL"] = "decimal";
-    BsonType["REGEX"] = "regex";
-})(BsonType = exports.BsonType || (exports.BsonType = {}));
-
-
-/***/ }),
-
-/***/ 6588:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 /**
  * Utility constants and functions
  */
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.normalize = exports.isOperator = exports.removeValue = exports.setValue = exports.filterMissing = exports.resolveGraph = exports.resolve = exports.memoize = exports.into = exports.groupBy = exports.sortBy = exports.compare = exports.hashCode = exports.stringify = exports.unique = exports.isEqual = exports.flatten = exports.intersection = exports.merge = exports.objectMap = exports.has = exports.ensureArray = exports.isEmpty = exports.truthy = exports.notInArray = exports.inArray = exports.isNil = exports.isFunction = exports.isRegExp = exports.isDate = exports.isObjectLike = exports.isObject = exports.isArray = exports.isNumber = exports.isString = exports.isBoolean = exports.getType = exports.cloneDeep = exports.assert = exports.MIN_LONG = exports.MAX_LONG = exports.MIN_INT = exports.MAX_INT = void 0;
-var types_1 = __webpack_require__(1463);
+exports.normalize = exports.isOperator = exports.removeValue = exports.setValue = exports.walk = exports.filterMissing = exports.resolveGraph = exports.resolve = exports.memoize = exports.into = exports.groupBy = exports.sortBy = exports.hashCode = exports.stringify = exports.unique = exports.isEqual = exports.flatten = exports.intersection = exports.merge = exports.has = exports.ensureArray = exports.isMissing = exports.isEmpty = exports.truthy = exports.notInArray = exports.inArray = exports.isNil = exports.isFunction = exports.isRegExp = exports.isDate = exports.isObjectLike = exports.isObject = exports.isArray = exports.isNotNaN = exports.isNumber = exports.isString = exports.isBoolean = exports.getType = exports.cloneDeep = exports.assert = exports.compare = exports.MIN_LONG = exports.MAX_LONG = exports.MIN_INT = exports.MAX_INT = void 0;
 exports.MAX_INT = 2147483647;
 exports.MIN_INT = -2147483648;
 exports.MAX_LONG = Number.MAX_SAFE_INTEGER;
 exports.MIN_LONG = Number.MIN_SAFE_INTEGER;
 // special value to identify missing items. treated differently from undefined
-var MISSING = Object.freeze({});
+const MISSING = Symbol("missing");
+const OBJECT_PROTOTYPE = Object.getPrototypeOf({});
+const OBJECT_TAG = "[object Object]";
+const OBJECT_TYPE_RE = /^\[object ([a-zA-Z0-9]+)\]$/;
 /**
  * Uses the simple hash method as described in Effective Java.
  * @see https://stackoverflow.com/a/113600/1370481
  * @param value The value to hash
  * @returns {number}
  */
-var DEFAULT_HASH_FUNCTION = function (value) {
-    var s = stringify(value);
-    var hash = 0;
-    var i = s.length;
+const DEFAULT_HASH_FUNCTION = (value) => {
+    const s = stringify(value);
+    let hash = 0;
+    let i = s.length;
     while (i)
         hash = ((hash << 5) - hash) ^ s.charCodeAt(--i);
     return hash >>> 0;
 };
 // no array, object, or function types
-var JS_SIMPLE_TYPES = [
-    types_1.JsType.NULL,
-    types_1.JsType.UNDEFINED,
-    types_1.JsType.BOOLEAN,
-    types_1.JsType.NUMBER,
-    types_1.JsType.STRING,
-    types_1.JsType.DATE,
-    types_1.JsType.REGEXP,
-];
-var OBJECT_PROTOTYPE = Object.getPrototypeOf({});
-var OBJECT_TAG = "[object Object]";
-var OBJECT_TYPE_RE = /^\[object ([a-zA-Z0-9]+)\]$/;
+const JS_SIMPLE_TYPES = new Set([
+    "null",
+    "undefined",
+    "boolean",
+    "number",
+    "string",
+    "date",
+    "regexp"
+]);
+/** MongoDB sort comparison order. https://www.mongodb.com/docs/manual/reference/bson-type-comparison-order */
+const SORT_ORDER_BY_TYPE = {
+    null: 0,
+    undefined: 0,
+    number: 1,
+    string: 2,
+    object: 3,
+    array: 4,
+    boolean: 5,
+    date: 6,
+    regexp: 7,
+    function: 8
+};
+/**
+ * Compare function which adheres to MongoDB comparison order.
+ *
+ * @param a The first value
+ * @param b The second value
+ * @returns {Number}
+ */
+const compare = (a, b) => {
+    if (a === MISSING)
+        a = undefined;
+    if (b === MISSING)
+        b = undefined;
+    const [u, v] = [a, b].map(n => SORT_ORDER_BY_TYPE[(0, exports.getType)(n).toLowerCase()]);
+    if (u !== v)
+        return u - v;
+    // number | string | date
+    if (u === 1 || u === 2 || u === 6) {
+        if (a < b)
+            return -1;
+        if (a > b)
+            return 1;
+        return 0;
+    }
+    // check for equivalence equality
+    if (isEqual(a, b))
+        return 0;
+    if (a < b)
+        return -1;
+    if (a > b)
+        return 1;
+    // if we get here we are comparing a type that does not make sense.
+    return 0;
+};
+exports.compare = compare;
 function assert(condition, message) {
     if (!condition)
         throw new Error(message);
 }
 exports.assert = assert;
 /**
- * Deep clone an object
+ * Deep clone an object. Value types and immutable objects are returned as is.
  */
-function cloneDeep(obj) {
-    if (obj instanceof Array)
-        return obj.map(cloneDeep);
-    if (obj instanceof Date)
-        return new Date(obj);
-    if (isObject(obj))
-        return objectMap(obj, cloneDeep);
-    return obj;
-}
+const cloneDeep = (obj) => {
+    const m = new Map();
+    const add = (v) => {
+        if (m.has(v))
+            throw new Error("cycle detected during clone operation.");
+        m.set(v, true);
+    };
+    const clone = (val) => {
+        if (val instanceof Date)
+            return new Date(val);
+        if ((0, exports.isArray)(val)) {
+            add(val);
+            const res = new Array(val.length);
+            const len = val.length;
+            for (let i = 0; i < len; i++)
+                res[i] = clone(val[i]);
+            return res;
+        }
+        if ((0, exports.isObject)(val)) {
+            add(val);
+            const res = {};
+            for (const k in val)
+                res[k] = clone(val[k]);
+            return res;
+        }
+        return val;
+    };
+    return clone(obj);
+};
 exports.cloneDeep = cloneDeep;
 /**
  * Returns the name of type as specified in the tag returned by a call to Object.prototype.toString
  * @param v A value
  */
-function getType(v) {
-    return OBJECT_TYPE_RE.exec(Object.prototype.toString.call(v))[1];
-}
+const getType = (v) => OBJECT_TYPE_RE.exec(Object.prototype.toString.call(v))[1];
 exports.getType = getType;
-function isBoolean(v) {
-    return typeof v === types_1.JsType.BOOLEAN;
-}
+const isBoolean = (v) => typeof v === "boolean";
 exports.isBoolean = isBoolean;
-function isString(v) {
-    return typeof v === types_1.JsType.STRING;
-}
+const isString = (v) => typeof v === "string";
 exports.isString = isString;
-function isNumber(v) {
-    return !isNaN(v) && typeof v === types_1.JsType.NUMBER;
-}
+const isNumber = (v) => !isNaN(v) && typeof v === "number";
 exports.isNumber = isNumber;
+const isNotNaN = (v) => !(isNaN(v) && typeof v === "number");
+exports.isNotNaN = isNotNaN;
 exports.isArray = Array.isArray;
-function isObject(v) {
+const isObject = (v) => {
     if (!v)
         return false;
-    var proto = Object.getPrototypeOf(v);
+    const proto = Object.getPrototypeOf(v);
     return ((proto === OBJECT_PROTOTYPE || proto === null) &&
         OBJECT_TAG === Object.prototype.toString.call(v));
-}
+};
 exports.isObject = isObject;
-function isObjectLike(v) {
-    return v === Object(v);
-} // objects, arrays, functions, date, custom object
+//  objects, arrays, functions, date, custom object
+const isObjectLike = (v) => v === Object(v);
 exports.isObjectLike = isObjectLike;
-function isDate(v) {
-    return v instanceof Date;
-}
+const isDate = (v) => v instanceof Date;
 exports.isDate = isDate;
-function isRegExp(v) {
-    return v instanceof RegExp;
-}
+const isRegExp = (v) => v instanceof RegExp;
 exports.isRegExp = isRegExp;
-function isFunction(v) {
-    return typeof v === types_1.JsType.FUNCTION;
-}
+const isFunction = (v) => typeof v === "function";
 exports.isFunction = isFunction;
-function isNil(v) {
-    return v === null || v === undefined;
-}
+const isNil = (v) => v === null || v === undefined;
 exports.isNil = isNil;
-function inArray(arr, item) {
-    return arr.includes(item);
-}
+const inArray = (arr, item) => arr.includes(item);
 exports.inArray = inArray;
-function notInArray(arr, item) {
-    return !inArray(arr, item);
-}
+const notInArray = (arr, item) => !(0, exports.inArray)(arr, item);
 exports.notInArray = notInArray;
-function truthy(arg) {
-    return !!arg;
-}
+const truthy = (arg, strict = true) => !!arg || (strict && arg === "");
 exports.truthy = truthy;
-function isEmpty(x) {
-    return (isNil(x) ||
-        (isString(x) && !x) ||
-        (x instanceof Array && x.length === 0) ||
-        (isObject(x) && Object.keys(x).length === 0));
-}
+const isEmpty = (x) => (0, exports.isNil)(x) ||
+    ((0, exports.isString)(x) && !x) ||
+    (x instanceof Array && x.length === 0) ||
+    ((0, exports.isObject)(x) && Object.keys(x).length === 0);
 exports.isEmpty = isEmpty;
-// ensure a value is an array or wrapped within one
-function ensureArray(x) {
-    return x instanceof Array ? x : [x];
-}
+const isMissing = (v) => v === MISSING;
+exports.isMissing = isMissing;
+/** ensure a value is an array or wrapped within one. */
+const ensureArray = (x) => x instanceof Array ? x : [x];
 exports.ensureArray = ensureArray;
-function has(obj, prop) {
-    return !!obj && Object.prototype.hasOwnProperty.call(obj, prop);
-}
+const has = (obj, prop) => !!obj && Object.prototype.hasOwnProperty.call(obj, prop);
 exports.has = has;
-/**
- * Transform values in an object
- *
- * @param  {Object}   obj   An object whose values to transform
- * @param  {Function} fn The transform function
- * @return {Array|Object} Result object after applying the transform
- */
-function objectMap(obj, fn) {
-    var o = {};
-    var objKeys = Object.keys(obj);
-    for (var i = 0; i < objKeys.length; i++) {
-        var k = objKeys[i];
-        o[k] = fn(obj[k], k);
-    }
-    return o;
-}
-exports.objectMap = objectMap;
+const mergeable = (left, right) => ((0, exports.isObject)(left) && (0, exports.isObject)(right)) || ((0, exports.isArray)(left) && (0, exports.isArray)(right));
 /**
  * Deep merge objects or arrays.
- * When the inputs have unmergeable types, the source value (right hand side) is returned.
- * If inputs are arrays of same length and all elements are mergable, elements in the same position are merged together.
- * If AnyVal of the elements are unmergeable, elements in the source are appended to the target.
+ * When the inputs have unmergeable types, the  right hand value is returned.
+ * If inputs are arrays and options.flatten is set, elements in the same position are merged together. Remaining elements are appended to the target object.
+ * If options.flatten is false, the right hand value is just appended to the left-hand value.
  * @param target {Object|Array} the target to merge into
  * @param obj {Object|Array} the source object
  */
 function merge(target, obj, options) {
-    // take care of missing inputs
-    if (target === MISSING)
-        return obj;
-    if (obj === MISSING)
-        return target;
-    var inputs = [target, obj];
-    if (!(inputs.every(isObject) || inputs.every(exports.isArray))) {
-        throw Error("mismatched types. must both be array or object");
-    }
     // default options
     options = options || { flatten: false };
+    // take care of missing inputs
+    if ((0, exports.isMissing)(target) || (0, exports.isNil)(target))
+        return obj;
+    if ((0, exports.isMissing)(obj) || (0, exports.isNil)(obj))
+        return target;
+    // fail only on initial input.
+    if (!mergeable(target, obj)) {
+        if (options.skipValidation)
+            return obj || target;
+        throw Error("mismatched types. must both be array or object");
+    }
+    // skip validation after initial input.
+    options.skipValidation = true;
     if ((0, exports.isArray)(target)) {
-        var result = target;
-        var input = obj;
+        const result = target;
+        const input = obj;
         if (options.flatten) {
-            var i = 0;
-            var j = 0;
+            let i = 0;
+            let j = 0;
             while (i < result.length && j < input.length) {
                 result[i] = merge(result[i++], input[j++], options);
             }
@@ -29796,159 +30432,121 @@ function merge(target, obj, options) {
         }
     }
     else {
-        Object.keys(obj).forEach(function (k) {
-            if (has(obj, k)) {
-                if (has(target, k)) {
-                    target[k] = merge(target[k], obj[k], options);
-                }
-                else {
-                    target[k] = obj[k];
-                }
-            }
-        });
+        for (const k in obj) {
+            target[k] = merge(target[k], obj[k], options);
+        }
     }
     return target;
 }
 exports.merge = merge;
-function addIndex(root, key, index) {
-    if (root.key < key) {
-        if (root.right) {
-            addIndex(root.right, key, index);
+function buildHashIndex(arr, hashFunction = DEFAULT_HASH_FUNCTION) {
+    const map = new Map();
+    arr.forEach((o, i) => {
+        const h = hashCode(o, hashFunction);
+        if (map.has(h)) {
+            if (!map.get(h).some(j => isEqual(arr[j], o))) {
+                map.get(h).push(i);
+            }
         }
         else {
-            root.right = { key: key, indexes: [index] };
+            map.set(h, [i]);
         }
-    }
-    else if (root.key > key) {
-        if (root.left) {
-            addIndex(root.left, key, index);
-        }
-        else {
-            root.left = { key: key, indexes: [index] };
-        }
-    }
-    else {
-        root.indexes.push(index);
-    }
-}
-function getIndexes(root, key) {
-    if (root.key == key) {
-        return root.indexes;
-    }
-    else if (root.key < key) {
-        return root.right ? getIndexes(root.right, key) : undefined;
-    }
-    else if (root.key > key) {
-        return root.left ? getIndexes(root.left, key) : undefined;
-    }
-    return undefined;
+    });
+    return map;
 }
 /**
  * Returns the intersection of multiple arrays.
  *
- * @param  {Array} a The first array
- * @param  {Array} b The second array
+ * @param  {Array} input An array of arrays from which to find intersection.
  * @param  {Function} hashFunction Custom function to hash values, default the hashCode method
- * @return {Array}    Result array
+ * @return {Array} Array of intersecting values.
  */
-function intersection(input, hashFunction) {
-    if (hashFunction === void 0) { hashFunction = DEFAULT_HASH_FUNCTION; }
+function intersection(input, hashFunction = DEFAULT_HASH_FUNCTION) {
     // if any array is empty, there is no intersection
-    if (input.some(function (arr) { return arr.length == 0; }))
+    if (input.some(arr => arr.length == 0))
         return [];
-    // sort input arrays by size
-    var sortedIndex = input.map(function (a, i) { return [i, a.length]; });
-    sortedIndex.sort(function (a, b) { return a[1] - b[1]; });
-    // matched items index of first array for all other arrays.
-    var result = [];
-    var smallestArray = input[sortedIndex[0][0]];
-    var root = {
-        key: hashCode(smallestArray[0], hashFunction),
-        indexes: [0],
-    };
-    for (var i = 1; i < smallestArray.length; i++) {
-        var val = smallestArray[i];
-        var h = hashCode(val, hashFunction);
-        addIndex(root, h, i);
-    }
-    var maxResultSize = sortedIndex[0][1];
-    var orderedIndexes = [];
-    var _loop_1 = function (i) {
-        var arrayIndex = sortedIndex[i][0];
-        var data = input[arrayIndex];
-        // number of matched items
-        var size = 0;
-        var _loop_2 = function (j) {
-            var h = hashCode(data[j], hashFunction);
-            var indexes = getIndexes(root, h);
-            // not included.
-            if (!indexes)
-                return "continue";
-            // check items equality to mitigate hash collisions and select the matching index.
-            var idx = indexes
-                .map(function (n) { return smallestArray[n]; })
-                .findIndex(function (v) { return isEqual(v, data[j]); });
-            // not included
-            if (idx == -1)
-                return "continue";
-            // item matched. ensure map exist for marking index
-            if (result.length < i)
-                result.push({});
-            // map to index of the actual value and set position
-            result[result.length - 1][indexes[idx]] = true;
-            // if we have seen max result items we can stop.
-            size = Object.keys(result[result.length - 1]).length;
-            // ensure stabilty
-            if (arrayIndex == 0) {
-                if (orderedIndexes.indexOf(indexes[idx]) == -1) {
-                    orderedIndexes.push(indexes[idx]);
-                }
+    if (input.length === 1)
+        return Array.from(input);
+    // sort input arrays by to get smallest array
+    // const sorted = sortBy(input, (a: RawArray) => a.length) as RawArray[];
+    const sortedIndex = sortBy(input.map((a, i) => [i, a.length]), (a) => a[1]);
+    // get the smallest
+    const smallest = input[sortedIndex[0][0]];
+    // get hash index of smallest array
+    const map = buildHashIndex(smallest, hashFunction);
+    // hashIndex for remaining arrays.
+    const rmap = new Map();
+    // final intersection results and index of first occurrence.
+    const results = new Array();
+    map.forEach((v, k) => {
+        const lhs = v.map(j => smallest[j]);
+        const res = lhs.map(_ => 0);
+        // used to track first occurence of value in order of the original input array.
+        const stable = lhs.map(_ => [sortedIndex[0][0], 0]);
+        let found = false;
+        for (let i = 1; i < input.length; i++) {
+            const [currIndex, _] = sortedIndex[i];
+            const arr = input[currIndex];
+            if (!rmap.has(i))
+                rmap.set(i, buildHashIndex(arr));
+            // we found a match. let's confirm.
+            if (rmap.get(i).has(k)) {
+                const rhs = rmap
+                    .get(i)
+                    .get(k)
+                    .map(j => arr[j]);
+                // confirm the intersection with an equivalence check.
+                found = lhs
+                    .map((s, n) => rhs.some((t, m) => {
+                    // we expect only one to match here since these are just collisions.
+                    const p = res[n];
+                    if (isEqual(s, t)) {
+                        res[n]++;
+                        // track position of value ordering for stability.
+                        if (currIndex < stable[n][0]) {
+                            stable[n] = [currIndex, rmap.get(i).get(k)[m]];
+                        }
+                    }
+                    return p < res[n];
+                }))
+                    .some(Boolean);
             }
-        };
-        for (var j = 0; j < data.length; j++) {
-            _loop_2(j);
+            // found nothing, so exclude value. this was just a hash collision.
+            if (!found)
+                return;
         }
-        // no intersection if nothing found
-        if (size == 0)
-            return { value: [] };
-        // new max result size
-        maxResultSize = Math.min(maxResultSize, size);
-    };
-    for (var i = 1; i < sortedIndex.length; i++) {
-        var state_1 = _loop_1(i);
-        if (typeof state_1 === "object")
-            return state_1.value;
-    }
-    var freq = {};
-    // count occurrences
-    result.forEach(function (m) {
-        Object.keys(m).forEach(function (k) {
-            var n = parseFloat(k);
-            freq[n] = freq[n] || 0;
-            freq[n]++;
-        });
+        // extract value into result if we found an intersection.
+        // we find an intersection if the frequency counter matches the count of the remaining arrays.
+        if (found) {
+            into(results, res
+                .map((n, i) => {
+                return n === input.length - 1 ? [lhs[i], stable[i]] : MISSING;
+            })
+                .filter(n => n !== MISSING));
+        }
     });
-    var keys = orderedIndexes;
-    if (keys.length == 0) {
-        // note: cannot use parseInt due to second argument for radix.
-        keys.push.apply(keys, Object.keys(freq).map(parseFloat));
-        keys.sort();
-    }
-    return keys
-        .filter(function (n) { return freq[n] == input.length - 1; })
-        .map(function (n) { return smallestArray[n]; });
+    return results
+        .sort((a, b) => {
+        const [_i, [u, m]] = a;
+        const [_j, [v, n]] = b;
+        const r = (0, exports.compare)(u, v);
+        if (r !== 0)
+            return r;
+        return (0, exports.compare)(m, n);
+    })
+        .map(v => v[0]);
 }
 exports.intersection = intersection;
 /**
  * Flatten the array
  *
- * @param  {Array} xs The array to flatten
+ * @param {Array} xs The array to flatten
  * @param {Number} depth The number of nested lists to iterate
  */
-function flatten(xs, depth) {
-    var arr = [];
+function flatten(xs, depth = 0) {
+    const arr = new Array();
     function flatten2(ys, n) {
-        for (var i = 0, len = ys.length; i < len; i++) {
+        for (let i = 0, len = ys.length; i < len; i++) {
             if ((0, exports.isArray)(ys[i]) && (n > 0 || n < 0)) {
                 flatten2(ys[i], Math.max(-1, n - 1));
             }
@@ -29969,8 +30567,8 @@ exports.flatten = flatten;
  * @return {Boolean}   Result of comparison
  */
 function isEqual(a, b) {
-    var lhs = [a];
-    var rhs = [b];
+    const lhs = [a];
+    const rhs = [b];
     while (lhs.length > 0) {
         a = lhs.pop();
         b = rhs.pop();
@@ -29978,15 +30576,14 @@ function isEqual(a, b) {
         if (a === b)
             continue;
         // unequal types and functions cannot be equal.
-        var nativeType = getType(a).toLowerCase();
-        if (nativeType !== getType(b).toLowerCase() ||
-            nativeType === types_1.JsType.FUNCTION) {
+        const nativeType = (0, exports.getType)(a).toLowerCase();
+        if (nativeType !== (0, exports.getType)(b).toLowerCase() || nativeType === "function") {
             return false;
         }
         // leverage toString for Date and RegExp types
-        if (nativeType === types_1.JsType.ARRAY) {
-            var xs = a;
-            var ys = b;
+        if (nativeType === "array") {
+            const xs = a;
+            const ys = b;
             if (xs.length !== ys.length)
                 return false;
             if (xs.length === ys.length && xs.length === 0)
@@ -29994,18 +30591,18 @@ function isEqual(a, b) {
             into(lhs, xs);
             into(rhs, ys);
         }
-        else if (nativeType === types_1.JsType.OBJECT) {
+        else if (nativeType === "object") {
             // deep compare objects
-            var aKeys = Object.keys(a);
-            var bKeys = Object.keys(b);
+            const aKeys = Object.keys(a);
+            const bKeys = Object.keys(b);
             // check length of keys early
             if (aKeys.length !== bKeys.length)
                 return false;
             // compare keys
-            for (var i = 0, len = aKeys.length; i < len; i++) {
-                var k = aKeys[i];
+            for (let i = 0, len = aKeys.length; i < len; i++) {
+                const k = aKeys[i];
                 // not found
-                if (!has(b, k))
+                if (!(0, exports.has)(b, k))
                     return false;
                 // key found
                 lhs.push(a[k]);
@@ -30023,57 +30620,15 @@ function isEqual(a, b) {
 exports.isEqual = isEqual;
 /**
  * Return a new unique version of the collection
- * @param  {Array} xs The input collection
+ * @param  {Array} input The input collection
  * @return {Array}
  */
-function unique(xs, hashFunction) {
-    if (hashFunction === void 0) { hashFunction = DEFAULT_HASH_FUNCTION; }
-    if (xs.length == 0)
-        return [];
-    var root = {
-        key: hashCode(xs[0], hashFunction),
-        indexes: [0],
-    };
-    // hash items on to tree to track collisions
-    for (var i = 1; i < xs.length; i++) {
-        addIndex(root, hashCode(xs[i], hashFunction), i);
-    }
-    var result = [];
-    // walk tree and remove duplicates
-    var stack = [root];
-    while (stack.length > 0) {
-        var node = stack.pop();
-        if (node.indexes.length == 1) {
-            result.push(node.indexes[0]);
-        }
-        else {
-            // handle collisions by matching all items
-            var arr = node.indexes;
-            // we start by search from the back so we maintain the smaller index when there is a duplicate.
-            while (arr.length > 0) {
-                for (var j = 1; j < arr.length; j++) {
-                    // if last item matches any remove the last item.
-                    if (isEqual(xs[arr[arr.length - 1]], xs[arr[arr.length - 1 - j]])) {
-                        // remove last item
-                        arr.pop();
-                        // reset position
-                        j = 0;
-                    }
-                }
-                // add the unique item
-                result.push(arr.pop());
-            }
-        }
-        // add children
-        if (node.left)
-            stack.push(node.left);
-        if (node.right)
-            stack.push(node.right);
-    }
-    // sort indexes for stability
-    result.sort();
-    // return the unique items
-    return result.map(function (i) { return xs[i]; });
+function unique(input, hashFunction = DEFAULT_HASH_FUNCTION) {
+    const result = input.map(_ => MISSING);
+    buildHashIndex(input, hashFunction).forEach((v, _) => {
+        v.forEach(i => (result[i] = input[i]));
+    });
+    return result.filter(v => v !== MISSING);
 }
 exports.unique = unique;
 /**
@@ -30083,30 +30638,32 @@ exports.unique = unique;
  * @returns {*}
  */
 function stringify(value) {
-    var type = getType(value).toLowerCase();
+    const type = (0, exports.getType)(value).toLowerCase();
     switch (type) {
-        case types_1.JsType.BOOLEAN:
-        case types_1.JsType.NUMBER:
-        case types_1.JsType.REGEXP:
+        case "boolean":
+        case "number":
+        case "regexp":
             return value.toString();
-        case types_1.JsType.STRING:
+        case "string":
             return JSON.stringify(value);
-        case types_1.JsType.DATE:
+        case "date":
             return value.toISOString();
-        case types_1.JsType.NULL:
-        case types_1.JsType.UNDEFINED:
+        case "null":
+        case "undefined":
             return type;
-        case types_1.JsType.ARRAY:
+        case "array":
             return "[" + value.map(stringify).join(",") + "]";
         default:
             break;
     }
     // default case
-    var prefix = type === types_1.JsType.OBJECT ? "" : "" + getType(value);
-    var objKeys = Object.keys(value);
+    const prefix = type === "object" ? "" : `${(0, exports.getType)(value)}`;
+    const objKeys = Object.keys(value);
     objKeys.sort();
-    return (prefix + "{" +
-        objKeys.map(function (k) { return stringify(k) + ":" + stringify(value[k]); }).join(",") +
+    return (`${prefix}{` +
+        objKeys
+            .map(k => `${stringify(k)}:${stringify(value[k])}`)
+            .join(",") +
         "}");
 }
 exports.stringify = stringify;
@@ -30119,25 +30676,12 @@ exports.stringify = stringify;
  * @returns {number|null}
  */
 function hashCode(value, hashFunction) {
-    if (hashFunction === void 0) { hashFunction = DEFAULT_HASH_FUNCTION; }
-    if (isNil(value))
+    hashFunction = hashFunction || DEFAULT_HASH_FUNCTION;
+    if ((0, exports.isNil)(value))
         return null;
     return hashFunction(value).toString();
 }
 exports.hashCode = hashCode;
-/**
- * Default compare function
- * @param {*} a
- * @param {*} b
- */
-function compare(a, b) {
-    if (a < b)
-        return -1;
-    if (a > b)
-        return 1;
-    return 0;
-}
-exports.compare = compare;
 /**
  * Returns a (stably) sorted copy of list, ranked in ascending order by the results of running each value through iteratee
  *
@@ -30148,39 +30692,24 @@ exports.compare = compare;
  * @param {Function} comparator The comparator function to use for comparing keys. Defaults to standard comparison via `compare(...)`
  * @return {Array} Returns a new sorted array by the given key and comparator function
  */
-function sortBy(collection, keyFn, comparator) {
-    var sorted = new Array();
-    var result = new Array();
-    var hash = {};
-    comparator = comparator || compare;
-    if (isEmpty(collection))
+function sortBy(collection, keyFn, comparator = exports.compare) {
+    if ((0, exports.isEmpty)(collection))
         return collection;
-    for (var i = 0; i < collection.length; i++) {
-        var obj = collection[i];
-        var key = keyFn(obj, i);
-        // objects with nil keys will go in first
-        if (isNil(key)) {
+    const sorted = new Array();
+    const result = new Array();
+    for (let i = 0; i < collection.length; i++) {
+        const obj = collection[i];
+        const key = keyFn(obj, i);
+        if ((0, exports.isNil)(key)) {
             result.push(obj);
         }
         else {
-            // null suffix to differentiate string keys from native object properties
-            if (isString(key))
-                key += "\0";
-            if (hash[key]) {
-                hash[key].push(obj);
-            }
-            else {
-                hash[key] = [obj];
-                sorted.push(key);
-            }
+            sorted.push([key, obj]);
         }
     }
     // use native array sorting but enforce stableness
-    sorted.sort(comparator);
-    for (var i = 0; i < sorted.length; i++) {
-        into(result, hash[sorted[i]]);
-    }
-    return result;
+    sorted.sort((a, b) => comparator(a[0], b[0]));
+    return into(result, sorted.map((o) => o[1]));
 }
 exports.sortBy = sortBy;
 /**
@@ -30188,61 +30717,79 @@ exports.sortBy = sortBy;
  *
  * @param collection
  * @param keyFn {Function} to compute the group key of an item in the collection
- * @returns {{keys: Array, groups: Array}}
+ * @returns {GroupByOutput}
  */
-function groupBy(collection, keyFn, hashFunction) {
-    if (hashFunction === void 0) { hashFunction = DEFAULT_HASH_FUNCTION; }
-    var result = {
-        keys: new Array(),
-        groups: new Array(),
-    };
-    var lookup = {};
-    for (var i = 0; i < collection.length; i++) {
-        var obj = collection[i];
-        var key = keyFn(obj, i);
-        var hash = hashCode(key, hashFunction);
-        var index = -1;
-        if (lookup[hash] === undefined) {
-            index = result.keys.length;
-            lookup[hash] = index;
-            result.keys.push(key);
-            result.groups.push([]);
+function groupBy(collection, keyFn, hashFunction = DEFAULT_HASH_FUNCTION) {
+    if (collection.length < 1)
+        return new Map();
+    // map of hash to collided values
+    const lookup = new Map();
+    // map of raw key values to objects.
+    const result = new Map();
+    for (let i = 0; i < collection.length; i++) {
+        const obj = collection[i];
+        const key = keyFn(obj, i);
+        const hash = hashCode(key, hashFunction);
+        if (hash === null) {
+            if (result.has(null)) {
+                result.get(null).push(obj);
+            }
+            else {
+                result.set(null, [obj]);
+            }
         }
-        index = lookup[hash];
-        result.groups[index].push(obj);
+        else {
+            // find if we can match a hash for which the value is equivalent.
+            // this is used to deal with collisions.
+            const existingKey = lookup.has(hash)
+                ? lookup.get(hash).find(k => isEqual(k, key))
+                : null;
+            // collision detected or first time seeing key
+            if ((0, exports.isNil)(existingKey)) {
+                // collision detected or first entry so we create a new group.
+                result.set(key, [obj]);
+                // upload the lookup with the collided key
+                if (lookup.has(hash)) {
+                    lookup.get(hash).push(key);
+                }
+                else {
+                    lookup.set(hash, [key]);
+                }
+            }
+            else {
+                // key exists
+                result.get(existingKey).push(obj);
+            }
+        }
     }
     return result;
 }
 exports.groupBy = groupBy;
 // max elements to push.
 // See argument limit https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/apply
-var MAX_ARRAY_PUSH = 50000;
+const MAX_ARRAY_PUSH = 50000;
 /**
  * Merge elements into the dest
  *
  * @param {*} target The target object
  * @param {*} rest The array of elements to merge into dest
  */
-function into(target) {
-    var rest = [];
-    for (var _i = 1; _i < arguments.length; _i++) {
-        rest[_i - 1] = arguments[_i];
-    }
+function into(target, ...rest) {
     if (target instanceof Array) {
-        return rest.reduce(function (acc, arr) {
+        return rest.reduce(((acc, arr) => {
             // push arrary in batches to handle large inputs
-            var i = Math.ceil(arr.length / MAX_ARRAY_PUSH);
-            var begin = 0;
+            let i = Math.ceil(arr.length / MAX_ARRAY_PUSH);
+            let begin = 0;
             while (i-- > 0) {
                 Array.prototype.push.apply(acc, arr.slice(begin, begin + MAX_ARRAY_PUSH));
                 begin += MAX_ARRAY_PUSH;
             }
             return acc;
-        }, target);
+        }), target);
     }
     else {
         // merge objects. same behaviour as Object.assign
-        return rest.filter(isObjectLike).reduce(function (acc, item) {
+        return rest.filter(exports.isObjectLike).reduce((acc, item) => {
             Object.assign(acc, item);
             return acc;
         }, target);
@@ -30257,18 +30804,12 @@ exports.into = into;
  *
  * @param {*} fn The function object to memoize
  */
-function memoize(fn, hashFunction) {
-    var _this = this;
-    if (hashFunction === void 0) { hashFunction = DEFAULT_HASH_FUNCTION; }
-    return (function (memo) {
-        return function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            var key = hashCode(args, hashFunction);
-            if (!has(memo, key)) {
-                memo[key] = fn.apply(_this, args);
+function memoize(fn, hashFunction = DEFAULT_HASH_FUNCTION) {
+    return ((memo) => {
+        return (...args) => {
+            const key = hashCode(args, hashFunction) || "";
+            if (!(0, exports.has)(memo, key)) {
+                memo[key] = fn.apply(this, args);
             }
             return memo[key];
         };
@@ -30286,7 +30827,7 @@ exports.memoize = memoize;
  * @private
  */
 function getValue(obj, key) {
-    return isObjectLike(obj) ? obj[key] : undefined;
+    return (0, exports.isObjectLike)(obj) ? obj[key] : undefined;
 }
 /**
  * Unwrap a single element array to specified depth
@@ -30307,44 +30848,39 @@ function unwrap(arr, depth) {
  * @returns {*}
  */
 function resolve(obj, selector, options) {
-    var depth = 0;
+    let depth = 0;
     function resolve2(o, path) {
-        var value = o;
-        var _loop_3 = function (i) {
-            var field = path[i];
-            var isText = /^\d+$/.exec(field) === null;
+        let value = o;
+        for (let i = 0; i < path.length; i++) {
+            const field = path[i];
+            const isText = /^\d+$/.exec(field) === null;
             // using instanceof to aid typescript compiler
             if (isText && value instanceof Array) {
                 // On the first iteration, we check if we received a stop flag.
                 // If so, we stop to prevent iterating over a nested array value
                 // on consecutive object keys in the selector.
                 if (i === 0 && depth > 0)
-                    return "break";
+                    break;
                 depth += 1;
                 // only look at the rest of the path
-                var subpath_1 = path.slice(i);
-                value = value.reduce(function (acc, item) {
-                    var v = resolve2(item, subpath_1);
+                const subpath = path.slice(i);
+                value = value.reduce((acc, item) => {
+                    const v = resolve2(item, subpath);
                     if (v !== undefined)
                         acc.push(v);
                     return acc;
                 }, []);
-                return "break";
+                break;
             }
             else {
                 value = getValue(value, field);
             }
             if (value === undefined)
-                return "break";
-        };
-        for (var i = 0; i < path.length; i++) {
-            var state_2 = _loop_3(i);
-            if (state_2 === "break")
                 break;
         }
         return value;
     }
-    var result = inArray(JS_SIMPLE_TYPES, getType(obj).toLowerCase())
+    const result = JS_SIMPLE_TYPES.has((0, exports.getType)(obj).toLowerCase())
         ? obj
         : resolve2(obj, selector.split("."));
     return result instanceof Array && (options === null || options === void 0 ? void 0 : options.unwrapArray)
@@ -30360,14 +30896,14 @@ exports.resolve = resolve;
  * @param selector {String} dot separated path to field
  */
 function resolveGraph(obj, selector, options) {
-    var names = selector.split(".");
-    var key = names[0];
+    const names = selector.split(".");
+    const key = names[0];
     // get the next part of the selector
-    var next = names.slice(1).join(".");
-    var isIndex = /^\d+$/.exec(key) !== null;
-    var hasNext = names.length > 1;
-    var result;
-    var value;
+    const next = names.slice(1).join(".");
+    const isIndex = /^\d+$/.exec(key) !== null;
+    const hasNext = names.length > 1;
+    let result;
+    let value;
     if (obj instanceof Array) {
         if (isIndex) {
             result = getValue(obj, Number(key));
@@ -30378,8 +30914,7 @@ function resolveGraph(obj, selector, options) {
         }
         else {
             result = [];
-            for (var _i = 0, obj_1 = obj; _i < obj_1.length; _i++) {
-                var item = obj_1[_i];
+            for (const item of obj) {
                 value = resolveGraph(item, selector, options);
                 if (options === null || options === void 0 ? void 0 : options.preserveMissing) {
                     if (value === undefined) {
@@ -30400,7 +30935,7 @@ function resolveGraph(obj, selector, options) {
         }
         if (value === undefined)
             return undefined;
-        result = (options === null || options === void 0 ? void 0 : options.preserveKeys) ? __assign({}, obj) : {};
+        result = (options === null || options === void 0 ? void 0 : options.preserveKeys) ? Object.assign({}, obj) : {};
         result[key] = value;
     }
     return result;
@@ -30413,7 +30948,7 @@ exports.resolveGraph = resolveGraph;
  */
 function filterMissing(obj) {
     if (obj instanceof Array) {
-        for (var i = obj.length - 1; i >= 0; i--) {
+        for (let i = obj.length - 1; i >= 0; i--) {
             if (obj[i] === MISSING) {
                 obj.splice(i, 1);
             }
@@ -30422,40 +30957,62 @@ function filterMissing(obj) {
             }
         }
     }
-    else if (isObject(obj)) {
-        for (var k in obj) {
-            if (has(obj, k)) {
+    else if ((0, exports.isObject)(obj)) {
+        for (const k in obj) {
+            if ((0, exports.has)(obj, k)) {
                 filterMissing(obj[k]);
             }
         }
     }
 }
 exports.filterMissing = filterMissing;
+const NUMBER_RE = /^\d+$/;
 /**
  * Walk the object graph and execute the given transform function
  *
- * @param  {Object|Array} obj   The object to traverse
- * @param  {String} selector    The selector
- * @param  {Function} fn Function to execute for value at the end the traversal
+ * @param  {Object|Array} obj   The object to traverse.
+ * @param  {String} selector    The selector to navigate.
+ * @param  {Callback} fn Callback to execute for value at the end the traversal.
+ * @param  {WalkOptions} Options to use for the function.
  * @return {*}
  */
 function walk(obj, selector, fn, options) {
-    if (isNil(obj))
-        return;
-    var names = selector.split(".");
-    var key = names[0];
-    var next = names.slice(1).join(".");
+    const names = selector.split(".");
+    const key = names[0];
+    const next = names.slice(1).join(".");
     if (names.length === 1) {
-        fn(obj, key);
+        if ((0, exports.isObject)(obj) || ((0, exports.isArray)(obj) && NUMBER_RE.test(key))) {
+            fn(obj, key);
+        }
     }
     else {
         // force the rest of the graph while traversing
-        if ((options === null || options === void 0 ? void 0 : options.buildGraph) === true && isNil(obj[key])) {
+        if ((options === null || options === void 0 ? void 0 : options.buildGraph) && (0, exports.isNil)(obj[key])) {
             obj[key] = {};
         }
-        walk(obj[key], next, fn, options);
+        // get the next item
+        const item = obj[key];
+        // nothing more to do
+        if (!item)
+            return;
+        // we peek to see if next key is an array index.
+        const isNextArrayIndex = !!(names.length > 1 && NUMBER_RE.test(names[1]));
+        // if we have an array value but the next key is not an index and the 'descendArray' option is set,
+        // we walk each item in the array separately. This allows for handling traversing keys for objects
+        // nested within an array.
+        //
+        // Eg: Given { array: [ {k:1}, {k:2}, {k:3} ] }
+        //  - individual objecs can be traversed with "array.k"
+        //  - a specific object can be traversed with "array.1"
+        if (item instanceof Array && (options === null || options === void 0 ? void 0 : options.descendArray) && !isNextArrayIndex) {
+            item.forEach(((e) => walk(e, next, fn, options)));
+        }
+        else {
+            walk(item, next, fn, options);
+        }
     }
 }
+exports.walk = walk;
 /**
  * Set the value of the given object field
  *
@@ -30464,9 +31021,9 @@ function walk(obj, selector, fn, options) {
  * @param value {*} the value to set
  */
 function setValue(obj, selector, value) {
-    walk(obj, selector, function (item, key) {
+    walk(obj, selector, ((item, key) => {
         item[key] = value;
-    }, { buildGraph: true });
+    }), { buildGraph: true });
 }
 exports.setValue = setValue;
 /**
@@ -30478,27 +31035,26 @@ exports.setValue = setValue;
  * @param selector {String} dot separated path to element to remove
  */
 function removeValue(obj, selector, options) {
-    walk(obj, selector, function (item, key) {
+    walk(obj, selector, ((item, key) => {
         if (item instanceof Array) {
             if (/^\d+$/.test(key)) {
                 item.splice(parseInt(key), 1);
             }
             else if (options && options.descendArray) {
-                for (var _i = 0, item_1 = item; _i < item_1.length; _i++) {
-                    var elem = item_1[_i];
-                    if (isObject(elem)) {
+                for (const elem of item) {
+                    if ((0, exports.isObject)(elem)) {
                         delete elem[key];
                     }
                 }
             }
         }
-        else if (isObject(item)) {
+        else if ((0, exports.isObject)(item)) {
             delete item[key];
         }
-    });
+    }), options);
 }
 exports.removeValue = removeValue;
-var OPERATOR_NAME_PATTERN = /^\$[a-zA-Z0-9_]+$/;
+const OPERATOR_NAME_PATTERN = /^\$[a-zA-Z0-9_]+$/;
 /**
  * Check whether the given name passes for an operator. We assume AnyVal field name starting with '$' is an operator.
  * This is cheap and safe to do since keys beginning with '$' should be reserved for internal use.
@@ -30515,19 +31071,20 @@ exports.isOperator = isOperator;
  */
 function normalize(expr) {
     // normalized primitives
-    if (inArray(JS_SIMPLE_TYPES, getType(expr).toLowerCase())) {
-        return isRegExp(expr) ? { $regex: expr } : { $eq: expr };
+    if (JS_SIMPLE_TYPES.has((0, exports.getType)(expr).toLowerCase())) {
+        return (0, exports.isRegExp)(expr) ? { $regex: expr } : { $eq: expr };
     }
     // normalize object expression. using ObjectLike handles custom types
-    if (isObjectLike(expr)) {
+    if ((0, exports.isObjectLike)(expr)) {
+        const exprObj = expr;
         // no valid query operator found, so we do simple comparison
-        if (!Object.keys(expr).some(isOperator)) {
+        if (!Object.keys(exprObj).some(isOperator)) {
             return { $eq: expr };
         }
         // ensure valid regex
-        if (has(expr, "$regex")) {
+        if ((0, exports.has)(expr, "$regex")) {
             return {
-                $regex: new RegExp(expr["$regex"], expr["$options"]),
+                $regex: new RegExp(exprObj["$regex"], exprObj["$options"])
             };
         }
     }
@@ -30544,13 +31101,13 @@ exports.normalize = normalize;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "decode": () => (/* binding */ decode),
+/* harmony export */   decode: () => (/* binding */ decode),
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
-/* harmony export */   "encode": () => (/* binding */ encode),
-/* harmony export */   "toASCII": () => (/* binding */ toASCII),
-/* harmony export */   "toUnicode": () => (/* binding */ toUnicode),
-/* harmony export */   "ucs2decode": () => (/* binding */ ucs2decode),
-/* harmony export */   "ucs2encode": () => (/* binding */ ucs2encode)
+/* harmony export */   encode: () => (/* binding */ encode),
+/* harmony export */   toASCII: () => (/* binding */ toASCII),
+/* harmony export */   toUnicode: () => (/* binding */ toUnicode),
+/* harmony export */   ucs2decode: () => (/* binding */ ucs2decode),
+/* harmony export */   ucs2encode: () => (/* binding */ ucs2encode)
 /* harmony export */ });
 
 
@@ -30569,7 +31126,7 @@ const delimiter = '-'; // '\x2D'
 
 /** Regular expressions */
 const regexPunycode = /^xn--/;
-const regexNonASCII = /[^\0-\x7E]/; // non-ASCII chars
+const regexNonASCII = /[^\0-\x7F]/; // Note: U+007F DEL is excluded too.
 const regexSeparators = /[\x2E\u3002\uFF0E\uFF61]/g; // RFC 3490 separators
 
 /** Error messages */
@@ -30604,11 +31161,11 @@ function error(type) {
  * item.
  * @returns {Array} A new array of values returned by the callback function.
  */
-function map(array, fn) {
+function map(array, callback) {
 	const result = [];
 	let length = array.length;
 	while (length--) {
-		result[length] = fn(array[length]);
+		result[length] = callback(array[length]);
 	}
 	return result;
 }
@@ -30620,22 +31177,22 @@ function map(array, fn) {
  * @param {String} domain The domain name or email address.
  * @param {Function} callback The function that gets called for every
  * character.
- * @returns {Array} A new string of characters returned by the callback
+ * @returns {String} A new string of characters returned by the callback
  * function.
  */
-function mapDomain(string, fn) {
-	const parts = string.split('@');
+function mapDomain(domain, callback) {
+	const parts = domain.split('@');
 	let result = '';
 	if (parts.length > 1) {
 		// In email addresses, only the domain name should be punycoded. Leave
 		// the local part (i.e. everything up to `@`) intact.
 		result = parts[0] + '@';
-		string = parts[1];
+		domain = parts[1];
 	}
 	// Avoid `split(regex)` for IE8 compatibility. See #17.
-	string = string.replace(regexSeparators, '\x2E');
-	const labels = string.split('.');
-	const encoded = map(labels, fn).join('.');
+	domain = domain.replace(regexSeparators, '\x2E');
+	const labels = domain.split('.');
+	const encoded = map(labels, callback).join('.');
 	return result + encoded;
 }
 
@@ -30684,7 +31241,7 @@ function ucs2decode(string) {
  * @param {Array} codePoints The array of numeric code points.
  * @returns {String} The new Unicode string (UCS-2).
  */
-const ucs2encode = array => String.fromCodePoint(...array);
+const ucs2encode = codePoints => String.fromCodePoint(...codePoints);
 
 /**
  * Converts a basic code point into a digit/integer.
@@ -30696,13 +31253,13 @@ const ucs2encode = array => String.fromCodePoint(...array);
  * the code point does not represent a value.
  */
 const basicToDigit = function(codePoint) {
-	if (codePoint - 0x30 < 0x0A) {
-		return codePoint - 0x16;
+	if (codePoint >= 0x30 && codePoint < 0x3A) {
+		return 26 + (codePoint - 0x30);
 	}
-	if (codePoint - 0x41 < 0x1A) {
+	if (codePoint >= 0x41 && codePoint < 0x5B) {
 		return codePoint - 0x41;
 	}
-	if (codePoint - 0x61 < 0x1A) {
+	if (codePoint >= 0x61 && codePoint < 0x7B) {
 		return codePoint - 0x61;
 	}
 	return base;
@@ -30782,7 +31339,7 @@ const decode = function(input) {
 		// which gets added to `i`. The overflow checking is easier
 		// if we increase `i` as we go, then subtract off its starting
 		// value at the end to obtain `delta`.
-		let oldi = i;
+		const oldi = i;
 		for (let w = 1, k = base; /* no condition */; k += base) {
 
 			if (index >= inputLength) {
@@ -30791,7 +31348,10 @@ const decode = function(input) {
 
 			const digit = basicToDigit(input.charCodeAt(index++));
 
-			if (digit >= base || digit > floor((maxInt - i) / w)) {
+			if (digit >= base) {
+				error('invalid-input');
+			}
+			if (digit > floor((maxInt - i) / w)) {
 				error('overflow');
 			}
 
@@ -30845,7 +31405,7 @@ const encode = function(input) {
 	input = ucs2decode(input);
 
 	// Cache the length.
-	let inputLength = input.length;
+	const inputLength = input.length;
 
 	// Initialize the state.
 	let n = initialN;
@@ -30859,7 +31419,7 @@ const encode = function(input) {
 		}
 	}
 
-	let basicLength = output.length;
+	const basicLength = output.length;
 	let handledCPCount = basicLength;
 
 	// `handledCPCount` is the number of code points that have been handled;
@@ -30896,7 +31456,7 @@ const encode = function(input) {
 			if (currentValue < n && ++delta > maxInt) {
 				error('overflow');
 			}
-			if (currentValue == n) {
+			if (currentValue === n) {
 				// Represent delta as a generalized variable-length integer.
 				let q = delta;
 				for (let k = base; /* no condition */; k += base) {
@@ -30913,7 +31473,7 @@ const encode = function(input) {
 				}
 
 				output.push(stringFromCharCode(digitToBasic(q, 0)));
-				bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+				bias = adapt(delta, handledCPCountPlusOne, handledCPCount === basicLength);
 				delta = 0;
 				++handledCPCount;
 			}
@@ -31063,7 +31623,6 @@ class History {
   static position = 0;
   /**
    * Add a passage name to the history array.
-   *
    * @function add
    * @param {string} name - Name of the passage to add.
    */
@@ -31080,7 +31639,6 @@ class History {
 
   /**
    * Step back one index in the history array.
-   *
    * @function undo
    * @returns {string | null} Name of now current passage; null if undo not possible.
    */
@@ -31103,7 +31661,6 @@ class History {
 
   /**
    * Step forward in history array, if possible.
-   *
    * @function Redo
    * @returns {string | null} Name of now current passage; null if redo not possible.
    */
@@ -31126,7 +31683,6 @@ class History {
 
   /**
    * Returns true if the named passage exists within the history array.
-   *
    * @function hasVisited
    * @param {string | Array} passageName - Name(s) of passage to check.
    * @returns {boolean} True if passage(s) in history; false otherwise.
@@ -31151,7 +31707,6 @@ class History {
 
   /**
    * Returns number of visits for a single passage.
-   *
    * @function visited
    * @param   {string} passageName  Passage name to check.
    * @returns {number}              Number of visits to passage.
@@ -31164,7 +31719,6 @@ class History {
 
   /**
    * Resets History values to defaults.
-   *
    * @function reset
    */
   static reset () {
@@ -31247,7 +31801,6 @@ module.exports = Markdown;
 
 /**
  * An object representing a passage. The current passage will be `window.passage`.
- *
  * @class Passage
  */
 
@@ -31289,7 +31842,6 @@ const $ = __webpack_require__(9755);
 class Screen {
   /**
    * Trigger screen-lock event.
-   *
    * @function lock
    */
   static lock () {
@@ -31299,7 +31851,6 @@ class Screen {
 
   /**
    * Trigger screen-unlock event.
-   *
    * @function unlock
    */
   static unlock () {
@@ -31330,7 +31881,6 @@ class Script {
   /**
    * Render JavaScript within a templated sandbox and return possible output.
    * Will throw error if code does.
-   *
    * @function run
    * @param {string} script - Code to run.
    * @param {Story} story - Current story object.
@@ -31384,7 +31934,7 @@ module.exports = Script;
 
 /***/ }),
 
-/***/ 9906:
+/***/ 2879:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 const $ = __webpack_require__(9755);
@@ -31394,7 +31944,6 @@ class Sidebar {
   constructor () {
     /**
      * Reference to undo icon.
-     *
      * @property {Element} undoIcon - Undo element.
      * @type {Element}
      */
@@ -31402,7 +31951,6 @@ class Sidebar {
 
     /**
      * Reference to redo icon.
-     *
      * @property {Element} redoIcon - Redo element.
      * @type {Element}
      */
@@ -31430,7 +31978,6 @@ class Sidebar {
 
   /**
    * Show undo icon.
-   *
    * @function showUndo
    */
   showUndo () {
@@ -31439,7 +31986,6 @@ class Sidebar {
 
   /**
    * Hide undo icon.
-   *
    * @function hideUndo
    */
   hideUndo () {
@@ -31448,7 +31994,6 @@ class Sidebar {
 
   /**
    * Show redo icon.
-   *
    * @function showRedo
    */
   showRedo () {
@@ -31457,7 +32002,6 @@ class Sidebar {
 
   /**
    * Hide redo icon.
-   *
    * @function hideRedo
    */
   hideRedo () {
@@ -31466,7 +32010,6 @@ class Sidebar {
 
   /**
    * Trigger undo event.
-   *
    * @function undo
    */
   undo () {
@@ -31475,7 +32018,6 @@ class Sidebar {
 
   /**
    * Trigger redo event.
-   *
    * @function redo
    */
   redo () {
@@ -31484,7 +32026,6 @@ class Sidebar {
 
   /**
    * Shows sidebar.
-   *
    * @function show
    */
   show () {
@@ -31494,7 +32035,6 @@ class Sidebar {
 
   /**
    * Hides sidebar.
-   *
    * @function hide
    */
   hide () {
@@ -31556,7 +32096,6 @@ class State {
   static store = new Proxy({}, handler);
   /**
    * Update current state properties to previous state values.
-   *
    * @param {object} state - Object containing state properties.
    */
   static updateState (state) {
@@ -31588,7 +32127,6 @@ const State = __webpack_require__(5213);
 class Storage {
   /**
    * Remove save by name from the localStorage.
-   *
    * @function removeSave
    * @param {string} save Name of save string.
    * @returns {boolean} True if remove was successful.
@@ -31606,7 +32144,6 @@ class Storage {
 
   /**
    * Returns if save string exists in localStorage
-   *
    * @function doesSaveExist
    * @param {string} save Name of save string
    * @returns {boolean} True if save string exists
@@ -31623,7 +32160,6 @@ class Storage {
 
   /**
    * Save history using optional string prefix
-   *
    * @function createSave
    * @param {string} save Optional name of save string
    * @returns {boolean} Returns true if save was successful
@@ -31641,7 +32177,6 @@ class Storage {
 
   /**
    * Attempts to restore the history and store based on optional save name
-   *
    * @function restoreSave
    * @param {string} save Optional name of save string
    * @returns {boolean} Returns true if restore was successful
@@ -31669,7 +32204,6 @@ class Storage {
 
   /**
    * Returns if localStorage is available or not in browser context.
-   *
    * @function available
    * @returns {boolean} Returns true if localStorage can be used.
    */
@@ -31692,7 +32226,6 @@ class Storage {
 
   /**
    * Clears localStorage, if available.
-   *
    * @function removeAll
    * @returns {boolean} Returns true if removal was possible.
    */
@@ -31730,14 +32263,13 @@ const State = __webpack_require__(5213);
 const History = __webpack_require__(1201);
 const Storylets = __webpack_require__(2444);
 const Script = __webpack_require__(5827);
-const Sidebar = __webpack_require__(9906);
+const Sidebar = __webpack_require__(2879);
 const Screen = __webpack_require__(1675);
 const Storage = __webpack_require__(6505);
 
 /**
  * An object representing the entire story. After the document has completed
  * loading, an instance of this class will be available at `window.Story`.
- *
  * @class Story
  */
 class Story {
@@ -31751,7 +32283,6 @@ class Story {
 
     /**
      * An array of all passages.
-     *
      * @property {Array} passages - Passages array.
      * @type {Array}
      */
@@ -31784,7 +32315,6 @@ class Story {
 
     /**
      * Passage element.
-     *
      * @property {Element} passageElement Passage element.
      * @type {Element}
      */
@@ -31792,7 +32322,6 @@ class Story {
 
     /**
      * Sidebar.
-     *
      * @property {Element} sidebar Sidebar instance.
      * @type {Element}
      */
@@ -31803,7 +32332,6 @@ class Story {
 
     /**
      * History reference.
-     *
      * @property {History} history Reference to History.
      * @type {History}
      */
@@ -31811,7 +32339,6 @@ class Story {
 
     /**
      * Screen reference.
-     *
      * @property {Screen} screen Reference to Screen.
      * @type {Screen}
      */
@@ -31819,7 +32346,6 @@ class Story {
 
     /**
      * Storage reference.
-     *
      * @property {Storage} screen Reference to Storage.
      * @type {Storage}
      */
@@ -31830,7 +32356,6 @@ class Story {
 
     /**
      * State.events reference.
-     *
      * @property {EventEmitter} events Reference to State.events.
      * @type {EventEmitter}
      */
@@ -31838,7 +32363,6 @@ class Story {
 
     /**
      * State.store reference.
-     *
      * @property {Proxy} store Reference to State.store.
      * @type {Proxy}
      */
@@ -31882,7 +32406,6 @@ class Story {
 
     /**
      * The current passage.
-     *
      * @property {Passage|null} currentPassage Currently showing passage, if any.
      * @type {Passage|null}
      */
@@ -31892,8 +32415,7 @@ class Story {
      * Reference to internal Storylets object.
      *
      * Starts as null. During Story.start(), a new object is
-     *  created based on initial passages.
-     *
+     * created based on initial passages.
      * @property {Storylets} storylets Internal reference to Storylets
      * @type {Storylets|null}
      */
@@ -31908,7 +32430,6 @@ class Story {
    * 4. Add to starting passage to History.history
    * 5. Show starting passage
    * 6. Trigger 'start' event
-   *
    * @function start
    */
   start () {
@@ -31990,7 +32511,6 @@ class Story {
 
     /**
      * Triggered when the story starts.
-     *
      * @event State#start
      * @type {string}
      */
@@ -31999,7 +32519,6 @@ class Story {
 
   /**
    * Returns an array of none, one, or many passages matching a specific tag.
-   *
    * @function getPassagesByTag
    * @param {string} tag - Tag to search for.
    * @returns {Array} Array containing none, one, or many passage objects.
@@ -32014,8 +32533,7 @@ class Story {
   /**
    * Returns a Passage object by name from internal collection. If none exists, returns null.
    * The Twine editor prevents multiple passages from having the same name, so
-   *  this always returns the first search result.
-   *
+   * this always returns the first search result.
    * @function getPassageByName
    * @param {string} name - name of the passage
    * @returns {Passage|null} Passage object or null
@@ -32040,7 +32558,6 @@ class Story {
   /**
    * Replaces current passage shown to reader with rendered source of named passage.
    * If the named passage does not exist, an error is thrown.
-   *
    * @function show
    * @param {string} name name of the passage.
    */
@@ -32085,7 +32602,6 @@ class Story {
 
     /**
      * Triggered when a passage is shown.
-     *
      * @event State#show
      * @type {string}
      */
@@ -32094,7 +32610,6 @@ class Story {
 
   /**
    * Returns the rendered source of a passage by name.
-   *
    * @function include
    * @param {string} name - name of the passage.
    * @returns {string} Rendered passage source.
@@ -32128,7 +32643,6 @@ class Story {
 
   /**
    * Render a passage to any/all element(s) matching query selector
-   *
    * @function renderPassageToSelector
    * @param {object} passageName - The passage to render
    * @param {string} selector - jQuery selector
@@ -32143,7 +32657,6 @@ class Story {
 
   /**
    * Add a new passage to the story.
-   *
    * @function addPassage
    * @param {string} name name
    * @param {Array} tags tags
@@ -32184,7 +32697,6 @@ class Story {
    * throw an error.
    *
    * Note: Does not affect HTML elements.
-   *
    * @function removePassage
    * @param {string} name name
    */
@@ -32198,7 +32710,6 @@ class Story {
    * Go to an existing passage in the story. Unlike `Story.show()`, this will add to the history.
    *
    * Throws error if passage does not exist.
-   *
    * @function goto
    * @param {string} name name of passage
    */
@@ -32231,13 +32742,12 @@ module.exports = Story;
 /***/ 2444:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-const { Query } = __webpack_require__(4406);
+const { Query } = __webpack_require__(6090);
 const State = __webpack_require__(5213);
 
 /**
  * An object containing none, one, or multiple passages based
- *  on their use of the 'storylet' passage tag and `<requirements>` element.
- *
+ * on their use of the 'storylet' passage tag and `<requirements>` element.
  * @class Storylets
  */
 class Storylets {
@@ -32304,10 +32814,9 @@ class Storylets {
 
   /**
    * For each passage in the internal collection,
-   *  test their requirements against State.store.
+   * test their requirements against State.store.
    *
    * Returns highest priority passages first.
-   *
    * @function getAvailablePassages
    * @param {number} limit Number of passages to return
    * @returns {Array} Array of none, one, or many available passages.
@@ -32347,7 +32856,6 @@ class Storylets {
 
   /**
    * Add a passage to the Storylets collection.
-   *
    * @function addPassage
    * @param {string} newName Name of existing passage to add.
    * @param {object} newRequirements Requirements of passage.
@@ -32391,7 +32899,6 @@ class Storylets {
    *
    * As passage names are unique to a story, the Storylets collection
    * cannot hold two entries with the same name.
-   *
    * @function includes
    * @param {string} name Name of passage to search.
    * @returns {boolean} True if passage is in collection.
@@ -32408,7 +32915,6 @@ class Storylets {
 
   /**
    * Remove a passage from the collection by name.
-   *
    * @function removePassage
    * @param {string} name Name of existing passage to remove.
    */
@@ -32433,7 +32939,6 @@ class Utilities {
   /**
    * Accepts a function, wait, and optional set of arguments.
    * After the wait, the function will run with the passed arguments.
-   *
    * @function delay
    * @param {Function}    func    Function to run.
    * @param {number}      wait    Number of milliseconds to wait.
@@ -32452,7 +32957,6 @@ class Utilities {
    * Examples:
    * - either(1,2,3);
    * - either(1,[2],[4,5]);
-   *
    * @function either
    * @param   {object|Array} args Array or comma-separated list.
    * @returns {object|null}       Random entry or null.
@@ -32485,7 +32989,6 @@ class Utilities {
 
   /**
    * Applies external CSS files.
-   *
    * @function applyExternalStyles
    * @param {Array} files Array of one or more external files to load.
    */
@@ -32505,7 +33008,6 @@ class Utilities {
 
   /**
    * Return random integer within range.
-   *
    * @function randomInt
    * @param   {number}  min   Start of range (default 0).
    * @param   {number}  max   End of range (default 0).
@@ -32550,11 +33052,11 @@ module.exports = Utilities;
 /***/ ((module) => {
 
 "use strict";
-module.exports = {"i8":"3.1.8"};
+module.exports = {"i8":"3.1.9"};
 
 /***/ }),
 
-/***/ 5485:
+/***/ 9323:
 /***/ ((module) => {
 
 "use strict";
