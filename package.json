@@ -26,7 +26,7 @@
     "underscore": "^1.13.4"
   },
   "devDependencies": {
-    "@types/expect-puppeteer": "^5.0.1",
+    "@types/expect-puppeteer": "^5.0.5",
     "@types/jest-environment-puppeteer": "^5.0.2",
     "@types/puppeteer": "^7.0.4",
     "css-loader": "^6.7.1",
