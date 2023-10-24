@@ -20,7 +20,7 @@
   "dependencies": {
     "ejs": "^3.1.8",
     "jquery": "^3.7.1",
-    "markdown-it": "^13.0.1",
+    "markdown-it": "^13.0.2",
     "mingo": "^6.4.4",
     "normalize.css": "^8.0.1",
     "underscore": "^1.13.4"
