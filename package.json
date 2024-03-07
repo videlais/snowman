@@ -35,7 +35,7 @@
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-jest": "^27.9.0",
     "eslint-plugin-jsdoc": "^48.0.2",
-    "extwee": "^2.0.6",
+    "extwee": "^2.2.2",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-puppeteer": "^10.0.1",
