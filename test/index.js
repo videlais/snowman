@@ -22,7 +22,7 @@ const dom = new jsdom.JSDOM(
    {url: "https://localhost/", runScripts: "dangerously"}).window;
 
 
-// Pretend this is a browser setting and define some globals
+// Pretend this is a browser setting and define some globals.
 // This is not a good idea, but jQuery will not load in Node otherwise!
 // https://github.com/jsdom/jsdom/wiki/Don't-stuff-jsdom-globals-onto-the-Node-global
 global.window = dom.window;
@@ -549,6 +549,13 @@ describe("Passage", function() {
       let p = new Passage();
       expect(p.render("<a-0.class#id>") ).to.equal('<a style="display:none" href="javascript:void(0)" id="id" class="class">');
 
+    });
+
+    it("Should ignore custom elements using a dash in its name", function() {
+        
+      let p = new Passage();
+      expect(p.render("<custom-element>") ).to.equal('<custom-element>');
+  
     });
 
     it("Should passthrough any <script> tags", function() {
