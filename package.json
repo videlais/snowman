@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": "https://github.com/videlais/snowman/",
   "scripts": {
-    "test": "nyc mocha test/*.test.js || exit 0",
+    "test": "nyc mocha test/*/*.test.js || exit 0",
     "lint": "eslint lib/**/*.js  || exit 0",
     "build": "node scripts/build-format.js"
   },
@@ -29,7 +29,7 @@
     "@babel/preset-env": "^7.7.4",
     "babelify": "^10.0.0",
     "browserify": "^16.5.0",
-    "chai": "^4.2.0",
+    "chai": "^4.5.0",
     "child-process-promise": "^2.2.1",
     "clean-css": "^4.2.1",
     "ejs": "^2.7.4",

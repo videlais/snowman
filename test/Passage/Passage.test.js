@@ -41,10 +41,10 @@ const resetWindow = function() {
 resetWindow();
 
 // Require Story.
-const Story = require("../lib/Story.js");
+const Story = require("../../lib/Story.js");
 
 // Require Passage.
-const Passage = require("../lib/Passage.js");
+const Passage = require("../../lib/Passage.js");
 
 describe("Passage", function() {
     describe("#constructor()", function() {

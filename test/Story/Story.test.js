@@ -49,7 +49,7 @@ const resetWindow = function() {
 };
 
 // Run Story tests
-const Story = require("../lib/Story.js");
+const Story = require("../../lib/Story.js");
 // Run Story tests
 describe('Story', function() {
 
