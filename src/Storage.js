@@ -92,7 +92,7 @@ class Storage {
       window.localStorage.setItem('testKey', 'test');
       window.localStorage.removeItem('testKey');
       result = true;
-    } catch (e) {
+    } finally {
       // If an error was thrown, we do nothing.
       // The method will return false if it did not work.
     }

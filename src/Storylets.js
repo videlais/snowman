@@ -30,7 +30,7 @@ class Storylets {
           try {
             // Try to parse string into object
             passageRequirements = JSON.parse(captured);
-          } catch (e) {
+          } finally {
             // Ignore the error
           }
 
