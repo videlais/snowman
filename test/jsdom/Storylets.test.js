@@ -1,7 +1,7 @@
-const Storylets = require('../src/Storylets.js');
-const Story = require('../src/Story.js');
+const Storylets = require('../../src/Storylets.js');
+const Story = require('../../src/Story.js');
 const $ = require('jquery');
-const State = require('../src/State.js');
+const State = require('../../src/State.js');
 
 describe('Storylets', () => {
   describe('constructor()', () => {

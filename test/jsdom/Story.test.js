@@ -1,6 +1,6 @@
 const $ = require('jquery');
-const Story = require('../src/Story.js');
-const State = require('../src/State.js');
+const Story = require('../../src/Story.js');
+const State = require('../../src/State.js');
 
 describe('Story', () => {
   beforeEach(() => {

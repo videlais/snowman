@@ -1,4 +1,4 @@
-const State = require('../src/State.js');
+const State = require('../../src/State.js');
 
 describe('State', () => {
   describe('Store interactions', () => {

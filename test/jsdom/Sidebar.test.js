@@ -1,5 +1,5 @@
-const Sidebar = require('../src/Sidebar.js');
-const State = require('../src/State.js');
+const Sidebar = require('../../src/Sidebar.js');
+const State = require('../../src/State.js');
 const $ = require('jquery');
 
 let sidebar = null;

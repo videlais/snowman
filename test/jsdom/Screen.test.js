@@ -1,4 +1,4 @@
-const Screen = require('../src/Screen.js');
+const Screen = require('../../src/Screen.js');
 const $ = require('jquery');
 
 describe('Screen', () => {

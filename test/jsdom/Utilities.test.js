@@ -1,4 +1,4 @@
-const Utilities = require('../src/Utilities.js');
+const Utilities = require('../../src/Utilities.js');
 const $ = require('jquery');
 
 describe('Utilities', () => {

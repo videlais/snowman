@@ -1,4 +1,4 @@
-const Markdown = require('../src/Markdown.js');
+const Markdown = require('../../src/Markdown.js');
 
 describe('Markdown', () => {
   describe('parse()', () => {
