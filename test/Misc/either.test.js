@@ -1,5 +1,5 @@
-const { expect } = require('chai');
-const either = require("../../lib/Misc/either.js");
+import { expect } from 'chai';
+import either from '../../lib/Misc/either.js';
 
 describe('#either()', function() {
 

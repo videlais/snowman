@@ -1,12 +1,7 @@
-const { expect } = require('chai');
-const getStyles = require("../../lib/Misc/getStyles.js");
-
-// Setup JSDOM
-// Require JSDOM
-const jsdom = require('jsdom');
-
-// Extract JSDOM from jsdom.
-const { JSDOM } = jsdom;
+import { expect } from 'chai';
+import getStyles from '../../lib/Misc/getStyles.js';
+import { JSDOM } from 'jsdom';
+import jquery from 'jquery';
 
 const defaultHTML =  `<tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3">
 <tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">Hello world</tw-passagedata>
@@ -21,31 +16,25 @@ const defaultHTML =  `<tw-storydata name="Test" startnode="1" creator="jasmine" 
 // Create a new JSDOM instance.
 const dom = new JSDOM(defaultHTML, {url: "https://localhost/", runScripts: "dangerously"});
 
-// Extract window from JSDOM
-const window = dom.window;
-
-// Pretend this is a browser setting and define some globals.
-// This is not a good idea, but jQuery will not load in Node otherwise!
-// https://github.com/jsdom/jsdom/wiki/Don't-stuff-jsdom-globals-onto-the-Node-global
-global.window = window;
+global.window = dom.window;
 global.document = window.document;
-global.jQuery = global.$ = window.$ = window.jQuery = require('jquery');
+global.$ = jquery(window);
 
 describe('getStyles()', function() {
 
     it('Should return null if no arguments are given', function() {
-        expect(getStyles()).to.equal(null);
+        expect(getStyles([])).to.equal(null);
     });
 
     it('Should fail on bad URL', function() {
-        expect(() => getStyles("./file") ).to.throw;
+        expect(() => getStyles("./file") ).to.throw();
     });
 
     it('Should load single CSS file', function() {
-        expect(getStyles("https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css") ).to.eventually.be.fulfilled;
+        expect(getStyles(["https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css"]) ).to.eventually.be.fulfilled;
     });
 
     it('Should load multiple CSS files', function() {
-        expect(getStyles("https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css") ).to.eventually.be.fulfilled;
+        expect(getStyles(["https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css", "https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"]) ).to.eventually.be.fulfilled;
     });
 });

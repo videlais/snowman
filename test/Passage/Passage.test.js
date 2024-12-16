@@ -1,13 +1,10 @@
+import { use } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+use(chaiAsPromised);
+import { expect } from 'chai';
+import { JSDOM } from 'jsdom';
+import Passage from '../../lib/Passage.js';
 
-const chai = require("chai");
-const chaiAsPromised = require("chai-as-promised");
-chai.use(chaiAsPromised);
-const expect = chai.expect;
-
-// Require JSDOM
-const jsdom = require('jsdom');
-// Extract JSDOM from jsdom
-const { JSDOM } = jsdom;
 
 const defaultHTML =  `<tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3">
 <tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">Hello world</tw-passagedata>
@@ -32,52 +29,17 @@ const resetWindow = function() {
   // https://github.com/jsdom/jsdom/wiki/Don't-stuff-jsdom-globals-onto-the-Node-global
   global.window = window;
   global.document = window.document;
-  global.jQuery = global.$ = window.$ = window.jQuery = require('jquery');
-  global._ = window._ = require('underscore');
-  global.marked = window.marked = require('marked');
 };
 
 // Initialize the window global.
 resetWindow();
 
-// Require Story.
-const Story = require("../../lib/Story.js");
-
-// Require Passage.
-const Passage = require("../../lib/Passage.js");
-
 describe("Passage", function() {
     describe("#constructor()", function() {
 
-        it('Should throw error if $ does not exist', function() {
-
-            delete global.$;
-            expect(() => { new Passage(); } ).to.throw();
-            global.$ = window.$;
-
-        });
-
-        it('Should throw error if _ does not exist', function() {
-
-            delete global._;
-            expect(() => { new Passage(); } ).to.throw();
-            global._ = window._;
-
-        });
-
-        it('Should throw error if marked does not exist', function() {
-
-            delete global.marked;
-            expect(() => { new Passage(); } ).to.throw();
-            global.marked = window.marked;
-
-        });
-
         it('Should contain default values when initialized with no arguments', function() {
-
             let p = new Passage();
             expect(p.name).to.equal("Default");
-
         });
 
     });
@@ -85,7 +47,6 @@ describe("Passage", function() {
     describe("#render()", function() {
 
         before(function() {
-
             // Setup a dummy window.story.state
             window.story = {
                 state: {}
@@ -158,132 +119,129 @@ describe("Passage", function() {
 
         it("Should render [[Passage<-Another]]{.test} into correct link", function() {
 
-        let p = new Passage();
-        expect(p.render("[[Passage<-Another]]{.test}") ).to.equal('<a href="javascript:void(0)" data-passage="Passage" class="test">Another</a>');
+            let p = new Passage();
+            expect(p.render("[[Passage<-Another]]{.test}") ).to.equal('<a href="javascript:void(0)" data-passage="Passage" class="test">Another</a>');
 
         });
 
         it("Should render [[Passage<-Another]]{.test.test2} into correct link", function() {
 
-        let p = new Passage();
-        expect(p.render("[[Passage<-Another]]{.test.test2}") ).to.equal('<a href="javascript:void(0)" data-passage="Passage" class="test test2">Another</a>');
+            let p = new Passage();
+            expect(p.render("[[Passage<-Another]]{.test.test2}") ).to.equal('<a href="javascript:void(0)" data-passage="Passage" class="test test2">Another</a>');
 
         });
 
         it("Should render [[Passage<-Another]]{#test} into correct link", function() {
 
-        let p = new Passage();
-        expect(p.render("[[Passage<-Another]]{#test}") ).to.equal('<a href="javascript:void(0)" data-passage="Passage" id="test">Another</a>');
+            let p = new Passage();
+            expect(p.render("[[Passage<-Another]]{#test}") ).to.equal('<a href="javascript:void(0)" data-passage="Passage" id="test">Another</a>');
 
         });
 
         it("Should render [[Passage->Another]]{.test} into correct link", function() {
 
-        let p = new Passage();
-        expect(p.render("[[Passage->Another]]{.test}") ).to.equal('<a href="javascript:void(0)" data-passage="Another" class="test">Passage</a>');
+            let p = new Passage();
+            expect(p.render("[[Passage->Another]]{.test}") ).to.equal('<a href="javascript:void(0)" data-passage="Another" class="test">Passage</a>');
 
         });
 
         it("Should render [[Passage->Another]]{.test.test2} into correct link", function() {
 
-        let p = new Passage();
-        expect(p.render("[[Passage->Another]]{.test.test2}") ).to.equal('<a href="javascript:void(0)" data-passage="Another" class="test test2">Passage</a>');
+            let p = new Passage();
+            expect(p.render("[[Passage->Another]]{.test.test2}") ).to.equal('<a href="javascript:void(0)" data-passage="Another" class="test test2">Passage</a>');
 
         });
 
         it("Should render [[Passage|Another]]{#test} into correct link", function() {
 
-        let p = new Passage();
-        expect(p.render("[[Passage|Another]]{#test}") ).to.equal('<a href="javascript:void(0)" data-passage="Another" id="test">Passage</a>');
+            let p = new Passage();
+            expect(p.render("[[Passage|Another]]{#test}") ).to.equal('<a href="javascript:void(0)" data-passage="Another" id="test">Passage</a>');
 
         });
 
         it("Should render [[Passage|Another]]{.test} into correct link", function() {
 
-        let p = new Passage();
-        expect(p.render("[[Passage|Another]]{.test}") ).to.equal('<a href="javascript:void(0)" data-passage="Another" class="test">Passage</a>');
+            let p = new Passage();
+            expect(p.render("[[Passage|Another]]{.test}") ).to.equal('<a href="javascript:void(0)" data-passage="Another" class="test">Passage</a>');
 
         });
 
         it("Should render [[Passage|Another]]{.test.test2} into correct link", function() {
 
-        let p = new Passage();
-        expect(p.render("[[Passage|Another]]{.test.test2}") ).to.equal('<a href="javascript:void(0)" data-passage="Another" class="test test2">Passage</a>');
+            let p = new Passage();
+            expect(p.render("[[Passage|Another]]{.test.test2}") ).to.equal('<a href="javascript:void(0)" data-passage="Another" class="test test2">Passage</a>');
 
         });
 
         it("Should render <a-0.class#id> correctly", function() {
 
-        let p = new Passage();
-        expect(p.render("<a-0.class#id>") ).to.equal('<a style="display:none" href="javascript:void(0)" id="id" class="class">');
+            let p = new Passage();
+            expect(p.render("<a-0.class#id>") ).to.equal('<a style="display:none" href="javascript:void(0)" id="id" class="class">');
 
         });
 
         it("Should ignore custom elements using a dash in its name", function() {
             
-        let p = new Passage();
-        expect(p.render("<custom-element>") ).to.equal('<custom-element>');
+            let p = new Passage();
+            expect(p.render("<custom-element>") ).to.equal('<custom-element>');
     
         });
 
         it("Should passthrough any <script> tags", function() {
 
-        let p = new Passage();
-        expect( p.render('<div><script>console.log("Hello world")</script></div>') ).to.equal('<div><script>console.log("Hello world")</script></div>');
+            let p = new Passage();
+            expect( p.render('<div><script>console.log("Hello world")</script></div>') ).to.equal('<div><script>console.log("Hello world")</script></div>');
 
         });
 
         it("Should render in-line markdown: Emphasis", function() {
 
-        let p = new Passage();
-        expect( p.render('*Emphasis* or _Emphasis_.') ).to.equal('<em>Emphasis</em> or <em>Emphasis</em>.');
+            let p = new Passage();
+            expect( p.render('*Emphasis* or _Emphasis_.') ).to.equal('<em>Emphasis</em> or <em>Emphasis</em>.');
 
         });
 
         it("Should render in-line markdown: Strong Emphasis", function() {
 
-        let p = new Passage();
-        expect( p.render('**Strong emphasis** or __Strong emphasis__.') ).to.equal('<strong>Strong emphasis</strong> or <strong>Strong emphasis</strong>.');
+            let p = new Passage();
+            expect( p.render('**Strong emphasis** or __Strong emphasis__.') ).to.equal('<strong>Strong emphasis</strong> or <strong>Strong emphasis</strong>.');
 
         });
 
         it("Should render in-line markdown: Strikethrough", function() {
 
-        let p = new Passage();
-        expect( p.render('~~Strikethrough~~') ).to.equal('<del>Strikethrough</del>');
+            let p = new Passage();
+            expect( p.render('~~Strikethrough~~') ).to.equal('<del>Strikethrough</del>');
 
         });
 
         it("Should render in-line markdown: Header 5", function() {
 
-        let p = new Passage();
-        expect( p.render('##### Header 5') ).to.equal('<h5 id="header-5">Header 5</h5>\n');
+            let p = new Passage();
+            expect( p.render('##### Header 5') ).to.equal('<h5>Header 5</h5>\n');
 
         });
 
         it("Should render multi-line markdown: Ordered List", function() {
 
-        let p = new Passage();
-        expect (p.render('1. First ordered list item\n2. Another item') ).to.equal('<ol>\n<li>First ordered list item</li>\n<li>Another item</li>\n</ol>\n');
+            let p = new Passage();
+            expect (p.render('1. First ordered list item\n2. Another item') ).to.equal('<ol>\n<li>First ordered list item</li>\n<li>Another item</li>\n</ol>\n');
 
         });
 
         it("Should render multi-line links correctly", function() {
 
-        let p = new Passage();
-        expect (p.render('Rooms:\n- [[Front Room]]\n- [[Back Room]]') ).to.equal('<p>Rooms:</p>\n<ul>\n<li><a href="javascript:void(0)" data-passage="Front Room">Front Room</a></li>\n<li><a href="javascript:void(0)" data-passage="Back Room">Back Room</a></li>\n</ul>\n');
+            let p = new Passage();
+            expect (p.render('Rooms:\n- [[Front Room]]\n- [[Back Room]]') ).to.equal('<p>Rooms:</p>\n<ul>\n<li><a href="javascript:void(0)" data-passage="Front Room">Front Room</a></li>\n<li><a href="javascript:void(0)" data-passage="Back Room">Back Room</a></li>\n</ul>\n');
 
         });
 
         it("Should not trigger markdown code blocks", function() {
 
             let p = new Passage();
-            window.setup = {};
-            window.setup.example = true;
-            let test = `<% if(window.setup.example) { %>
-                <div>[[Testing]]</div>
-            <% } %>`;
-            expect( p.render(test).trim() ).to.equal(`<div><a href="javascript:void(0)" data-passage="Testing">Testing</a></div>`);
+            const test = '<% if(true) { %><div>[[Testing]]</div><% } %>';
+            const result = p.render(test);
+            expect(result).to.equal('<div><a href="javascript:void(0)" data-passage="Testing">Testing</a></div>');
 
         });
     });

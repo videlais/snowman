@@ -1,13 +1,14 @@
 {
   "name": "snowman",
-  "version": "2.0.4",
+  "version": "2.0.6",
   "description": "An advanced story format for authors more experienced with HTML, CSS, and JavaScript. See its <a href='https://videlais.github.io/snowman/2/' target='_blank' rel='noopener noreferrer'>documentation</a>.",
   "license": "MIT",
   "repository": "https://github.com/videlais/snowman/",
   "scripts": {
-    "test": "nyc mocha test/*/*.test.js || exit 0",
+    "test": "nyc mocha test/*/*.test.js",
     "lint": "eslint lib/**/*.js  || exit 0",
-    "build": "node scripts/build-format.js"
+    "build": "node scripts/build-format.js",
+    "all": "npm run lint && npm run test && npm run build"
   },
   "keywords": [
     "twine",
@@ -15,28 +16,29 @@
   ],
   "author": "Dan Cox",
   "dependencies": {
-    "@babel/polyfill": "^7.7.0",
+    "@babel/polyfill": "^7.12.1",
     "babel-core": "^6.26.3",
-    "chai-as-promised": "^7.1.1",
-    "jquery": "^3.4.1",
-    "jsdom": "^15.2.1",
-    "lz-string": "^1.4.4",
-    "marked": "^0.7.0",
-    "underscore": "^1.9.1"
+    "chai-as-promised": "^8.0.1",
+    "jquery": "^3.7.1",
+    "jsdom": "^25.0.1",
+    "lz-string": "^1.5.0",
+    "marked": "^15.0.4",
+    "underscore": "^1.13.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.4",
-    "@babel/preset-env": "^7.7.4",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
     "babelify": "^10.0.0",
-    "browserify": "^16.5.0",
-    "chai": "^4.5.0",
+    "browserify": "^17.0.1",
+    "chai": "^5.1.2",
     "child-process-promise": "^2.2.1",
-    "clean-css": "^4.2.1",
-    "ejs": "^2.7.4",
-    "eslint": "^6.7.1",
-    "mocha": "^6.2.2",
-    "nyc": "^14.1.1",
-    "shelljs": "^0.8.3",
-    "uglifyify": "^5.0.2"
-  }
+    "clean-css": "^5.3.3",
+    "ejs": "^3.1.10",
+    "eslint": "^9.17.0",
+    "mocha": "^11.0.1",
+    "nyc": "^17.1.0",
+    "shelljs": "^0.8.5",
+    "uglifyify": "^5.0.0"
+  },
+  "type": "module"
 }

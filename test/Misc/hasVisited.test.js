@@ -1,11 +1,24 @@
-const { expect } = require('chai');
-const hasVisited = require("../../lib/Misc/hasVisited.js");
+import { expect } from 'chai';
+import hasVisited from '../../lib/Misc/hasVisited.js';
 
 describe('#hasVisited()', function() {
 
     beforeEach(function() {
-        window.story = new Story($('tw-storydata'));
-        window.story.start($('tw-story'));
+        window.story = {
+            history: [],
+            passage: function(passage) {
+                // Return null or passage matching the id.
+                if(passage == "Start") {
+                    return { id: 1 };
+                } else if(passage == "Test Passage") {
+                    return { id: 2 };
+                } else if(passage == "Test Passage 4") {
+                    return { id: 3 };
+                } else {
+                    return null;
+                }
+            }
+        }
     });
 
     it('Should return false if no arguments passed', function() {
@@ -23,7 +36,7 @@ describe('#hasVisited()', function() {
     });
 
     it('Should return true if passage name visited', function() {
-        window.story.history = ["Start"];
+        window.story.history = [1];
         expect(hasVisited("Start")).to.equal(true);
     });
 
@@ -38,12 +51,12 @@ describe('#hasVisited()', function() {
     });
 
     it('Should return true if multiple passage names visited', function() {
-        window.story.history = ["Test Passage", "Test Passage 4"];
+        window.story.history = [2, 3];
         expect(hasVisited("Test Passage", "Test Passage 4")).to.equal(true);
     });
 
     it('Should return false if any multiple passage names not visited', function() {
-        window.story.history = ["Random", "Another"];
+        window.story.history = [2];
         expect(hasVisited("Random", "Another")).to.equal(false);
     });
 });
