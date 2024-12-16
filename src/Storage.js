@@ -92,9 +92,8 @@ class Storage {
       window.localStorage.setItem('testKey', 'test');
       window.localStorage.removeItem('testKey');
       result = true;
-    } finally {
-      // If an error was thrown, we do nothing.
-      // The method will return false if it did not work.
+    } catch(error) {
+      console.info('Info: localStorage is not available. Error:', error);
     }
 
     // Return result

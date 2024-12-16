@@ -1,3 +1,3 @@
-const { jest } = require('@jest/globals');
+//const { jest } = require('@jest/globals');
 
-global.jest = jest;
+//global.jest = jest;

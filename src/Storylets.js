@@ -30,7 +30,8 @@ class Storylets {
           try {
             // Try to parse string into object
             passageRequirements = JSON.parse(captured);
-          } finally {
+          } catch (error) {
+            console.info('INFO: Failed to parse passage requirements. Error:', error);
             // Ignore the error
           }
 

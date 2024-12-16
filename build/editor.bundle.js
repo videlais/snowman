@@ -1,5 +1,4 @@
 /******/ (() => { // webpackBootstrap
-var __webpack_exports__ = {};
 (function () {
 // Create an element
   const test = document.createElement('p');
