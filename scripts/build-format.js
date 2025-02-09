@@ -1,50 +1,57 @@
-var ejs = require('ejs');
-var exec = require('child-process-promise').exec;
-var fs = require('fs');
-var pkg = require('../package.json');
-var shell = require('shelljs');
-let CleanCSS = require('clean-css');
+import { compile } from 'ejs';
+import { exec } from 'child-process-promise';
+import { readFileSync, writeFileSync } from 'fs';
+import pkg from 'shelljs';
+const { rm, cat, mkdir, cp } = pkg;
+import CleanCSS from 'clean-css';
 
 var encoding = { encoding: 'utf8' };
 
+// Read the package.json file and convert to object
+const packageJSON = JSON.parse(readFileSync('package.json', encoding));
+const name = packageJSON.name;
+const version = packageJSON.version;
+const description = packageJSON.description;
+const author = packageJSON.author;
+const url = packageJSON.repository;
+
 function buildCSS() {
 
-	shell.rm('-f', 'lib/src/format.css');
-	shell.cat('lib/src/*.css').to('lib/src/format.css');
-  let file = fs.readFileSync('lib/src/format.css');
+	rm('-f', 'lib/src/format.css');
+	cat('lib/src/*.css').to('lib/src/format.css');
+  let file = readFileSync('lib/src/format.css');
   const output = new CleanCSS({level: 2}).minify(file);
-	shell.rm('-f', 'lib/src/format.css');
+	rm('-f', 'lib/src/format.css');
 	return output.styles;
 
 }
 
-Promise.all([
-	buildCSS(),
-	exec('browserify -g uglifyify lib/index.js -t [ babelify --presets [ @babel/env ] ]', { maxBuffer: Infinity })
-]).then(function(results) {
-	var distPath = 'dist/' + pkg.name.toLowerCase() + '-' + pkg.version;
-	var htmlTemplate = ejs.compile(fs.readFileSync('lib/src/index.ejs', encoding));
+/** 
+	buildCSS();
+	const results = exec('browserify -g uglifyify lib/index.js -t [ babelify --presets [ @babel/env ] ]', { maxBuffer: Infinity });
+
+	var distPath = 'dist/' + name.toLowerCase() + '-' + version;
+	var htmlTemplate = compile(readFileSync('lib/src/index.ejs', encoding));
 	var formatData = {
-		author: pkg.author.replace(/ <.*>/, ''),
-		description: pkg.description,
+		author: author.replace(/ <.*>/, ''),
+		description: description,
 		image: 'icon.svg',
-		name: pkg.name,
+		name: name,
 		proofing: false,
 		source: htmlTemplate({
 			style: results[0],
-			script: results[1].stdout
+			script: results[1]
 		}),
-		url: pkg.repository,
-		version: pkg.version
+		url: url,
+		version: version
 	};
 
-	shell.mkdir('-p', distPath);
+	mkdir('-p', distPath);
 
-	fs.writeFileSync(
+	writeFileSync(
 		distPath + '/format.js',
 		'window.storyFormat(' + JSON.stringify(formatData) + ');'
 	);
 
-	shell.cp('lib/src/icon.svg', distPath + '/icon.svg');
-
-});
+	cp('lib/src/icon.svg', distPath + '/icon.svg');
+	*/
