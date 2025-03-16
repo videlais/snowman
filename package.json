@@ -32,7 +32,7 @@
     "@types/puppeteer": "^7.0.4",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.2",
-    "eslint": "^9.20.1",
+    "eslint": "^9.22.0",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-jsdoc": "^50.6.6",
     "extwee": "^2.2.5",
