@@ -26,7 +26,7 @@
     "underscore": "^1.13.7"
   },
   "devDependencies": {
-    "@eslint/js": "^9.24.0",
+    "@eslint/js": "^9.25.1",
     "@types/expect-puppeteer": "^5.0.6",
     "@types/jest-environment-puppeteer": "^5.0.6",
     "@types/puppeteer": "^7.0.4",
