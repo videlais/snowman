@@ -34,7 +34,7 @@
     "css-minimizer-webpack-plugin": "^7.0.2",
     "eslint": "^9.25.1",
     "eslint-plugin-jest": "^28.11.0",
-    "eslint-plugin-jsdoc": "^50.6.9",
+    "eslint-plugin-jsdoc": "^50.6.10",
     "extwee": "^2.2.6",
     "globals": "^16.0.0",
     "jest": "^29.7.0",
