@@ -36,7 +36,7 @@
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-jsdoc": "^50.6.11",
     "extwee": "^2.2.6",
-    "globals": "^16.0.0",
+    "globals": "^16.1.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-puppeteer": "^11.0.0",
