@@ -1,39 +1,73 @@
-import { expect } from 'chai';
+/**
+ * @jest-environment jsdom
+ */
+
 import visited from '../../lib/Misc/visited.js';
 
-describe('#visited()', function() {
+describe('visited', () => {
+    let originalWindow;
 
-    before(function() {
-        window.story = {
+    beforeEach(() => {
+        // Save original window object
+        originalWindow = global.window;
+        global.window = {};
+    });
+
+    afterEach(() => {
+        // Restore original window object
+        global.window = originalWindow;
+    });
+
+    test('returns 0 if window.story is undefined', () => {
+        expect(visited('SomePassage')).toBe(0);
+    });
+
+    test('returns 0 if window.story.history is undefined', () => {
+        global.window.story = {};
+        expect(visited('SomePassage')).toBe(0);
+    });
+
+    test('returns 0 if passage is not found', () => {
+        global.window.story = {
             history: [],
-            passage: function(passage) {
-                // Return null or passage matching the id.
-                if(passage == "Start" || passage == 1) {
-                    return { id: 1 };
-                } else if(passage == "Test Passage" || passage == 2) {
-                    return { id: 2 };
-                } else if(passage == "Test Passage 4" || passage == 3) {
-                    return { id: 3 };
-                } else {
-                    return null;
-                }
-            }
-        }
+            passage: jest.fn().mockReturnValue(null),
+        };
+        expect(visited('NonExistent')).toBe(0);
+        expect(global.window.story.passage).toHaveBeenCalledWith('NonExistent');
     });
 
-    it('Should return 0 if passage does not exist', function() {
-        window.story.history = [1,1];
-        expect(visited(7)).to.equal(0);
+    test('returns correct count when passage is found by id', () => {
+        global.window.story = {
+            history: [1, 2, 1, 3, 1],
+            passage: jest.fn().mockReturnValue({ id: 1 }),
+        };
+        expect(visited(1)).toBe(3);
+        expect(global.window.story.passage).toHaveBeenCalledWith(1);
     });
 
-    it('Should return number of passage visits for single id', function() {
-        window.story.history = [1,1];
-        expect(visited(1)).to.equal(2);
+    test('returns correct count when passage is found by name', () => {
+        global.window.story = {
+            history: [5, 6, 5, 7],
+            passage: jest.fn().mockReturnValue({ id: 5 }),
+        };
+        expect(visited('PassageName')).toBe(2);
+        expect(global.window.story.passage).toHaveBeenCalledWith('PassageName');
     });
 
-    it('Should return number of passage visits for single name', function() {
-        window.story.history = [1,1];
-        expect(visited("Start")).to.equal(2);
+    test('returns 0 if passage id is never in history', () => {
+        global.window.story = {
+            history: [2, 3, 4],
+            passage: jest.fn().mockReturnValue({ id: 1 }),
+        };
+        expect(visited(1)).toBe(0);
     });
 
+    test('works with default argument', () => {
+        global.window.story = {
+            history: [0, 0, 1],
+            passage: jest.fn().mockReturnValue({ id: "" }),
+        };
+        expect(visited()).toBe(2);
+        expect(global.window.story.passage).toHaveBeenCalledWith("");
+    });
 });

@@ -1,57 +1,23 @@
-import { compile } from 'ejs';
-import { exec } from 'child-process-promise';
+import { render } from 'ejs';
 import { readFileSync, writeFileSync } from 'fs';
 import pkg from 'shelljs';
-const { rm, cat, mkdir, cp } = pkg;
-import CleanCSS from 'clean-css';
+const { cp } = pkg;
 
-var encoding = { encoding: 'utf8' };
+// Step 1: Read the built file main.js from the dist directory.
+const bundledJS = readFileSync('dist/main.js', { encoding: 'utf8' });
 
-// Read the package.json file and convert to object
-const packageJSON = JSON.parse(readFileSync('package.json', encoding));
-const name = packageJSON.name;
-const version = packageJSON.version;
-const description = packageJSON.description;
-const author = packageJSON.author;
-const url = packageJSON.repository;
+// Read the EJS file.
+const ejsTemplate = readFileSync('lib/src/index.ejs', { encoding: 'utf8' });
 
-function buildCSS() {
+// Step 2: Read the HTML template and inject the minified JavaScript.
+const htmlTemplate = render(ejsTemplate, {script: bundledJS});
 
-	rm('-f', 'lib/src/format.css');
-	cat('lib/src/*.css').to('lib/src/format.css');
-  let file = readFileSync('lib/src/format.css');
-  const output = new CleanCSS({level: 2}).minify(file);
-	rm('-f', 'lib/src/format.css');
-	return output.styles;
+// Step 2: Create the format data object with metadata from `format.json` and the generated source.
+const formatData = JSON.parse(readFileSync('format.json', { encoding: 'utf8' }));
+// Add the generated HTML as the source property.
+formatData.source = htmlTemplate;
 
-}
-
-/** 
-	buildCSS();
-	const results = exec('browserify -g uglifyify lib/index.js -t [ babelify --presets [ @babel/env ] ]', { maxBuffer: Infinity });
-
-	var distPath = 'dist/' + name.toLowerCase() + '-' + version;
-	var htmlTemplate = compile(readFileSync('lib/src/index.ejs', encoding));
-	var formatData = {
-		author: author.replace(/ <.*>/, ''),
-		description: description,
-		image: 'icon.svg',
-		name: name,
-		proofing: false,
-		source: htmlTemplate({
-			style: results[0],
-			script: results[1]
-		}),
-		url: url,
-		version: version
-	};
-
-	mkdir('-p', distPath);
-
-	writeFileSync(
-		distPath + '/format.js',
-		'window.storyFormat(' + JSON.stringify(formatData) + ');'
-	);
-
-	cp('lib/src/icon.svg', distPath + '/icon.svg');
-	*/
+// Step 5: Write the final format JavaScript file to the `dist` directory.
+writeFileSync('dist/format.js', `window.storyFormat(${JSON.stringify(formatData, null, 2)});`, { encoding: 'utf8' });
+// Also copy the icon file to the dist directory
+cp('src/icon.svg', 'dist/icon.svg');

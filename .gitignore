@@ -6,6 +6,7 @@ pids
 
 # nyc test coverage
 .nyc_output
+coverage/
 
 # Dependency directories
 node_modules/
@@ -16,9 +17,6 @@ jspm_packages/
 
 # Optional eslint cache
 .eslintcache
-
-# Build directory
-dist
 
 # MacOS X Indexing
 .DS_Store
