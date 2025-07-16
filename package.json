@@ -41,7 +41,7 @@
     "jest-environment-jsdom": "^30.0.4",
     "jest-puppeteer": "^11.0.0",
     "mini-css-extract-plugin": "^2.9.2",
-    "open": "^10.1.2",
+    "open": "^10.2.0",
     "open-cli": "^8.0.0",
     "puppeteer": "^24.14.0",
     "shelljs": "^0.10.0",
