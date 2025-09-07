@@ -1,4 +1,4 @@
-# Snowman 2.0.3
+# Snowman 2.1.0
 
 Snowman is a minimal Twine 2 story format designed for people who already know JavaScript and CSS originally created by Chris Klimas. It is currently maintained by Dan Cox.
 
