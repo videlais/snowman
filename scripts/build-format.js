@@ -20,4 +20,4 @@ formatData.source = htmlTemplate;
 // Step 5: Write the final format JavaScript file to the `dist` directory.
 writeFileSync('dist/format.js', `window.storyFormat(${JSON.stringify(formatData, null, 2)});`, { encoding: 'utf8' });
 // Also copy the icon file to the dist directory
-cp('src/icon.svg', 'dist/icon.svg');
+cp('lib/src/icon.svg', 'dist/icon.svg');
