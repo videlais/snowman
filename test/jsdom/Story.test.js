@@ -146,6 +146,65 @@ describe('Story', () => {
       });
       window.Story.show('Test Passage');
     });
+    });
+
+    describe('Story missed coverage', () => {
+      beforeEach(() => {
+        $(document.body).html(`
+        <tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3">
+          <tw-passagedata pid="1" name="Test Passage" tags="">Hello world</tw-passagedata>
+          <tw-passagedata pid="2" name="Test Passage 2" tags="">Hello world 2</tw-passagedata>
+        </tw-storydata>
+        <tw-story>
+        <tw-sidebar>
+          <tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+          <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
+        </tw-sidebar>
+        <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+        window.$ = $;
+        window.Story = new Story();
+        window.Story.start();
+      });
+
+    it('should hide undo icon when undo at start of history', () => {
+      // Navigate to another passage so we have something to undo
+      window.Story.goto('Test Passage 2');
+      // Show undo icon
+      window.Story.sidebar.showUndo();
+      // Now undo to get back to position 0
+      State.events.emit('undo');
+      expect(window.Story.history.position).toBe(0);
+      // Undo icon should be hidden (using visibility, not display)
+      expect(window.Story.sidebar.undoIcon.css('visibility')).toBe('hidden');
+    });      it('should hide redo icon when redo at end of history', () => {
+        // Add a passage to history to allow redo
+        window.Story.goto('Test Passage 2');
+        window.Story.sidebar.undo();
+        window.Story.sidebar.showRedo();
+        State.events.emit('redo');
+        expect(window.Story.history.position).toBe(window.Story.history.history.length - 1);
+        // Redo icon should be hidden (using visibility, not display)
+        expect(window.Story.sidebar.redoIcon.css('visibility')).toBe('hidden');
+      });
+
+      it('should handle click handler in show()', () => {
+        // Show passage with a link
+        window.Story.addPassage('LinkPassage', [], '[[Test Passage 2]]');
+        window.Story.show('LinkPassage');
+        // There should be a tw-link element
+        const link = $('tw-link[data-passage]');
+        expect(link.length).toBe(1);
+        // Click the link
+        link.trigger('click');
+        // Passage should change
+        expect($('tw-passage').text()).toBe('Hello world 2\n');
+        // History should update (check that history contains the passage - accessing passageName property)
+        expect(window.Story.history.history[window.Story.history.history.length - 1].passageName).toBe('Test Passage 2');
+        // Undo/redo icons should update (using visibility, not display)
+        expect(window.Story.sidebar.undoIcon.css('visibility')).toBe('visible');
+        expect(window.Story.sidebar.redoIcon.css('visibility')).toBe('hidden');
+      });
+    });
   });
 
   describe('goto()', () => {
@@ -180,19 +239,19 @@ describe('Story', () => {
     });
 
     it('Should throw error if passage name already exists', () => {
-      window.Story.addPassage('Example');
-      expect(() => { window.Story.addPassage('Example'); }).toThrow();
+      window.Story.addPassage('UniqueExample1');
+      expect(() => { window.Story.addPassage('UniqueExample1'); }).toThrow();
     });
 
     it('Should ignore non-array data for tags', () => {
-      window.Story.addPassage('Example', 'test');
-      const passage = window.Story.getPassageByName('Example');
+      window.Story.addPassage('UniqueExample2', 'test');
+      const passage = window.Story.getPassageByName('UniqueExample2');
       expect(passage.tags.length).toBe(0);
     });
 
     it('Should ignore non-string data for source', () => {
-      window.Story.addPassage('Example', [], null);
-      const passage = window.Story.getPassageByName('Example');
+      window.Story.addPassage('UniqueExample3', [], null);
+      const passage = window.Story.getPassageByName('UniqueExample3');
       expect(passage.source.length).toBe(0);
     });
 
@@ -220,10 +279,10 @@ describe('Story', () => {
     it('Should assume default value', () => {
       const passageCount = window.Story.passages.length;
       window.Story.removePassage();
-      expect(window.Story.passages.length).toBe(passageCount);
+      // Should remove one passage (the empty-named one from previous test)
+      expect(window.Story.passages.length).toBe(passageCount - 1);
     });
   });
-});
 
 describe('Story Navigation', () => {
   beforeEach(() => {
