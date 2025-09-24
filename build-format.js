@@ -17,11 +17,11 @@ const indexSource = ejs.render(srcIndex, {
   story_css: `<style>${storyCSS}</style>`
 });
 
-// Write the resulting file.
-// fs.writeFileSync('build/index.html', indexSource);
-
 // Read the bundled editor code.
-// const editorSource = fs.readFileSync("build/editor.bundle.js", {'encoding': 'utf8'});
+const editorSource = fs.readFileSync("build/editor.bundle.js", {'encoding': 'utf8'});
+
+// Add the bundled editor code to the hydrate section matching the Twine version.
+story.hydrate.twine["^2.10.0"].codeMirror.mode = editorSource;
 
 // Add the HTML template code to the story object.
 story.source = indexSource;
