@@ -1,31 +1,27 @@
-var cpx = require('cpx');
-var ejs = require('ejs');
-var exec = require('child-process-promise').exec;
-var fs = require('fs');
-var pkg = require('../package.json');
-var shell = require('shelljs');
-var path = require('path');
+import cpx from 'cpx';
+import ejs from 'ejs';
+import { exec } from 'child-process-promise';
+import fs from 'fs';
+import pkg from '../package.json' with { type: 'json' };
+import shell from 'shelljs';
+import path from 'path';
 
 var encoding = { encoding: 'utf8' };
-var tempPath = "";
+var tempPath = "tmp";
 
-function buildCSS() {
-	tempPath = 'tmp';
-	var cssPath = path.join(tempPath, 'format.css');
-
-	shell.mkdir('-p', tempPath);
-	shell.rm('-f', cssPath);
-	shell.cat('src/*.css').to(cssPath);
-
-	return exec('cssnano ' + cssPath);
+function buildWithWebpack() {
+	// Use webpack to build both JS and CSS
+	return exec('npx webpack --config webpack.config.js', { maxBuffer: Infinity });
 }
 
-Promise.all([
-	buildCSS(),
-	exec('browserify -g uglifyify src/index.js', { maxBuffer: Infinity })
-]).then(function(results) {
+buildWithWebpack().then(function(result) {
 	var distPath = 'dist/' + pkg.name.toLowerCase() + '-' + pkg.version;
 	var htmlTemplate = ejs.compile(fs.readFileSync('src/index.ejs', encoding));
+	
+	// Read the webpack output files
+	var scriptContent = fs.readFileSync(path.join(tempPath, 'script.bundle.js'), encoding);
+	var styleContent = fs.readFileSync(path.join(tempPath, 'format.css'), encoding);
+	
 	var formatData = {
 		author: pkg.author.replace(/ <.*>/, ''),
 		description: pkg.description,
@@ -33,8 +29,8 @@ Promise.all([
 		name: pkg.name,
 		proofing: false,
 		source: htmlTemplate({
-			style: results[0].stdout,
-			script: results[1].stdout
+			style: styleContent,
+			script: scriptContent
 		}),
 		url: pkg.repository,
 		version: pkg.version
@@ -50,4 +46,7 @@ Promise.all([
 	// Clean up
 	shell.rm('-R', tempPath);
 
+}).catch(function(error) {
+	console.error('Build failed:', error);
+	process.exit(1);
 });

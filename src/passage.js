@@ -5,10 +5,9 @@
  @constructor
 **/
 
-'use strict';
-var _ = require('underscore');
-var marked = require('marked');
-var jQuery = require('jquery');
+import _ from 'underscore';
+import { marked } from 'marked';
+import jQuery from 'jquery';
 
 /**
  Our rendering engine. This is available externally as Passage.render(),
@@ -30,7 +29,7 @@ function render(source) {
 	*/
 
 	result = result.replace(
-		/<([a-z]+)([\.#\-0].*?)(?=[\s>])/gi,
+		/<([a-z]+)([.#\-0].*?)(?=[\s>])/gi,
 		function(match, tagName, attrs) {
 			return '<' + tagName + ' ' + renderAttrs(attrs);
 		}
@@ -81,8 +80,7 @@ function render(source) {
 		}
 	});
 
-	marked.setOptions({ smartypants: true });
-	return marked(result);
+	return marked.parse(result, { breaks: false, gfm: true });
 };
 
 /**
@@ -113,7 +111,7 @@ function renderAttrs(attrs) {
 
 	var classes = [];
 	var id = null;
-	var classOrId = /([#\.])([^#\.]+)/g;
+	var classOrId = /([#.])([^#.]+)/g;
 	var matches = classOrId.exec(attrs);
 
 	while (matches !== null) {
@@ -228,4 +226,4 @@ _.extend(Passage.prototype, {
 	}
 });
 
-module.exports = Passage;
+export default Passage;

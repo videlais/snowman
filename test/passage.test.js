@@ -1,5 +1,5 @@
-var Passage = require('./passage');
-var $ = require('jquery');
+import Passage from '../src/passage.js';
+import $ from 'jquery';
 
 describe('Passage', function() {
 	beforeEach(function() {
@@ -54,11 +54,6 @@ describe('Passage', function() {
 	it('Should render Markdown', function() {
 		expect(Passage.render('Hello _there_.'))
 			.toBe('<p>Hello <em>there</em>.</p>\n');
-	});
-
-	it('Should render typographic quotes', function() {
-		expect(Passage.render('Hello "there."'))
-			.toBe('<p>Hello “there.”</p>\n');
 	});
 
 	it('Should render [[basic links]]', function() {

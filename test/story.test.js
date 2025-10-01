@@ -1,5 +1,6 @@
-var Story = require('./story');
-var $ = require('jquery');
+import Story from '../src/story.js';
+import $ from 'jquery';
+
 var $storyEl = $('<tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3"><tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">Hello world</tw-passagedata><tw-passagedata pid="2" name="Test Passage 2" tags="tag1 tag2">Hello world 2</tw-passagedata><tw-passagedata pid="3" name="Script" tags=""><div><script>console.log("Hello world")</script></div></tw-passagedata><script type="text/twine-javascript">window.scriptRan = true;</script><style type="text/twine-css">body { color: blue }</style></tw-storydata>');
 var story = new Story($storyEl);
 
@@ -127,11 +128,11 @@ describe('#start()', function() {
 
 	it('Should trigger a start.sm.story event with start()', function() {
 		var $el = $('<div startnode="1"></div>');
-		var eventListener = jasmine.createSpy();
+		var eventListener = jest.fn();
 
 		$(window).on('start.sm.story', eventListener);
 		story.start($el);
-		expect(eventListener.calls.mostRecent().args[1].story).toBe(story);
+		expect(eventListener.mock.calls[eventListener.mock.calls.length - 1][1].story).toBe(story);
 	});
 
 });
@@ -158,35 +159,38 @@ describe('#show()', function() {
 
 	it('Should trigger a hide.sm.passage event when show() is called', function() {
 		var $el = $('<div startnode="1"></div>');
-		var eventListener = jasmine.createSpy();
+		var eventListener = jest.fn();
 		var passage = story.passage('Test Passage');
 
 		$(window).on('hide.sm.passage', eventListener);
 		story.start($el);
 		story.show('Test Passage 2');
-		expect(eventListener.calls.mostRecent().args[1].passage).toBe(passage);
+		var lastCall = eventListener.mock.calls[eventListener.mock.calls.length - 1];
+		expect(lastCall[1].passage).toBe(passage);
 	});
 
 	it('Should trigger a show.sm.passage event when show() is called', function () {
 		var $el = $('<div startnode="1"></div>');
-		var eventListener = jasmine.createSpy();
+		var eventListener = jest.fn();
 		var passage = story.passage('Test Passage 2');
 
 		$(window).on('show.sm.passage', eventListener);
 		story.start($el);
 		story.show('Test Passage 2');
-		expect(eventListener.calls.mostRecent().args[1].passage).toBe(passage);
+		var lastCall = eventListener.mock.calls[eventListener.mock.calls.length - 1];
+		expect(lastCall[1].passage).toBe(passage);
 	});
 
 	it('Should trigger a shown.sm.passage event when show() is called', function () {
 		var $el = $('<div startnode="1"></div>');
-		var eventListener = jasmine.createSpy();
+		var eventListener = jest.fn();
 		var passage = story.passage('Test Passage 2');
 
 		$(window).on('shown.sm.passage', eventListener);
 		story.start($el);
 		story.show('Test Passage 2');
-		expect(eventListener.calls.mostRecent().args[1].passage).toBe(passage);
+		var lastCall = eventListener.mock.calls[eventListener.mock.calls.length - 1];
+		expect(lastCall[1].passage).toBe(passage);
 	});
 
 });

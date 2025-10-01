@@ -6,11 +6,10 @@
  @constructor
 **/
 
-'use strict';
-var $ = require('jquery');
-var _ = require('underscore');
-var LZString = require('lz-string');
-var Passage = require('./passage');
+import $ from 'jquery';
+import _ from 'underscore';
+import LZString from 'lz-string';
+import Passage from './passage.js';
 
 var Story = function(dataEl) {
 	/* Set up basic properties. */
@@ -263,10 +262,10 @@ _.extend(Story.prototype, {
 			!this.restore(window.location.hash.replace('#', ''))) {
 			/* Start the story; mark that we're at a checkpoint. */
 
-      // Verify there are passages before calling show()
-      if(this.passages.length > 1) {
-        this.show(this.startPassage);
-      }
+			// Verify there are passages before calling show()
+			if(this.passages.length > 1) {
+				this.show(this.startPassage);
+			}
 
 			this.atCheckpoint = true;
 		}
@@ -343,7 +342,7 @@ _.extend(Story.prototype, {
 						''
 					);
 
-					$.event.trigger('added.sm.checkpoint', { name: name });
+					$.event.trigger('added.sm.checkpoint', { name: this.checkpointName });
 				}
 				else {
 					window.history.replaceState(
@@ -507,4 +506,4 @@ _.extend(Story.prototype, {
 	}
 });
 
-module.exports = Story;
+export default Story;
