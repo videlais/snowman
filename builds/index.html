@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snowman Story Format - Build Files</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+        }
+        .version-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .file-links {
+            margin: 15px 0;
+        }
+        .file-links a {
+            display: inline-block;
+            margin: 5px 10px 5px 0;
+            padding: 8px 12px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .file-links a:hover {
+            background-color: #2980b9;
+        }
+        .url-section {
+            margin-top: 15px;
+        }
+        .url-box {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .url-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            background-color: #f8f8f8;
+        }
+        .copy-btn {
+            padding: 8px 12px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .copy-btn:hover {
+            background-color: #229954;
+        }
+        .copy-btn:active {
+            background-color: #1e8449;
+        }
+        .instructions {
+            background-color: #e8f6ff;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 20px 0;
+        }
+        .version-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .updated {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snowman Story Format - Build Files</h1>
+    
+    <div class="instructions">
+        <strong>📋 For Twine Users:</strong> Copy the format.js URL below and paste it into Twine's "Add Story Format" dialog to install Snowman.
+    </div>
+
+    <div class="version-section">
+        <h2>Snowman 1.X <span class="version-badge">Legacy</span></h2>
+        <p>The original Snowman story format with jQuery support and basic functionality.</p>
+        
+        <div class="file-links">
+            <a href="1.X/format.js" target="_blank">📄 format.js</a>
+            <a href="1.X/icon.svg" target="_blank">🎨 icon.svg</a>
+        </div>
+        
+        <div class="url-section">
+            <label><strong>format.js URL for Twine:</strong></label>
+            <div class="url-box">
+                <input type="text" class="url-input" id="url-1x" readonly 
+                       value="https://videlais.github.io/snowman/builds/1.X/format.js">
+                <button class="copy-btn" onclick="copyToClipboard('url-1x')">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="version-section">
+        <h2>Snowman 2.X <span class="version-badge">Stable</span></h2>
+        <p>Enhanced version with improved features, better performance, and expanded API.</p>
+        
+        <div class="file-links">
+            <a href="2.X/format.js" target="_blank">📄 format.js</a>
+            <a href="2.X/main.js" target="_blank">⚙️ main.js</a>
+            <a href="2.X/icon.svg" target="_blank">🎨 icon.svg</a>
+            <a href="2.X/main.js.LICENSE.txt" target="_blank">📜 License</a>
+        </div>
+        
+        <div class="url-section">
+            <label><strong>format.js URL for Twine:</strong></label>
+            <div class="url-box">
+                <input type="text" class="url-input" id="url-2x" readonly 
+                       value="https://videlais.github.io/snowman/builds/2.X/format.js">
+                <button class="copy-btn" onclick="copyToClipboard('url-2x')">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="version-section">
+        <h2>Snowman 3.X <span class="version-badge">Latest</span></h2>
+        <p>The latest version with modern JavaScript features and comprehensive API.</p>
+        
+        <div class="file-links">
+            <a href="3.X/format.js" target="_blank">📄 format.js</a>
+            <a href="3.X/icon.svg" target="_blank">🎨 icon.svg</a>
+        </div>
+        
+        <div class="url-section">
+            <label><strong>format.js URL for Twine:</strong></label>
+            <div class="url-box">
+                <input type="text" class="url-input" id="url-3x" readonly 
+                       value="https://videlais.github.io/snowman/builds/3.X/format.js">
+                <button class="copy-btn" onclick="copyToClipboard('url-3x')">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>📚 Documentation</h3>
+        <p>For complete documentation and examples:</p>
+        <ul>
+            <li><a href="../1/">Snowman 1.X Documentation</a></li>
+            <li><a href="../2/">Snowman 2.X Documentation</a></li>
+        </ul>
+    </div>
+
+    <footer style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #7f8c8d;">
+        <p class="updated">Files automatically updated daily via GitHub Actions • Last updated: <span id="last-updated"></span></p>
+        <p>Part of the <a href="https://github.com/videlais/snowman">Snowman Story Format</a> project</p>
+    </footer>
+
+    <script>
+        function copyToClipboard(elementId) {
+            const input = document.getElementById(elementId);
+            input.select();
+            input.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                document.execCommand('copy');
+                const button = input.nextElementSibling;
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.backgroundColor = '#27ae60';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.backgroundColor = '#27ae60';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+            }
+        }
+
+        // Set last updated date
+        document.getElementById('last-updated').textContent = new Date().toLocaleDateString();
+        
+        // Add keyboard support for copy buttons
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === '1') {
+                    e.preventDefault();
+                    copyToClipboard('url-1x');
+                } else if (e.key === '2') {
+                    e.preventDefault();
+                    copyToClipboard('url-2x');
+                } else if (e.key === '3') {
+                    e.preventDefault();
+                    copyToClipboard('url-3x');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
