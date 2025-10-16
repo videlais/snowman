@@ -98,6 +98,26 @@
             color: #7f8c8d;
             font-style: italic;
         }
+        .version-info {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border-left: 3px solid #3498db;
+            border-radius: 3px;
+        }
+        .version-display {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-right: 10px;
+        }
+        .loading {
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        .error {
+            color: #e74c3c;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -110,6 +130,10 @@
     <div class="version-section">
         <h2>Snowman 1.X <span class="version-badge">Legacy</span></h2>
         <p>The original Snowman story format with jQuery support and basic functionality.</p>
+        
+        <div class="version-info" id="version-info-1x">
+            <span class="loading">Loading version information...</span>
+        </div>
         
         <div class="file-links">
             <a href="1.X/format.js" target="_blank">📄 format.js</a>
@@ -130,6 +154,10 @@
         <h2>Snowman 2.X <span class="version-badge">Stable</span></h2>
         <p>Enhanced version with improved features, better performance, and expanded API.</p>
         
+        <div class="version-info" id="version-info-2x">
+            <span class="loading">Loading version information...</span>
+        </div>
+        
         <div class="file-links">
             <a href="2.X/format.js" target="_blank">📄 format.js</a>
             <a href="2.X/icon.svg" target="_blank">🎨 icon.svg</a>
@@ -148,6 +176,10 @@
     <div class="version-section">
         <h2>Snowman 3.X <span class="version-badge">Latest</span></h2>
         <p>The latest version with modern JavaScript features and comprehensive API.</p>
+        
+        <div class="version-info" id="version-info-3x">
+            <span class="loading">Loading version information...</span>
+        </div>
         
         <div class="file-links">
             <a href="3.X/format.js" target="_blank">📄 format.js</a>
@@ -199,6 +231,69 @@
                 console.error('Failed to copy: ', err);
             }
         }
+
+        // Function to load and parse version information from format.js files
+        function loadVersionInfo(versionFolder, infoElementId) {
+            const formatUrl = versionFolder + '/format.js';
+            const infoElement = document.getElementById(infoElementId);
+            
+            // Create a script element to load the JSONP format file
+            const script = document.createElement('script');
+            const callbackName = 'storyFormat_' + versionFolder.replace('.', '');
+            
+            // Create temporary global callback
+            window[callbackName] = function(formatData) {
+                try {
+                    const version = formatData.version || 'Unknown';
+                    const name = formatData.name || 'Snowman';
+                    const description = formatData.description || '';
+                    const url = formatData.url || '';
+                    
+                    infoElement.innerHTML = `
+                        <span class="version-display">Version: ${version}</span>
+                        <span>📋 ${name}</span>
+                        ${url ? `<br><small>📍 <a href="${url}" target="_blank">Source Repository</a></small>` : ''}
+                    `;
+                } catch (error) {
+                    infoElement.innerHTML = '<span class="error">Error loading version information</span>';
+                    console.error('Error parsing version info for ' + versionFolder, error);
+                }
+                
+                // Clean up
+                document.head.removeChild(script);
+                delete window[callbackName];
+            };
+            
+            // Handle loading errors
+            script.onerror = function() {
+                infoElement.innerHTML = '<span class="error">Could not load version information</span>';
+                document.head.removeChild(script);
+                delete window[callbackName];
+            };
+            
+            // Modify the format.js content to use our callback
+            fetch(formatUrl)
+                .then(response => response.text())
+                .then(formatContent => {
+                    // Replace the original storyFormat call with our callback
+                    const modifiedContent = formatContent.replace(
+                        /window\.storyFormat\s*\(/,
+                        `window.${callbackName}(`
+                    );
+                    
+                    script.textContent = modifiedContent;
+                    document.head.appendChild(script);
+                })
+                .catch(error => {
+                    infoElement.innerHTML = '<span class="error">Could not load version information</span>';
+                    console.error('Error fetching format.js for ' + versionFolder, error);
+                });
+        }
+        
+        // Load version information for each build
+        loadVersionInfo('1.X', 'version-info-1x');
+        loadVersionInfo('2.X', 'version-info-2x');
+        loadVersionInfo('3.X', 'version-info-3x');
 
         // Set last updated date
         document.getElementById('last-updated').textContent = new Date().toLocaleDateString();
