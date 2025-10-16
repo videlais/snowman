@@ -38,9 +38,9 @@ https://videlais.github.io/snowman/builds/2.X/format.js
 
 Snowman development is organized into major version branches:
 
-- **[1.X Branch](https://github.com/videlais/snowman/tree/1.X)** - Legacy version (Twine 1 compatible)
-- **[2.X Branch](https://github.com/videlais/snowman/tree/2.X)** - Current stable version (Twine 2)
-- **[Main Branch](https://github.com/videlais/snowman)** - Development version (Snowman 3.X)
+- **[1.X Branch](https://github.com/videlais/snowman/tree/1.X)** - Legacy version
+- **[2.X Branch](https://github.com/videlais/snowman/tree/2.X)** - Current stable version
+- **[Main Branch](https://github.com/videlais/snowman)** - Development version
 
 ## Building
 
