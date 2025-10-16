@@ -1,0 +1,26 @@
+:: StoryData
+{
+    "ifid": "0AF9B746-26F3-4C01-A345-1B30A2AC7813",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+CSS Selectors in Snowman
+
+:: UserStylesheet [stylesheet]
+body {
+    background-color: lightgreen;
+}
+
+#passage {
+    border: 1px solid red;
+}
+
+:: Start
+The page has a green background; it contains this passage, which has a red border.
+
+[[Second]]
+
+:: Second
+This passage also has a red border.

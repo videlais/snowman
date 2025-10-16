@@ -1,0 +1,25 @@
+:: StoryData
+{
+    "ifid": "293893D7-9462-4916-A293-280B7FAE7830",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Snowman 2: Passage Transitions
+
+:: UserScript[script]
+$(document).on('sm.passage.showing', function(event, passage) {
+
+	$("tw-passage").hide(0).fadeIn(2000);
+
+});
+
+:: Start
+[[Another Passage]]
+
+:: Another Passage
+[[A Third Passage]]
+
+:: A Third Passage
+Double-click this passage to edit it.

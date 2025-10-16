@@ -1,0 +1,30 @@
+:: StoryData
+{
+    "ifid": "ABE4F2D6-5B93-4100-855B-40D151942C67",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Date and Time in Snowman
+
+:: Start
+The current time (in milliseconds since January 1, 1970 00:00:00 UTC) is <%= Date.now() %>
+
+<% 
+	window.setup = {};
+	window.setup.newDate = new Date(); 
+%>
+The current month is <%= setup.newDate.getMonth() %>.
+
+The current day is <%= setup.newDate.getDay() %>.
+
+The current hour is <%= setup.newDate.getHours() %>.
+
+The current minute is <%= setup.newDate.getMinutes() %>.
+
+The current fullyear is <%= setup.newDate.getFullYear() %>.
+
+<% window.setup.originalDate = new Date("October 20, 2018") %>
+It has been <%=  Date.now() - setup.originalDate%> milliseconds since October 20, 2018.
+

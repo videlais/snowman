@@ -1,0 +1,21 @@
+:: StoryData
+{
+    "ifid": "04DCA84E-3949-496E-9E62-04B2FFCC51AB",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Adding Functionality in Snowman
+
+:: UserScript[script]
+// Use or create window.setup
+window.setup = window.setup || {};
+
+// Create global function
+window.setup.showCurrentTime = function() {
+	return new Date();
+}
+
+:: Start
+The current time is <%= setup.showCurrentTime() %>

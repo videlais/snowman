@@ -1,0 +1,17 @@
+:: StoryData
+{
+    "ifid": "00CE918B-E155-4F29-9A02-ACF7A7E3E1EC",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Snowman: Passage Visits
+
+:: Start
+How many times has the passage "Another Passage" been visited? <%= visited("Another Passage") %>
+
+[[Another Passage]]
+
+:: Another Passage
+[[Start]]

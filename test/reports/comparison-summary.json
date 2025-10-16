@@ -1,0 +1,17 @@
+{
+  "simple-text": {
+    "html": "Just plain text.",
+    "size": 16,
+    "contains": true
+  },
+  "markdown-formatting": {
+    "html": "<strong>Bold</strong> and <em>italic</em> text.",
+    "size": 47,
+    "contains": true
+  },
+  "passage-links": {
+    "html": "Go to <a href=\"javascript:void(0)\" data-passage=\"Another Page\">Another Page</a> or <a href=\"javascript:void(0)\" data-passage=\"Start\">Home</a>",
+    "size": 141,
+    "contains": true
+  }
+}

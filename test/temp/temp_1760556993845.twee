@@ -1,0 +1,34 @@
+:: StoryData
+{
+    "ifid": "FA6750BE-BCC3-4361-985E-A0454D5F895E",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Variable Story Styling in Snowman
+
+:: UserStylesheet[stylesheet]
+.green {
+	background: white;
+  	color: green;
+}
+.white {
+	background: black;
+  	color: white;
+}
+
+:: Start
+This text is green on a white background.
+<% 
+	s.styling = "green";
+	$("body").toggleClass(s.styling) 
+%>
+[[Next Passage]]
+
+:: Next Passage
+This text is white on a black background.
+<% 
+	s.styling = "white";
+	$("body").toggleClass(s.styling);
+%>

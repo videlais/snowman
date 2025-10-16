@@ -1,0 +1,25 @@
+:: StoryData
+{
+    "ifid": "6E5EFD04-4C5A-4B54-B00E-55B2BD79C3D4",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Modularity in Snowman
+
+:: Start
+<%
+	s.lineOne = "Give us a verse";
+	s.lineTwo = "Drop some knowledge";
+%>
+
+<%= window.story.render("showLineOne") %>
+<%= window.story.render("showLineTwo") %>
+
+
+:: showLineOne
+<%= s.lineOne %>
+
+:: showLineTwo
+<%= s.lineTwo %>

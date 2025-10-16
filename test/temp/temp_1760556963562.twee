@@ -1,0 +1,21 @@
+:: StoryData
+{
+    "ifid": "B81727E0-E5C1-4B53-9AD4-B760F18A7987",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Programmatic Undo in Snowman
+
+:: UserScript[script]
+$(window).on('showpassage:after', function (e, data)
+{
+    window.story.checkpoint(data.passage.name);
+});
+
+:: Start
+[[Enter the Darkness]]
+
+:: Enter the Darkness
+<a href="javascript: window.history.back();">You are not ready! Go back!</a>

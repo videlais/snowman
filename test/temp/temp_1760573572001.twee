@@ -1,0 +1,20 @@
+:: StoryData
+{
+    "ifid": "DB31A3F8-BBB7-4026-8D63-BD8CE461492B",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Delayed Text in Snowman
+
+:: Start
+<div id="results"></div>
+<%
+	_.delay(
+		function()
+		{
+			$("#results").text("It has been 5 seconds. Show the text!");
+		}, 
+		5000) 
+%>

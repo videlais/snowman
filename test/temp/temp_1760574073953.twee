@@ -1,0 +1,29 @@
+:: StoryData
+{
+    "ifid": "F4DF94F2-8D49-477F-9D77-1A83DACF8ECC",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+CSS and Passage Tags in Snowman
+
+:: UserStylesheet[stylesheet]
+.grey {
+	background: grey;
+  	color: white;
+}
+.yellow {
+	background: yellow;
+  	color: black;
+}
+
+:: Start[grey]
+<% $("body").toggleClass("grey") %>
+This passage has a grey background and white text.
+
+[[Second]]
+
+:: Second[yellow]
+<% $("body").toggleClass("yellow") %>
+This passage has a yellow background and black text.

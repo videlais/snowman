@@ -1,0 +1,21 @@
+:: StoryData
+{
+    "ifid": "4224F1B6-6FF8-4806-8154-1C55A4D21C44",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Static Healthbars in Snowman
+
+:: Start
+<% 
+	window.setup = {};
+	window.setup.health = 80;
+%>
+
+Show a healthbar using a Progress element:
+<%= '<progress value="' + window.setup.health + '" max="100"></progress>' %>
+
+Show a healthbar using a Meter element:
+<%= '<meter value="' + window.setup.health + '" min="0" max="100"></meter>' %>

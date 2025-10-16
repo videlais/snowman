@@ -1,0 +1,34 @@
+:: StoryData
+{
+    "ifid": "69236B60-94D1-4E09-B976-632AAAEF1777",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Snowman 2: Passage Events
+
+:: UserScript[script]
+/*
+    Prepend the content of the passage "Header" to every passage.
+		Append the content of the passage "Footer" to every passage.
+*/
+$(window).on('sm.passage.shown', function (eventObject, passageObject) {
+		var headerContent = window.story.render("Header");
+		var currentContent = passageObject.passage.render();
+		var footerContent = window.story.render("Footer");
+
+		$('tw-passage').html(headerContent + currentContent + footerContent);
+});
+
+:: Start
+<p>[[Another Passage]]</p>
+
+:: Another Passage
+[[Back to beginning->Start]]
+
+:: Header
+This is the header!
+
+:: Footer
+This is the footer!

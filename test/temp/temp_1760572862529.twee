@@ -1,0 +1,24 @@
+:: StoryData
+{
+    "ifid": "766FC84C-98FA-4E93-A997-DD51D84EC474",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Setting and Showing Variables in Snowman
+
+:: Start
+<%
+	s.numberVariable = 5;
+	s.wordVariable = "five";
+	s.phraseVariable = "The value";
+%>
+
+<%= s.phraseVariable %> is <%= s.numberVariable %> and <%= s.wordVariable %>.
+
+<%
+	s.numberVariable++;
+%>
+
+<%= s.phraseVariable %> is <%= s.numberVariable %> and <%= s.wordVariable%>.

@@ -1,0 +1,32 @@
+:: StoryData
+{
+    "ifid": "3BE4A38E-8DA2-44DE-9E99-E9A45B447628",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Snowman: Deleting Variables
+
+:: UserScript[script]
+window.story = {};
+
+window.story.example = "an example!";
+
+:: Start
+What is the value of the property "example" of the object window.story? <%= window.story.example %>
+
+[[Delete the value!]]
+
+:: Delete the value!
+<%
+
+// Delete the variable
+delete window.story.example;
+
+%>
+
+[[Test for value]]
+
+:: Test for value
+Does "example" still exist as part of the object window.story? <%= window.story.hasOwnProperty("example") %>

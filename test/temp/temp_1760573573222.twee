@@ -1,0 +1,19 @@
+:: StoryData
+{
+    "ifid": "4E4D22CA-4FCF-4CCD-A8B5-AC6919CC9CB7",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Snowman: Google Fonts
+
+:: StoryStylesheet[stylesheet]
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+.message {
+	font-family: 'Roboto', sans-serif; 
+}
+
+:: Start
+<div class="message">This text is styled using a Google Font</div>

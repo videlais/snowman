@@ -1,0 +1,24 @@
+:: StoryData
+{
+    "ifid": "DA04B637-7F9D-485D-8AE2-E95A58DB0E39",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Story and Passage API in Snowman
+
+:: Start
+The title of this story is "<%= window.story.name %>."
+
+<% 
+	window.setup = {};
+	window.setup.passage = window.story.passage("Storage");
+%>
+
+The name of the passage is "<%= setup.passage.name %>."
+
+The source of the passage is "<%= setup.passage.source %>"
+
+:: Storage
+This is content in the storage passage!

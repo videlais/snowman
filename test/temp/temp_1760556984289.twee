@@ -1,0 +1,16 @@
+:: StoryData
+{
+    "ifid": "8F1FDB5D-D38D-4782-A820-A456AF9E6930",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Audio in Snowman
+
+:: Start
+<audio controls>
+  <source src="testpattern.ogg" type="audio/ogg">
+  <source src="testpattern.wav" type="audio/wav">
+Your browser does not support the audio element.
+</audio>

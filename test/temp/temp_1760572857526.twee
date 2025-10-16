@@ -1,0 +1,22 @@
+:: StoryData
+{
+    "ifid": "D204F01A-07DC-464D-940D-B5A697965AF4",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Snowman: Headers and Footers
+
+:: Start
+<%= window.story.render("Header") %>
+
+This content is between the header and the footer.
+
+<%= window.story.render("Footer") %>
+
+:: Header
+This is the header!
+
+:: Footer
+This is the footer!

@@ -1,0 +1,16 @@
+:: StoryData
+{
+    "ifid": "96AD9448-4E0A-45C5-ACAC-1A645DE0C5DF",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: StoryTitle
+Snowman: Passages in Passages
+
+:: Start
+This is the Start passage!
+<%= window.story.render("Another") %>
+
+:: Another
+And this is Another passage!

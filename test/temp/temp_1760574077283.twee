@@ -1,0 +1,33 @@
+:: StoryData
+{
+    "ifid": "41F867F6-E7D1-46C3-BE9D-CAC122A6FBCF",
+    "format": "Snowman",
+    "format-version": "2.1.0"
+}
+
+:: Start
+There are <span class="time-left">10</span> seconds left.
+
+<%
+$(function() {
+	var timeLeft = parseInt($('.time-left').text());
+	
+	function tick() {
+		if (--timeLeft === 0) {
+			story.show('World End');
+		}
+		else {
+			$('.time-left').text(timeLeft);
+		}
+		
+		_.delay(tick, 1000);
+	}
+	
+	/* Start ticking. */
+	
+	_.delay(tick, 1000);
+});
+%>
+
+:: World End
+The world ended.
