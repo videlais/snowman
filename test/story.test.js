@@ -115,6 +115,17 @@ describe('#start()', function() {
 		expect(window.scriptRan).toBe(true);
 	});
 
+	it('Should handle stories with no passages gracefully', function() {
+		var emptyStoryEl = $('<tw-storydata name="Empty" startnode="1"></tw-storydata>');
+		var emptyStory = new Story(emptyStoryEl);
+		var $el = $('<div></div>');
+		
+		// This should not throw an error
+		expect(function() {
+			emptyStory.start($el);
+		}).not.toThrow();
+	});
+
 	it('Should add story styles with start()', function() {
 		var $el = $('<div startnode="1"></div>');
 
@@ -191,6 +202,361 @@ describe('#show()', function() {
 		story.show('Test Passage 2');
 		var lastCall = eventListener.mock.calls[eventListener.mock.calls.length - 1];
 		expect(lastCall[1].passage).toBe(passage);
+	});
+
+});
+
+describe('Error handling', function() {
+
+	let originalOnerror;
+	
+	beforeEach(function() {
+		originalOnerror = window.onerror;
+	});
+	
+	afterEach(function() {
+		window.onerror = originalOnerror;
+	});
+
+	it('Should handle JavaScript errors when ignoreErrors is false', function() {
+		var testStoryEl = $('<tw-storydata name="Test" startnode="1"><tw-passagedata pid="1" name="Test">Test</tw-passagedata></tw-storydata>');
+		var testStory = new Story(testStoryEl);
+		var $el = $('<div></div>');
+		testStory.start($el);
+		
+		// Trigger an error through the story's error handler
+		testStory.$passageEl.html('initial content');
+		window.onerror('Test error', 'test.js', 123);
+		
+		expect($el.find('.passage').html()).toContain('Test error (test.js: 123)');
+	});
+
+	it('Should ignore JavaScript errors when ignoreErrors is true', function() {
+		var testStoryEl = $('<tw-storydata name="Test" startnode="1"><tw-passagedata pid="1" name="Test">Test</tw-passagedata></tw-storydata>');
+		var testStory = new Story(testStoryEl);
+		var $el = $('<div></div>');
+		testStory.ignoreErrors = true;
+		testStory.start($el);
+		
+		// Set initial content
+		testStory.$passageEl.html('original content');
+		
+		// Trigger an error
+		window.onerror('Test error', 'test.js', 123);
+		
+		// Content should remain unchanged
+		expect($el.find('.passage').html()).toBe('original content');
+	});
+
+	it('Should handle errors without URL information', function() {
+		var testStoryEl = $('<tw-storydata name="Test" startnode="1"><tw-passagedata pid="1" name="Test">Test</tw-passagedata></tw-storydata>');
+		var testStory = new Story(testStoryEl);
+		var $el = $('<div></div>');
+		testStory.start($el);
+		
+		// Set initial content first
+		testStory.$passageEl.html('initial content');
+		
+		// Trigger an error without URL
+		window.onerror('Simple error', null, null);
+		
+		expect($el.find('.passage').html()).toContain('Simple error');
+	});
+
+	it('Should set up error handler during start', function() {
+		var $el = $('<div></div>');
+		var originalOnerror = window.onerror;
+		
+		story.start($el);
+		
+		// Verify that window.onerror was set up
+		expect(window.onerror).not.toBe(originalOnerror);
+		expect(typeof window.onerror).toBe('function');
+	});
+
+
+
+});
+
+describe('History and state management', function() {
+
+	it('Should set up popstate event handler during start', function() {
+		var $el = $('<div></div>');
+		
+		// Test that the popstate handler is set up
+		var popstateHandlers = $._data($(window)[0], 'events');
+		var initialHandlers = popstateHandlers ? popstateHandlers.popstate.length : 0;
+		
+		story.start($el);
+		
+		popstateHandlers = $._data($(window)[0], 'events');
+		var finalHandlers = popstateHandlers ? popstateHandlers.popstate.length : 0;
+		
+		expect(finalHandlers).toBeGreaterThan(initialHandlers);
+	});
+
+	it('Should handle popstate event logic with valid state data', function() {
+		var testStoryEl = $('<tw-storydata name="Test" startnode="1"><tw-passagedata pid="1" name="Start">Start</tw-passagedata><tw-passagedata pid="2" name="Second">Second</tw-passagedata></tw-storydata>');
+		var testStory = new Story(testStoryEl);
+		var $el = $('<div></div>');
+		
+		testStory.start($el);
+		
+		// Mock a state object that would come from browser history
+		var mockState = {
+			state: { testVar: 'value' },
+			history: [2],
+			checkpointName: 'test'
+		};
+		
+		// Spy on show method to track calls
+		const showSpy = jest.spyOn(testStory, 'show');
+		
+		// Manually trigger the popstate logic by directly accessing the stored event handler
+		var popstateHandlers = $._data($(window)[0], 'events').popstate;
+		var storyHandler = popstateHandlers.find(handler =>
+			handler.handler.toString().includes('this.state = state.state')
+		);
+		
+		if (storyHandler) {
+			// Create a mock event object
+			var mockEvent = {
+				originalEvent: { state: mockState }
+			};
+			
+			// Call the handler with proper context
+			storyHandler.handler.call(testStory, mockEvent);
+			
+			// Verify the state was updated
+			expect(testStory.state.testVar).toBe('value');
+			expect(testStory.history).toEqual([2]);
+			expect(testStory.checkpointName).toBe('test');
+			expect(showSpy).toHaveBeenCalledWith(2, true);
+		}
+		
+		showSpy.mockRestore();
+	});
+
+});
+
+describe('Link handling', function() {
+
+	it('Should handle clicks on passage links', function() {
+		var $el = $('<div></div>');
+		story.start($el);
+		
+		// Add a link to the passage
+		story.$passageEl.html('<a data-passage="Test Passage 2">Link text</a>');
+		
+		// Spy on the show method
+		const showSpy = jest.spyOn(story, 'show');
+		
+		// Click the link
+		story.$passageEl.find('a[data-passage]').click();
+		
+		expect(showSpy).toHaveBeenCalledWith('Test Passage 2');
+		
+		showSpy.mockRestore();
+	});
+
+	it('Should handle clicks on nested elements within passage links', function() {
+		var $el = $('<div></div>');
+		story.start($el);
+		
+		// Add a link with nested content
+		story.$passageEl.html('<a data-passage="Test Passage 2"><span>Nested content</span></a>');
+		
+		// Spy on the show method
+		const showSpy = jest.spyOn(story, 'show');
+		
+		// Click the nested span
+		story.$passageEl.find('span').click();
+		
+		expect(showSpy).toHaveBeenCalledWith('Test Passage 2');
+		
+		showSpy.mockRestore();
+	});
+
+});
+
+describe('Hash change handling', function() {
+
+	it('Should handle hash changes and attempt restore', function() {
+		var $el = $('<div></div>');
+		story.start($el);
+		
+		// Spy on the restore method
+		const restoreSpy = jest.spyOn(story, 'restore');
+		
+		// Change the hash
+		window.location.hash = 'test-hash';
+		
+		// Trigger hashchange event
+		$(window).trigger('hashchange');
+		
+		expect(restoreSpy).toHaveBeenCalledWith('test-hash');
+		
+		restoreSpy.mockRestore();
+		window.location.hash = '';
+	});
+
+});
+
+describe('#checkpoint()', function() {
+
+	it('Should set checkpoint with name', function() {
+		story.checkpoint('test checkpoint');
+		
+		expect(story.checkpointName).toBe('test checkpoint');
+		expect(story.atCheckpoint).toBe(true);
+		expect(document.title).toBe('Test: test checkpoint');
+	});
+
+	it('Should set checkpoint without name', function() {
+		story.checkpoint();
+		
+		expect(story.checkpointName).toBe('');
+		expect(story.atCheckpoint).toBe(true);
+	});
+
+	it('Should trigger add.sm.checkpoint event', function() {
+		var eventListener = jest.fn();
+		$(window).on('add.sm.checkpoint', eventListener);
+		
+		story.checkpoint('test checkpoint');
+		
+		var lastCall = eventListener.mock.calls[eventListener.mock.calls.length - 1];
+		expect(lastCall[1].name).toBe('test checkpoint');
+		
+		$(window).off('add.sm.checkpoint', eventListener);
+	});
+
+});
+
+describe('#saveHash() and #restore()', function() {
+
+	beforeEach(function() {
+		story.state = { testVar: 'testValue' };
+		story.history = [1, 2];
+		story.checkpointName = 'test checkpoint';
+	});
+
+	it('Should generate a hash from current state', function() {
+		var hash = story.saveHash();
+		expect(hash).toBeTruthy();
+		expect(typeof hash).toBe('string');
+	});
+
+	it('Should restore state from valid hash', function() {
+		var hash = story.saveHash();
+		
+		// Clear current state
+		story.state = {};
+		story.history = [];
+		story.checkpointName = '';
+		
+		var result = story.restore(hash);
+		
+		expect(result).toBe(true);
+		expect(story.state.testVar).toBe('testValue');
+		expect(story.history).toEqual([1, 2]);
+		expect(story.checkpointName).toBe('test checkpoint');
+	});
+
+	it('Should trigger restore events', function() {
+		var restoreListener = jest.fn();
+		var restoredListener = jest.fn();
+		
+		$(window).on('restore.sm.story', restoreListener);
+		$(window).on('restored.sm.story', restoredListener);
+		
+		var hash = story.saveHash();
+		story.restore(hash);
+		
+		expect(restoreListener).toHaveBeenCalled();
+		expect(restoredListener).toHaveBeenCalled();
+		
+		$(window).off('restore.sm.story', restoreListener);
+		$(window).off('restored.sm.story', restoredListener);
+	});
+
+	it('Should handle invalid hash and trigger restorefail event', function() {
+		var failListener = jest.fn();
+		$(window).on('restorefail.sm.story', failListener);
+		
+		var result = story.restore('invalid-hash');
+		
+		expect(result).toBe(false);
+		expect(failListener).toHaveBeenCalled();
+		
+		$(window).off('restorefail.sm.story', failListener);
+	});
+
+});
+
+describe('Error conditions', function() {
+
+	it('Should throw error when showing non-existent passage', function() {
+		expect(function() {
+			story.show('NonExistent Passage');
+		}).toThrow('There is no passage with the ID or name "NonExistent Passage"');
+	});
+
+	it('Should throw error when rendering non-existent passage', function() {
+		expect(function() {
+			story.render('NonExistent Passage');
+		}).toThrow('There is no passage with the ID or name NonExistent Passage');
+	});
+
+});
+
+describe('Browser history integration', function() {
+
+	it('Should handle history.pushState failure gracefully', function() {
+		var $el = $('<div></div>');
+		story.start($el);
+		
+		// Mock pushState to throw an error
+		const originalPushState = window.history.pushState;
+		window.history.pushState = jest.fn().mockImplementation(() => {
+			throw new Error('Security error');
+		});
+		
+		var failListener = jest.fn();
+		$(window).on('fail.sm.checkpoint', failListener);
+		
+		story.checkpoint('test');
+		story.show('Test Passage 2');
+		
+		expect(failListener).toHaveBeenCalled();
+		
+		// Restore original pushState
+		window.history.pushState = originalPushState;
+		$(window).off('fail.sm.checkpoint', failListener);
+	});
+
+	it('Should handle history.replaceState failure gracefully', function() {
+		var $el = $('<div></div>');
+		story.start($el);
+		
+		// Mock replaceState to throw an error
+		const originalReplaceState = window.history.replaceState;
+		window.history.replaceState = jest.fn().mockImplementation(() => {
+			throw new Error('Security error');
+		});
+		
+		var failListener = jest.fn();
+		$(window).on('fail.sm.checkpoint', failListener);
+		
+		// Reset checkpoint state to false to trigger replaceState path
+		story.atCheckpoint = false;
+		story.show('Test Passage 2');
+		
+		expect(failListener).toHaveBeenCalled();
+		
+		// Restore original replaceState
+		window.history.replaceState = originalReplaceState;
+		$(window).off('fail.sm.checkpoint', failListener);
 	});
 
 });

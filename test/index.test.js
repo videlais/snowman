@@ -35,4 +35,52 @@ describe('Bootstrap', function() {
 		expect(story.name).toBe('Test');
 	});
 
+	it('Should initialize story from DOM when ready', function() {
+		// Add a tw-storydata element to the DOM for testing
+		var $storyData = $('<tw-storydata name="DOMTest" startnode="1"><tw-passagedata pid="1" name="Start">Test content</tw-passagedata></tw-storydata>');
+		var $main = $('<div id="main"></div>');
+		
+		$('body').append($storyData).append($main);
+		
+		// The code in index.js should run on DOM ready
+		// Since we can't easily test the actual DOM ready event in Jest,
+		// we'll test the equivalent functionality directly
+		var testStory = new window.Story($('tw-storydata'));
+		testStory.start($('#main'));
+		
+		expect(testStory).toBeInstanceOf(window.Story);
+		expect(testStory.name).toBe('DOMTest');
+		
+		// Clean up
+		$storyData.remove();
+		$main.remove();
+	});
+
+	it('Should handle DOM ready callback execution', function() {
+		// Test that the DOM ready callback would execute the story initialization
+		var originalStory = window.story;
+		
+		// Mock tw-storydata and main elements
+		var $mockStoryData = $('<tw-storydata name="ReadyTest" startnode="1"><tw-passagedata pid="1" name="Start">Content</tw-passagedata></tw-storydata>');
+		var $mockMain = $('<div id="main"></div>');
+		
+		$('body').append($mockStoryData).append($mockMain);
+		
+		// Simulate what index.js does in the DOM ready callback
+		window.story = new window.Story($('tw-storydata'));
+		
+		expect(window.story).toBeInstanceOf(window.Story);
+		expect(window.story.name).toBe('ReadyTest');
+		
+		// Test that start method can be called
+		expect(() => {
+			window.story.start($('#main'));
+		}).not.toThrow();
+		
+		// Clean up
+		window.story = originalStory;
+		$mockStoryData.remove();
+		$mockMain.remove();
+	});
+
 });

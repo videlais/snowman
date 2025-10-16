@@ -1,6 +1,5 @@
-import cpx from 'cpx';
 import ejs from 'ejs';
-import { exec } from 'child-process-promise';
+import { execa } from 'execa';
 import fs from 'fs';
 import pkg from '../package.json' with { type: 'json' };
 import shell from 'shelljs';
@@ -11,7 +10,7 @@ var tempPath = "tmp";
 
 function buildWithWebpack() {
 	// Use webpack to build both JS and CSS
-	return exec('npx webpack --config webpack.config.js', { maxBuffer: Infinity });
+	return execa('npx', ['webpack', '--config', 'webpack.config.js'], { maxBuffer: Infinity });
 }
 
 buildWithWebpack().then(function(result) {
@@ -41,7 +40,9 @@ buildWithWebpack().then(function(result) {
 		distPath + '/format.js',
 		'window.storyFormat(' + JSON.stringify(formatData) + ');'
 	);
-	cpx.copySync('src/icon.svg', distPath);
+	
+	// Copy icon.svg using shell instead of cpx
+	shell.cp('src/icon.svg', distPath);
 
 	// Clean up
 	shell.rm('-R', tempPath);

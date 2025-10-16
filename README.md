@@ -1,5 +1,9 @@
 # Snowman 1.4
 
+[![CI](https://github.com/videlais/snowman/actions/workflows/ci.yml/badge.svg?branch=1.X)](https://github.com/videlais/snowman/actions/workflows/ci.yml)
+[![Security Analysis](https://github.com/videlais/snowman/actions/workflows/security.yml/badge.svg?branch=1.X)](https://github.com/videlais/snowman/actions/workflows/security.yml)
+[![Code Quality](https://github.com/videlais/snowman/actions/workflows/quality.yml/badge.svg?branch=1.X)](https://github.com/videlais/snowman/actions/workflows/quality.yml)
+
 Snowman 1.4 is a minimal Twine 2 story format designed for people who already know
 JavaScript and CSS originally created by [Chris Klimas](https://github.com/klembot).
 

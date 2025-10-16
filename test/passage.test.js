@@ -195,4 +195,103 @@ describe('Passage', function() {
 		expect($result.find('a').attr('class')).toBe('subclass');
 		expect($result.find('a').text()).toBe('Inside');
 	});
+
+	it('Should handle invalid selector patterns gracefully', function() {
+		// This test is designed to cover edge cases in renderAttrs function
+		// by testing malformed attribute patterns that might cause unexpected behavior
+		
+		// Test with valid patterns first to ensure normal operation
+		expect(Passage.render('<div.valid#myid>Content</div>'))
+			.toBe('<div id="myid" class="valid">Content</div>');
+		
+		// Test with empty class/id patterns
+		expect(Passage.render('<div.>Content</div>'))
+			.toBe('<div >Content</div>');
+			
+		expect(Passage.render('<div#>Content</div>'))
+			.toBe('<div >Content</div>');
+	});
+
+	it('Should handle complex attribute combinations', function() {
+		// Test multiple classes
+		expect(Passage.render('<div.class1.class2.class3>Content</div>'))
+			.toBe('<div class="class1 class2 class3">Content</div>');
+		
+		// Test mixed prefixes and attributes (wrapped in p tag by marked)
+		expect(Passage.render('<a-0.button#submit>Click</a>'))
+			.toBe('<p><a style="display:none" href="javascript:void(0)" id="submit" class="button">Click</a></p>\n');
+		
+		// Test only prefixes
+		expect(Passage.render('<div->Hidden</div>'))
+			.toBe('<div style="display:none">Hidden</div>');
+		
+		expect(Passage.render('<a0>Void Link</a>'))
+			.toBe('<p><a href="javascript:void(0)">Void Link</a></p>\n');
+	});
+
+	it('Should handle edge cases in link parsing', function() {
+		// Test various URL formats that should be treated as external
+		var externalUrls = [
+			'http://example.com',
+			'https://example.com',
+			'ftp://files.example.com'
+		];
+		
+		externalUrls.forEach(function(url) {
+			var result = Passage.render('[[' + url + ']]');
+			expect(result).toContain('href="' + url + '"');
+			expect(result).not.toContain('data-passage');
+		});
+		
+		// Test URLs that match the external URL regex (require :// pattern)
+		expect(Passage.render('[[file:///local/path]]'))
+			.toContain('href="file:///local/path"');
+		
+		// Test URLs that don't match the external URL regex
+		var internalUrls = [
+			'mailto:test@example.com',
+			'javascript:alert(1)',
+			'tel:+1234567890'
+		];
+		
+		internalUrls.forEach(function(url) {
+			var result = Passage.render('[[' + url + ']]');
+			expect(result).toContain('data-passage="' + _.escape(url) + '"');
+			expect(result).not.toContain('href="' + url + '"');
+		});
+			
+		// Test URLs with custom display text
+		expect(Passage.render('[[Display Text|https://example.com]]'))
+			.toBe('<p><a href="https://example.com">Display Text</a></p>\n');
+	});
+
+	it('Should properly escape passage names in data attributes', function() {
+		// Test passage names that need escaping
+		expect(Passage.render('[[Passage with "quotes"]]'))
+			.toContain('data-passage="Passage with &quot;quotes&quot;"');
+			
+		expect(Passage.render('[[Passage with <tags>]]'))
+			.toContain('data-passage="Passage with &lt;tags&gt;"');
+			
+		expect(Passage.render('[[Passage & More]]'))
+			.toContain('data-passage="Passage &amp; More"');
+	});
+
+	it('Should handle renderAttrs function edge cases', function() {
+		// Access the renderAttrs function directly to test edge cases
+		// This is an internal function, but we want to ensure it's robust
+		
+		// Test normal operation
+		var result1 = Passage.render('<div.test#id>Content</div>');
+		expect(result1).toContain('class="test"');
+		expect(result1).toContain('id="id"');
+		
+		// Test with no attributes
+		var result2 = Passage.render('<div>Content</div>');
+		expect(result2).toBe('<div>Content</div>');
+		
+		// Test with multiple same-type attributes
+		var result3 = Passage.render('<div.class1.class2>Content</div>');
+		expect(result3).toContain('class="class1 class2"');
+	});
 });

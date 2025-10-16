@@ -1,6 +1,6 @@
 {
-  "name": "Snowman",
-  "version": "1.4.0",
+  "name": "snowman",
+  "version": "1.5.0",
   "description": "A minimal story format for authors experienced with HTML, CSS, and JavaScript. See its <a href='https://videlais.github.io/snowman/1/' target='_blank' rel='noopener noreferrer'>documentation</a>.",
   "author": "Dan Cox <dan.cox@videlais.com>",
   "license": "MIT",
@@ -11,27 +11,26 @@
     "build": "node scripts/build-format.js",
     "lint": "eslint src/**/*.js test/**/*.js",
     "lint:fix": "eslint src/**/*.js test/**/*.js --fix",
-    "test": "jest",
+    "test": "jest --coverage",
     "all": "npm run clean && npm run lint && npm run test && npm run build"
   },
   "dependencies": {
     "jquery": "^3.7.1",
     "lz-string": "^1.5.0",
-    "marked": "^16.3.0",
+    "marked": "^16.4.0",
     "underscore": "^1.13.7"
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",
     "@babel/preset-env": "^7.28.3",
-    "@eslint/js": "^9.36.0",
+    "@eslint/js": "^9.37.0",
     "babel-jest": "^30.2.0",
     "babel-loader": "^10.0.0",
-    "child-process-promise": "^2.2.1",
-    "cpx": "^1.5.0",
+    "cpy-cli": "^6.0.0",
     "css-loader": "^7.1.2",
-    "cssnano-cli": "^1.0.5",
     "ejs": "^3.1.10",
-    "eslint": "^9.36.0",
+    "eslint": "^9.37.0",
+    "execa": "^9.6.0",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
     "jsdom": "^27.0.0",
@@ -40,7 +39,7 @@
     "rimraf": "^6.0.1",
     "shelljs": "^0.10.0",
     "terser-webpack-plugin": "^5.3.14",
-    "webpack": "^5.102.0",
+    "webpack": "^5.102.1",
     "webpack-cli": "^6.0.1"
   },
   "contributors": [
@@ -60,6 +59,12 @@
     },
     "transformIgnorePatterns": [
       "node_modules/(?!(marked|jquery|underscore|lz-string)/)"
-    ]
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/index.ejs"
+    ],
+    "coverageDirectory": "coverage",
+    "coverageReporters": ["text", "lcov", "html"]
   }
 }
