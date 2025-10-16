@@ -9,11 +9,10 @@ markdown: kramdown
 highlighter: rouge
 permalink: pretty
 
-# Plugins
+# Plugins (GitHub Pages whitelist)
 plugins:
   - jekyll-redirect-from
   - jekyll-sitemap
-  - jekyll-feed
 
 # Collections for organized content
 collections:
