@@ -14,7 +14,7 @@ function buildWithWebpack() {
 }
 
 buildWithWebpack().then(function(result) {
-	var distPath = 'dist/' + pkg.name.toLowerCase() + '-' + pkg.version;
+	var distPath = 'dist/';
 	var htmlTemplate = ejs.compile(fs.readFileSync('src/index.ejs', encoding));
 	
 	// Read the webpack output files
