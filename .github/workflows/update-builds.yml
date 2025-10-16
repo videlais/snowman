@@ -33,15 +33,32 @@ jobs:
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
     
-    - name: Check if worktrees exist, setup if needed
+    - name: Setup worktrees and copy build files
       run: |
-        if [ ! -d "../worktrees" ]; then
-          echo "Worktrees don't exist, running setup..."
-          ./setup-builds.sh
-        else
-          echo "Worktrees exist, running update..."
-          ./update-builds.sh
-        fi
+        # Remove existing symbolic links (they don't work with GitHub Pages)
+        rm -rf builds/1.X builds/2.X builds/3.X
+        
+        # Create build directories
+        mkdir -p builds/1.X builds/2.X builds/3.X
+        
+        # Copy files directly from each branch instead of using symbolic links
+        echo "Copying build files from branches..."
+        
+        # Copy from 1.X branch
+        git show 1.X:dist/format.js > builds/1.X/format.js 2>/dev/null || echo "No format.js in 1.X"
+        git show 1.X:dist/icon.svg > builds/1.X/icon.svg 2>/dev/null || echo "No icon.svg in 1.X"
+        
+        # Copy from 2.X branch  
+        git show 2.X:dist/format.js > builds/2.X/format.js 2>/dev/null || echo "No format.js in 2.X"
+        git show 2.X:dist/icon.svg > builds/2.X/icon.svg 2>/dev/null || echo "No icon.svg in 2.X"
+        git show 2.X:dist/main.js > builds/2.X/main.js 2>/dev/null || echo "No main.js in 2.X"
+        git show 2.X:dist/main.js.LICENSE.txt > builds/2.X/main.js.LICENSE.txt 2>/dev/null || echo "No license file in 2.X"
+        
+        # Copy from main branch (3.X)
+        git show main:dist/format.js > builds/3.X/format.js 2>/dev/null || echo "No format.js in main"
+        git show main:dist/icon.svg > builds/3.X/icon.svg 2>/dev/null || echo "No icon.svg in main"
+        
+        echo "Build files copied successfully"
     
     - name: Check for changes
       id: changes

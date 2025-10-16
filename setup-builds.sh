@@ -45,15 +45,18 @@ git worktree add "$WORKTREES_DIR/main" main
 # Create builds directory if it doesn't exist
 mkdir -p "$BUILDS_DIR"
 
-# Remove existing symbolic links
-echo "Setting up symbolic links..."
-rm -f "$BUILDS_DIR/1.X" "$BUILDS_DIR/2.X" "$BUILDS_DIR/3.X"
+# Remove existing symbolic links or directories
+echo "Setting up build directories..."
+rm -rf "$BUILDS_DIR/1.X" "$BUILDS_DIR/2.X" "$BUILDS_DIR/3.X"
 
-# Create relative symbolic links
-cd "$BUILDS_DIR"
-ln -s ../../worktrees/1.X/dist 1.X
-ln -s ../../worktrees/2.X/dist 2.X
-ln -s ../../worktrees/main/dist 3.X
+# Create build directories
+mkdir -p "$BUILDS_DIR/1.X" "$BUILDS_DIR/2.X" "$BUILDS_DIR/3.X"
+
+# Copy files from worktrees instead of using symbolic links (GitHub Pages compatible)
+echo "Copying build files..."
+cp "$WORKTREES_DIR/1.X/dist/"* "$BUILDS_DIR/1.X/" 2>/dev/null || echo "No files to copy from 1.X"
+cp "$WORKTREES_DIR/2.X/dist/"* "$BUILDS_DIR/2.X/" 2>/dev/null || echo "No files to copy from 2.X"  
+cp "$WORKTREES_DIR/main/dist/"* "$BUILDS_DIR/3.X/" 2>/dev/null || echo "No files to copy from main"
 
 echo "Setup complete!"
 echo ""
