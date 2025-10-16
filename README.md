@@ -18,11 +18,61 @@ Additional styling options are supplied through the inclusion of the [Marked](ht
 
 The [official Snowman documentation](https://videlais.github.io/snowman/2/) has more details about Snowman including multiple examples of how to do various tasks.
 
+## Installing Snowman in Twine
+
+To use Snowman as a story format in Twine 2:
+
+1. Open Twine 2.
+2. Go to **Twine** in the top-level menu.
+3. Click on **Story Formats**.
+4. In the sidebar, click on **Add**.
+5. Enter the JSONP URL for the version you want to use from the [builds page](https://videlais.github.io/snowman/builds/)
+
+For example, to install the latest 2.X version, use:
+
+```url
+https://videlais.github.io/snowman/builds/2.X/format.js
+```
+
+## Major Branches
+
+Snowman development is organized into major version branches:
+
+- **[1.X Branch](https://github.com/videlais/snowman/tree/1.X)** - Legacy version (Twine 1 compatible)
+- **[2.X Branch](https://github.com/videlais/snowman/tree/2.X)** - Current stable version (Twine 2)
+- **[Main Branch](https://github.com/videlais/snowman)** - Development version (Snowman 3.X)
+
 ## Building
 
-Run `npm install` to install dependencies.
+To build a new version of Snowman locally:
 
-`npm run build` will create a Twine 2-ready story format under `dist/`.
+1. **Install dependencies:**
 
-To check for style errors, run `npm run lint`.
-To run unit tests, run `npm run test`.
+   ```bash
+   npm install
+   ```
+
+2. **Run the complete build pipeline:**
+
+   ```bash
+   npm run all
+   ```
+
+   This will run linting, all tests, webpack build, and story format compilation.
+
+3. **Individual build steps (optional):**
+
+   ```bash
+   npm run lint          # Check code quality
+   npm run test:all      # Run core and extended tests  
+   npm run build         # Build webpack bundles
+   npm run compile       # Compile story format
+   ```
+
+4. **Quick development build:**
+
+   ```bash
+   npm run dev           # Lint, test, build, and compile
+   ```
+
+The compiled story format will be available in the `dist/` directory as `format.js`.
