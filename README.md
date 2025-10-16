@@ -24,5 +24,7 @@ Run `npm install` to install dependencies.
 
 `npm run build` will create a Twine 2-ready story format under `dist/`.
 
+`npm run compile` will create the `dist/format.js` file which you can import as a format in to the Twine App.
+
 To check for style errors, run `npm run lint`.
 To run unit tests, run `npm run test`.
