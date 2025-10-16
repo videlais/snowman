@@ -251,8 +251,6 @@
                     
                     infoElement.innerHTML = `
                         <span class="version-display">Version: ${version}</span>
-                        <span>📋 ${name}</span>
-                        ${url ? `<br><small>📍 <a href="${url}" target="_blank">Source Repository</a></small>` : ''}
                     `;
                 } catch (error) {
                     infoElement.innerHTML = '<span class="error">Error loading version information</span>';
