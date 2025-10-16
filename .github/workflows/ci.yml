@@ -110,9 +110,7 @@ jobs:
       
       - name: Check build outputs exist
         run: |
-          test -f build/editor.bundle.js || (echo "editor.bundle.js not found" && exit 1)
-          test -f build/format.bundle.js || (echo "format.bundle.js not found" && exit 1)
-          test -f build/format.css || (echo "format.css not found" && exit 1)
+          test -f dist/format.js || (echo "format.js not found" && exit 1)
           echo "✅ All build outputs created successfully"
       
       - name: Upload build artifacts
@@ -120,7 +118,6 @@ jobs:
         with:
           name: build-artifacts
           path: |
-            build/
             dist/
           retention-days: 30
 
