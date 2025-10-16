@@ -21,9 +21,49 @@ Additional styling options are supplied through the inclusion of the [Marked](ht
 
 The [Snowman 1.X documentation](https://videlais.github.io/snowman/1/) has more details including examples of how to do various tasks.
 
-## Scripts
+## Installing Snowman in Twine
 
-* `npm install` to install dependencies.
-* `npm run build` will create a Twine 2-ready story format under `dist/`.
-* `npm run lint` to check for style errors.
-* `npm test` to run unit tests
+To use Snowman as a story format in Twine 2:
+
+1. Open Twine 2.
+2. Go to **Twine** in the top-level menu.
+3. Click on **Story Formats**.
+4. In the sidebar, click on **Add**.
+5. Enter the JSONP URL for the version you want to use from the [builds page](https://videlais.github.io/snowman/builds/)
+
+For example, to install the latest 2.X version, use:
+
+```url
+https://videlais.github.io/snowman/builds/2.X/format.js
+```
+
+## Major Branches
+
+Snowman development is organized into major version branches:
+
+- **[1.X Branch](https://github.com/videlais/snowman/tree/1.X)** - Legacy version (Twine 1 compatible)
+- **[2.X Branch](https://github.com/videlais/snowman/tree/2.X)** - Current stable version (Twine 2)
+- **[Main Branch](https://github.com/videlais/snowman)** - Development version (Snowman 3.X)
+
+## Development
+
+### Prerequisites
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+### Available Scripts
+
+- `npm run clean` - Remove build artifacts from `build/` and `dist/` directories
+- `npm run build` - Build the story format (creates `dist/format.js`)
+- `npm run lint` - Check code for style errors using ESLint
+- `npm run lint:fix` - Automatically fix linting errors where possible
+- `npm run test` - Run unit tests with coverage (89 tests, ~88% coverage)
+- `npm run all` - Run complete build pipeline: clean, lint, test, and build
+
+### Build Output
+
+The compiled Twine 2-ready story format will be created as `dist/format.js`.
