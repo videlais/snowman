@@ -15,9 +15,9 @@ It also includes the JavaScript library [jQuery](https://jquery.com/).
 
 ## Documentation Versions
 
-- **[Version 1.X Documentation](/1/)** - Legacy version with original API
-- **[Version 2.X Documentation](/2/)** - Current version with enhanced features
-- **[Build Files](/builds/)** - Download format.js files for Twine integration
+- **[Version 1.X Documentation]({{ "/1/" | relative_url }})** - Legacy version with original API
+- **[Version 2.X Documentation]({{ "/2/" | relative_url }})** - Current version with enhanced features
+- **[Build Files]({{ "/builds/" | relative_url }})** - Download format.js files for Twine integration
 
 ## License
 
