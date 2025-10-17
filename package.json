@@ -7,12 +7,15 @@
   "scripts": {
     "test": "jest test/jsdom/* --coverage",
     "test:e2e": "jest test/e2e --preset=jest-puppeteer",
+    "test:unit": "jest test/jsdom/*",
     "test:all": "jest --coverage",
     "lint": "eslint src/*.js test/*.js --fix",
     "build": "webpack",
     "package": "npm run build && node build-format.js",
+    "validate": "npm run lint && npm run package && npm run test",
+    "ci": "npm run lint && npm run package && npm run test:all",
     "visual-test": "npm run package && extwee -s dist/format.js -i visual_testing/index.twee -c -o visual_testing/index.html && open-cli visual_testing/index.html",
-    "all": "npm run lint && npm run package && npm run test"
+    "all": "npm run validate"
   },
   "keywords": [
     "twine",

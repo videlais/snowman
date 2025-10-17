@@ -26,7 +26,18 @@ describe('Script', () => {
   });
   describe('run()', () => {
     it('Should throw error if render() does', () => {
-      expect(() => Script.run('<% !=; %>', window.Story));
+      expect(() => Script.run('<% !=; %>', window.Story)).toThrow('Error compiling template code:');
+    });
+
+    it('Should successfully run valid script', () => {
+      const result = Script.run('<%= "Hello World" %>', window.Story);
+      expect(result).toBe('Hello World');
+    });
+
+    it('Should provide access to story context', () => {
+      window.Story.store.testValue = 42;
+      const result = Script.run('<%= s.testValue %>', window.Story);
+      expect(result).toBe('42');
     });
   });
 });

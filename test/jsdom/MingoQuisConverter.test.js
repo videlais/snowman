@@ -139,4 +139,42 @@ describe('MingoQuisConverter', () => {
       expect(normalizeRequirements(true)).toBe('true');
     });
   });
+
+  // Additional tests for uncovered error cases and edge paths
+  describe('Error Handling and Edge Cases', () => {
+    it('Should throw error for $and with non-array', () => {
+      expect(() => convertMingoToQuis({ $and: 'invalid' })).toThrow('$and requires an array of conditions');
+    });
+
+    it('Should throw error for $or with non-array', () => {
+      expect(() => convertMingoToQuis({ $or: 'invalid' })).toThrow('$or requires an array of conditions');
+    });
+
+    it('Should handle $not operator', () => {
+      const result = convertMingoToQuis({ $not: { score: 10 } });
+      expect(result).toBe('!($score == 10)');
+    });
+
+    it('Should throw error for unsupported operators', () => {
+      expect(() => convertMingoToQuis({ score: { $unsupported: 10 } })).toThrow('Unsupported operator: $unsupported');
+    });
+
+    it('Should throw error for $in with non-array', () => {
+      expect(() => convertMingoToQuis({ status: { $in: 'invalid' } })).toThrow('$in requires an array');
+    });
+
+    it('Should throw error for $nin with non-array', () => {
+      expect(() => convertMingoToQuis({ status: { $nin: 'invalid' } })).toThrow('$nin requires an array');
+    });
+
+    it('Should handle multiple operators on same field', () => {
+      const result = convertMingoToQuis({ score: { $gt: 10, $lt: 20 } });
+      expect(result).toBe('($score > 10 && $score < 20)');
+    });
+
+    it('Should handle complex object equality as fallback', () => {
+      const result = convertMingoToQuis({ simpleField: 'test' });
+      expect(result).toBe('$simpleField == "test"');
+    });
+  });
 });
