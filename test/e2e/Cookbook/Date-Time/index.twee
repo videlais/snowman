@@ -1,6 +1,11 @@
 :: StoryTitle
 Date and Time in Snowman
 
+
+:: StoryData
+{
+    "ifid": "32C71D89-B172-4112-AE4C-971EBC6DC079"
+}
 :: Start
 The current time (in milliseconds since January 1, 1970 00:00:00 UTC) is <%- Date.now() %>
 

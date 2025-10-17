@@ -1,6 +1,11 @@
 :: StoryTitle
 Limiting the range of a number in Snowman
 
+
+:: StoryData
+{
+    "ifid": "EE17F5C7-7EBF-4E70-A0F9-7B3DDB86C399"
+}
 :: UserScript [script]
 (function () {
 

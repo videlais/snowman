@@ -1,6 +1,11 @@
 :: StoryTitle
 Snowman 2: Passage Events
 
+
+:: StoryData
+{
+    "ifid": "A1CE7860-2655-485C-8B3E-50DA7AA7DFD0"
+}
 :: UserScript[script]
 /*
     For every 'show' event (user clicking on story link),

@@ -1,6 +1,11 @@
 :: StoryTitle
 Delayed Text in Snowman
 
+
+:: StoryData
+{
+    "ifid": "9E1594EB-4611-494E-96F2-8E3137DDA0A0"
+}
 :: Start
 <div id="results"></div>
 <%

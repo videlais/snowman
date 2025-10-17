@@ -1,5 +1,10 @@
 :: StoryTitle
 Either Test
 
+
+:: StoryData
+{
+    "ifid": "BF380E57-54F5-44EC-BFFC-A76D3851BDF3"
+}
 :: Start
 <%- Utils.either(1,2,3) %>

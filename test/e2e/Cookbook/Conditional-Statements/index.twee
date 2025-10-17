@@ -1,6 +1,11 @@
 :: StoryTitle
 Conditional Statements in Snowman
 
+
+:: StoryData
+{
+    "ifid": "51FC5C28-AA0A-43EF-9C8F-9A8B25FB0CF7"
+}
 :: Start
 <%
 	s.animal = "horse";

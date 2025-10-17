@@ -21,7 +21,7 @@ describe('Cookbook - Typewriter Effect', () => {
    
     it('Should display "Hello, world!"', async () => {
         // Wait for 12 seconds
-        await page.waitForTimeout(12000);
+        await new Promise(resolve => setTimeout(resolve, 12000));
         await expect(page).toMatchTextContent('Hello, world!');
     });
 });

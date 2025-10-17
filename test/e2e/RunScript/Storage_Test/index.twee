@@ -1,6 +1,11 @@
 :: StoryTitle
 Saving Games in Snowman 2.2
 
+
+:: StoryData
+{
+    "ifid": "D90F8F8E-B3CF-439C-B762-A85E1739BB89"
+}
 :: Start
 <% 
     if( Storage.available() ) {

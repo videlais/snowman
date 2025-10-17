@@ -2,6 +2,11 @@
 Snowman: Keyboard
 
 
+:: StoryData
+{
+    "ifid": "EDD4E978-4613-4D81-903C-A30EC719FA05"
+}
+
 :: UserScript[script]
 (function () {
 	$(document).on('keyup', function (ev) {

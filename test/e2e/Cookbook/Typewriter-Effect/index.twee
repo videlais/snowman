@@ -1,6 +1,11 @@
 :: StoryTitle
 Typewriter Effect in Snowman
 
+
+:: StoryData
+{
+    "ifid": "264DBCED-6129-499E-9AB3-EF3942E0D256"
+}
 :: UserScript[script]
 // Add a 'typewriter' object
 s.typewriter = {};

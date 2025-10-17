@@ -1,6 +1,11 @@
 :: StoryTitle
 Visited Test
 
+
+:: StoryData
+{
+    "ifid": "CA653AD6-03DE-437E-9286-B2A0728774B9"
+}
 :: Start
 How many times has the passage "Another Passage" been visited? <%- History.visited("Another Passage") %>
 

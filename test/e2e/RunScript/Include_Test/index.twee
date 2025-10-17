@@ -1,6 +1,11 @@
 :: StoryTitle
 Render Test
 
+
+:: StoryData
+{
+    "ifid": "2AC86B71-1C52-4CF5-B062-95585E118CBA"
+}
 :: Start
 <span id="test"><%- Story.include('Another') %></span>
 

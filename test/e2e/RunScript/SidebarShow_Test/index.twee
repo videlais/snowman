@@ -1,6 +1,11 @@
 :: StoryTitle
 Sidebar Show Test
 
+
+:: StoryData
+{
+    "ifid": "B06F988D-C58D-4270-AAA7-4B497C6C06C9"
+}
 :: Start
 <% 
     $(() => {

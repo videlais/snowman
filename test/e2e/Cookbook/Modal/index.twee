@@ -1,6 +1,11 @@
 :: StoryTitle
 Snowman: Modal
 
+
+:: StoryData
+{
+    "ifid": "735489D6-16F1-4008-85C5-023D5449F594"
+}
 :: UserScript[script]
 $(function(){
 

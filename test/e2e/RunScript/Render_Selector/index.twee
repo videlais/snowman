@@ -1,6 +1,11 @@
 :: StoryTitle
 Render Selector
 
+
+:: StoryData
+{
+    "ifid": "EAB4D121-73BF-406E-9798-535EFFC514EA"
+}
 :: Start
 <span id="test"></span>
 <% Story.renderPassageToSelector('Another', '#test') %>

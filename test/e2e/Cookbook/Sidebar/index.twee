@@ -1,6 +1,11 @@
 :: StoryTitle
 Left Sidebar in Snowman
 
+
+:: StoryData
+{
+    "ifid": "8F3C9836-11C0-432E-B17F-675811633689"
+}
 :: UserScript [script]
 /*
 	Append new element with id of 'sidebar' to existing tw-sidebar

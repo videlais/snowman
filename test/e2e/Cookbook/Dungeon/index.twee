@@ -1,6 +1,11 @@
 :: StoryTitle
 Snowman: Moving through a dungeon
 
+
+:: StoryData
+{
+    "ifid": "68B64563-AF41-433A-86FB-969352313895"
+}
 :: Start
 <div class="maze"></div>
 

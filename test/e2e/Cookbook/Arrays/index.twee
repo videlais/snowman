@@ -1,6 +1,11 @@
 :: StoryTitle
 Arrays in Snowman
 
+
+:: StoryData
+{
+    "ifid": "87B2B59D-0CD2-4972-A6DD-6BD9926CE08D"
+}
 :: UserScript [script]
 s.inventory = [];
 s.chest = ['a shield', 'a suit of armor'];

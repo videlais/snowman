@@ -1,6 +1,11 @@
 :: StoryTitle
 Snowman: Deleting Variables
 
+
+:: StoryData
+{
+    "ifid": "D1AFCFEE-930F-4568-A030-3B871D99A7A8"
+}
 :: UserScript[script]
 s.example = "an example!";
 

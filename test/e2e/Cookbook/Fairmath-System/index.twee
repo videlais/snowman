@@ -1,6 +1,11 @@
 :: StoryTitle
 Fairmath in Snowman
 
+
+:: StoryData
+{
+    "ifid": "8B34AED0-DABE-444B-8643-08779B2F37F0"
+}
 :: UserScript[script]
 // Create a fairmath global object.
 s.fairmath = {};

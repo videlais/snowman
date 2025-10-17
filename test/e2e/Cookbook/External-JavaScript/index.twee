@@ -2,6 +2,11 @@
 Snowman: Importing External JavaScript
 
 
+:: StoryData
+{
+    "ifid": "1F18347E-1B77-4E5E-8CEE-75F127CADABF"
+}
+
 :: UserScript [script]
 /* import jQuery UI library. */
 $(function () {

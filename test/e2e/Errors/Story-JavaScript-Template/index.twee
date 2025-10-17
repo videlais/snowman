@@ -1,6 +1,11 @@
 :: StoryTitle
 Template Testing
 
+
+:: StoryData
+{
+    "ifid": "95A57D9E-3664-4D8A-8029-5EF937EEA965"
+}
 :: UserScript[script]
 /* <% %> */
 

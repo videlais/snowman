@@ -1,6 +1,11 @@
 :: StoryTitle
 Snowman: Hidden Link
 
+
+:: StoryData
+{
+    "ifid": "9E2357FE-4553-4C6A-B86C-597B398F2659"
+}
 :: UserScript[script]
 $(function () {
 	/*

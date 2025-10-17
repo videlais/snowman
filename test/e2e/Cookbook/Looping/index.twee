@@ -1,6 +1,11 @@
 :: StoryTitle
 Looping in Snowman
 
+
+:: StoryData
+{
+    "ifid": "640157F0-16B0-42FE-8368-4356015E1B8A"
+}
 :: Start
 <%
 // An array of the strings "Bread", "Pan", "Book"

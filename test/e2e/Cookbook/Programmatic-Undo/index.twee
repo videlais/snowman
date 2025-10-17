@@ -1,6 +1,11 @@
 :: StoryTitle
 Programmatic Undo in Snowman 2
 
+
+:: StoryData
+{
+    "ifid": "D327E1DE-4B96-4085-BCBC-11BA0C66CBBF"
+}
 :: Start
 <p>Ready to enter the darkness?</p>
 [[Enter the Darkness]]

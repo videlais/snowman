@@ -21,7 +21,7 @@ describe('Cookbook - Loading Screen', () => {
     
     it('Should display message', async () => {
         // Wait for seven seconds.
-        await page.waitForTimeout(7000);
+        await new Promise(resolve => setTimeout(resolve, 7000));
         await expect(page).toMatchTextContent("You can now see this after the long pause!");
     });
 });

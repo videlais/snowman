@@ -1,6 +1,11 @@
 :: StoryTitle
 Loading Screen in Snowman
 
+
+:: StoryData
+{
+    "ifid": "4C1126A5-6BF1-4FA9-B647-2634BD5F837A"
+}
 :: UserScript[script]
 // Before the story starts, lock the screen.
 Story.screen.lock();

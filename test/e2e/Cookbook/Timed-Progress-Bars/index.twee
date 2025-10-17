@@ -1,6 +1,11 @@
 :: StoryTitle
 Timed Progress Bars in Snowman
 
+
+:: StoryData
+{
+    "ifid": "DDF84F38-4757-400B-A486-744544D65F7F"
+}
 :: UserScript[script]
 /*
 		

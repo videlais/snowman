@@ -1,6 +1,11 @@
 :: StoryTitle
 Static Healthbars in Snowman
 
+
+:: StoryData
+{
+    "ifid": "D8FB1515-1DF9-43DB-B17C-3BE3975BDE14"
+}
 :: Start
 <%
   s.health = 80;

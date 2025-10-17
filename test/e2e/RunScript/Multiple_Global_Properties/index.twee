@@ -1,6 +1,11 @@
 :: StoryTitle
 Multiple Global Properties
 
+
+:: StoryData
+{
+    "ifid": "309677EF-6D85-45EF-8DD0-E6213E77B33D"
+}
 :: Script[script]
 s.example = 5;
 s.second = 56;

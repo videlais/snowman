@@ -1,6 +1,11 @@
 :: StoryTitle
 Remove Passage Test
 
+
+:: StoryData
+{
+    "ifid": "110858E9-C62B-4222-8EE5-0CD3EE51E100"
+}
 :: Start
 <%
     Story.removePassage('Another');

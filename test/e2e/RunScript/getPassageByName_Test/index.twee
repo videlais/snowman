@@ -1,6 +1,11 @@
 :: StoryTitle
 getPassageByName() Test
 
+
+:: StoryData
+{
+    "ifid": "C9E15B39-848E-4B29-8D4F-0168952540A0"
+}
 :: Start
 The title of this story is "<%- Story.name %>."
 

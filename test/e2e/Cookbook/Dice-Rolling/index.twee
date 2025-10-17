@@ -1,6 +1,11 @@
 :: StoryTitle
 Snowman: Dice Rolling
 
+
+:: StoryData
+{
+    "ifid": "05205F5A-915B-4F13-B030-250AD7284C23"
+}
 :: Start
 Rolling a 1d4: <%- Utils.randomInt(1,4) %>
 

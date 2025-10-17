@@ -1,5 +1,10 @@
 :: StoryTitle
 Underscore Test
 
+
+:: StoryData
+{
+    "ifid": "8C8B5857-7172-48EC-BDED-D21282E3BCAE"
+}
 :: Start
 <%- Utils.randomInt(1, 10) %>

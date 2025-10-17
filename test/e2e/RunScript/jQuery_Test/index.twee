@@ -1,6 +1,11 @@
 :: StoryTitle
 jQuery Test
 
+
+:: StoryData
+{
+    "ifid": "23C9EE88-FEC5-4A4E-8C6B-08C5A96DAFFD"
+}
 :: Start
 <span id="results"></span>
 <% 

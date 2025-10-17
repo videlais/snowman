@@ -1,6 +1,11 @@
 :: StoryTitle
 Goto Test
 
+
+:: StoryData
+{
+    "ifid": "179602D7-B228-4F7E-B4BF-09168EB2EF07"
+}
 :: Start
 <% 
     Story.goto('Another');

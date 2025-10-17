@@ -1,6 +1,11 @@
 :: StoryTitle
 Snowman: Headers and Footers
 
+
+:: StoryData
+{
+    "ifid": "8967F3C0-8E13-4C45-A817-343DDEA22D44"
+}
 :: Start
 <%- Story.include("Header") %>
 

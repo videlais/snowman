@@ -1,6 +1,11 @@
 :: StoryTitle
 Show Test
 
+
+:: StoryData
+{
+    "ifid": "809B41E3-9A3F-43E2-B606-1F9EBF75B85C"
+}
 :: Start
 <% 
     Story.show('Another');

@@ -1,6 +1,11 @@
 :: StoryTitle
 Player Statistics in Snowman
 
+
+:: StoryData
+{
+    "ifid": "B3B93650-BE24-4680-A24E-1C53E11C6E70"
+}
 :: UserScript[script]
 s.empathy = 10;
 s.intelligence = 10;

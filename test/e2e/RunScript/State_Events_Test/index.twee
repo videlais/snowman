@@ -1,6 +1,11 @@
 :: StoryTitle
 State Events Test
 
+
+:: StoryData
+{
+    "ifid": "B04CB93C-BA7F-4E79-A5A7-8E9D0823D3C0"
+}
 :: Start
 <a role="link">Click me</a>
 <%

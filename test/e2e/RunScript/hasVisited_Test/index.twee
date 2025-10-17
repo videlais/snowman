@@ -1,6 +1,11 @@
 :: StoryTitle
 hasVisited Test
 
+
+:: StoryData
+{
+    "ifid": "7DEB0A20-A090-4889-A995-AF3C78E39145"
+}
 :: Start
 [[Another]]
 

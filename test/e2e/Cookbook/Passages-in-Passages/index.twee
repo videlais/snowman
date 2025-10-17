@@ -1,6 +1,11 @@
 :: StoryTitle
 Snowman: Passages in Passages
 
+
+:: StoryData
+{
+    "ifid": "40980D42-9FEC-4C77-8928-C4743BA823D1"
+}
 :: Start
 This is the Start passage!
 <%- Story.include("Another") %>

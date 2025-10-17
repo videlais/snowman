@@ -1,6 +1,11 @@
 :: StoryTitle
 Add Passage Test
 
+
+:: StoryData
+{
+    "ifid": "06F7A3D1-4705-46EA-8A3E-C59237232BBC"
+}
 :: Start
 <% 
     Story.addPassage('Another', [], '<p id="test">Show me!</p>');
