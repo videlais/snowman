@@ -2358,7 +2358,11 @@ class Storage {
     let result = false;
 
     if (Storage.available()) {
-      window.localStorage.setItem(`${save}.snowman.history`, JSON.stringify(History.history));
+      const saveData = {
+        history: History.history,
+        position: History.position
+      };
+      window.localStorage.setItem(`${save}.snowman.history`, JSON.stringify(saveData));
       result = true;
     }
 
@@ -2381,12 +2385,43 @@ class Storage {
     }
 
     if (history !== null) {
-      // Restore history
-      History.history = JSON.parse(history);
-      // Find current state.
-      const state = History.history[History.position].state;
-      // Have State update itself.
-      State.updateState(state);
+      try {
+        const parsedData = JSON.parse(history);
+        
+        // Check if this is the new format (object with history and position)
+        // or the old format (array of history entries)
+        if (Array.isArray(parsedData)) {
+          // Old format: just an array of history entries
+          History.history = parsedData;
+          // Set position to the last entry for backward compatibility
+          History.position = Math.max(0, parsedData.length - 1);
+        } else if (parsedData && typeof parsedData === 'object' && 'history' in parsedData) {
+          // New format: object with history and position properties
+          History.history = parsedData.history || [];
+          History.position = typeof parsedData.position === 'number' ? parsedData.position : 0;
+        } else {
+          // Fallback for unexpected formats
+          History.history = [];
+          History.position = 0;
+        }
+        
+        // Ensure position is within bounds
+        if (History.position >= History.history.length) {
+          History.position = Math.max(0, History.history.length - 1);
+        }
+        
+        // Only try to restore state if we have valid history and position
+        if (History.history.length > 0 && History.position >= 0) {
+          const state = History.history[History.position].state;
+          State.updateState(state);
+        }
+      } catch (error) {
+        // If parsing fails, reset to safe state
+        console.warn('Warning: Failed to parse save data, resetting to safe state:', error.message);
+        History.history = [];
+        History.position = 0;
+        result = false;
+      }
     }
 
     return result;

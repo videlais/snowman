@@ -102,8 +102,9 @@ class Storage {
           const state = History.history[History.position].state;
           State.updateState(state);
         }
-      } catch (e) {
+      } catch (error) {
         // If parsing fails, reset to safe state
+        console.warn('Warning: Failed to parse save data, resetting to safe state:', error.message);
         History.history = [];
         History.position = 0;
         result = false;
