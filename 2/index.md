@@ -23,4 +23,4 @@ Starting with 2.0, Snowman now also uses the full [Babel Polyfill](https://babel
 
 This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 
-Documentation Version 1.7 (September 2019)
+Documentation Version 2.1.0 (Current)
