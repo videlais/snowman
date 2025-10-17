@@ -1,8 +1,8 @@
 # Jekyll Configuration for Snowman Documentation
 title: Snowman Documentation
 description: A Twine story format for interactive fiction
-baseurl: ""
-url: "https://videlais.github.io/snowman"
+baseurl: "/snowman"
+url: "https://videlais.github.io"
 
 # GitHub Pages environment settings
 github:
