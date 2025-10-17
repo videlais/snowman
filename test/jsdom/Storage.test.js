@@ -14,7 +14,8 @@ describe('Storage', () => {
       History.add('State');
       Storage.createSave('test');
       const test = JSON.parse(localStorage.getItem('test.snowman.history'));
-      expect(test.length).toBe(1);
+      expect(test.history.length).toBe(1);
+      expect(test.position).toBe(0);
     });
   });
 
@@ -89,6 +90,159 @@ describe('Storage', () => {
   describe('available()', () => {
     it('Should return true if localStorage is available', () => {
       expect(Storage.available()).toBe(true);
+    });
+  });
+
+  // Tests for issue #522 fix
+  describe('Position tracking in save/restore (Issue #522)', () => {
+    beforeEach(() => {
+      History.reset();
+      State.reset();
+    });
+
+    it('Should save and restore both history and position correctly', () => {
+      // Set up test scenario
+      History.add('Start');
+      State.store.testVar = 1;
+      History.add('Page 2');
+      State.store.testVar = 2;
+      
+      // Move back in history
+      History.undo();
+      expect(History.position).toBe(0);
+      expect(History.history.length).toBe(2);
+      
+      // Save current state
+      Storage.createSave('position-test');
+      
+      // Navigate forward and add more history
+      History.redo();
+      History.add('Page 3');
+      expect(History.position).toBe(2);
+      expect(History.history.length).toBe(3);
+      
+      // Restore save - this should not crash
+      expect(() => Storage.restoreSave('position-test')).not.toThrow();
+      
+      // Verify position and history were restored correctly
+      expect(History.position).toBe(0);
+      expect(History.history.length).toBe(2);
+      expect(History.history[0].passageName).toBe('Start');
+      expect(History.history[1].passageName).toBe('Page 2');
+      expect(State.store.testVar).toBe(1); // Should be restored to the state at position 0
+    });
+
+    it('Should handle the exact scenario from issue #522', () => {
+      // Reproduce the exact issue scenario
+      History.add('Start');
+      if (typeof State.store.someVar === 'undefined') {
+        State.store.someVar = 0;
+      }
+      
+      History.add('Page 2');
+      State.store.someVar += 1;
+      
+      // Go back and forth
+      History.undo();
+      History.redo();
+      
+      // Save
+      Storage.createSave('issue522-test');
+      
+      // Continue navigation (this changes position)
+      History.add('Page 3');
+      State.store.someVar += 1;
+      
+      // Restore - this used to crash
+      expect(() => Storage.restoreSave('issue522-test')).not.toThrow();
+      
+      // Verify we can access the restored state
+      expect(History.history[History.position]).toBeDefined();
+      expect(History.history[History.position].state).toBeDefined();
+    });
+
+    it('Should handle edge case where position equals history length', () => {
+      History.add('Only passage');
+      // Manually set position to be equal to length (edge case)
+      History.position = History.history.length;
+      
+      Storage.createSave('edge-test');
+      
+      // This should adjust position to be within bounds
+      Storage.restoreSave('edge-test');
+      expect(History.position).toBe(0); // Should be adjusted to valid range
+      expect(History.position).toBeLessThan(History.history.length);
+    });
+
+    it('Should handle empty history gracefully', () => {
+      // Save empty history
+      Storage.createSave('empty-test');
+      
+      // Add some history
+      History.add('Test');
+      
+      // Restore empty history
+      expect(() => Storage.restoreSave('empty-test')).not.toThrow();
+      expect(History.history.length).toBe(0);
+      expect(History.position).toBe(0);
+    });
+  });
+
+  // Backward compatibility tests
+  describe('Backward compatibility with old save format', () => {
+    beforeEach(() => {
+      History.reset();
+      State.reset();
+    });
+
+    it('Should load old format saves (array of history entries)', () => {
+      // Manually create an old-format save (just array of history)
+      const oldFormatSave = JSON.stringify([
+        { passageName: 'Start', state: { oldVar: 1 } },
+        { passageName: 'Page 2', state: { oldVar: 2 } }
+      ]);
+      
+      if (Storage.available()) {
+        window.localStorage.setItem('old-format.snowman.history', oldFormatSave);
+      }
+      
+      // Should restore without error
+      expect(() => Storage.restoreSave('old-format')).not.toThrow();
+      
+      // Should restore history
+      expect(History.history.length).toBe(2);
+      expect(History.history[0].passageName).toBe('Start');
+      expect(History.history[1].passageName).toBe('Page 2');
+      
+      // Should set position to last entry for backward compatibility
+      expect(History.position).toBe(1);
+      expect(State.store.oldVar).toBe(2);
+    });
+
+    it('Should handle malformed save data gracefully', () => {
+      // Create malformed save data
+      if (Storage.available()) {
+        window.localStorage.setItem('malformed.snowman.history', 'invalid json{');
+      }
+      
+      // Should not crash and should return false
+      expect(Storage.restoreSave('malformed')).toBe(false);
+      expect(History.history.length).toBe(0);
+      expect(History.position).toBe(0);
+    });
+
+    it('Should handle unexpected object format', () => {
+      // Save with unexpected object structure
+      const unexpectedFormat = JSON.stringify({ someOtherProp: 'value' });
+      
+      if (Storage.available()) {
+        window.localStorage.setItem('unexpected.snowman.history', unexpectedFormat);
+      }
+      
+      // Should not crash and should reset to safe state
+      expect(() => Storage.restoreSave('unexpected')).not.toThrow();
+      expect(History.history.length).toBe(0);
+      expect(History.position).toBe(0);
     });
   });
 });
