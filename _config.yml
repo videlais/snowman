@@ -4,6 +4,10 @@ description: A Twine story format for interactive fiction
 baseurl: ""
 url: "https://videlais.github.io/snowman"
 
+# GitHub Pages environment settings
+github:
+  environment: production
+
 # Build settings
 markdown: kramdown
 highlighter: rouge
@@ -13,6 +17,12 @@ permalink: pretty
 plugins:
   - jekyll-redirect-from
   - jekyll-sitemap
+
+# Sitemap configuration
+sitemap:
+  priority: 1.0
+  changefreq: 'monthly'
+  lastmod: 2024-10-16
 
 # Collections for organized content
 collections:
