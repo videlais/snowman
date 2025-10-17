@@ -1,5 +1,6 @@
-const { Query } = require('mingo');
+const { parse } = require('quis');
 const State = require('./State.js');
+const { normalizeRequirements } = require('./MingoQuisConverter.js');
 
 /**
  * An object containing none, one, or multiple passages based
@@ -89,11 +90,37 @@ class Storylets {
     this.passages.forEach(entry => {
       // Pull the requirements.
       const requirements = entry.requirements;
-      // Create a query based on requirements.
-      const query = new Query(requirements);
-      // Test against State.store AND make sure there are search properties.
-      // As requirements can be an empty object, we need to protect against it.
-      if (query.test(State.store) && Object.keys(requirements).length > 0) {
+      
+      // Convert requirements to Quis DSL expression
+      let quisExpression;
+      try {
+        quisExpression = normalizeRequirements(requirements);
+      } catch (error) {
+        console.warn('Failed to parse requirements for passage:', entry.passage.name, error);
+        return; // Skip this passage if requirements are invalid
+      }
+      
+      // Create values function for Quis
+      const values = (name) => {
+        // Remove $ prefix if present (Quis expects $variableName, but we store variableName)
+        const cleanName = name.startsWith('$') ? name.slice(1) : name;
+        return State.store[cleanName];
+      };
+      
+      // Test requirements against State.store
+      let isAvailable = false;
+      try {
+        // Only test if there are actual requirements (not empty object/string)
+        if ((typeof requirements === 'object' && Object.keys(requirements).length > 0) ||
+            (typeof requirements === 'string' && requirements.trim() !== '' && requirements !== 'true')) {
+          isAvailable = parse(quisExpression, { values });
+        }
+      } catch (error) {
+        console.warn('Failed to evaluate requirements for passage:', entry.passage.name, error);
+        return; // Skip this passage if evaluation fails
+      }
+      
+      if (isAvailable) {
         // Add the element to the results.
         results.push(entry);
       }
