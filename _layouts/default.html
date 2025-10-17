@@ -20,7 +20,10 @@
       // Remove trailing slashes and add proper extension
       const cleanPath = hashPath.replace(/\/$/, '');
       const newUrl = window.location.pathname + cleanPath + '/';
-      console.log('Redirecting from hash URL:', window.location.href, 'to:', newUrl);
+      // Only log in development (localhost)
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('Redirecting from hash URL:', window.location.href, 'to:', newUrl);
+      }
       window.location.replace(newUrl);
     }
   </script>

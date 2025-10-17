@@ -1,2 +1,29 @@
 node_modules
 .DS_Store
+
+# Jekyll build output
+_site/
+
+# Jekyll cache
+.jekyll-cache/
+.jekyll-metadata
+
+# Bundle cache
+.bundle/
+vendor/
+
+# Sass cache
+.sass-cache/
+
+# Local environment files
+.env
+.env.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
