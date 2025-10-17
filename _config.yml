@@ -78,10 +78,10 @@ kramdown:
 # Site navigation
 navigation:
   - title: "Home"
-    url: "/"
+    url: ""
   - title: "Version 1.x"
-    url: "/1/"
+    url: "1/"
   - title: "Version 2.x" 
-    url: "/2/"
+    url: "2/"
   - title: "Builds"
-    url: "/builds/"
+    url: "builds/"

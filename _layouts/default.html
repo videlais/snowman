@@ -32,14 +32,14 @@
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <aside class="sidebar">
     <h1 class="app-name">
-      <a href="/">{{ site.title }}</a>
+      <a href="{{ '/' | relative_url }}">{{ site.title }}</a>
     </h1>
     
     <nav class="sidebar-nav" aria-label="Documentation navigation">
       <ul>
         {% for nav_item in site.navigation %}
         <li>
-          <a href="{{ nav_item.url }}" {% if page.url == nav_item.url %}class="active"{% endif %}>
+          <a href="{{ nav_item.url | relative_url }}" {% if page.url == nav_item.url %}class="active"{% endif %}>
             {{ nav_item.title }}
           </a>
         </li>
