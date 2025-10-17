@@ -1,4 +1,9 @@
-# Functions Not Macros
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## Functions Not Macros
 
 Snowman does not supply any macros. In other story formats like Harlowe or SugarCube, there are bits of code that can be used called "macros." Instead of providing these, Snowman uses two global variables, `window.story` and `window.passage`.
 

@@ -1,4 +1,9 @@
-# saveHash()
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## saveHash()
 
 `saveHash()` is a function of the `window.story` global JavaScript variable created by Snowman.
 

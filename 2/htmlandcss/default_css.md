@@ -1,4 +1,9 @@
-# Working with CSS
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## Working with CSS
 
 Before Snowman 2.X's CSS is loaded, the [normalize.css](https://necolas.github.io/normalize.css/) rules are applied first.
 

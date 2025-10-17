@@ -1,4 +1,9 @@
-# Passage Events
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## Passage Events
 
 Passage events are triggered in the order of `hidden`, `showing`, and `shown`.
 

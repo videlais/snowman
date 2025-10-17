@@ -1,4 +1,9 @@
-# state
+---
+layout: version_1x
+title: "Snowman 1.X Documentation"
+---
+
+## state
 
 `state` is a property of the `window.story` global JavaScript variable created by Snowman.
 

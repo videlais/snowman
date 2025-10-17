@@ -1,4 +1,9 @@
-# getStyles()
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## getStyles()
 
 The global function `window.getStyles()` accepts one or more URLs of remote CSS stylesheets and attempts to load them. The function returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
 

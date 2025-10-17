@@ -1,4 +1,9 @@
-# HTML Elements
+---
+layout: version_1x
+title: "Snowman 1.X Documentation"
+---
+
+## HTML Elements
 
 Snowman follows the Twine 2 standard of using `<tw-storydata>` and `<tw-passagedata>` elements to store information about the story and individual passages. Beyond this, Snowman 1.X also uses a `<div>` element with the class `main` as the story rendering area.
 

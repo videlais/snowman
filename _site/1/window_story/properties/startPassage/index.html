@@ -2,112 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>startPassage - Snowman Documentation</title>
+  <title>Snowman 1.X Documentation - Snowman Documentation 1.X</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="A Twine story format for interactive fiction">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   
-  <!-- Keep the same styling as Docsify for consistency -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css">
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <!-- Version 1.X Specific Styles -->
+  <link rel="stylesheet" href="/assets/css/version-1x.css">
+  <!-- Components Stylesheet -->
+  <link rel="stylesheet" href="/assets/css/components.css">
   
-  <style>
-    :root {
-      /* Increase the font size */
-      --base-font-size: 24px;
-  
-      /* Change the theme color hue */
-      --theme-hue: 325;
-
-      --sidebar-nav-link-before-content: '•';
-      --sidebar-nav-link-before-content-l2: '';
-      --sidebar-nav-link-before-content-l3: '';
-    }
-    
-    /* Jekyll-specific adjustments */
-    .content {
-      padding-left: 300px;
-      min-height: 100vh;
-    }
-    
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 300px;
-      height: 100vh;
-      overflow-y: auto;
-      background: var(--mono-tint3);
-      border-right: 1px solid var(--mono-tint2);
-      padding: 25px;
-    }
-    
-    .markdown-section {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 30px 40px 40px;
-    }
-    
-    .app-name {
-      font-size: var(--font-size-l);
-      font-weight: 300;
-      margin: 0 0 30px 0;
-      text-align: center;
-    }
-    
-    .app-name a {
-      color: var(--theme-color);
-      text-decoration: none;
-    }
-    
-    .sidebar-nav ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    
-    .sidebar-nav li {
-      margin: 0;
-    }
-    
-    .sidebar-nav a {
-      display: block;
-      padding: 0.25em 0;
-      color: var(--base-color);
-      text-decoration: none;
-      border-left: 4px solid transparent;
-      padding-left: 20px;
-      margin-left: -25px;
-      transition: all 0.3s ease;
-    }
-    
-    .sidebar-nav a:hover,
-    .sidebar-nav a.active {
-      color: var(--theme-color);
-      border-left-color: var(--theme-color);
-      text-decoration: underline;
-    }
-    
-    .sidebar-nav ul ul {
-      margin-left: 1em;
-    }
-    
-    .sidebar-nav ul ul a:before {
-      content: '';
-      margin-right: 0.35em;
-    }
-    
-    @media (max-width: 768px) {
-      .content {
-        padding-left: 0;
-      }
-      
-      .sidebar {
-        display: none;
-      }
-    }
-  </style>
-  
-  <!-- Docsify Hash URL Redirect Script -->
+  <!-- Legacy URL Redirect Script -->
   <script>
     // Handle legacy Docsify hash-based URLs
     if (window.location.hash.startsWith('#/')) {
@@ -121,45 +28,15 @@
   </script>
 </head>
 <body>
-  <div class="sidebar">
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <aside class="sidebar">
     <h1 class="app-name">
       <a href="/">Snowman Documentation</a>
+      <span class="version-badge">1.X</span>
     </h1>
     
-    <nav class="sidebar-nav">
-      <ul>
-        
-        <li>
-          <a href="/" >
-            Home
-          </a>
-        </li>
-        
-        <li>
-          <a href="/1/" >
-            Version 1.x
-          </a>
-        </li>
-        
-        <li>
-          <a href="/2/" >
-            Version 2.x
-          </a>
-        </li>
-        
-        <li>
-          <a href="/builds/" >
-            Builds
-          </a>
-        </li>
-        
-      </ul>
+    <nav class="sidebar-nav" aria-label="Documentation navigation">
       
-      
-      <div style="margin-top: 30px;">
-        <strong>Version 1.x</strong>
-        
-
 
 <ul>
   <li><strong>Snowman 1.X</strong>
@@ -237,8 +114,8 @@
         <ul>
           <li><a href="/1/window_passage/properties/id/">id</a></li>
           <li><a href="/1/window_passage/properties/name/">name</a></li>
-          <li><a href="/1/window_passage/properties/source/">source</a></li>
           <li><a href="/1/window_passage/properties/tags/">tags</a></li>
+          <li><a href="/1/window_passage/properties/source/">source</a></li>
         </ul>
       </li>
       <li><strong>Passage Functions</strong>
@@ -249,16 +126,12 @@
     </ul>
   </li>
 </ul>
-
-
-      </div>
-      
     </nav>
-  </div>
+  </aside>
   
-  <main class="content">
+  <main class="content" id="main-content">
     <article class="markdown-section">
-      <h1 id="startpassage">startPassage</h1>
+      <h2 id="startpassage">startPassage</h2>
 
 <p><code class="language-plaintext highlighter-rouge">startPassage</code> is a property of the <code class="language-plaintext highlighter-rouge">window.story</code> global JavaScript variable created by Snowman.</p>
 
@@ -271,35 +144,18 @@
     </article>
   </main>
 
-  <!-- Documentation Download Section -->
-  <div id="docs-download-section" style="position: fixed; top: 10px; right: 10px; z-index: 1000; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 300px; font-family: inherit;">
-    <h3 style="margin: 0 0 15px 0; font-size: 16px; color: #333;">📚 Documentation Downloads</h3>
-    
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-      <!-- Version 1.X Documentation -->
-      <div style="border: 1px solid #e1e8ed; border-radius: 6px; padding: 12px;">
-        <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #2c3e50;">Version 1.X</h4>
-        <p style="margin: 5px 0; font-size: 12px;"><a href="/1/" style="color: #3498db; text-decoration: none;">📖 View Online</a></p>
-        <p style="margin: 5px 0; font-size: 12px;"><a href="https://download-directory.github.io/?url=https://github.com/videlais/snowman/tree/gh-pages/1" target="_blank" style="color: #27ae60; text-decoration: none;">📦 Download Docs Only</a></p>
-        <p style="margin: 5px 0; font-size: 12px;"><a href="https://github.com/videlais/snowman/archive/gh-pages.zip" target="_blank" style="color: #7f8c8d; font-size: 11px; text-decoration: none;">🔗 Full Repository ZIP</a></p>
-      </div>
-      
-      <!-- Version 2.X Documentation -->
-      <div style="border: 1px solid #e1e8ed; border-radius: 6px; padding: 12px;">
-        <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #2c3e50;">Version 2.X</h4>
-        <p style="margin: 5px 0; font-size: 12px;"><a href="/2/" style="color: #3498db; text-decoration: none;">📖 View Online</a></p>
-        <p style="margin: 5px 0; font-size: 12px;"><a href="https://download-directory.github.io/?url=https://github.com/videlais/snowman/tree/gh-pages/2" target="_blank" style="color: #27ae60; text-decoration: none;">📦 Download Docs Only</a></p>
-        <p style="margin: 5px 0; font-size: 12px;"><a href="https://github.com/videlais/snowman/archive/gh-pages.zip" target="_blank" style="color: #7f8c8d; font-size: 11px; text-decoration: none;">🔗 Full Repository ZIP</a></p>
+  <!-- Documentation Download Footer -->
+<footer id="docs-download-section" role="contentinfo" aria-label="Download documentation">
+  <div class="footer-content">
+    <div class="footer-resources">
+      <h3>Additional Resources</h3>
+      <div class="resource-links">
+        <a href="/builds/" aria-label="View all build files and downloads">🔧 All Build Files</a>
+        <a href="https://github.com/videlais/snowman" target="_blank" rel="noopener noreferrer" aria-label="Visit Snowman GitHub repository">📂 GitHub Repository</a>
+        <a href="https://github.com/videlais/snowman/archive/gh-pages.zip" target="_blank" rel="noopener noreferrer" aria-label="Download complete documentation repository">� Full Documentation ZIP</a>
       </div>
     </div>
-    
-    <!-- Build Files Link -->
-    <div style="text-align: center; padding-top: 10px; border-top: 1px solid #eee;">
-      <p style="margin: 5px 0; font-size: 12px;"><a href="/builds/" style="color: #9b59b6; text-decoration: none;">🔧 Build Files & Format.js Downloads</a></p>
-    </div>
-    
-    <!-- Minimize/Close Button -->
-    <button onclick="document.getElementById('docs-download-section').style.display='none'" style="position: absolute; top: 5px; right: 8px; background: none; border: none; font-size: 16px; color: #999; cursor: pointer; padding: 0; line-height: 1;">×</button>
   </div>
+</footer>
 </body>
 </html>

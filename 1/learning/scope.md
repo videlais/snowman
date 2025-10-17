@@ -1,4 +1,9 @@
-# JavaScript Scope
+---
+layout: version_1x
+title: "Snowman 1.X Documentation"
+---
+
+## JavaScript Scope
 
 As explained within the templates page, all Underscore template code sections are their own function scope. The same is also true of any use of `<script>` tags within a passage. These all run within their own contextual scopes.
 

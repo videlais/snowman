@@ -1,5 +1,5 @@
 ---
-layout: docs
+layout: version_1x
 title: "Functions Not Macros"
 version: "1.x"
 permalink: /1/learning/functions/

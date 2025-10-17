@@ -1,0 +1,28 @@
+---
+---
+
+/* Version 2.X Specific Styles */
+:root {
+  /* Override primary colors for 2.X theme (Blue accent) */
+  --primary-color: #0066cc;
+  --primary-dark: #0052a3;
+}
+
+.version-badge {
+  background: var(--primary-color);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: var(--spacing-sm);
+}
+
+/* 2.X specific sidebar hover effects */
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  color: var(--primary-color);
+  border-left-color: var(--primary-color);
+  text-decoration: none;
+  background: rgba(0, 102, 204, 0.1);
+}

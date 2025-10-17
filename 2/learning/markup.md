@@ -1,4 +1,9 @@
-# HTML Shorthand
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## HTML Shorthand
 
 Snowman supports a HTML shorthand for quickly creating elements with different properties. This shorthand is broken into two parts: prefixes and suffixes.
 

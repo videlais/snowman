@@ -1,4 +1,9 @@
-# `print()`
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## `print()`
 
 Within the scope of any templated code section is the function print() provided by [Underscore](https://underscorejs.org/#template). This acts like the use of a value interpolation, but can be used within an arbitrary code section.
 

@@ -1,4 +1,9 @@
-# Story Events
+---
+layout: version_1x
+title: "Snowman 1.X Documentation"
+---
+
+## Story Events
 
 The event `start.sm.story` is triggered when the story is finished loading and right before the first passage is displayed.
 

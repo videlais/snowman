@@ -1,4 +1,9 @@
-# hasVisited()
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## hasVisited()
 
 The global function `window.hasVisited()` returns if a passage has been visited (if it is a part of the story history) or not. It accepts one or more passage ID numbers or names and will return if all of the passages have been visited or not.
 

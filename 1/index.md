@@ -1,5 +1,5 @@
 ---
-layout: docs
+layout: version_1x
 title: "Snowman 1.X Documentation"
 version: "1.x"
 permalink: /1/

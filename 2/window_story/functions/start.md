@@ -1,4 +1,9 @@
-# start()
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## start()
 
 `start()` is a function of the `window.story` global JavaScript variable created by Snowman.
 

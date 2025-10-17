@@ -1,4 +1,9 @@
-# render()
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## render()
 
 `render()` is a function of the `window.passage` global JavaScript variable created by Snowman.
 

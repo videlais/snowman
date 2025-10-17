@@ -1,4 +1,9 @@
-# Checkpoint Events
+---
+layout: version_1x
+title: "Snowman 1.X Documentation"
+---
+
+## Checkpoint Events
 
 The event `added.sm.checkpoint` is triggered when a passage is about to be shown and a checkpoint has been set. The name property of the event object contains the passage id or name.
 
