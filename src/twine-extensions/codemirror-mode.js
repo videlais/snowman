@@ -1,12 +1,3 @@
-import CodeMirror from 'codemirror';
-
-// Snowman mode state interface
-const SnowmanModeState = {
-  inScriptBlock: false,
-  inStyleBlock: false,
-  scriptNesting: 0
-};
-
 export function mode() {
   return {
     startState() {

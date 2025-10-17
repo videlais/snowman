@@ -135,7 +135,7 @@ describe('Storage', () => {
     it('Should handle the exact scenario from issue #522', () => {
       // Reproduce the exact issue scenario
       History.add('Start');
-      if (typeof State.store.someVar === 'undefined') {
+      if (State.store.someVar === undefined) {
         State.store.someVar = 0;
       }
       
@@ -203,7 +203,7 @@ describe('Storage', () => {
       ]);
       
       if (Storage.available()) {
-        window.localStorage.setItem('old-format.snowman.history', oldFormatSave);
+        globalThis.localStorage.setItem('old-format.snowman.history', oldFormatSave);
       }
       
       // Should restore without error
@@ -222,7 +222,7 @@ describe('Storage', () => {
     it('Should handle malformed save data gracefully', () => {
       // Create malformed save data
       if (Storage.available()) {
-        window.localStorage.setItem('malformed.snowman.history', 'invalid json{');
+        globalThis.localStorage.setItem('malformed.snowman.history', 'invalid json{');
       }
       
       // Should not crash and should return false
@@ -236,7 +236,7 @@ describe('Storage', () => {
       const unexpectedFormat = JSON.stringify({ someOtherProp: 'value' });
       
       if (Storage.available()) {
-        window.localStorage.setItem('unexpected.snowman.history', unexpectedFormat);
+        globalThis.localStorage.setItem('unexpected.snowman.history', unexpectedFormat);
       }
       
       // Should not crash and should reset to safe state
@@ -252,13 +252,13 @@ describe('localStorage turned off', () => {
 
   beforeEach(() => {
     // Mimic how Firefox turns off dom.storage
-    temp = window._localStorage;
-    window._localStorage = null;
+    temp = globalThis._localStorage;
+    globalThis._localStorage = null;
   });
 
   afterAll(() => {
     // Restore localStorage after testing block
-    window._localStorage = temp;
+    globalThis._localStorage = temp;
   });
 
   it('save() should return false if localStorage is turned off', () => {

@@ -21,9 +21,9 @@ class Storylets {
     // For each, look for the <requirements> element in their source.
     for (const passageEntry of storyPassages) {
       // Double-check each object has a 'source' property.
-      if (Object.prototype.hasOwnProperty.call(passageEntry, 'source')) {
+      if (Object.hasOwn(passageEntry, 'source')) {
         // Find the element and replace it with an empty string.
-        const searchedSource = passageEntry.source.replace(/<requirements>([^>]*?)<\/requirements>/gmi, (match, captured) => {
+        const searchedSource = passageEntry.source.replaceAll(/<requirements>([^>]*?)<\/requirements>/gmi, (match, captured) => {
           // Set a default object if JSON parsing fails.
           let passageRequirements = {};
 
@@ -43,7 +43,7 @@ class Storylets {
           // First, are there any keys?
           if (Object.keys(passageRequirements).length > 0) {
             // Second, does the 'priority' property exist?
-            if (Object.prototype.hasOwnProperty.call(passageRequirements, 'priority')) {
+            if (Object.hasOwn(passageRequirements, 'priority')) {
               // Update priority.
               passagePriority = passageRequirements.priority;
               // Remove priority.
@@ -84,10 +84,10 @@ class Storylets {
     let results = [];
 
     // Force argument into number.
-    limit = parseInt(limit);
+    limit = Number.parseInt(limit);
 
     // For each passage, test its requirements against State.store.
-    this.passages.forEach(entry => {
+    for (const entry of this.passages) {
       // Pull the requirements.
       const requirements = entry.requirements;
       
@@ -124,7 +124,7 @@ class Storylets {
         // Add the element to the results.
         results.push(entry);
       }
-    });
+    }
 
     // Sort results by priority.
     results.sort((a, b) => b.priority - a.priority);
@@ -147,7 +147,7 @@ class Storylets {
    */
   addPassage (newName = '', newRequirements = {}, newPriority = 0) {
     // Check if passage exists in Story.
-    const newPassage = window.Story.getPassageByName(newName);
+    const newPassage = globalThis.Story.getPassageByName(newName);
 
     // If the passage was not found, throw an error.
     if (newPassage == null) {
@@ -166,7 +166,7 @@ class Storylets {
     }
 
     // Force parse newPriority into a number.
-    newPriority = parseInt(newPriority);
+    newPriority = Number.parseInt(newPriority);
 
     // Add the new, existing passage along with its requirements and priority.
     this.passages.push(

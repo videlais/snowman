@@ -2,7 +2,7 @@
  * @jest-environment puppeteer
  */
 const ShellJS = require('shelljs');
-const path = require('path');
+const path = require('node:path');
 require('expect-puppeteer');
    
 // Extend timeout to 10 seconds.

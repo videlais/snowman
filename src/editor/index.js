@@ -10,7 +10,7 @@
   const config = { attributes: false, childList: true, subtree: true };
 
   // Create an observer instance linked to the callback function
-  const observer = new MutationObserver(function (mutationList, observer) {
+  const observer = new MutationObserver(function (mutationList) {
     for (const mutation of mutationList) {
       const target = mutation.target;
       if (target.className === 'CodeMirror-code') {
