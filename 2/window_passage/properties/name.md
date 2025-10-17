@@ -1,4 +1,9 @@
-# name
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## name
 
 `name` is a property of the `window.passage` global JavaScript variable created by Snowman.
 

@@ -1,4 +1,9 @@
-# either()
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## either()
 
 The global function `window.either()` picks and returns a random entry from its arguments. It will also combine the values of any arrays passed to it together and return a random entry from the total set.
 

@@ -1,4 +1,9 @@
-# atCheckpoint
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## atCheckpoint
 
 `atCheckpoint` is a property of the `window.story` global JavaScript variable created by Snowman.
 

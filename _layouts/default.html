@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% if page.title %}{{ page.title }} - {% endif %}{{ site.title }}</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="{{ site.description }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+  <!-- Components Stylesheet -->
+  <link rel="stylesheet" href="{{ '/assets/css/components.css' | relative_url }}">
+  
+  <!-- Legacy URL Redirect Script -->
+  <script>
+    // Handle legacy Docsify hash-based URLs
+    if (window.location.hash.startsWith('#/')) {
+      const hashPath = window.location.hash.substring(2);
+      // Remove trailing slashes and add proper extension
+      const cleanPath = hashPath.replace(/\/$/, '');
+      const newUrl = window.location.pathname + cleanPath + '/';
+      // Only log in development (localhost)
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        console.log('Redirecting from hash URL:', window.location.href, 'to:', newUrl);
+      }
+      window.location.replace(newUrl);
+    }
+  </script>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <aside class="sidebar">
+    <h1 class="app-name">
+      <a href="/">{{ site.title }}</a>
+    </h1>
+    
+    <nav class="sidebar-nav" aria-label="Documentation navigation">
+      <ul>
+        {% for nav_item in site.navigation %}
+        <li>
+          <a href="{{ nav_item.url }}" {% if page.url == nav_item.url %}class="active"{% endif %}>
+            {{ nav_item.title }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      
+      {% if page.version %}
+      <div style="margin-top: 30px;">
+        <strong>Version {{ page.version }}</strong>
+        {% if page.version == "1.x" %}
+          {% include sidebar_1.html %}
+        {% elsif page.version == "2.x" %}
+          {% include sidebar_2.html %}
+        {% endif %}
+      </div>
+      {% endif %}
+    </nav>
+  </aside>
+  
+  <main class="content" id="main-content">
+    <article class="markdown-section">
+      {{ content }}
+    </article>
+  </main>
+
+  {% include footer_downloads.html %}
+</body>
+</html>

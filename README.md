@@ -1,15 +1,38 @@
-# Snowman
+# Snowman Documentation Site
 
-Snowman is an advanced Twine 2 story format designed for people who already know JavaScript and CSS. It was originally created by Chris Klimas and is currently maintained by Dan Cox.
+This is the Jekyll-based documentation site for Snowman, a Twine story format.
 
-## What does Snowman offer?
+## Development
 
-Snowman does not use macros like Harlowe, SugarCube, and other story formats. Instead, it uses template tags `<% ... %>` and exposes a JavaScript API for manipulating the story and its passages.
+To run the site locally:
 
-It also includes the JavaScript library [jQuery](https://jquery.com/).
+```bash
+bundle install
+bundle exec jekyll serve
+```
 
-## License
+The site will be available at `http://localhost:4000`.
 
-This documentation is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
+## Deployment
 
-Documentation Version 3.0 (July 2022).
+The site is automatically deployed to GitHub Pages via GitHub Actions when changes are pushed to the `main` or `jekyll-testing` branches.
+
+**Note**: The `_site` directory is not committed to git and is built automatically during deployment.
+
+## Structure
+
+- `/1/` - Documentation for Snowman v1.x
+- `/2/` - Documentation for Snowman v2.x
+- `/builds/` - Download links for different versions
+- `/_layouts/` - Jekyll templates
+- `/_includes/` - Reusable Jekyll components
+- `/assets/` - CSS and other static assets
+
+## Configuration
+
+Site configuration is in `_config.yml`. The site uses:
+
+- Jekyll static site generator
+- Kramdown for markdown parsing
+- Rouge for syntax highlighting
+- Jekyll sitemap plugin for SEO

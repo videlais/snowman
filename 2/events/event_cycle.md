@@ -1,4 +1,9 @@
-# Event Cycle
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## Event Cycle
 
 As passages are loaded, different internal events are triggered.
 

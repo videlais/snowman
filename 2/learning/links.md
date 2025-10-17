@@ -1,4 +1,9 @@
-# Working with passages
+---
+layout: version_2x
+title: "Snowman 2.X Documentation"
+---
+
+## Working with passages
 
 Passages are how Twine divides up a story into different parts. These can be scenes, like times or locations, logical sections, such as different chapters or acts, or even simply blocks of code. They provide a way to understand a story as composed of many parts.
 

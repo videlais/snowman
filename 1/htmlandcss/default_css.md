@@ -1,4 +1,9 @@
-# Default CSS
+---
+layout: version_1x
+title: "Snowman 1.X Documentation"
+---
+
+## Default CSS
 
 Snowman 1.X uses the following default CSS rules.
 

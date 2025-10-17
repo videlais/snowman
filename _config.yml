@@ -1,0 +1,87 @@
+# Jekyll Configuration for Snowman Documentation
+title: Snowman Documentation
+description: A Twine story format for interactive fiction
+baseurl: ""
+url: "https://videlais.github.io/snowman"
+
+# GitHub Pages environment settings
+github:
+  environment: production
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# Plugins (GitHub Pages whitelist)
+plugins:
+  - jekyll-redirect-from
+  - jekyll-sitemap
+
+# Sitemap configuration
+sitemap:
+  priority: 1.0
+  changefreq: 'monthly'
+  lastmod: 2024-10-16
+
+# Collections for organized content
+collections:
+  v1_docs:
+    output: true
+    permalink: /1/:name/
+  v2_docs:
+    output: true
+    permalink: /2/:name/
+
+# Default front matter
+defaults:
+  - scope:
+      path: "1"
+    values:
+      layout: "docs"
+      version: "1.x"
+  - scope:
+      path: "2"
+    values:
+      layout: "docs"
+      version: "2.x"
+  - scope:
+      path: "builds"
+    values:
+      layout: "default"
+
+# Exclude files from processing
+exclude:
+  - node_modules/
+  - setup-builds.sh
+  - update-builds.sh
+  - .DS_Store
+  - .git/
+  - .github/
+  - .gitignore
+
+# Include files that start with underscore (except _site)
+include:
+  - _sidebar.md
+
+# Kramdown settings
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: 'highlight'
+    span:
+      line_numbers: false
+    block:
+      line_numbers: false
+
+# Site navigation
+navigation:
+  - title: "Home"
+    url: "/"
+  - title: "Version 1.x"
+    url: "/1/"
+  - title: "Version 2.x" 
+    url: "/2/"
+  - title: "Builds"
+    url: "/builds/"

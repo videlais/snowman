@@ -1,4 +1,9 @@
-# Working with CSS
+---
+layout: version_1x
+title: "Snowman 1.X Documentation"
+---
+
+## Working with CSS
 
 Snowman 1.X uses a simple set of CSS rules for displaying HTML content. These can easily be extended or overwritten through adding new style rules within the Story Stylesheet when using the Twine 2 editor or as part of a stylesheet-tagged passage when using a Twee compiler.
 

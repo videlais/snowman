@@ -1,4 +1,9 @@
-# Templates
+---
+layout: version_1x
+title: "Snowman 1.X Documentation"
+---
+
+## Templates
 
 Through Underscore's [_template()](https://underscorejs.org/#template) method, Snowman has a template system that allows the use of JavaScript code to be included in passages. This comes in three main forms.
 

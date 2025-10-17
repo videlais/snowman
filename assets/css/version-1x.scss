@@ -1,0 +1,28 @@
+---
+---
+
+/* Version 1.X Specific Styles */
+:root {
+  /* Override primary colors for 1.X theme */
+  --primary-color: #ea567c;
+  --primary-dark: #d63384;
+}
+
+.version-badge {
+  background: var(--primary-color);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius);
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: var(--spacing-sm);
+}
+
+/* 1.X specific sidebar hover effects */
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  color: var(--primary-color);
+  border-left-color: var(--primary-color);
+  text-decoration: none;
+  background: rgba(234, 86, 124, 0.1);
+}
