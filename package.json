@@ -7,11 +7,14 @@
   "scripts": {
     "test": "jest test/jsdom/* --coverage",
     "test:e2e": "jest test/e2e --preset=jest-puppeteer",
+    "test:e2e:extensions": "jest test/e2e/extensions --preset=jest-puppeteer",
     "test:unit": "jest test/jsdom/*",
     "test:all": "jest --coverage",
-    "lint": "eslint src/*.js test/*.js --fix",
+    "lint": "eslint src/*.js test/*.js src/twine-extensions/*.js --fix",
     "build": "webpack",
-    "package": "npm run build && node build-format.js",
+    "build:extensions": "webpack --config webpack.extensions.config.js",
+    "start:extensions": "webpack serve --config webpack.extensions.config.js --open",
+    "package": "npm run build && npm run build:extensions && node build-format.js",
     "validate": "npm run lint && npm run package && npm run test",
     "ci": "npm run lint && npm run package && npm run test:all",
     "visual-test": "npm run package && extwee -s dist/format.js -i visual_testing/index.twee -c -o visual_testing/index.html && open-cli visual_testing/index.html",
@@ -32,6 +35,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",
+    "@tabler/icons": "^3.19.0",
+    "codemirror": "^5.65.18",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.2",
     "eslint": "^9.37.0",
@@ -49,6 +54,7 @@
     "shelljs": "^0.10.0",
     "style-loader": "^4.0.0",
     "webpack": "^5.102.1",
-    "webpack-cli": "^6.0.1"
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
   }
 }

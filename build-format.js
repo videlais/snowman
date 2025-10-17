@@ -23,11 +23,22 @@ const indexSource = ejs.render(srcIndex, {
 // Read the bundled editor code.
 // const editorSource = fs.readFileSync("build/editor.bundle.js", {'encoding': 'utf8'});
 
+// Read the bundled twine extensions if they exist.
+let twineExtensionsSource = '';
+try {
+  twineExtensionsSource = fs.readFileSync('build/twine-extensions.bundle.js', { encoding: 'utf8' });
+} catch (error) {
+  console.log('No twine extensions found, skipping...');
+}
+
 // Add the HTML template code to the story object.
 story.source = indexSource;
 
-// Generate format.js.
-const format = 'window.storyFormat(' + JSON.stringify(story) + ');';
+// Generate format.js with extensions if available.
+let format = 'window.storyFormat(' + JSON.stringify(story) + ');';
+if (twineExtensionsSource) {
+  format += '\n' + twineExtensionsSource;
+}
 fs.writeFileSync('dist/format.js', format);
 
 // Re-read format.js, replacing the editor code to create a malformed JSON.

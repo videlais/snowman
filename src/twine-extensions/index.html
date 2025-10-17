@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Snowman Editor Extensions Test</title>
+    <meta charset="utf-8" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .editor-container {
+            flex: 1;
+        }
+        .CodeMirror {
+            border: 1px solid #ddd;
+            height: 400px;
+            font-size: 14px;
+        }
+        .references {
+            flex: 0 0 300px;
+        }
+        .references h3 {
+            margin-top: 0;
+        }
+        .references ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .references li {
+            background: #f5f5f5;
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            font-family: monospace;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snowman Editor Extensions Test</h1>
+    <p>Test the CodeMirror integration for Snowman story format.</p>
+    
+    <div class="container">
+        <div class="editor-container">
+            <h3>CodeMirror Editor</h3>
+            <textarea id="source" data-testid="source">
+:: Start
+Welcome to Snowman!
+
+<% s.playerName = "Hero" %>
+
+You are <%= s.playerName %>, and you're about to embark on an adventure.
+
+<% if (s.hasVisited) { %>
+You've been here before.
+<% } else { %>
+This is your first time here.
+<% s.hasVisited = true %>
+<% } %>
+
+[[Continue->Middle]]
+
+<style>
+.highlight {
+  background: yellow;
+}
+</style>
+
+:: Middle  
+<div class="passage-content">
+  <p>You find yourself in the middle of the story.</p>
+  
+  <% 
+  // This is a JavaScript comment
+  const choices = ["left", "right", "forward"];
+  const randomChoice = choices[Math.floor(Math.random() * choices.length)];
+  %>
+  
+  <p>A voice whispers: "Go <%= randomChoice %>"</p>
+  
+  <% window.Story.render('Helper') %>
+  
+  [[Go left->Left Path]]
+  [[Go right->Right Path]]  
+  [[Go forward->Forward Path]]
+</div>
+
+:: Helper
+<span class="helper-text">This is a helper passage rendered inline.</span>
+            </textarea>
+        </div>
+        
+        <div class="references">
+            <h3>Found Passage References</h3>
+            <ul id="references"></ul>
+        </div>
+    </div>
+
+    <script src="dev.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+const path = require('path');
+
+module.exports = {
+  mode: 'development',
+  entry: './src/twine-extensions/index.js',
+  output: {
+    path: path.resolve(__dirname, './build'),
+    filename: 'twine-extensions.bundle.js',
+    library: {
+      type: 'umd',
+      name: 'SnowmanExtensions'
+    },
+    globalObject: 'this'
+  },
+  resolve: {
+    fallback: {
+      path: false,
+      fs: false
+    }
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.svg$/,
+        type: 'asset/source'
+      }
+    ]
+  },
+  externals: {
+    '___format': 'this'
+  },
+  devServer: {
+    static: {
+      directory: path.join(__dirname, 'src/twine-extensions')
+    },
+    port: 3001,
+    open: true
+  }
+};
