@@ -1,6 +1,6 @@
-const Sidebar = require('../../src/Sidebar.js');
-const State = require('../../src/State.js');
-const $ = require('jquery');
+import Sidebar from '../../src/Sidebar.js';
+import State from '../../src/State.js';
+import $ from 'jquery';
 
 let sidebar = null;
 

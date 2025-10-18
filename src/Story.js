@@ -2,16 +2,16 @@
  * @external Element
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Element}
  */
-const DOMUtils = require('./DOMUtils.js');
-const Passage = require('./Passage.js');
-const Markdown = require('./Markdown.js');
-const State = require('./State.js');
-const History = require('./History.js');
-const Storylets = require('./Storylets.js');
-const Script = require('./Script.js');
-const Sidebar = require('./Sidebar.js');
-const Screen = require('./Screen.js');
-const Storage = require('./Storage.js');
+import DOMUtils from './DOMUtils.js';
+import Passage from './Passage.js';
+import Markdown from './Markdown.js';
+import State from './State.js';
+import History from './History.js';
+import Storylets from './Storylets.js';
+import Script from './Script.js';
+import Sidebar from './Sidebar.js';
+import Screen from './Screen.js';
+import Storage from './Storage.js';
 
 /**
  * An object representing the entire story. After the document has completed
@@ -470,4 +470,4 @@ class Story {
   }
 }
 
-module.exports = Story;
+export default Story;

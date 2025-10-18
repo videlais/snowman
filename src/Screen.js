@@ -1,4 +1,4 @@
-const DOMUtils = require('./DOMUtils.js');
+import DOMUtils from './DOMUtils.js';
 
 class Screen {
   /**
@@ -20,4 +20,4 @@ class Screen {
   }
 }
 
-module.exports = Screen;
+export default Screen;

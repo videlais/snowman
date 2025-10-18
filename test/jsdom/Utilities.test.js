@@ -1,5 +1,5 @@
-const Utilities = require('../../src/Utilities.js');
-const $ = require('jquery');
+import Utilities from '../../src/Utilities.js';
+import $ from 'jquery';
 
 describe('Utilities', () => {
   describe('delay()', () => {

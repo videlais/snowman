@@ -280,4 +280,4 @@ class DOMUtils {
   }
 }
 
-module.exports = DOMUtils;
+export default DOMUtils;

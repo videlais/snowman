@@ -1,7 +1,7 @@
-const Storylets = require('../../src/Storylets.js');
-const Story = require('../../src/Story.js');
-const $ = require('jquery');
-const State = require('../../src/State.js');
+import Storylets from '../../src/Storylets.js';
+import Story from '../../src/Story.js';
+import $ from 'jquery';
+import State from '../../src/State.js';
 
 describe('Storylets', () => {
   describe('constructor()', () => {

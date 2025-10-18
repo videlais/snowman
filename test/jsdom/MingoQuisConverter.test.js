@@ -1,4 +1,4 @@
-const { convertMingoToQuis, normalizeRequirements } = require('../../src/MingoQuisConverter.js');
+import { convertMingoToQuis, normalizeRequirements } from '../../src/MingoQuisConverter.js';
 
 describe('MingoQuisConverter', () => {
   describe('convertMingoToQuis()', () => {

@@ -1,6 +1,6 @@
-const $ = require('jquery');
-const Story = require('../../src/Story.js');
-const State = require('../../src/State.js');
+import $ from 'jquery';
+import Story from '../../src/Story.js';
+import State from '../../src/State.js';
 
 describe('Story', () => {
   beforeEach(() => {

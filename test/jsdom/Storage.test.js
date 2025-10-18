@@ -1,6 +1,6 @@
-const Storage = require('../../src/Storage.js');
-const History = require('../../src/History.js');
-const State = require('../../src/State.js');
+import Storage from '../../src/Storage.js';
+import History from '../../src/History.js';
+import State from '../../src/State.js';
 
 describe('Storage', () => {
   beforeEach(() => {

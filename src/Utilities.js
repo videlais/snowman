@@ -1,5 +1,8 @@
-const DOMUtils = require('./DOMUtils.js');
+import DOMUtils from './DOMUtils.js';
 
+/**
+ * Utilities class providing helper functions
+ */
 class Utilities {
   /**
    * Accepts a function, wait, and optional set of arguments.
@@ -114,4 +117,4 @@ class Utilities {
   }
 }
 
-module.exports = Utilities;
+export default Utilities;

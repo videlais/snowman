@@ -1,5 +1,6 @@
-const DOMUtils = require('./DOMUtils.js');
-const State = require('./State.js');
+import DOMUtils from './DOMUtils.js';
+import State from './State.js';
+import $ from 'jquery';
 
 class Sidebar {
   constructor () {
@@ -19,14 +20,12 @@ class Sidebar {
 
     // For backward compatibility with tests, add jQuery methods to elements
     if (this.undoIcon) {
-      const $ = require('jquery');
       const $undoIcon = $(this.undoIcon);
       this.undoIcon.css = $undoIcon.css.bind($undoIcon);
       this.undoIcon.trigger = $undoIcon.trigger.bind($undoIcon);
     }
 
     if (this.redoIcon) {
-      const $ = require('jquery');
       const $redoIcon = $(this.redoIcon);
       this.redoIcon.css = $redoIcon.css.bind($redoIcon);
       this.redoIcon.trigger = $redoIcon.trigger.bind($redoIcon);
@@ -119,4 +118,4 @@ class Sidebar {
   }
 }
 
-module.exports = Sidebar;
+export default Sidebar;

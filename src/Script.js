@@ -1,7 +1,7 @@
-const ejs = require('ejs');
-const History = require('./History.js');
-const Screen = require('./Screen.js');
-const Utilities = require('./Utilities.js');
+import ejs from 'ejs';
+import History from './History.js';
+import Screen from './Screen.js';
+import Utilities from './Utilities.js';
 
 /**
  * @external Story
@@ -60,4 +60,4 @@ class Script {
   }
 }
 
-module.exports = Script;
+export default Script;

@@ -28,4 +28,4 @@ class Passage {
   }
 }
 
-module.exports = Passage;
+export default Passage;

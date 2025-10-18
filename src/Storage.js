@@ -1,5 +1,5 @@
-const History = require('./History.js');
-const State = require('./State.js');
+import History from './History.js';
+import State from './State.js';
 
 class Storage {
   /**
@@ -170,4 +170,4 @@ class Storage {
   }
 }
 
-module.exports = Storage;
+export default Storage;

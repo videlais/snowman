@@ -151,8 +151,4 @@ function normalizeRequirements(requirements) {
   return 'true';
 }
 
-module.exports = {
-  convertMingoToQuis,
-  convertFieldQuery,
-  normalizeRequirements
-};
+export { convertMingoToQuis, convertFieldQuery, normalizeRequirements };

@@ -1,6 +1,6 @@
-const { parse } = require('quis');
-const State = require('./State.js');
-const { normalizeRequirements } = require('./MingoQuisConverter.js');
+import { parse } from 'quis';
+import State from './State.js';
+import { normalizeRequirements } from './MingoQuisConverter.js';
 
 /**
  * An object containing none, one, or multiple passages based
@@ -209,4 +209,4 @@ class Storylets {
   }
 }
 
-module.exports = Storylets;
+export default Storylets;

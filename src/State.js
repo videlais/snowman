@@ -1,4 +1,4 @@
-const EventEmitter = require('events');
+import { EventEmitter } from 'events';
 
 const handler = {
   get: (target, property) => {
@@ -19,19 +19,16 @@ const handler = {
     return prop in target;
   },
   deleteProperty (target, prop) {
-    // Set default.
-    let result = false;
-
     // Test for inclusion as property.
     if (prop in target) {
       // Emit deletion event.
       State.events.emit('deletion', prop);
       // Delete via Reflection.
-      result = Reflect.deleteProperty(target, prop);
+      return Reflect.deleteProperty(target, prop);
     }
 
-    // Return default or reflection result.
-    return result;
+    // If property doesn't exist, deletion is considered successful
+    return true;
   }
 };
 
@@ -60,4 +57,4 @@ class State {
   }
 }
 
-module.exports = State;
+export default State;

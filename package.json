@@ -34,8 +34,11 @@
     "underscore": "^1.13.7"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.4",
+    "@babel/preset-env": "^7.28.3",
     "@eslint/js": "^9.37.0",
     "@tabler/icons": "^3.19.0",
+    "babel-jest": "^30.2.0",
     "codemirror": "^5.65.18",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.2",

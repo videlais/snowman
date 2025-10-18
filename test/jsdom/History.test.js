@@ -1,4 +1,4 @@
-const History = require('../../src/History.js');
+import History from '../../src/History.js';
 
 describe('History', () => {
   beforeEach(() => {
