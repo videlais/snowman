@@ -21,20 +21,24 @@ const indexSource = ejs.render(srcIndex, {
 // fs.writeFileSync('build/index.html', indexSource);
 
 // Read the bundled editor code.
-// const editorSource = fs.readFileSync("build/editor.bundle.js", {'encoding': 'utf8'});
+const editorSource = fs.readFileSync("build/editor.bundle.js", {'encoding': 'utf8'});
 
 // Add the HTML template code to the story object.
 story.source = indexSource;
 
-// Generate format.js as proper JSONP following Twine specification  
-// For now, create without extensions to test basic ExTwee compatibility
+// Add editor extensions for Twine 2 CodeMirror integration
+story.editorExtensions = {
+  twine: {
+    "^2.4.0-beta2": {
+      codeMirror: {
+        mode: "javascript", // Use JavaScript mode for Snowman's JS-heavy syntax
+        theme: "default"
+      }
+    }
+  }
+};
+
+// Generate format.js as proper JSONP following Twine specification
 let format = `window.storyFormat(${JSON.stringify(story, null, 2)});`;
 
 fs.writeFileSync('dist/format.js', format);
-
-// Re-read format.js, replacing the editor code to create a malformed JSON.
-// let compiledFormat = fs.readFileSync(`dist/format.js`, {'encoding': 'utf8'});
-// compiledFormat = compiledFormat.replace("\"setup\":\"\"", `\"setup\": function(){${editorSource}}`);
-
-// Re-write the format.js with editor code additions.
-// fs.writeFileSync(`dist/format.js`, compiledFormat);
