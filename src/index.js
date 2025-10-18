@@ -5,13 +5,13 @@ import './story.css';
 // Require jQuery.
 const $ = require('jquery');
 // Setup global jQuery.
-window.$ = $;
-window.jQuery = $;
+globalThis.$ = $;
+globalThis.jQuery = $;
 // Require Story.
 const Story = require('./Story.js');
 // Create new Story instance.
-window.Story = new Story();
+globalThis.Story = new Story();
 // Create global store shortcut.
-window.s = window.Story.store;
+globalThis.s = globalThis.Story.store;
 // Start story.
-window.Story.start();
+globalThis.Story.start();

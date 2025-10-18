@@ -1,7 +1,5 @@
-import { mode } from './codemirror-mode';
-import { commands } from './codemirror-commands';
-import { toolbar } from './codemirror-toolbar';
-import { parsePassageText } from './parse-references';
-
-// Export the components for Twine integration
-export { mode, commands, toolbar, parsePassageText };
+// Export the components for Twine integration using export...from pattern
+export { mode } from './codemirror-mode';
+export { commands } from './codemirror-commands';
+export { toolbar } from './codemirror-toolbar';
+export { parsePassageText } from './parse-references';

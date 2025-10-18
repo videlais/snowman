@@ -1,12 +1,12 @@
 function makeInsertTextCommands(commandMap) {
   const result = {};
   
-  Object.keys(commandMap).forEach(commandName => {
+  for (const commandName of Object.keys(commandMap)) {
     result[commandName] = (editor) => {
       editor.replaceSelection(commandMap[commandName]);
       editor.focus();
     };
-  });
+  }
   
   return result;
 }
@@ -14,7 +14,7 @@ function makeInsertTextCommands(commandMap) {
 function makeWrapTextCommands(commandMap) {
   const result = {};
   
-  Object.keys(commandMap).forEach(commandName => {
+  for (const commandName of Object.keys(commandMap)) {
     const { matcher, wrapper } = commandMap[commandName];
     
     result[commandName] = (editor) => {
@@ -30,7 +30,7 @@ function makeWrapTextCommands(commandMap) {
       editor.replaceSelections(newSelections, 'around');
       editor.focus();
     };
-  });
+  }
   
   return result;
 }

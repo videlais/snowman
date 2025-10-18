@@ -2,7 +2,7 @@
  * @external Element
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Element}
  */
-const $ = require('jquery');
+const DOMUtils = require('./DOMUtils.js');
 const Passage = require('./Passage.js');
 const Markdown = require('./Markdown.js');
 const State = require('./State.js');
@@ -25,7 +25,7 @@ class Story {
      * @type {string}
      * @readonly
      */
-    this.name = $('tw-storydata').attr('name');
+    this.name = DOMUtils.attr('tw-storydata', 'name');
 
     /**
      * An array of all passages.
@@ -36,11 +36,9 @@ class Story {
 
     // For each child element of the `<tw-storydata>` element,
     //  create a new Passage object based on its attributes.
-    $('tw-storydata').children('tw-passagedata').each((index, element) => {
-      // Convert Element into jQuery Element.
-      const elementReference = $(element);
+    DOMUtils.each(DOMUtils.children('tw-storydata', 'tw-passagedata'), (index, element) => {
       // Access any potential tags.
-      let tags = elementReference.attr('tags');
+      let tags = DOMUtils.attr(element, 'tags');
 
       // Does the 'tags' attribute exist?
       if (tags !== '' && tags !== undefined) {
@@ -53,9 +51,9 @@ class Story {
 
       // Push the new passage.
       this.passages.push(new Passage(
-        elementReference.attr('name'),
+        DOMUtils.attr(element, 'name'),
         tags,
-        Markdown.unescape(elementReference.html())
+        Markdown.unescape(DOMUtils.html(element))
       ));
     });
 
@@ -64,7 +62,7 @@ class Story {
      * @property {Element} passageElement Passage element.
      * @type {Element}
      */
-    this.passageElement = $('tw-passage');
+    this.passageElement = DOMUtils.select('tw-passage');
 
     /**
      * Sidebar.
@@ -185,11 +183,9 @@ class Story {
     this.storylets = new Storylets(passageList);
 
     // For each Twine style, add them to the body as extra style elements.
-    $('*[type="text/twine-css"]').each((index, element) => {
-      // Convert from Element into jQuery Element.
-      const twineStyleElement = $(element);
+    DOMUtils.each('*[type="text/twine-css"]', (index, element) => {
       // Append a new `<style>` with text from old.
-      $(document.body).append(`<style>${twineStyleElement.text()}</style>`);
+      DOMUtils.append(document.body, `<style>${DOMUtils.text(element)}</style>`);
     });
 
     /**
@@ -199,21 +195,19 @@ class Story {
      * window.onerror will have error, but it cannot
      *  be caught.
      */
-    $('*[type="text/twine-javascript"]').each((index, element) => {
-      // Convert Element into jQuery Element.
-      const twineScriptElement = $(element);
+    DOMUtils.each('*[type="text/twine-javascript"]', (index, element) => {
       // Create a new `<script>`.
-      const newScriptElement = $('<script>');
+      const newScriptElement = DOMUtils.createElement('script');
       // Set the text of new from old.
-      newScriptElement.text(twineScriptElement.text());
+      DOMUtils.text(newScriptElement, DOMUtils.text(element));
       // Append the new `<script>` with text to document body.
-      $(document.body).append(newScriptElement);
+      DOMUtils.append(document.body, newScriptElement);
     });
 
     // Get the startnode value (which is a number).
-    const startingPassageID = parseInt($('tw-storydata').attr('startnode'));
+    const startingPassageID = Number.parseInt(DOMUtils.attr('tw-storydata', 'startnode'));
     // Use the PID to find the name of the starting passage based on elements.
-    const startPassage = $(`[pid="${startingPassageID}"]`).attr('name');
+    const startPassage = DOMUtils.attr(`[pid="${startingPassageID}"]`, 'name');
     // Search for the starting passage.
     const passage = this.getPassageByName(startPassage);
 
@@ -231,20 +225,18 @@ class Story {
     this.currentPassage = passage;
 
     // Overwrite current tags
-    this.passageElement.attr('tags', passage.tags);
+    DOMUtils.attr(this.passageElement, 'tags', passage.tags);
 
     // Get passage source.
     const passageSource = this.include(passage.name);
 
     // Overwrite the parsed with the rendered.
-    this.passageElement.html(passageSource);
+    DOMUtils.html(this.passageElement, passageSource);
 
     // Listen for any reader clicking on `<tw-link>`.
-    $('tw-link[data-passage]').on('click', (event) => {
-      // Convert Element into jQuery Element.
-      const jEl = $(event.target);
+    DOMUtils.on('tw-link[data-passage]', 'click', (event) => {
       // Retrieve data-passage value.
-      const passageName = jEl.attr('data-passage');
+      const passageName = DOMUtils.attr(event.target, 'data-passage');
       // Add to the history.
       History.add(passageName);
       // Hide the redo icon.
@@ -322,20 +314,18 @@ class Story {
     this.currentPassage = passage;
 
     // Overwrite current tags.
-    this.passageElement.attr('tags', passage.tags);
+    DOMUtils.attr(this.passageElement, 'tags', passage.tags);
 
     // Get passage source by name.
     const passageSource = this.include(passage.name);
 
     // Overwrite any existing HTML.
-    this.passageElement.html(passageSource);
+    DOMUtils.html(this.passageElement, passageSource);
 
     // Listen for any reader clicking on `<tw-link>`.
-    $('tw-link[data-passage]').on('click', (event) => {
-      // Convert Element into jQuery Element.
-      const jEl = $(event.target);
+    DOMUtils.on('tw-link[data-passage]', 'click', (event) => {
       // Retrieve data-passage value.
-      const passageName = jEl.attr('data-passage');
+      const passageName = DOMUtils.attr(event.target, 'data-passage');
       // Add to the history.
       History.add(passageName);
       // Hide the redo icon.
@@ -388,17 +378,17 @@ class Story {
   }
 
   /**
-   * Render a passage to any/all element(s) matching query selector
+   * Render a passage by name to a CSS selector.
    * @function renderPassageToSelector
-   * @param {object} passageName - The passage to render
-   * @param {string} selector - jQuery selector
+   * @param {string} passageName - Name of passage to include.
+   * @param {string} selector - CSS selector to use.
    */
   renderPassageToSelector (passageName, selector) {
     // Get passage source
     const passageSource = this.include(passageName);
 
     // Replace the HTML of the selector (if valid).
-    $(selector).html(passageSource);
+    DOMUtils.html(selector, passageSource);
   }
 
   /**

@@ -27,7 +27,7 @@ function convertMingoToQuis(mingoQuery) {
     // Handle MongoDB logical operators
     if (key === '$and') {
       if (!Array.isArray(value)) {
-        throw new Error('$and requires an array of conditions');
+        throw new TypeError('$and requires an array of conditions');
       }
       const conditions = value.map(cond => convertMingoToQuis(cond));
       return `(${conditions.join(' && ')})`;
@@ -35,7 +35,7 @@ function convertMingoToQuis(mingoQuery) {
 
     if (key === '$or') {
       if (!Array.isArray(value)) {
-        throw new Error('$or requires an array of conditions');
+        throw new TypeError('$or requires an array of conditions');
       }
       const conditions = value.map(cond => convertMingoToQuis(cond));
       return `(${conditions.join(' || ')})`;
@@ -98,7 +98,7 @@ function convertFieldQuery(field, value) {
       case '$in':
         {
           if (!Array.isArray(operatorValue)) {
-            throw new Error('$in requires an array');
+            throw new TypeError('$in requires an array');
           }
           const inConditions = operatorValue.map(val => 
             `$${field} == ${JSON.stringify(val)}`
@@ -108,7 +108,7 @@ function convertFieldQuery(field, value) {
       case '$nin':
         {
           if (!Array.isArray(operatorValue)) {
-            throw new Error('$nin requires an array');
+            throw new TypeError('$nin requires an array');
           }
           const ninConditions = operatorValue.map(val => 
             `$${field} != ${JSON.stringify(val)}`

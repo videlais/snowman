@@ -1,4 +1,4 @@
-const $ = require('jquery');
+const DOMUtils = require('./DOMUtils.js');
 
 class Utilities {
   /**
@@ -32,13 +32,13 @@ class Utilities {
 
     // For every entry...
     for (const entry of args) {
-      // If it is not an array...
-      if (!(entry instanceof Array)) {
-        // push the entry into the temporary array.
-        tempArray.push(entry);
-      } else {
+      // If it is an array...
+      if (Array.isArray(entry)) {
         // Spread out any subentries and add them to temporary array.
         tempArray = [...tempArray, ...entry];
+      } else {
+        // push the entry into the temporary array.
+        tempArray.push(entry);
       }
     }
 
@@ -59,15 +59,18 @@ class Utilities {
    */
   static applyExternalStyles (files) {
     if (Array.isArray(files)) {
-      files.forEach(location => {
-        $('<link/>', {
-          rel: 'stylesheet',
-          type: 'text/css',
-          href: location
-        }).appendTo('head');
-      });
+      for (const location of files) {
+        const link = DOMUtils.createElement('link', {
+          attributes: {
+            rel: 'stylesheet',
+            type: 'text/css',
+            href: location
+          }
+        });
+        DOMUtils.append('head', link);
+      }
     } else {
-      throw new Error('Method only accepts an array!');
+      throw new TypeError('Method only accepts an array!');
     }
   }
 

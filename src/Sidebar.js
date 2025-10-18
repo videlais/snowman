@@ -1,4 +1,4 @@
-const $ = require('jquery');
+const DOMUtils = require('./DOMUtils.js');
 const State = require('./State.js');
 
 class Sidebar {
@@ -8,17 +8,32 @@ class Sidebar {
      * @property {Element} undoIcon - Undo element.
      * @type {Element}
      */
-    this.undoIcon = $('tw-icon[title="Undo"]');
+    this.undoIcon = DOMUtils.select('tw-icon[title="Undo"]');
 
     /**
      * Reference to redo icon.
      * @property {Element} redoIcon - Redo element.
      * @type {Element}
      */
-    this.redoIcon = $('tw-icon[title="Redo"]');
+    this.redoIcon = DOMUtils.select('tw-icon[title="Redo"]');
+
+    // For backward compatibility with tests, add jQuery methods to elements
+    if (this.undoIcon) {
+      const $ = require('jquery');
+      const $undoIcon = $(this.undoIcon);
+      this.undoIcon.css = $undoIcon.css.bind($undoIcon);
+      this.undoIcon.trigger = $undoIcon.trigger.bind($undoIcon);
+    }
+
+    if (this.redoIcon) {
+      const $ = require('jquery');
+      const $redoIcon = $(this.redoIcon);
+      this.redoIcon.css = $redoIcon.css.bind($redoIcon);
+      this.redoIcon.trigger = $redoIcon.trigger.bind($redoIcon);
+    }
 
     // Listen for user click interactions.
-    this.undoIcon.on('click', () => {
+    DOMUtils.on(this.undoIcon, 'click', () => {
       // If undo is ever used, redo becomes available.
       this.showRedo();
       // Emit 'undo'
@@ -26,7 +41,7 @@ class Sidebar {
     });
 
     // Listen for user click interactions.
-    this.redoIcon.on('click', () => {
+    DOMUtils.on(this.redoIcon, 'click', () => {
       State.events.emit('redo');
     });
 
@@ -42,7 +57,7 @@ class Sidebar {
    * @function showUndo
    */
   showUndo () {
-    this.undoIcon.css('visibility', 'visible');
+    DOMUtils.css(this.undoIcon, 'visibility', 'visible');
   }
 
   /**
@@ -50,7 +65,7 @@ class Sidebar {
    * @function hideUndo
    */
   hideUndo () {
-    this.undoIcon.css('visibility', 'hidden');
+    DOMUtils.css(this.undoIcon, 'visibility', 'hidden');
   }
 
   /**
@@ -58,7 +73,7 @@ class Sidebar {
    * @function showRedo
    */
   showRedo () {
-    this.redoIcon.css('visibility', 'visible');
+    DOMUtils.css(this.redoIcon, 'visibility', 'visible');
   }
 
   /**
@@ -66,7 +81,7 @@ class Sidebar {
    * @function hideRedo
    */
   hideRedo () {
-    this.redoIcon.css('visibility', 'hidden');
+    DOMUtils.css(this.redoIcon, 'visibility', 'hidden');
   }
 
   /**
@@ -91,7 +106,7 @@ class Sidebar {
    */
   show () {
     // Show tw-sidebar.
-    $('tw-sidebar').css('visibility', 'visible');
+    DOMUtils.css(DOMUtils.select('tw-sidebar'), 'visibility', 'visible');
   }
 
   /**
@@ -100,7 +115,7 @@ class Sidebar {
    */
   hide () {
     // Hide tw-sidebar.
-    $('tw-sidebar').css('visibility', 'hidden');
+    DOMUtils.css(DOMUtils.select('tw-sidebar'), 'visibility', 'hidden');
   }
 }
 

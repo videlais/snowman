@@ -641,7 +641,7 @@ module.exports = History;
 /***/ 72:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-const $ = __webpack_require__(692);
+const DOMUtils = __webpack_require__(719);
 
 class Utilities {
   /**
@@ -675,13 +675,13 @@ class Utilities {
 
     // For every entry...
     for (const entry of args) {
-      // If it is not an array...
-      if (!(entry instanceof Array)) {
-        // push the entry into the temporary array.
-        tempArray.push(entry);
-      } else {
+      // If it is an array...
+      if (Array.isArray(entry)) {
         // Spread out any subentries and add them to temporary array.
         tempArray = [...tempArray, ...entry];
+      } else {
+        // push the entry into the temporary array.
+        tempArray.push(entry);
       }
     }
 
@@ -702,15 +702,18 @@ class Utilities {
    */
   static applyExternalStyles (files) {
     if (Array.isArray(files)) {
-      files.forEach(location => {
-        $('<link/>', {
-          rel: 'stylesheet',
-          type: 'text/css',
-          href: location
-        }).appendTo('head');
-      });
+      for (const location of files) {
+        const link = DOMUtils.createElement('link', {
+          attributes: {
+            rel: 'stylesheet',
+            type: 'text/css',
+            href: location
+          }
+        });
+        DOMUtils.append('head', link);
+      }
     } else {
-      throw new Error('Method only accepts an array!');
+      throw new TypeError('Method only accepts an array!');
     }
   }
 
@@ -874,7 +877,7 @@ function convertMingoToQuis(mingoQuery) {
     // Handle MongoDB logical operators
     if (key === '$and') {
       if (!Array.isArray(value)) {
-        throw new Error('$and requires an array of conditions');
+        throw new TypeError('$and requires an array of conditions');
       }
       const conditions = value.map(cond => convertMingoToQuis(cond));
       return `(${conditions.join(' && ')})`;
@@ -882,7 +885,7 @@ function convertMingoToQuis(mingoQuery) {
 
     if (key === '$or') {
       if (!Array.isArray(value)) {
-        throw new Error('$or requires an array of conditions');
+        throw new TypeError('$or requires an array of conditions');
       }
       const conditions = value.map(cond => convertMingoToQuis(cond));
       return `(${conditions.join(' || ')})`;
@@ -945,7 +948,7 @@ function convertFieldQuery(field, value) {
       case '$in':
         {
           if (!Array.isArray(operatorValue)) {
-            throw new Error('$in requires an array');
+            throw new TypeError('$in requires an array');
           }
           const inConditions = operatorValue.map(val => 
             `$${field} == ${JSON.stringify(val)}`
@@ -955,7 +958,7 @@ function convertFieldQuery(field, value) {
       case '$nin':
         {
           if (!Array.isArray(operatorValue)) {
-            throw new Error('$nin requires an array');
+            throw new TypeError('$nin requires an array');
           }
           const ninConditions = operatorValue.map(val => 
             `$${field} != ${JSON.stringify(val)}`
@@ -8733,7 +8736,7 @@ exports["default"] = new Uint16Array(
  * @external Element
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Element}
  */
-const $ = __webpack_require__(692);
+const DOMUtils = __webpack_require__(719);
 const Passage = __webpack_require__(204);
 const Markdown = __webpack_require__(199);
 const State = __webpack_require__(421);
@@ -8756,7 +8759,7 @@ class Story {
      * @type {string}
      * @readonly
      */
-    this.name = $('tw-storydata').attr('name');
+    this.name = DOMUtils.attr('tw-storydata', 'name');
 
     /**
      * An array of all passages.
@@ -8767,11 +8770,9 @@ class Story {
 
     // For each child element of the `<tw-storydata>` element,
     //  create a new Passage object based on its attributes.
-    $('tw-storydata').children('tw-passagedata').each((index, element) => {
-      // Convert Element into jQuery Element.
-      const elementReference = $(element);
+    DOMUtils.each(DOMUtils.children('tw-storydata', 'tw-passagedata'), (index, element) => {
       // Access any potential tags.
-      let tags = elementReference.attr('tags');
+      let tags = DOMUtils.attr(element, 'tags');
 
       // Does the 'tags' attribute exist?
       if (tags !== '' && tags !== undefined) {
@@ -8784,9 +8785,9 @@ class Story {
 
       // Push the new passage.
       this.passages.push(new Passage(
-        elementReference.attr('name'),
+        DOMUtils.attr(element, 'name'),
         tags,
-        Markdown.unescape(elementReference.html())
+        Markdown.unescape(DOMUtils.html(element))
       ));
     });
 
@@ -8795,7 +8796,7 @@ class Story {
      * @property {Element} passageElement Passage element.
      * @type {Element}
      */
-    this.passageElement = $('tw-passage');
+    this.passageElement = DOMUtils.select('tw-passage');
 
     /**
      * Sidebar.
@@ -8916,11 +8917,9 @@ class Story {
     this.storylets = new Storylets(passageList);
 
     // For each Twine style, add them to the body as extra style elements.
-    $('*[type="text/twine-css"]').each((index, element) => {
-      // Convert from Element into jQuery Element.
-      const twineStyleElement = $(element);
+    DOMUtils.each('*[type="text/twine-css"]', (index, element) => {
       // Append a new `<style>` with text from old.
-      $(document.body).append(`<style>${twineStyleElement.text()}</style>`);
+      DOMUtils.append(document.body, `<style>${DOMUtils.text(element)}</style>`);
     });
 
     /**
@@ -8930,21 +8929,19 @@ class Story {
      * window.onerror will have error, but it cannot
      *  be caught.
      */
-    $('*[type="text/twine-javascript"]').each((index, element) => {
-      // Convert Element into jQuery Element.
-      const twineScriptElement = $(element);
+    DOMUtils.each('*[type="text/twine-javascript"]', (index, element) => {
       // Create a new `<script>`.
-      const newScriptElement = $('<script>');
+      const newScriptElement = DOMUtils.createElement('script');
       // Set the text of new from old.
-      newScriptElement.text(twineScriptElement.text());
+      DOMUtils.text(newScriptElement, DOMUtils.text(element));
       // Append the new `<script>` with text to document body.
-      $(document.body).append(newScriptElement);
+      DOMUtils.append(document.body, newScriptElement);
     });
 
     // Get the startnode value (which is a number).
-    const startingPassageID = parseInt($('tw-storydata').attr('startnode'));
+    const startingPassageID = Number.parseInt(DOMUtils.attr('tw-storydata', 'startnode'));
     // Use the PID to find the name of the starting passage based on elements.
-    const startPassage = $(`[pid="${startingPassageID}"]`).attr('name');
+    const startPassage = DOMUtils.attr(`[pid="${startingPassageID}"]`, 'name');
     // Search for the starting passage.
     const passage = this.getPassageByName(startPassage);
 
@@ -8962,20 +8959,18 @@ class Story {
     this.currentPassage = passage;
 
     // Overwrite current tags
-    this.passageElement.attr('tags', passage.tags);
+    DOMUtils.attr(this.passageElement, 'tags', passage.tags);
 
     // Get passage source.
     const passageSource = this.include(passage.name);
 
     // Overwrite the parsed with the rendered.
-    this.passageElement.html(passageSource);
+    DOMUtils.html(this.passageElement, passageSource);
 
     // Listen for any reader clicking on `<tw-link>`.
-    $('tw-link[data-passage]').on('click', (event) => {
-      // Convert Element into jQuery Element.
-      const jEl = $(event.target);
+    DOMUtils.on('tw-link[data-passage]', 'click', (event) => {
       // Retrieve data-passage value.
-      const passageName = jEl.attr('data-passage');
+      const passageName = DOMUtils.attr(event.target, 'data-passage');
       // Add to the history.
       History.add(passageName);
       // Hide the redo icon.
@@ -9053,20 +9048,18 @@ class Story {
     this.currentPassage = passage;
 
     // Overwrite current tags.
-    this.passageElement.attr('tags', passage.tags);
+    DOMUtils.attr(this.passageElement, 'tags', passage.tags);
 
     // Get passage source by name.
     const passageSource = this.include(passage.name);
 
     // Overwrite any existing HTML.
-    this.passageElement.html(passageSource);
+    DOMUtils.html(this.passageElement, passageSource);
 
     // Listen for any reader clicking on `<tw-link>`.
-    $('tw-link[data-passage]').on('click', (event) => {
-      // Convert Element into jQuery Element.
-      const jEl = $(event.target);
+    DOMUtils.on('tw-link[data-passage]', 'click', (event) => {
       // Retrieve data-passage value.
-      const passageName = jEl.attr('data-passage');
+      const passageName = DOMUtils.attr(event.target, 'data-passage');
       // Add to the history.
       History.add(passageName);
       // Hide the redo icon.
@@ -9119,17 +9112,17 @@ class Story {
   }
 
   /**
-   * Render a passage to any/all element(s) matching query selector
+   * Render a passage by name to a CSS selector.
    * @function renderPassageToSelector
-   * @param {object} passageName - The passage to render
-   * @param {string} selector - jQuery selector
+   * @param {string} passageName - Name of passage to include.
+   * @param {string} selector - CSS selector to use.
    */
   renderPassageToSelector (passageName, selector) {
     // Get passage source
     const passageSource = this.include(passageName);
 
     // Replace the HTML of the selector (if valid).
-    $(selector).html(passageSource);
+    DOMUtils.html(selector, passageSource);
   }
 
   /**
@@ -20182,6 +20175,295 @@ module.exports = Storylets;
 
 /***/ }),
 
+/***/ 719:
+/***/ ((module) => {
+
+/**
+ * Lightweight DOM utility module to gradually replace jQuery functionality
+ * with modern vanilla JavaScript equivalents for better performance and smaller bundle size.
+ * @class DOMUtils
+ */
+class DOMUtils {
+  /**
+   * Select a single element by CSS selector
+   * @param {string} selector - CSS selector
+   * @returns {Element|null} First matching element or null
+   */
+  static select(selector) {
+    return document.querySelector(selector);
+  }
+
+  /**
+   * Select all elements by CSS selector
+   * @param {string} selector - CSS selector
+   * @returns {NodeList} All matching elements
+   */
+  static selectAll(selector) {
+    return document.querySelectorAll(selector);
+  }
+
+  /**
+   * Create a new element with optional attributes and properties
+   * @param {string} tagName - HTML tag name
+   * @param {Object} options - Element attributes and properties
+   * @returns {Element} Created element
+   */
+  static createElement(tagName, options = {}) {
+    const element = document.createElement(tagName);
+    
+    // Set attributes
+    if (options.attributes) {
+      for (const [key, value] of Object.entries(options.attributes)) {
+        element.setAttribute(key, value);
+      }
+    }
+    
+    // Set properties directly
+    if (options.properties) {
+      Object.assign(element, options.properties);
+    }
+    
+    // Set text content
+    if (options.textContent) {
+      element.textContent = options.textContent;
+    }
+    
+    // Set HTML content
+    if (options.innerHTML) {
+      element.innerHTML = options.innerHTML;
+    }
+    
+    return element;
+  }
+
+  /**
+   * Add event listener to element(s)
+   * @param {Element|NodeList|string} target - Element(s) or selector
+   * @param {string} event - Event type
+   * @param {Function} handler - Event handler
+   * @param {Object} options - Event listener options
+   */
+  static on(target, event, handler, options = {}) {
+    const elements = typeof target === 'string' 
+      ? this.selectAll(target) 
+      : target instanceof NodeList ? target : [target];
+    
+    for (const element of elements) {
+      if (element && element.addEventListener) {
+        element.addEventListener(event, handler, options);
+      }
+    }
+  }
+
+  /**
+   * Remove event listener from element(s)
+   * @param {Element|NodeList|string} target - Element(s) or selector
+   * @param {string} event - Event type
+   * @param {Function} handler - Event handler
+   */
+  static off(target, event, handler) {
+    const elements = typeof target === 'string' 
+      ? this.selectAll(target) 
+      : target instanceof NodeList ? target : [target];
+    
+    for (const element of elements) {
+      if (element && element.removeEventListener) {
+        element.removeEventListener(event, handler);
+      }
+    }
+  }
+
+  /**
+   * Set or get HTML content of element(s)
+   * @param {Element|string} target - Element or selector
+   * @param {string} [content] - HTML content to set
+   * @returns {string|undefined} Current HTML content if getting, undefined if setting
+   */
+  static html(target, content) {
+    const element = typeof target === 'string' ? this.select(target) : target;
+    
+    if (!element) return;
+    
+    if (content !== undefined) {
+      element.innerHTML = content;
+    } else {
+      return element.innerHTML;
+    }
+  }
+
+  /**
+   * Set or get text content of element(s)
+   * @param {Element|string} target - Element or selector
+   * @param {string} [content] - Text content to set
+   * @returns {string|undefined} Current text content if getting, undefined if setting
+   */
+  static text(target, content) {
+    const element = typeof target === 'string' ? this.select(target) : target;
+    
+    if (!element) return;
+    
+    if (content !== undefined) {
+      element.textContent = content;
+    } else {
+      return element.textContent;
+    }
+  }
+
+  /**
+   * Set or get CSS styles
+   * @param {Element|string} target - Element or selector
+   * @param {string|Object} property - CSS property name or object of properties
+   * @param {string} [value] - CSS property value
+   * @returns {string|undefined} Current style value if getting, undefined if setting
+   */
+  static css(target, property, value) {
+    const element = typeof target === 'string' ? this.select(target) : target;
+    
+    if (!element) return;
+    
+    if (typeof property === 'object') {
+      // Set multiple properties
+      Object.assign(element.style, property);
+    } else if (value !== undefined) {
+      // Set single property
+      element.style[property] = value;
+    } else {
+      // Get property
+      return getComputedStyle(element)[property];
+    }
+  }
+
+  /**
+   * Get attribute value or set attribute
+   * @param {Element|string} target - Element or selector
+   * @param {string} name - Attribute name
+   * @param {string} [value] - Attribute value to set
+   * @returns {string|null|undefined} Attribute value if getting, undefined if setting
+   */
+  static attr(target, name, value) {
+    const element = typeof target === 'string' ? this.select(target) : target;
+    
+    if (!element) return;
+    
+    if (value !== undefined) {
+      element.setAttribute(name, value);
+    } else {
+      return element.getAttribute(name);
+    }
+  }
+
+  /**
+   * Append element to target
+   * @param {Element|string} target - Target element or selector
+   * @param {Element|string} content - Element to append or HTML string
+   */
+  static append(target, content) {
+    const element = typeof target === 'string' ? this.select(target) : target;
+    
+    if (!element) return;
+    
+    if (typeof content === 'string') {
+      element.insertAdjacentHTML('beforeend', content);
+    } else {
+      element.appendChild(content);
+    }
+  }
+
+  /**
+   * Remove element(s) from DOM
+   * @param {Element|string} target - Element or selector
+   */
+  static remove(target) {
+    const elements = typeof target === 'string' 
+      ? this.selectAll(target) 
+      : [target];
+    
+    for (const element of elements) {
+      if (element && element.remove) {
+        element.remove();
+      }
+    }
+  }
+
+  /**
+   * Iterate over elements matching selector or provided elements
+   * @param {string|NodeList|Element} target - CSS selector, NodeList, or single element
+   * @param {Function} callback - Function to call for each element
+   */
+  static each(target, callback) {
+    let elements;
+    
+    if (typeof target === 'string') {
+      elements = this.selectAll(target);
+    } else if (target instanceof NodeList || Array.isArray(target)) {
+      elements = target;
+    } else if (target instanceof Element) {
+      elements = [target];
+    } else {
+      return;
+    }
+    
+    Array.from(elements).forEach((element, index) => {
+      callback.call(element, index, element);
+    });
+  }
+
+  /**
+   * Get children elements of target
+   * @param {Element|string} target - Element or selector
+   * @param {string} [childSelector] - Optional selector to filter children
+   * @returns {Array} Array of child elements
+   */
+  static children(target, childSelector) {
+    const element = typeof target === 'string' ? this.select(target) : target;
+    
+    if (!element) return [];
+    
+    const children = Array.from(element.children);
+    
+    if (childSelector) {
+      return children.filter(child => this.matches(child, childSelector));
+    }
+    
+    return children;
+  }
+
+  /**
+   * Check if element matches selector
+   * @param {Element} element - Element to check
+   * @param {string} selector - CSS selector
+   * @returns {boolean} True if element matches selector
+   */
+  static matches(element, selector) {
+    return element && element.matches && element.matches(selector);
+  }
+
+  /**
+   * Find elements within target element
+   * @param {Element|string} target - Target element or selector
+   * @param {string} selector - CSS selector to find
+   * @returns {NodeList} Matching elements
+   */
+  static find(target, selector) {
+    const element = typeof target === 'string' ? this.select(target) : target;
+    return element ? element.querySelectorAll(selector) : [];
+  }
+
+  /**
+   * Get the closest ancestor element matching selector
+   * @param {Element} element - Starting element
+   * @param {string} selector - CSS selector
+   * @returns {Element|null} Closest matching ancestor or null
+   */
+  static closest(element, selector) {
+    return element && element.closest ? element.closest(selector) : null;
+  }
+}
+
+module.exports = DOMUtils;
+
+/***/ }),
+
 /***/ 730:
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
@@ -22335,7 +22617,7 @@ exports.decodeXML = decodeXML;
 /***/ 936:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-const $ = __webpack_require__(692);
+const DOMUtils = __webpack_require__(719);
 const State = __webpack_require__(421);
 
 class Sidebar {
@@ -22345,17 +22627,32 @@ class Sidebar {
      * @property {Element} undoIcon - Undo element.
      * @type {Element}
      */
-    this.undoIcon = $('tw-icon[title="Undo"]');
+    this.undoIcon = DOMUtils.select('tw-icon[title="Undo"]');
 
     /**
      * Reference to redo icon.
      * @property {Element} redoIcon - Redo element.
      * @type {Element}
      */
-    this.redoIcon = $('tw-icon[title="Redo"]');
+    this.redoIcon = DOMUtils.select('tw-icon[title="Redo"]');
+
+    // For backward compatibility with tests, add jQuery methods to elements
+    if (this.undoIcon) {
+      const $ = __webpack_require__(692);
+      const $undoIcon = $(this.undoIcon);
+      this.undoIcon.css = $undoIcon.css.bind($undoIcon);
+      this.undoIcon.trigger = $undoIcon.trigger.bind($undoIcon);
+    }
+
+    if (this.redoIcon) {
+      const $ = __webpack_require__(692);
+      const $redoIcon = $(this.redoIcon);
+      this.redoIcon.css = $redoIcon.css.bind($redoIcon);
+      this.redoIcon.trigger = $redoIcon.trigger.bind($redoIcon);
+    }
 
     // Listen for user click interactions.
-    this.undoIcon.on('click', () => {
+    DOMUtils.on(this.undoIcon, 'click', () => {
       // If undo is ever used, redo becomes available.
       this.showRedo();
       // Emit 'undo'
@@ -22363,7 +22660,7 @@ class Sidebar {
     });
 
     // Listen for user click interactions.
-    this.redoIcon.on('click', () => {
+    DOMUtils.on(this.redoIcon, 'click', () => {
       State.events.emit('redo');
     });
 
@@ -22379,7 +22676,7 @@ class Sidebar {
    * @function showUndo
    */
   showUndo () {
-    this.undoIcon.css('visibility', 'visible');
+    DOMUtils.css(this.undoIcon, 'visibility', 'visible');
   }
 
   /**
@@ -22387,7 +22684,7 @@ class Sidebar {
    * @function hideUndo
    */
   hideUndo () {
-    this.undoIcon.css('visibility', 'hidden');
+    DOMUtils.css(this.undoIcon, 'visibility', 'hidden');
   }
 
   /**
@@ -22395,7 +22692,7 @@ class Sidebar {
    * @function showRedo
    */
   showRedo () {
-    this.redoIcon.css('visibility', 'visible');
+    DOMUtils.css(this.redoIcon, 'visibility', 'visible');
   }
 
   /**
@@ -22403,7 +22700,7 @@ class Sidebar {
    * @function hideRedo
    */
   hideRedo () {
-    this.redoIcon.css('visibility', 'hidden');
+    DOMUtils.css(this.redoIcon, 'visibility', 'hidden');
   }
 
   /**
@@ -22428,7 +22725,7 @@ class Sidebar {
    */
   show () {
     // Show tw-sidebar.
-    $('tw-sidebar').css('visibility', 'visible');
+    DOMUtils.css(DOMUtils.select('tw-sidebar'), 'visibility', 'visible');
   }
 
   /**
@@ -22437,7 +22734,7 @@ class Sidebar {
    */
   hide () {
     // Hide tw-sidebar.
-    $('tw-sidebar').css('visibility', 'hidden');
+    DOMUtils.css(DOMUtils.select('tw-sidebar'), 'visibility', 'hidden');
   }
 }
 
@@ -22578,7 +22875,7 @@ exports.escapeText = getEscaper(/[&<>\u00A0]/g, new Map([
 /***/ 990:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
-const $ = __webpack_require__(692);
+const DOMUtils = __webpack_require__(719);
 
 class Screen {
   /**
@@ -22587,7 +22884,7 @@ class Screen {
    */
   static lock () {
     // Append an element filling screen with CSS loading spinner.
-    $(document.body).append('<tw-screenlock><div class="loading"></div></tw-screenlock>');
+    DOMUtils.append(document.body, '<tw-screenlock><div class="loading"></div></tw-screenlock>');
   }
 
   /**
@@ -22596,7 +22893,7 @@ class Screen {
    */
   static unlock () {
     // Remove tw-screenlock element, if there is one.
-    $('tw-screenlock').remove();
+    DOMUtils.remove('tw-screenlock');
   }
 }
 
@@ -22672,16 +22969,16 @@ var __webpack_exports__ = {};
 // Require jQuery.
 const $ = __webpack_require__(692);
 // Setup global jQuery.
-window.$ = $;
-window.jQuery = $;
+globalThis.$ = $;
+globalThis.jQuery = $;
 // Require Story.
 const Story = __webpack_require__(577);
 // Create new Story instance.
-window.Story = new Story();
+globalThis.Story = new Story();
 // Create global store shortcut.
-window.s = window.Story.store;
+globalThis.s = globalThis.Story.store;
 // Start story.
-window.Story.start();
+globalThis.Story.start();
 
 })();
 
