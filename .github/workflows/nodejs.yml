@@ -38,8 +38,8 @@ jobs:
     - name: Compile quick e2e test files
       run: |
         chmod +x ./compile-e2e-tests.sh
-        # Only compile and run fast tests (exclude slow timing tests)
-        find test/e2e -name "*.twee" -not -path "*/Timed-*" -not -path "*/Loading-*" -not -path "*/Typewriter-*" | while read file; do
+        # Only compile and run fast tests (exclude specific slow timing tests)
+        find test/e2e -name "*.twee" -not -path "*/Timed-Passages/*" -not -path "*/Loading-Screen/*" -not -path "*/Typewriter-Effect/*" | while read file; do
           dir=$(dirname "$file")
           base=$(basename "$file" .twee)
           echo "Compiling: $file -> $dir/$base.html"
@@ -52,6 +52,6 @@ jobs:
         done
       
     - name: Run quick e2e tests (excludes slow timing tests)
-      run: npm run test:e2e -- --testPathIgnorePatterns="Timed-|Loading-|Typewriter-"
+      run: npm run test:e2e -- --testPathIgnorePatterns="Timed-Passages|Loading-Screen|Typewriter-Effect"
       env:
         CI: true

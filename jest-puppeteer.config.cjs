@@ -5,6 +5,8 @@ module.exports = {
   server: {
     command: "npx serve ./test",
     port: 3000,
+    launchTimeout: 15000, // 15 seconds for server to start
+    debug: true, // Enable debug logging for server startup
   },
   launch: {
       dumpio: false, // should we see logs?

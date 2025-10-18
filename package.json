@@ -12,7 +12,7 @@
     "test:e2e": "jest test/e2e --preset=jest-puppeteer",
     "test:e2e:compile": "bash compile-e2e-tests.sh && jest test/e2e --preset=jest-puppeteer",
     "test:e2e:extensions": "jest test/e2e/extensions --preset=jest-puppeteer",
-    "test:e2e:fast": "jest test/e2e --preset=jest-puppeteer --testPathIgnorePatterns=\"Timed-|Loading-|Typewriter-\"",
+    "test:e2e:fast": "jest test/e2e --preset=jest-puppeteer --testPathIgnorePatterns=\"Timed-Passages|Loading-Screen|Typewriter-Effect\"",
     "test:all": "jest --coverage",
     "test:all:watch": "jest --watch",
     "test:coverage": "jest --coverage",
