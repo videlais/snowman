@@ -100,6 +100,20 @@ The player's health is <%= s.health %>.
     <script src="/build/twine-extensions.bundle.js"></script>
 
     <script>
+        // Register the Snowman mode with CodeMirror
+        console.log('CodeMirror available:', typeof CodeMirror !== 'undefined');
+        console.log('SnowmanExtensions available:', typeof SnowmanExtensions !== 'undefined');
+        
+        if (typeof CodeMirror !== 'undefined' && typeof SnowmanExtensions !== 'undefined') {
+            // Get the mode from the exported modules
+            const { mode } = SnowmanExtensions;
+            console.log('Mode function:', mode);
+            
+            // Register the mode with CodeMirror
+            CodeMirror.defineMode('snowman', mode);
+            console.log('Snowman mode registered');
+        }
+
         // Initialize CodeMirror with Snowman mode
         const textarea = document.getElementById('editor');
         const cm = CodeMirror.fromTextArea(textarea, {
@@ -114,7 +128,13 @@ The player's health is <%= s.health %>.
         });
 
         // Make CodeMirror instance globally available for tests
-        window.cm = cm;
+        globalThis.cm = cm;
+        
+        // Force refresh to apply syntax highlighting
+        setTimeout(() => {
+            cm.refresh();
+            console.log('CodeMirror refreshed');
+        }, 100);
 
         // Simple reference parser for testing
         function updateReferences() {
@@ -134,14 +154,14 @@ The player's health is <%= s.health %>.
                 }
             }
             
-            // Parse Story.render() calls
-            const renderPattern = /Story\.render\(['"]([^'"]+)['"]\)/g;
+            // Parse Story.render() calls (with or without window prefix)
+            const renderPattern = /(?:window\.)?Story\.render\(['"]([^'"]+)['"]\)/g;
             while ((match = renderPattern.exec(content)) !== null) {
                 references.add(match[1]);
             }
             
-            // Parse Story.goTo() calls
-            const gotoPattern = /Story\.goTo\(['"]([^'"]+)['"]\)/g;
+            // Parse Story.goTo() calls (with or without window prefix)
+            const gotoPattern = /(?:window\.)?Story\.goTo\(['"]([^'"]+)['"]\)/g;
             while ((match = gotoPattern.exec(content)) !== null) {
                 references.add(match[1]);
             }
@@ -149,11 +169,11 @@ The player's health is <%= s.health %>.
             // Update references display
             const referencesList = document.getElementById('references-list');
             referencesList.innerHTML = '';
-            references.forEach(ref => {
+            for (const ref of references) {
                 const li = document.createElement('li');
                 li.textContent = ref;
                 referencesList.appendChild(li);
-            });
+            }
         }
 
         // Update references when content changes

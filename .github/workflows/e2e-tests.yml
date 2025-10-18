@@ -1,46 +1,49 @@
-name: E2E Tests
+name: Comprehensive E2E Tests
 
+# Only run on push to main or on release branches
 on:
   push:
-    branches: [ main, CodeMirrorWork ]
-  pull_request:
-    branches: [ main ]
+    branches: [ main, 'release/*', develop ]
+  schedule:
+    # Run weekly comprehensive tests
+    - cron: '0 2 * * 1'  # Every Monday at 2 AM UTC
 
 jobs:
-  e2e-tests:
+  comprehensive-e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    strategy:
-      matrix:
-        node-version: [22.x]
-
+    timeout-minutes: 20  # Increased timeout for slow tests
+    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Set up Node.js ${{ matrix.node-version }}
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js 22.x
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 22.x
         cache: 'npm'
-
+        
+    - name: Restore compiled e2e files cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          test/e2e/**/*.html
+        key: e2e-compiled-${{ hashFiles('test/e2e/**/*.twee', 'dist/format.js') }}
+        restore-keys: |
+          e2e-compiled-
+        
     - name: Install dependencies
       run: npm install
       
-    - name: Install ExTwee for story compilation
-      run: npm install -g extwee
-
-    - name: Build and package story format
+    - name: Build and package
       run: npm run package
       
-    - name: Make compilation script executable
-      run: chmod +x ./compile-e2e-tests.sh
+    - name: Install ExTwee for e2e tests
+      run: npm install -g extwee
       
-    - name: Compile all e2e test files
+    - name: Compile all e2e test files (including slow tests)
       run: ./compile-e2e-tests.sh
       
-    - name: Run e2e tests
+    - name: Run comprehensive e2e tests (includes slow timing tests)
       run: npm run test:e2e
       env:
         CI: true
@@ -52,5 +55,5 @@ jobs:
         name: e2e-test-artifacts
         path: |
           test/e2e/**/*.html
-          test/e2e/**/*.test.js
+          screenshots/
         retention-days: 7

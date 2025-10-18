@@ -22,22 +22,36 @@ jobs:
     - name: Install dependencies
       run: npm install
       
-    - name: Install ExTwee for e2e tests
-      run: npm install -g extwee
-      
     - name: Run linting
       run: npm run lint:check
       
     - name: Build and package
       run: npm run package
       
-    - name: Run unit tests
+    - name: Run unit tests (fast)
       run: npm run test:unit:fast
       
-    - name: Compile e2e test files
-      run: ./compile-e2e-tests.sh
+    # Only run quick e2e tests on every push, not the slow ones
+    - name: Install ExTwee for quick e2e tests
+      run: npm install -g extwee
       
-    - name: Run e2e tests
-      run: npm run test:e2e
+    - name: Compile quick e2e test files
+      run: |
+        chmod +x ./compile-e2e-tests.sh
+        # Only compile and run fast tests (exclude slow timing tests)
+        find test/e2e -name "*.twee" -not -path "*/Timed-*" -not -path "*/Loading-*" -not -path "*/Typewriter-*" | while read file; do
+          dir=$(dirname "$file")
+          base=$(basename "$file" .twee)
+          echo "Compiling: $file -> $dir/$base.html"
+          if extwee -s dist/format.js -i "$file" -c -o "$dir/$base.html"; then
+            echo "✅ Successfully compiled $file"
+          else
+            echo "❌ Failed to compile $file"
+            exit 1
+          fi
+        done
+      
+    - name: Run quick e2e tests (excludes slow timing tests)
+      run: npm run test:e2e -- --testPathIgnorePatterns="Timed-|Loading-|Typewriter-"
       env:
         CI: true

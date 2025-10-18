@@ -1,14 +1,15 @@
-name: Running Code Coverage
+name: Code Coverage
 
-on: [push, pull_request]
+# Only run on main branch and PRs to main to reduce redundant coverage runs
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   coverage:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [22.x]
 
     steps:
     - name: Checkout repository
@@ -16,11 +17,20 @@ jobs:
       with:
         fetch-depth: 2 
 
-    - name: Set up Node.js ${{ matrix.node-version }}
+    - name: Set up Node.js 22.x
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 22.x
         cache: 'npm'
+        
+    - name: Restore compiled e2e files cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          test/e2e/**/*.html
+        key: e2e-compiled-${{ hashFiles('test/e2e/**/*.twee', 'dist/format.js') }}
+        restore-keys: |
+          e2e-compiled-
 
     - name: Install dependencies
       run: npm install
@@ -34,11 +44,26 @@ jobs:
     - name: Run unit tests with coverage
       run: npm run test:unit
       
-    - name: Compile e2e test files
-      run: ./compile-e2e-tests.sh
+    - name: Compile quick e2e test files (excludes slow timing tests)
+      run: |
+        chmod +x ./compile-e2e-tests.sh
+        # Only compile fast tests for coverage to avoid timeouts
+        find test/e2e -name "*.twee" -not -path "*/Timed-*" -not -path "*/Loading-*" -not -path "*/Typewriter-*" | while read file; do
+          dir=$(dirname "$file")
+          base=$(basename "$file" .twee)
+          echo "Compiling: $file -> $dir/$base.html"
+          if extwee -s dist/format.js -i "$file" -c -o "$dir/$base.html"; then
+            echo "✅ Successfully compiled $file"
+          else
+            echo "❌ Failed to compile $file"
+            exit 1
+          fi
+        done
       
-    - name: Run e2e tests
-      run: npm run test:e2e
+    - name: Run quick e2e tests (excludes slow timing tests)
+      run: npm run test:e2e -- --testPathIgnorePatterns="Timed-|Loading-|Typewriter-"
+      env:
+        CI: true
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
