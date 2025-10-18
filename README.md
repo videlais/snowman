@@ -54,16 +54,66 @@ To create a new build of Snowman from this repository:
    npm run build
    ```
 
-3. Compile the story format:
+3. Package the story format:
 
    ```bash
-   npm run compile
+   npm run package
    ```
 
 The compiled story format will be available in the `dist/` directory as `format.js`.
+
+## Development Workflow
 
 For a complete build including linting and testing, use:
 
 ```bash
 npm run all
 ```
+
+For validation without coverage (faster):
+
+```bash
+npm run validate
+```
+
+For complete validation with coverage:
+
+```bash
+npm run validate:full
+```
+
+## Testing
+
+Run unit tests:
+
+```bash
+npm test
+```
+
+Run end-to-end tests (requires compiled HTML files):
+
+```bash
+npm run test:e2e
+```
+
+Compile e2e test files and run tests in one command:
+
+```bash
+npm run test:e2e:compile
+```
+
+Run all tests with coverage:
+
+```bash
+npm run test:all
+```
+
+### End-to-End Testing
+
+The e2e tests require HTML files to be compiled from `.twee` source files using ExTwee. The repository includes a compilation script:
+
+```bash
+bash compile-e2e-tests.sh
+```
+
+This script compiles all `.twee` files in the `test/e2e/` directory to HTML files using the current story format. The `test:e2e:compile` npm script combines this compilation step with test execution for convenience.

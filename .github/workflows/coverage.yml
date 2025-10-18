@@ -3,8 +3,7 @@ name: Running Code Coverage
 on: [push, pull_request]
 
 jobs:
-  build:
-
+  coverage:
     runs-on: ubuntu-latest
 
     strategy:
@@ -13,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@main
+      uses: actions/checkout@v4
       with:
         fetch-depth: 2 
 
@@ -21,14 +20,27 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
+        cache: 'npm'
 
     - name: Install dependencies
       run: npm install
+      
+    - name: Install ExTwee for e2e tests
+      run: npm install -g extwee
 
-    - name: Package and run tests
-      run: npm run all
+    - name: Build and package
+      run: npm run package
+      
+    - name: Run unit tests with coverage
+      run: npm run test:unit
+      
+    - name: Compile e2e test files
+      run: ./compile-e2e-tests.sh
+      
+    - name: Run e2e tests
+      run: npm run test:e2e
     
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}

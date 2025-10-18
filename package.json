@@ -10,6 +10,7 @@
     "test:unit:watch": "jest test/jsdom/* --watch",
     "test:unit:fast": "jest test/jsdom/* --no-coverage",
     "test:e2e": "jest test/e2e --preset=jest-puppeteer",
+    "test:e2e:compile": "bash compile-e2e-tests.sh && jest test/e2e --preset=jest-puppeteer",
     "test:e2e:extensions": "jest test/e2e/extensions --preset=jest-puppeteer",
     "test:all": "jest --coverage",
     "test:all:watch": "jest --watch",
