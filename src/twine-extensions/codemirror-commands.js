@@ -39,16 +39,37 @@ export const commands = {
   // Text wrapping commands
   ...makeWrapTextCommands({
     boldText: {
-      matcher: /^\*\*(.*)\*\*$/,
-      wrapper: (text) => `**${text}**`
+      matcher: /^<strong>(.*)<\/strong>$/,
+      wrapper: (text) => `<strong>${text}</strong>`
     },
     italicText: {
-      matcher: /^\*(.*)\*$/,
-      wrapper: (text) => `*${text}*`
+      matcher: /^<em>(.*)<\/em>$/,
+      wrapper: (text) => `<em>${text}</em>`
     },
     underlineText: {
       matcher: /^<u>(.*)<\/u>$/,
       wrapper: (text) => `<u>${text}</u>`
+    },
+    // Header commands
+    header1: {
+      matcher: /^# (.*)$/,
+      wrapper: (text) => `# ${text}`
+    },
+    header2: {
+      matcher: /^## (.*)$/,
+      wrapper: (text) => `## ${text}`
+    },
+    header3: {
+      matcher: /^### (.*)$/,
+      wrapper: (text) => `### ${text}`
+    },
+    header4: {
+      matcher: /^#### (.*)$/,
+      wrapper: (text) => `#### ${text}`
+    },
+    header5: {
+      matcher: /^##### (.*)$/,
+      wrapper: (text) => `##### ${text}`
     }
   }),
 
