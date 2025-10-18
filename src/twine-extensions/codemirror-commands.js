@@ -114,6 +114,12 @@ export const commands = {
     // Common Snowman utilities
     insertRandomChoice: '<%= ["option1", "option2", "option3"][Math.floor(Math.random() * 3)] %>',
     insertCurrentDate: '<%= new Date().toLocaleDateString() %>',
-    insertCurrentTime: '<%= new Date().toLocaleTimeString() %>'
+    insertCurrentTime: '<%= new Date().toLocaleTimeString() %>',
+    
+    // Utilities class methods
+    insertDelay: '<% Utilities.delay(() => { /* code */ }, 1000) %>',
+    insertEither: '<%= Utilities.either("option1", "option2", "option3") %>',
+    insertRandomInt: '<%= Utilities.randomInt(1, 10) %>',
+    insertRandomFloat: '<%= Utilities.randomFloat(0, 1) %>'
   })
 };
