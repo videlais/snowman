@@ -1,7 +1,8 @@
 const path = require('node:path');
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
+  devtool: false,
   entry: './src/twine-extensions/index.js',
   output: {
     path: path.resolve(__dirname, './build'),

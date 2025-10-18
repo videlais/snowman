@@ -4,6 +4,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
   mode: 'production',
+  devtool: false,
   entry: {
     format: './src/index.js',
     editor: './src/editor/index.js'
@@ -30,33 +31,7 @@ module.exports = {
     minimizer: [
       new CssMinimizerPlugin()
     ],
-    splitChunks: {
-      chunks: 'all',
-      cacheGroups: {
-        // Separate vendor libraries (jQuery, etc.)
-        vendors: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-          priority: 20
-        },
-        // Separate optional/advanced features
-        features: {
-          test: /[\\/]src[\\/](Storylets|MingoQuisConverter)\.js$/,
-          name: 'features', 
-          chunks: 'all',
-          priority: 15,
-          minSize: 0
-        },
-        // Default group for remaining modules  
-        default: {
-          name: 'core',
-          chunks: 'all',
-          priority: 10,
-          minChunks: 1
-        }
-      }
-    }
+    splitChunks: false  // Disable chunk splitting for ExTwee compatibility
   },
   plugins: [new MiniCssExtractPlugin()]
 };

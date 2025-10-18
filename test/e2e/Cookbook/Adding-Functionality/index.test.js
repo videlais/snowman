@@ -4,14 +4,9 @@ require('expect-puppeteer');
  
 describe('Cookbook - Adding Functionality', () => {
   beforeAll(async () => {
-    ShellJS.exec(`extwee -c -s dist/format.js -i ${path.join(__dirname, 'index.twee')} -o ${path.join(__dirname, 'index.html')}`);
 
-    await page.goto(`http://localhost:3000/e2e/Cookbook/Adding-Functionality/index.html`);
+    await page.goto('http://localhost:3000/e2e/Cookbook/Adding-Functionality/index.html');
   });
-
-  afterAll(async () => {
-    ShellJS.rm(`${path.join(__dirname, 'index.html')}`);
-   });
 
   it('Should display current year on page', async () => {
     const year = new Date().getFullYear().toString();

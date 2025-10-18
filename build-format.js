@@ -26,41 +26,10 @@ const indexSource = ejs.render(srcIndex, {
 // Add the HTML template code to the story object.
 story.source = indexSource;
 
-// Generate format.js as proper JSONP following Twine specification
-let format = '';
+// Generate format.js as proper JSONP following Twine specification  
+// For now, create without extensions to test basic ExTwee compatibility
+let format = `window.storyFormat(${JSON.stringify(story, null, 2)});`;
 
-// Read the bundled twine extensions and add them first
-try {
-  const extensionsBundle = fs.readFileSync('./build/twine-extensions.bundle.js', 'utf8');
-  format += extensionsBundle + '\n';
-  
-  // Create the JSONP callback with dynamic editorExtensions assignment
-  format += `(function() {
-  var storyFormat = ${JSON.stringify(story, null, 2)};
-  
-  // Add editorExtensions following Chapbook's pattern
-  storyFormat.editorExtensions = {
-    twine: {
-      "^2.4.0-beta2": {
-        codeMirror: {
-          commands: typeof SnowmanExtensions !== 'undefined' && SnowmanExtensions.commands ? SnowmanExtensions.commands : {},
-          mode: typeof SnowmanExtensions !== 'undefined' && SnowmanExtensions.mode ? SnowmanExtensions.mode : function() { return null; },
-          toolbar: typeof SnowmanExtensions !== 'undefined' && SnowmanExtensions.toolbar ? SnowmanExtensions.toolbar : function() { return []; }
-        },
-        references: {
-          parsePassageText: typeof SnowmanExtensions !== 'undefined' && SnowmanExtensions.parsePassageText ? SnowmanExtensions.parsePassageText : function() { return []; }
-        }
-      }
-    }
-  };
-  
-  window.storyFormat(storyFormat);
-})();`;
-} catch (error) {
-  console.log('No twine extensions found, using basic JSONP format...', error.message);
-  // Generate basic JSONP format without extensions
-  format += `window.storyFormat(${JSON.stringify(story, null, 2)});`;
-}
 fs.writeFileSync('dist/format.js', format);
 
 // Re-read format.js, replacing the editor code to create a malformed JSON.
