@@ -244,6 +244,20 @@ describe('Storage', () => {
       expect(History.history.length).toBe(0);
       expect(History.position).toBe(0);
     });
+
+    it('Should return true when no save data exists', () => {
+      // Ensure no save data exists
+      if (Storage.available()) {
+        globalThis.localStorage.removeItem('nonexistent.snowman.history');
+      }
+      
+      // Should return true when trying to restore non-existent save
+      expect(Storage.restoreSave('nonexistent')).toBe(true);
+      
+      // History should remain empty
+      expect(History.history.length).toBe(0);
+      expect(History.position).toBe(0);
+    });
   });
 });
 

@@ -70,6 +70,14 @@ function convertFieldQuery(field, value) {
 
   // Handle comparison operators
   const operators = Object.keys(value);
+  
+  // Check if this object contains operators (keys starting with $) or is a plain value object
+  const hasOperators = operators.some(key => key.startsWith('$'));
+  if (!hasOperators) {
+    // This is a plain object being used as a value, treat as equality
+    return `$${field} == ${JSON.stringify(value)}`;
+  }
+  
   if (operators.length === 1) {
     const operator = operators[0];
     const operatorValue = value[operator];

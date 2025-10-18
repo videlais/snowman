@@ -176,5 +176,16 @@ describe('MingoQuisConverter', () => {
       const result = convertMingoToQuis({ simpleField: 'test' });
       expect(result).toBe('$simpleField == "test"');
     });
+
+    it('Should handle explicit $eq operator', () => {
+      const result = convertMingoToQuis({ score: { $eq: 42 } });
+      expect(result).toBe('$score == 42');
+    });
+
+    it('Should handle complex nested object as fallback', () => {
+      const complexValue = { someProperty: 'value', anotherProp: 42 };
+      const result = convertMingoToQuis({ config: complexValue });
+      expect(result).toBe('$config == {"someProperty":"value","anotherProp":42}');
+    });
   });
 });

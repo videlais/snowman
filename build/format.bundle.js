@@ -735,6 +735,23 @@ class Utilities {
 
     return Math.floor(Math.random() * (max - min)) + min;
   }
+
+  /**
+   * Return random decimal number within range.
+   * @function randomFloat
+   * @param   {number}  min   Start of range (default 0).
+   * @param   {number}  max   End of range (default 0).
+   * @returns {number}        Decimal number in range.
+   */
+  static randomFloat (min = 0, max = 0) {
+    // Is min greater than max?
+    if (min > max) {
+      max = min;
+      min = 0;
+    }
+
+    return Math.random() * (max - min) + min;
+  }
 }
 
 module.exports = Utilities;
@@ -900,6 +917,14 @@ function convertFieldQuery(field, value) {
 
   // Handle comparison operators
   const operators = Object.keys(value);
+  
+  // Check if this object contains operators (keys starting with $) or is a plain value object
+  const hasOperators = operators.some(key => key.startsWith('$'));
+  if (!hasOperators) {
+    // This is a plain object being used as a value, treat as equality
+    return `$${field} == ${JSON.stringify(value)}`;
+  }
+  
   if (operators.length === 1) {
     const operator = operators[0];
     const operatorValue = value[operator];
