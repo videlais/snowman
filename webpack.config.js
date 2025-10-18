@@ -29,7 +29,34 @@ module.exports = {
   optimization: {
     minimizer: [
       new CssMinimizerPlugin()
-    ]
+    ],
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        // Separate vendor libraries (jQuery, etc.)
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+          priority: 20
+        },
+        // Separate optional/advanced features
+        features: {
+          test: /[\\/]src[\\/](Storylets|MingoQuisConverter)\.js$/,
+          name: 'features', 
+          chunks: 'all',
+          priority: 15,
+          minSize: 0
+        },
+        // Default group for remaining modules  
+        default: {
+          name: 'core',
+          chunks: 'all',
+          priority: 10,
+          minChunks: 1
+        }
+      }
+    }
   },
   plugins: [new MiniCssExtractPlugin()]
 };

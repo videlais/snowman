@@ -2,16 +2,9 @@
  * @external Element
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Element}
  */
-import DOMUtils from './DOMUtils.js';
+import { getServiceContainer } from './ServiceRegistry.js';
 import Passage from './Passage.js';
-import Markdown from './Markdown.js';
-import State from './State.js';
-import History from './History.js';
 import Storylets from './Storylets.js';
-import Script from './Script.js';
-import Sidebar from './Sidebar.js';
-import Screen from './Screen.js';
-import Storage from './Storage.js';
 
 /**
  * An object representing the entire story. After the document has completed
@@ -19,13 +12,30 @@ import Storage from './Storage.js';
  * @class Story
  */
 class Story {
-  constructor () {
+  /**
+   * Create a Story object based on tw-storydata element.
+   * @param {ServiceContainer} container - Optional service container for dependency injection
+   */
+  constructor (container = null) {
+    // Get service container (use provided or global)
+    this.container = container || getServiceContainer();
+    
+    // Inject dependencies
+    this.domUtils = this.container.resolve('domUtils');
+    this.markdown = this.container.resolve('markdown');
+    this.state = this.container.resolve('state');
+    this.history = this.container.resolve('history');
+    this.storyletsModule = this.container.resolve('storylets');
+    this.script = this.container.resolve('script');
+    this.screen = this.container.resolve('screen');
+    this.storage = this.container.resolve('storage');
+
     /**
      * @property {string} name - The name of the story.
      * @type {string}
      * @readonly
      */
-    this.name = DOMUtils.attr('tw-storydata', 'name');
+    this.name = this.domUtils.attr('tw-storydata', 'name');
 
     /**
      * An array of all passages.
@@ -36,9 +46,9 @@ class Story {
 
     // For each child element of the `<tw-storydata>` element,
     //  create a new Passage object based on its attributes.
-    DOMUtils.each(DOMUtils.children('tw-storydata', 'tw-passagedata'), (index, element) => {
+    this.domUtils.each(this.domUtils.children('tw-storydata', 'tw-passagedata'), (index, element) => {
       // Access any potential tags.
-      let tags = DOMUtils.attr(element, 'tags');
+      let tags = this.domUtils.attr(element, 'tags');
 
       // Does the 'tags' attribute exist?
       if (tags !== '' && tags !== undefined) {
@@ -51,9 +61,9 @@ class Story {
 
       // Push the new passage.
       this.passages.push(new Passage(
-        DOMUtils.attr(element, 'name'),
+        this.domUtils.attr(element, 'name'),
         tags,
-        Markdown.unescape(DOMUtils.html(element))
+        this.markdown.unescape(this.domUtils.html(element))
       ));
     });
 
@@ -62,64 +72,64 @@ class Story {
      * @property {Element} passageElement Passage element.
      * @type {Element}
      */
-    this.passageElement = DOMUtils.select('tw-passage');
+    this.passageElement = this.domUtils.select('tw-passage');
 
     /**
      * Sidebar.
      * @property {Element} sidebar Sidebar instance.
      * @type {Element}
      */
-    this.sidebar = new Sidebar();
+    this.sidebar = this.container.resolve('sidebar');
 
     // Reset History.
-    History.reset();
+    this.history.reset();
 
     /**
      * History reference.
      * @property {History} history Reference to History.
      * @type {History}
      */
-    this.history = History;
+    // this.history already set above
 
     /**
      * Screen reference.
      * @property {Screen} screen Reference to Screen.
      * @type {Screen}
      */
-    this.screen = Screen;
+    // this.screen already set above
 
     /**
      * Storage reference.
-     * @property {Storage} screen Reference to Storage.
+     * @property {Storage} storage Reference to Storage.
      * @type {Storage}
      */
-    this.storage = Storage;
+    // this.storage already set above
 
     // Reset State.
-    State.reset();
+    this.state.reset();
 
     /**
      * State.events reference.
      * @property {EventEmitter} events Reference to State.events.
      * @type {EventEmitter}
      */
-    this.events = State.events;
+    this.events = this.state.events;
 
     /**
      * State.store reference.
      * @property {Proxy} store Reference to State.store.
      * @type {Proxy}
      */
-    this.store = State.store;
+    this.store = this.state.store;
 
     // Listen for redo events.
-    State.events.on('redo', () => {
+    this.state.events.on('redo', () => {
       // Attempt to redo history.
-      const passageName = History.redo();
+      const passageName = this.history.redo();
       // If redo failed, name will be null.
       if (passageName !== null) {
         // Check if at end of collection.
-        if (History.position === History.history.length - 1) {
+        if (this.history.position === this.history.history.length - 1) {
           // Hide redo.
           this.sidebar.hideRedo();
           // Show undo.
@@ -131,15 +141,15 @@ class Story {
     });
 
     // Listen for undo events.
-    State.events.on('undo', () => {
+    this.state.events.on('undo', () => {
       // Show redo if undo is clicked.
       this.sidebar.showRedo();
       // Attempt to undo history.
-      const passageName = History.undo();
+      const passageName = this.history.undo();
       // If undo failed, name will be null.
       if (passageName !== null) {
         // Check if at beginning of collection.
-        if (History.position === 0) {
+        if (this.history.position === 0) {
           // Hide undo
           this.sidebar.hideUndo();
         }
@@ -183,9 +193,9 @@ class Story {
     this.storylets = new Storylets(passageList);
 
     // For each Twine style, add them to the body as extra style elements.
-    DOMUtils.each('*[type="text/twine-css"]', (index, element) => {
+    this.domUtils.each('*[type="text/twine-css"]', (index, element) => {
       // Append a new `<style>` with text from old.
-      DOMUtils.append(document.body, `<style>${DOMUtils.text(element)}</style>`);
+      this.domUtils.append(document.body, `<style>${this.domUtils.text(element)}</style>`);
     });
 
     /**
@@ -195,19 +205,19 @@ class Story {
      * window.onerror will have error, but it cannot
      *  be caught.
      */
-    DOMUtils.each('*[type="text/twine-javascript"]', (index, element) => {
+    this.domUtils.each('*[type="text/twine-javascript"]', (index, element) => {
       // Create a new `<script>`.
-      const newScriptElement = DOMUtils.createElement('script');
+      const newScriptElement = this.domUtils.createElement('script');
       // Set the text of new from old.
-      DOMUtils.text(newScriptElement, DOMUtils.text(element));
+      this.domUtils.text(newScriptElement, this.domUtils.text(element));
       // Append the new `<script>` with text to document body.
-      DOMUtils.append(document.body, newScriptElement);
+      this.domUtils.append(document.body, newScriptElement);
     });
 
     // Get the startnode value (which is a number).
-    const startingPassageID = Number.parseInt(DOMUtils.attr('tw-storydata', 'startnode'));
+    const startingPassageID = Number.parseInt(this.domUtils.attr('tw-storydata', 'startnode'));
     // Use the PID to find the name of the starting passage based on elements.
-    const startPassage = DOMUtils.attr(`[pid="${startingPassageID}"]`, 'name');
+    const startPassage = this.domUtils.attr(`[pid="${startingPassageID}"]`, 'name');
     // Search for the starting passage.
     const passage = this.getPassageByName(startPassage);
 
@@ -219,26 +229,26 @@ class Story {
     }
 
     // Add to the history.
-    History.add(passage.name);
+    this.history.add(passage.name);
 
     // Set the global passage to the one about to be shown.
     this.currentPassage = passage;
 
     // Overwrite current tags
-    DOMUtils.attr(this.passageElement, 'tags', passage.tags);
+    this.domUtils.attr(this.passageElement, 'tags', passage.tags);
 
     // Get passage source.
     const passageSource = this.include(passage.name);
 
     // Overwrite the parsed with the rendered.
-    DOMUtils.html(this.passageElement, passageSource);
+    this.domUtils.html(this.passageElement, passageSource);
 
     // Listen for any reader clicking on `<tw-link>`.
-    DOMUtils.on('tw-link[data-passage]', 'click', (event) => {
+    this.domUtils.on('tw-link[data-passage]', 'click', (event) => {
       // Retrieve data-passage value.
-      const passageName = DOMUtils.attr(event.target, 'data-passage');
+      const passageName = this.domUtils.attr(event.target, 'data-passage');
       // Add to the history.
-      History.add(passageName);
+      this.history.add(passageName);
       // Hide the redo icon.
       this.sidebar.hideRedo();
       // Show the undo icon.
@@ -252,7 +262,7 @@ class Story {
      * @event State#start
      * @type {string}
      */
-    State.events.emit('start', passage.name);
+    this.state.events.emit('start', passage.name);
   }
 
   /**
@@ -314,20 +324,20 @@ class Story {
     this.currentPassage = passage;
 
     // Overwrite current tags.
-    DOMUtils.attr(this.passageElement, 'tags', passage.tags);
+    this.domUtils.attr(this.passageElement, 'tags', passage.tags);
 
     // Get passage source by name.
     const passageSource = this.include(passage.name);
 
     // Overwrite any existing HTML.
-    DOMUtils.html(this.passageElement, passageSource);
+    this.domUtils.html(this.passageElement, passageSource);
 
     // Listen for any reader clicking on `<tw-link>`.
-    DOMUtils.on('tw-link[data-passage]', 'click', (event) => {
+    this.domUtils.on('tw-link[data-passage]', 'click', (event) => {
       // Retrieve data-passage value.
-      const passageName = DOMUtils.attr(event.target, 'data-passage');
+      const passageName = this.domUtils.attr(event.target, 'data-passage');
       // Add to the history.
-      History.add(passageName);
+      this.history.add(passageName);
       // Hide the redo icon.
       this.sidebar.hideRedo();
       // Show the undo icon.
@@ -341,7 +351,7 @@ class Story {
      * @event State#show
      * @type {string}
      */
-    State.events.emit('show', passage.name);
+    this.state.events.emit('show', passage.name);
   }
 
   /**
@@ -365,13 +375,13 @@ class Story {
     let passageSource = passage.source;
 
     // Run any script.
-    passageSource = Script.run(passageSource, this);
+    passageSource = this.script.run(passageSource, this);
 
     // Parse any Markdown.
-    passageSource = Markdown.parse(passageSource);
+    passageSource = this.markdown.parse(passageSource);
 
     // Run the Markdown conversion.
-    passageSource = Markdown.convert(passageSource);
+    passageSource = this.markdown.convert(passageSource);
 
     // Return the passage source.
     return passageSource;
@@ -388,7 +398,7 @@ class Story {
     const passageSource = this.include(passageName);
 
     // Replace the HTML of the selector (if valid).
-    DOMUtils.html(selector, passageSource);
+    this.domUtils.html(selector, passageSource);
   }
 
   /**
@@ -423,7 +433,7 @@ class Story {
     this.passages.push(new Passage(
       name,
       tags,
-      Markdown.unescape(source)
+      this.markdown.unescape(source)
     ));
   }
 
@@ -460,7 +470,7 @@ class Story {
     }
 
     // Add to the history.
-    History.add(name);
+    this.history.add(name);
 
     // Hide the redo icon.
     this.sidebar.hideRedo();
