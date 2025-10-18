@@ -1,5 +1,5 @@
-const Screen = require('../../src/Screen.js');
-const $ = require('jquery');
+import Screen from '../../src/Screen.js';
+import $ from 'jquery';
 
 describe('Screen', () => {
   beforeEach(() => {

@@ -2,7 +2,7 @@
  * Shared utilities for E2E tests to reduce duplication
  */
 const ShellJS = require('shelljs');
-const path = require('path');
+const path = require('node:path');
 require('expect-puppeteer');
 
 /**

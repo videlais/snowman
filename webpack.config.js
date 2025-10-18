@@ -4,6 +4,7 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = {
   mode: 'production',
+  devtool: false,
   entry: {
     format: './src/index.js',
     editor: './src/editor/index.js'
@@ -29,7 +30,8 @@ module.exports = {
   optimization: {
     minimizer: [
       new CssMinimizerPlugin()
-    ]
+    ],
+    splitChunks: false  // Disable chunk splitting for ExTwee compatibility
   },
   plugins: [new MiniCssExtractPlugin()]
 };

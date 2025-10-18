@@ -1,5 +1,8 @@
-const $ = require('jquery');
+import DOMUtils from './DOMUtils.js';
 
+/**
+ * Utilities class providing helper functions
+ */
 class Utilities {
   /**
    * Accepts a function, wait, and optional set of arguments.
@@ -32,13 +35,13 @@ class Utilities {
 
     // For every entry...
     for (const entry of args) {
-      // If it is not an array...
-      if (!(entry instanceof Array)) {
-        // push the entry into the temporary array.
-        tempArray.push(entry);
-      } else {
+      // If it is an array...
+      if (Array.isArray(entry)) {
         // Spread out any subentries and add them to temporary array.
         tempArray = [...tempArray, ...entry];
+      } else {
+        // push the entry into the temporary array.
+        tempArray.push(entry);
       }
     }
 
@@ -59,15 +62,18 @@ class Utilities {
    */
   static applyExternalStyles (files) {
     if (Array.isArray(files)) {
-      files.forEach(location => {
-        $('<link/>', {
-          rel: 'stylesheet',
-          type: 'text/css',
-          href: location
-        }).appendTo('head');
-      });
+      for (const location of files) {
+        const link = DOMUtils.createElement('link', {
+          attributes: {
+            rel: 'stylesheet',
+            type: 'text/css',
+            href: location
+          }
+        });
+        DOMUtils.append('head', link);
+      }
     } else {
-      throw new Error('Method only accepts an array!');
+      throw new TypeError('Method only accepts an array!');
     }
   }
 
@@ -92,6 +98,23 @@ class Utilities {
 
     return Math.floor(Math.random() * (max - min)) + min;
   }
+
+  /**
+   * Return random decimal number within range.
+   * @function randomFloat
+   * @param   {number}  min   Start of range (default 0).
+   * @param   {number}  max   End of range (default 0).
+   * @returns {number}        Decimal number in range.
+   */
+  static randomFloat (min = 0, max = 0) {
+    // Is min greater than max?
+    if (min > max) {
+      max = min;
+      min = 0;
+    }
+
+    return Math.random() * (max - min) + min;
+  }
 }
 
-module.exports = Utilities;
+export default Utilities;

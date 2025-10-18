@@ -1,4 +1,4 @@
-const Markdown = require('../../src/Markdown.js');
+import Markdown from '../../src/Markdown.js';
 
 describe('Markdown', () => {
   describe('parse()', () => {

@@ -1,4 +1,4 @@
-const $ = require('jquery');
+import DOMUtils from './DOMUtils.js';
 
 class Screen {
   /**
@@ -7,7 +7,7 @@ class Screen {
    */
   static lock () {
     // Append an element filling screen with CSS loading spinner.
-    $(document.body).append('<tw-screenlock><div class="loading"></div></tw-screenlock>');
+    DOMUtils.append(document.body, '<tw-screenlock><div class="loading"></div></tw-screenlock>');
   }
 
   /**
@@ -16,8 +16,8 @@ class Screen {
    */
   static unlock () {
     // Remove tw-screenlock element, if there is one.
-    $('tw-screenlock').remove();
+    DOMUtils.remove('tw-screenlock');
   }
 }
 
-module.exports = Screen;
+export default Screen;

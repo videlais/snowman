@@ -6,16 +6,32 @@
   "repository": "https://github.com/videlais/snowman/",
   "scripts": {
     "test": "jest test/jsdom/* --coverage",
+    "test:unit": "jest test/jsdom/* --coverage",
+    "test:unit:watch": "jest test/jsdom/* --watch",
+    "test:unit:fast": "jest test/jsdom/* --no-coverage",
     "test:e2e": "jest test/e2e --preset=jest-puppeteer",
-    "test:unit": "jest test/jsdom/*",
+    "test:e2e:compile": "bash compile-e2e-tests.sh && jest test/e2e --preset=jest-puppeteer",
+    "test:e2e:extensions": "jest test/e2e/extensions --preset=jest-puppeteer",
+    "test:e2e:fast": "jest test/e2e --preset=jest-puppeteer --testPathIgnorePatterns=\"Timed-Passages|Loading-Screen|Typewriter-Effect\"",
     "test:all": "jest --coverage",
-    "lint": "eslint src/*.js test/*.js --fix",
+    "test:all:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint src/*.js test/*.js src/twine-extensions/*.js --fix",
+    "lint:check": "eslint src/*.js test/*.js src/twine-extensions/*.js",
     "build": "webpack",
-    "package": "npm run build && node build-format.js",
-    "validate": "npm run lint && npm run package && npm run test",
-    "ci": "npm run lint && npm run package && npm run test:all",
+    "build:watch": "webpack --watch",
+    "build:extensions": "webpack --config webpack.extensions.config.js",
+    "build:extensions:watch": "webpack --config webpack.extensions.config.js --watch",
+    "build:all": "npm run build && npm run build:extensions",
+    "dev": "npm run build:watch",
+    "dev:extensions": "webpack serve --config webpack.extensions.config.js --open",
+    "package": "npm run build:all && node build-format.js",
+    "validate": "npm run lint:check && npm run package && npm run test:unit:fast",
+    "validate:full": "npm run lint && npm run package && npm run test:all",
+    "ci": "npm run validate:full",
     "visual-test": "npm run package && extwee -s dist/format.js -i visual_testing/index.twee -c -o visual_testing/index.html && open-cli visual_testing/index.html",
-    "all": "npm run validate"
+    "quick": "npm run lint:check && npm run test:unit:fast",
+    "all": "npm run lint && npm run test:unit && npm run package"
   },
   "keywords": [
     "twine",
@@ -31,7 +47,12 @@
     "underscore": "^1.13.7"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.4",
+    "@babel/preset-env": "^7.28.3",
     "@eslint/js": "^9.37.0",
+    "@tabler/icons": "^3.19.0",
+    "babel-jest": "^30.2.0",
+    "codemirror": "^5.65.18",
     "css-loader": "^7.1.2",
     "css-minimizer-webpack-plugin": "^7.0.2",
     "eslint": "^9.37.0",
@@ -49,6 +70,7 @@
     "shelljs": "^0.10.0",
     "style-loader": "^4.0.0",
     "webpack": "^5.102.1",
-    "webpack-cli": "^6.0.1"
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
   }
 }

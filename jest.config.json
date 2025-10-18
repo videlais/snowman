@@ -4,13 +4,17 @@
             "displayName": "jest-puppeteer",
             "testMatch": ["<rootDir>/test/e2e/**/*.test.js"],
             "preset": "jest-puppeteer",
-            "transform": {}
+            "transform": {
+                "^.+\\.js$": "babel-jest"
+            }
         },
         {
             "displayName": "jest-jsdom",
             "testMatch": ["<rootDir>/test/jsdom/*.test.js"],
             "testEnvironment": "jsdom",
-            "transform": {},
+            "transform": {
+                "^.+\\.js$": "babel-jest"
+            },
             "setupFiles": ["<rootDir>/test/setup.js"]
         }
     ],

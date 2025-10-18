@@ -1,4 +1,4 @@
-const { convertMingoToQuis, normalizeRequirements } = require('../../src/MingoQuisConverter.js');
+import { convertMingoToQuis, normalizeRequirements } from '../../src/MingoQuisConverter.js';
 
 describe('MingoQuisConverter', () => {
   describe('convertMingoToQuis()', () => {
@@ -175,6 +175,17 @@ describe('MingoQuisConverter', () => {
     it('Should handle complex object equality as fallback', () => {
       const result = convertMingoToQuis({ simpleField: 'test' });
       expect(result).toBe('$simpleField == "test"');
+    });
+
+    it('Should handle explicit $eq operator', () => {
+      const result = convertMingoToQuis({ score: { $eq: 42 } });
+      expect(result).toBe('$score == 42');
+    });
+
+    it('Should handle complex nested object as fallback', () => {
+      const complexValue = { someProperty: 'value', anotherProp: 42 };
+      const result = convertMingoToQuis({ config: complexValue });
+      expect(result).toBe('$config == {"someProperty":"value","anotherProp":42}');
     });
   });
 });

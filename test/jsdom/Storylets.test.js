@@ -1,7 +1,7 @@
-const Storylets = require('../../src/Storylets.js');
-const Story = require('../../src/Story.js');
-const $ = require('jquery');
-const State = require('../../src/State.js');
+import Storylets from '../../src/Storylets.js';
+import Story from '../../src/Story.js';
+import $ from 'jquery';
+import State from '../../src/State.js';
 
 describe('Storylets', () => {
   describe('constructor()', () => {
@@ -906,6 +906,106 @@ describe('Storylets', () => {
       s.removePassage();
       // Only one passage should be available.
       expect(s.getAvailablePassages().length).toBe(1);
+    });
+  });
+
+  describe('Error handling in getAvailablePassages()', () => {
+    it('Should handle malformed requirements gracefully', () => {
+      // Mock console.info to capture info messages from constructor
+      const originalInfo = console.info;
+      const infoSpy = jest.fn();
+      console.info = infoSpy;
+
+      $(document.body).html(`
+            <tw-storydata name="Test" startnode="1" creator="extwee" creator-version="1.2.3">
+              <tw-passagedata pid="1" name="Test Passage" tags="storylet">
+                <requirements>
+                    {invalid json}
+                </requirements>
+                <p>Should be skipped due to parse error</p>
+              </tw-passagedata>
+              <script type="text/twine-javascript">
+              s.test = 1;
+              </script>
+              <style type="text/twine-css"></style>
+           </tw-storydata>
+           <tw-story>
+           <tw-sidebar>
+              <tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+              <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
+            </tw-sidebar>
+            <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      
+      // Reset State
+      State.reset();
+      // Reset story.
+      window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
+      // Start a new story.
+      window.Story.start();
+      // Create new collection.
+      const s = window.Story.storylets;
+      // Should return empty array because malformed JSON gets converted to {} in constructor
+      // which has no requirements, so passage is not available
+      const available = s.getAvailablePassages();
+      expect(available).toEqual([]);
+      
+      // Should have logged info about the malformed requirements during construction
+      expect(infoSpy).toHaveBeenCalled();
+      expect(infoSpy.mock.calls[0][0]).toContain('Failed to parse passage requirements');
+      
+      // Restore console.info
+      console.info = originalInfo;
+    });
+
+    it('Should handle evaluation errors gracefully', () => {
+      // Mock console.warn to capture warning messages
+      const originalWarn = console.warn;
+      const warnSpy = jest.fn();
+      console.warn = warnSpy;
+
+      $(document.body).html(`
+            <tw-storydata name="Test" startnode="1" creator="extwee" creator-version="1.2.3">
+              <tw-passagedata pid="1" name="Test Passage" tags="storylet">
+                <requirements>
+                    {
+                        "$unknown_operator": {"field": "value"}
+                    }
+                </requirements>
+                <p>Should be skipped due to evaluation error</p>
+              </tw-passagedata>
+              <script type="text/twine-javascript">
+              s.test = 1;
+              </script>
+              <style type="text/twine-css"></style>
+           </tw-storydata>
+           <tw-story>
+           <tw-sidebar>
+              <tw-icon tabindex="0" alt="Undo" title="Undo">↶</tw-icon>
+              <tw-icon tabindex="1" alt="Redo" title="Redo">↷</tw-icon>
+            </tw-sidebar>
+            <tw-passage class="passage" aria-live="polite"></tw-passage></tw-story>`);
+      
+      // Reset State
+      State.reset();
+      // Reset story.
+      window.Story = new Story();
+      // Create global store shortcut.
+      window.s = window.Story.store;
+      // Start a new story.
+      window.Story.start();
+      // Create new collection.
+      const s = window.Story.storylets;
+      // Should return undefined due to evaluation error (function exits early)
+      const available = s.getAvailablePassages();
+      expect(available).toBeUndefined();
+      
+      // Should have logged a warning about the evaluation error
+      expect(warnSpy).toHaveBeenCalled();
+      
+      // Restore console.warn
+      console.warn = originalWarn;
     });
   });
 });

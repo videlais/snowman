@@ -1,4 +1,4 @@
-const State = require('./State.js');
+import State from './State.js';
 
 /**
  * @namespace History
@@ -115,4 +115,4 @@ class History {
   }
 }
 
-module.exports = History;
+export default History;

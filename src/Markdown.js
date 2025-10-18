@@ -1,4 +1,6 @@
-const md = require('markdown-it')({
+import markdownIt from 'markdown-it';
+
+const md = markdownIt({
   html: true, // Enable HTML tags in source
   xhtmlOut: true, // Use '/' to close single tags (<br />).
   breaks: true // Convert \n into <br />
@@ -54,4 +56,4 @@ class Markdown {
   }
 }
 
-module.exports = Markdown;
+export default Markdown;

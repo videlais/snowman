@@ -1,22 +1,16 @@
 /**
  * @jest-environment puppeteer
  */
-const ShellJS = require('shelljs');
-const path = require('path');
+const path = require('node:path');
 require('expect-puppeteer');
    
 // Extend timeout to 10 seconds.
 jest.setTimeout(10000);
  
-ShellJS.exec(`extwee -c -s dist/format.js -i ${path.join(__dirname, 'index.twee')} -o ${path.join(__dirname, 'index.html')}`);
  
 describe('Cookbook - Loading Screen', () => {
     beforeAll(async () => {
-        await page.goto(`file://${path.join(__dirname, 'index.html')}`);
-    });
-   
-    afterAll(async () => {
-        ShellJS.rm(`${path.join(__dirname, 'index.html')}`);
+        await page.goto('http://localhost:3000/e2e/RunScript/Loading_Test/index.html');
     });
     
     it('Should display message', async () => {

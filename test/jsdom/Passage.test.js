@@ -1,4 +1,4 @@
-const Passage = require('../../src/Passage.js');
+import Passage from '../../src/Passage.js';
 
 describe('constructor()', () => {
   it('Should contain default name when initialized with no arguments', () => {

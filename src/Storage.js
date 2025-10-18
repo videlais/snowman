@@ -1,5 +1,5 @@
-const History = require('./History.js');
-const State = require('./State.js');
+import History from './History.js';
+import State from './State.js';
 
 class Storage {
   /**
@@ -12,7 +12,7 @@ class Storage {
     let result = false;
 
     if (Storage.available()) {
-      window.localStorage.removeItem(`${save}.snowman.history`);
+      globalThis.localStorage.removeItem(`${save}.snowman.history`);
       result = true;
     }
 
@@ -29,7 +29,7 @@ class Storage {
     let history = null;
 
     if (Storage.available()) {
-      history = window.localStorage.getItem(`${save}.snowman.history`);
+      history = globalThis.localStorage.getItem(`${save}.snowman.history`);
     }
 
     return (history !== null);
@@ -49,11 +49,47 @@ class Storage {
         history: History.history,
         position: History.position
       };
-      window.localStorage.setItem(`${save}.snowman.history`, JSON.stringify(saveData));
+      globalThis.localStorage.setItem(`${save}.snowman.history`, JSON.stringify(saveData));
       result = true;
     }
 
     return result;
+  }
+
+  /**
+   * Parses and normalizes save data format
+   * @private
+   * @param {any} parsedData - The parsed JSON data
+   * @returns {object} Normalized history data with history array and position
+   */
+  static _normalizeSaveData (parsedData) {
+    if (Array.isArray(parsedData)) {
+      // Old format: just an array of history entries
+      return {
+        history: parsedData,
+        position: Math.max(0, parsedData.length - 1)
+      };
+    }
+    
+    if (parsedData && typeof parsedData === 'object' && 'history' in parsedData) {
+      // New format: object with history and position properties
+      return {
+        history: parsedData.history || [],
+        position: typeof parsedData.position === 'number' ? parsedData.position : 0
+      };
+    }
+    
+    // Fallback for unexpected formats
+    return { history: [], position: 0 };
+  }
+
+  /**
+   * Resets history to safe state
+   * @private
+   */
+  static _resetToSafeState () {
+    History.history = [];
+    History.position = 0;
   }
 
   /**
@@ -63,55 +99,34 @@ class Storage {
    * @returns {boolean} Returns true if restore was successful
    */
   static restoreSave (save = 'default') {
-    let history = null;
-    let result = false;
-
-    if (Storage.available()) {
-      history = window.localStorage.getItem(`${save}.snowman.history`);
-      result = true;
+    if (!Storage.available()) {
+      return false;
     }
 
-    if (history !== null) {
-      try {
-        const parsedData = JSON.parse(history);
-        
-        // Check if this is the new format (object with history and position)
-        // or the old format (array of history entries)
-        if (Array.isArray(parsedData)) {
-          // Old format: just an array of history entries
-          History.history = parsedData;
-          // Set position to the last entry for backward compatibility
-          History.position = Math.max(0, parsedData.length - 1);
-        } else if (parsedData && typeof parsedData === 'object' && 'history' in parsedData) {
-          // New format: object with history and position properties
-          History.history = parsedData.history || [];
-          History.position = typeof parsedData.position === 'number' ? parsedData.position : 0;
-        } else {
-          // Fallback for unexpected formats
-          History.history = [];
-          History.position = 0;
-        }
-        
-        // Ensure position is within bounds
-        if (History.position >= History.history.length) {
-          History.position = Math.max(0, History.history.length - 1);
-        }
-        
-        // Only try to restore state if we have valid history and position
-        if (History.history.length > 0 && History.position >= 0) {
-          const state = History.history[History.position].state;
-          State.updateState(state);
-        }
-      } catch (error) {
-        // If parsing fails, reset to safe state
-        console.warn('Warning: Failed to parse save data, resetting to safe state:', error.message);
-        History.history = [];
-        History.position = 0;
-        result = false;
+    const historyData = globalThis.localStorage.getItem(`${save}.snowman.history`);
+    if (historyData === null) {
+      return true;
+    }
+
+    try {
+      const parsedData = JSON.parse(historyData);
+      const { history, position } = Storage._normalizeSaveData(parsedData);
+      
+      History.history = history;
+      History.position = Math.min(position, Math.max(0, history.length - 1));
+      
+      // Restore state if we have valid history
+      if (history.length > 0 && History.position >= 0) {
+        const state = history[History.position].state;
+        State.updateState(state);
       }
+      
+      return true;
+    } catch (error) {
+      console.warn('Warning: Failed to parse save data, resetting to safe state:', error.message);
+      Storage._resetToSafeState();
+      return false;
     }
-
-    return result;
   }
 
   /**
@@ -124,8 +139,8 @@ class Storage {
     let result = false;
 
     try {
-      window.localStorage.setItem('testKey', 'test');
-      window.localStorage.removeItem('testKey');
+      globalThis.localStorage.setItem('testKey', 'test');
+      globalThis.localStorage.removeItem('testKey');
       result = true;
     } catch(error) {
       console.info('Info: localStorage is not available. Error:', error);
@@ -146,7 +161,7 @@ class Storage {
     // Is localStorage available?
     if (Storage.available()) {
       // Clear the localStorage
-      window.localStorage.clear();
+      globalThis.localStorage.clear();
       // Record result
       result = true;
     }
@@ -155,4 +170,4 @@ class Storage {
   }
 }
 
-module.exports = Storage;
+export default Storage;

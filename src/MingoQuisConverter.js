@@ -27,7 +27,7 @@ function convertMingoToQuis(mingoQuery) {
     // Handle MongoDB logical operators
     if (key === '$and') {
       if (!Array.isArray(value)) {
-        throw new Error('$and requires an array of conditions');
+        throw new TypeError('$and requires an array of conditions');
       }
       const conditions = value.map(cond => convertMingoToQuis(cond));
       return `(${conditions.join(' && ')})`;
@@ -35,7 +35,7 @@ function convertMingoToQuis(mingoQuery) {
 
     if (key === '$or') {
       if (!Array.isArray(value)) {
-        throw new Error('$or requires an array of conditions');
+        throw new TypeError('$or requires an array of conditions');
       }
       const conditions = value.map(cond => convertMingoToQuis(cond));
       return `(${conditions.join(' || ')})`;
@@ -70,6 +70,14 @@ function convertFieldQuery(field, value) {
 
   // Handle comparison operators
   const operators = Object.keys(value);
+  
+  // Check if this object contains operators (keys starting with $) or is a plain value object
+  const hasOperators = operators.some(key => key.startsWith('$'));
+  if (!hasOperators) {
+    // This is a plain object being used as a value, treat as equality
+    return `$${field} == ${JSON.stringify(value)}`;
+  }
+  
   if (operators.length === 1) {
     const operator = operators[0];
     const operatorValue = value[operator];
@@ -90,7 +98,7 @@ function convertFieldQuery(field, value) {
       case '$in':
         {
           if (!Array.isArray(operatorValue)) {
-            throw new Error('$in requires an array');
+            throw new TypeError('$in requires an array');
           }
           const inConditions = operatorValue.map(val => 
             `$${field} == ${JSON.stringify(val)}`
@@ -100,7 +108,7 @@ function convertFieldQuery(field, value) {
       case '$nin':
         {
           if (!Array.isArray(operatorValue)) {
-            throw new Error('$nin requires an array');
+            throw new TypeError('$nin requires an array');
           }
           const ninConditions = operatorValue.map(val => 
             `$${field} != ${JSON.stringify(val)}`
@@ -143,8 +151,4 @@ function normalizeRequirements(requirements) {
   return 'true';
 }
 
-module.exports = {
-  convertMingoToQuis,
-  convertFieldQuery,
-  normalizeRequirements
-};
+export { convertMingoToQuis, convertFieldQuery, normalizeRequirements };

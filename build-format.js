@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('node:fs');
 const ejs = require('ejs');
 
 // Read and parse story.json file.
@@ -26,8 +26,10 @@ const indexSource = ejs.render(srcIndex, {
 // Add the HTML template code to the story object.
 story.source = indexSource;
 
-// Generate format.js.
-const format = 'window.storyFormat(' + JSON.stringify(story) + ');';
+// Generate format.js as proper JSONP following Twine specification  
+// For now, create without extensions to test basic ExTwee compatibility
+let format = `window.storyFormat(${JSON.stringify(story, null, 2)});`;
+
 fs.writeFileSync('dist/format.js', format);
 
 // Re-read format.js, replacing the editor code to create a malformed JSON.

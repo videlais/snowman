@@ -1,0 +1,14 @@
+{
+  "preset": "jest-puppeteer",
+  "testMatch": [
+    "**/test/e2e/**/*.test.js"
+  ],
+  "testPathIgnorePatterns": [
+    "/node_modules/",
+    "Timed-",
+    "Loading-",
+    "Typewriter-"
+  ],
+  "testTimeout": 30000,
+  "setupFilesAfterEnv": ["<rootDir>/test/setup.js"]
+}

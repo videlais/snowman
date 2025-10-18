@@ -4,7 +4,10 @@ Delayed Text in Snowman
 
 :: StoryData
 {
-    "ifid": "9E1594EB-4611-494E-96F2-8E3137DDA0A0"
+    "ifid": "9E1594EB-4611-494E-96F2-8E3137DDA0A0",
+    "format": "Snowman",
+    "format-version": "3.0.0",
+    "start": "Start"
 }
 :: Start
 <div id="results"></div>
