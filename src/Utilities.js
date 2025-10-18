@@ -92,6 +92,23 @@ class Utilities {
 
     return Math.floor(Math.random() * (max - min)) + min;
   }
+
+  /**
+   * Return random decimal number within range.
+   * @function randomFloat
+   * @param   {number}  min   Start of range (default 0).
+   * @param   {number}  max   End of range (default 0).
+   * @returns {number}        Decimal number in range.
+   */
+  static randomFloat (min = 0, max = 0) {
+    // Is min greater than max?
+    if (min > max) {
+      max = min;
+      min = 0;
+    }
+
+    return Math.random() * (max - min) + min;
+  }
 }
 
 module.exports = Utilities;
