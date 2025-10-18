@@ -1,6 +1,6 @@
 describe('Snowman CodeMirror Extensions', () => {
   beforeAll(async () => {
-    await page.goto('http://localhost:3001');
+    await page.goto('http://localhost:3000/e2e/extensions/codemirror/index.html');
     await page.waitForSelector('.CodeMirror', { timeout: 10000 });
   });
 
