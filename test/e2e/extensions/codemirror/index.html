@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snowman CodeMirror Extensions Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/theme/default.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .editor-container {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .CodeMirror {
+            height: 300px;
+            font-size: 14px;
+        }
+        #references {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+        #references h3 {
+            margin-top: 0;
+        }
+        #references ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #references li {
+            padding: 5px;
+            margin: 2px 0;
+            background-color: white;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Snowman CodeMirror Extensions Test</h1>
+        
+        <div class="editor-container">
+            <textarea id="editor"># Welcome to Snowman
+
+This is a test passage for the CodeMirror extensions.
+
+<% s.playerName = "Test Player" %>
+
+[[Link to another passage->NextPassage]]
+
+<% if (s.playerName) { %>
+  Hello, <%= s.playerName %>!
+<% } %>
+
+## Code Block Example
+
+<%
+  // This is JavaScript code
+  s.health = 100;
+  s.score = 0;
+  
+  function calculateScore() {
+    return s.score + 10;
+  }
+%>
+
+The player's health is <%= s.health %>.
+</textarea>
+        </div>
+
+        <div id="references">
+            <h3>Passage References</h3>
+            <ul id="references-list">
+                <!-- References will be populated here -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- CodeMirror Core -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.12/mode/htmlmixed/htmlmixed.min.js"></script>
+
+    <!-- Load Snowman Extensions Bundle -->
+    <script src="/build/twine-extensions.bundle.js"></script>
+
+    <script>
+        // Initialize CodeMirror with Snowman mode
+        const textarea = document.getElementById('editor');
+        const cm = CodeMirror.fromTextArea(textarea, {
+            lineNumbers: true,
+            mode: 'snowman',
+            theme: 'default',
+            indentUnit: 2,
+            smartIndent: true,
+            extraKeys: {
+                "Ctrl-Space": "autocomplete"
+            }
+        });
+
+        // Make CodeMirror instance globally available for tests
+        window.cm = cm;
+
+        // Simple reference parser for testing
+        function updateReferences() {
+            const content = cm.getValue();
+            const references = new Set();
+            
+            // Parse Twine-style links: [[Text->Target]] or [[Target]]
+            const linkPattern = /\[\[([^\]]+)\]\]/g;
+            let match;
+            while ((match = linkPattern.exec(content)) !== null) {
+                const linkText = match[1];
+                if (linkText.includes('->')) {
+                    const target = linkText.split('->')[1].trim();
+                    references.add(target);
+                } else {
+                    references.add(linkText);
+                }
+            }
+            
+            // Parse Story.render() calls
+            const renderPattern = /Story\.render\(['"]([^'"]+)['"]\)/g;
+            while ((match = renderPattern.exec(content)) !== null) {
+                references.add(match[1]);
+            }
+            
+            // Parse Story.goTo() calls
+            const gotoPattern = /Story\.goTo\(['"]([^'"]+)['"]\)/g;
+            while ((match = gotoPattern.exec(content)) !== null) {
+                references.add(match[1]);
+            }
+            
+            // Update references display
+            const referencesList = document.getElementById('references-list');
+            referencesList.innerHTML = '';
+            references.forEach(ref => {
+                const li = document.createElement('li');
+                li.textContent = ref;
+                referencesList.appendChild(li);
+            });
+        }
+
+        // Update references when content changes
+        cm.on('change', updateReferences);
+        
+        // Initial reference update
+        updateReferences();
+
+        // Add some debugging info
+        console.log('CodeMirror initialized:', cm);
+        console.log('Snowman mode available:', cm.getMode().name === 'snowman');
+    </script>
+</body>
+</html>

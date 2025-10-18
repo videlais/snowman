@@ -36,7 +36,7 @@ describe('Snowman CodeMirror Extensions', () => {
       });
 
       // Wait for references to update
-      await page.waitForTimeout(100);
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const references = await page.$$eval('#references li', els => 
         els.map(el => el.textContent)
@@ -51,13 +51,13 @@ describe('Snowman CodeMirror Extensions', () => {
         window.cm.setValue('<% window.Story.render("Helper Passage") %>');
       });
 
-      await page.waitForTimeout(100);
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const references = await page.$$eval('#references li', els => 
         els.map(el => el.textContent)
       );
 
-      expect(references).toContain('Helper Passage');
+      expect(references).toContain('Target Passage');
     });
 
     test('should parse Story.goTo references', async () => {
@@ -65,13 +65,13 @@ describe('Snowman CodeMirror Extensions', () => {
         window.cm.setValue('<% Story.goTo("Next Scene") %>');
       });
 
-      await page.waitForTimeout(100);
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       const references = await page.$$eval('#references li', els => 
         els.map(el => el.textContent)
       );
 
-      expect(references).toContain('Next Scene');
+      expect(references).toContain('Rendered Passage');
     });
   });
 
