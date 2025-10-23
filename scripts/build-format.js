@@ -1,5 +1,5 @@
 import { render } from 'ejs';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import pkg from 'shelljs';
 const { cp } = pkg;
 
@@ -14,6 +14,11 @@ const htmlTemplate = render(ejsTemplate, {script: bundledJS});
 
 // Step 2: Create the format data object with metadata from `format.json` and the generated source.
 const formatData = JSON.parse(readFileSync('format.json', { encoding: 'utf8' }));
+
+// Step 2.1: Read the version from package.json and update format data
+const packageData = JSON.parse(readFileSync('package.json', { encoding: 'utf8' }));
+formatData.version = packageData.version;
+
 // Add the generated HTML as the source property.
 formatData.source = htmlTemplate;
 
