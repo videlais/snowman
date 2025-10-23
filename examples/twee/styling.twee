@@ -1,0 +1,346 @@
+:: Start [styled]
+# CSS Styling Example
+
+<style>
+/* Custom styles for this story */
+.highlight-box {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin: 20px 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.info-panel {
+    background: #e8f4fd;
+    border-left: 4px solid #2196F3;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.styled-link {
+    background: #4CAF50;
+    color: white !important;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 6px;
+    display: inline-block;
+    margin: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.styled-link:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: 1px solid #e1e5e9;
+}
+
+.badge {
+    background: #667eea;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+</style>
+
+<div class="highlight-box">
+    <h2>🎨 Welcome to Styled Content</h2>
+    <p>This passage uses custom CSS styling!</p>
+    <span class="badge">STYLED</span>
+</div>
+
+<div class="info-panel">
+    <strong>💡 Tip:</strong> You can include CSS directly in your passages or use classes defined in a stylesheet. Snowman gives you complete control over styling.
+</div>
+
+<div class="card">
+    <h3>Styling Options</h3>
+    <p>Snowman supports several ways to style your content:</p>
+    <ul>
+        <li>Inline CSS with &lt;style&gt; tags</li>
+        <li>External stylesheets</li>
+        <li>Inline styles on elements</li>
+        <li>Dynamic styling with JavaScript</li>
+    </ul>
+</div>
+
+<a href="#" class="styled-link" onclick="window.story.show('Advanced')">🚀 Advanced Styling</a>
+<a href="#" class="styled-link" onclick="window.story.show('Interactive')">⚡ Interactive Elements</a>
+
+[[Traditional link to Advanced->Advanced]]
+
+:: Advanced
+# Advanced Styling Techniques
+
+<style>
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.meter {
+    background: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 20px;
+    margin: 10px 0;
+    position: relative;
+}
+
+.meter-fill {
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    height: 100%;
+    transition: width 0.8s ease;
+    border-radius: 10px;
+}
+
+.meter-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+}
+
+.animated-button {
+    background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.animated-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+</style>
+
+<div class="stats-container">
+    <div class="stat-card">
+        <h4>Health</h4>
+        <div class="meter">
+            <div class="meter-fill" style="width: 85%"></div>
+            <div class="meter-label">85/100</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <h4>Mana</h4>
+        <div class="meter">
+            <div class="meter-fill" style="width: 60%"></div>
+            <div class="meter-label">60/100</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <h4>Experience</h4>
+        <div class="meter">
+            <div class="meter-fill" style="width: 40%"></div>
+            <div class="meter-label">Level 7</div>
+        </div>
+    </div>
+</div>
+
+## CSS Grid & Flexbox
+
+This example uses CSS Grid for the stat cards layout and demonstrates:
+- Gradients and shadows
+- CSS animations
+- Progress bars with absolute positioning
+- Responsive design with `auto-fit` and `minmax`
+
+<button class="animated-button" onclick="window.story.show('Interactive')">
+✨ Try Interactive Elements
+</button>
+
+[[Back to styling basics->Start]]
+[[See interactive elements->Interactive]]
+
+:: Interactive
+# Interactive Styling
+
+<style>
+.interactive-demo {
+    padding: 20px;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    margin: 20px 0;
+    text-align: center;
+}
+
+.color-button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.theme-switcher {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.dark-theme {
+    background: #2c3e50 !important;
+    color: #ecf0f1 !important;
+}
+
+.light-theme {
+    background: #ecf0f1 !important;
+    color: #2c3e50 !important;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+</style>
+
+## Dynamic Styling with JavaScript
+
+<div class="interactive-demo" id="demo-area">
+    <p>Click the buttons to change this area's appearance:</p>
+    
+    <button class="color-button" style="background: #FF6B6B; color: white;" 
+            onclick="changeTheme('#FF6B6B', 'white')">Red Theme</button>
+    <button class="color-button" style="background: #4ECDC4; color: white;" 
+            onclick="changeTheme('#4ECDC4', 'white')">Teal Theme</button>
+    <button class="color-button" style="background: #45B7D1; color: white;" 
+            onclick="changeTheme('#45B7D1', 'white')">Blue Theme</button>
+    <button class="color-button" style="background: #96CEB4; color: white;" 
+            onclick="changeTheme('#96CEB4', 'white')">Green Theme</button>
+</div>
+
+<div class="theme-switcher" id="theme-area">
+    <h4>🌙 Dark Mode Toggle</h4>
+    <p>Toggle between light and dark themes:</p>
+    
+    <label class="toggle-switch">
+        <input type="checkbox" onchange="toggleDarkMode()">
+        <span class="slider"></span>
+    </label>
+    <span id="theme-label">Light Mode</span>
+</div>
+
+<script>
+function changeTheme(bgColor, textColor) {
+    const demoArea = document.getElementById('demo-area');
+    demoArea.style.backgroundColor = bgColor;
+    demoArea.style.color = textColor;
+    demoArea.style.borderColor = bgColor;
+}
+
+function toggleDarkMode() {
+    const themeArea = document.getElementById('theme-area');
+    const label = document.getElementById('theme-label');
+    const body = document.body;
+    
+    if (themeArea.classList.contains('dark-theme')) {
+        themeArea.classList.remove('dark-theme');
+        themeArea.classList.add('light-theme');
+        label.textContent = 'Light Mode';
+        body.style.backgroundColor = '#ffffff';
+        body.style.color = '#333333';
+    } else {
+        themeArea.classList.remove('light-theme');
+        themeArea.classList.add('dark-theme');
+        label.textContent = 'Dark Mode';
+        body.style.backgroundColor = '#2c3e50';
+        body.style.color = '#ecf0f1';
+    }
+}
+</script>
+
+**This example demonstrates:**
+- Dynamic style changes with JavaScript
+- CSS transitions and animations
+- Custom toggle switches
+- Theme switching functionality
+
+[[Back to advanced styling->Advanced]]
+[[Back to start->Start]]

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snowman 1.X Basic Story Example</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+        }
+        .example-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
+        }
+        .example-header h1 {
+            margin: 0 0 10px 0;
+        }
+        .example-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        .story-container {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 8px 8px;
+            padding: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .controls {
+            background-color: #ecf0f1;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            transition: background-color 0.2s ease;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+        .story-frame {
+            width: 100%;
+            height: 600px;
+            border: none;
+            background: white;
+        }
+        .source-toggle {
+            margin-top: 20px;
+        }
+        .source-code {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            margin-top: 10px;
+            display: none;
+        }
+        .source-code.show {
+            display: block;
+        }
+        .feature-list {
+            background-color: #e8f6ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .feature-list h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .feature-list ul {
+            margin-bottom: 0;
+        }
+        .feature-list li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="example-header">
+        <h1>🎮 Snowman 1.X Basic Story</h1>
+        <p>Interactive example demonstrating core Snowman 1.X features</p>
+    </div>
+
+    <div class="story-container">
+        <div class="controls">
+            <div>
+                <strong>📊 Status:</strong> <span id="status">Loading...</span>
+            </div>
+            <div>
+                <button class="btn btn-secondary" onclick="reloadStory()">🔄 Reload</button>
+                <button class="btn btn-primary" onclick="toggleSource()">📝 View Source</button>
+            </div>
+        </div>
+        
+        <iframe id="story-frame" class="story-frame" src="about:blank" title="Snowman Story Example"></iframe>
+    </div>
+
+    <div class="feature-list">
+        <h3>🚀 Features Demonstrated:</h3>
+        <ul>
+            <li><strong>Template Tags:</strong> Using <code>&lt;% %&gt;</code> for JavaScript execution</li>
+            <li><strong>Print Function:</strong> Dynamic content generation with <code>print()</code></li>
+            <li><strong>window.story API:</strong> Accessing story properties and passages</li>
+            <li><strong>Passage Navigation:</strong> Links between passages using <code>[[text->target]]</code></li>
+            <li><strong>CSS Styling:</strong> Both inline styles and CSS classes</li>
+            <li><strong>Dynamic Content:</strong> Real-time data like current time and random numbers</li>
+        </ul>
+    </div>
+
+    <div class="source-toggle">
+        <div class="source-code" id="source-code">:: Start
+# Welcome to Snowman 1.X!
+
+This is a simple interactive example demonstrating basic Snowman functionality.
+
+**Current passage:** &lt;%= window.story.passage %&gt;
+
+[[Explore template tags->Templates]]
+[[Learn about functions->Functions]]
+[[See some styling->Styling]]
+
+:: Templates
+# Template Tags Example
+
+Snowman uses template tags `&lt;% %&gt;` for JavaScript execution:
+
+**Random number:** &lt;% print(Math.floor(Math.random() * 100)); %&gt;
+
+**Current time:** &lt;% print(new Date().toLocaleTimeString()); %&gt;
+
+You can also use variables:
+&lt;%
+  const username = "Storyteller";
+  const score = 42;
+%&gt;
+
+**Player:** &lt;%= username %&gt;
+**Score:** &lt;%= score %&gt;
+
+[[Try again (refresh)->Templates]]
+[[Back to start->Start]]
+
+:: Functions
+# window.story Functions
+
+Here are some core Snowman 1.X functions in action:
+
+&lt;% 
+  // Show current story state
+  print("&lt;p&gt;&lt;strong&gt;Story name:&lt;/strong&gt; " + window.story.name + "&lt;/p&gt;");
+  print("&lt;p&gt;&lt;strong&gt;Current passage:&lt;/strong&gt; " + window.story.passage + "&lt;/p&gt;");
+  print("&lt;p&gt;&lt;strong&gt;History length:&lt;/strong&gt; " + window.story.history.length + "&lt;/p&gt;");
+%&gt;
+
+**Available passages:** 
+&lt;%
+  const passages = Object.keys(window.story.passages);
+  print("&lt;ul&gt;");
+  passages.forEach(function(name) {
+    print("&lt;li&gt;" + name + "&lt;/li&gt;");
+  });
+  print("&lt;/ul&gt;");
+%&gt;
+
+[[See passage content->PassageContent]]
+[[Back to start->Start]]
+
+:: PassageContent
+# Exploring Passage Content
+
+Let's look at the raw content of some passages:
+
+&lt;%
+  print("&lt;h4&gt;Content of 'Start' passage:&lt;/h4&gt;");
+  print("&lt;pre&gt;" + window.story.passages.Start.replace(/&lt;/g, '&amp;lt;').replace(/&gt;/g, '&amp;gt;') + "&lt;/pre&gt;");
+%&gt;
+
+[[Back to functions->Functions]]
+[[Back to start->Start]]
+
+:: Styling
+# CSS and Styling
+
+Snowman stories can be styled with CSS:
+
+&lt;div style="background: linear-gradient(45deg, #3498db, #2ecc71); color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;"&gt;
+  &lt;h3 style="margin: 0 0 10px 0;"&gt;✨ Styled Content Box ✨&lt;/h3&gt;
+  &lt;p style="margin: 0;"&gt;This demonstrates inline CSS styling in Snowman stories.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+.custom-box {
+  border: 2px solid #e74c3c;
+  background-color: #fff5f5;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 15px 0;
+}
+.highlight {
+  background-color: #f1c40f;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+&lt;/style&gt;
+
+&lt;div class="custom-box"&gt;
+  This box uses a &lt;span class="highlight"&gt;custom CSS class&lt;/span&gt; defined above!
+&lt;/div&gt;
+
+[[Back to start->Start]]</div>
+    </div>
+
+    <script>
+        // Simulate story loading (in real implementation, this would use Extwee)
+        let storyLoaded = false;
+
+        function loadStory() {
+            const iframe = document.getElementById('story-frame');
+            const status = document.getElementById('status');
+            
+            status.textContent = 'Loading story...';
+            
+            // In a real implementation, this would:
+            // 1. Take the Twee source code
+            // 2. Use Extwee.js to compile it with the format.js
+            // 3. Load the resulting HTML into the iframe
+            
+            // For now, we'll create a simple demonstration
+            const storyHTML = createDemoStory();
+            
+            const blob = new Blob([storyHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            iframe.onload = function() {
+                status.textContent = 'Story loaded ✅';
+                storyLoaded = true;
+            };
+            
+            iframe.src = url;
+        }
+
+        function createDemoStory() {
+            // This is a simplified version - in reality, you'd use your format.js
+            return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Basic Snowman Story</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            padding: 20px; 
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        a { 
+            color: #3498db; 
+            text-decoration: none; 
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        a:hover { 
+            background-color: #ecf0f1; 
+        }
+        .passage {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .custom-box {
+            border: 2px solid #e74c3c;
+            background-color: #fff5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .highlight {
+            background-color: #f1c40f;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="passage" class="passage">
+        <h1>Welcome to Snowman 1.X!</h1>
+        <p>This is a simple interactive example demonstrating basic Snowman functionality.</p>
+        <p><strong>Current passage:</strong> Start</p>
+        <p><a href="#" onclick="showPassage('Templates')">Explore template tags</a></p>
+        <p><a href="#" onclick="showPassage('Functions')">Learn about functions</a></p>
+        <p><a href="#" onclick="showPassage('Styling')">See some styling</a></p>
+    </div>
+
+    <script>
+        const passages = {
+            Start: \`<h1>Welcome to Snowman 1.X!</h1>
+<p>This is a simple interactive example demonstrating basic Snowman functionality.</p>
+<p><strong>Current passage:</strong> Start</p>
+<p><a href="#" onclick="showPassage('Templates')">Explore template tags</a></p>
+<p><a href="#" onclick="showPassage('Functions')">Learn about functions</a></p>
+<p><a href="#" onclick="showPassage('Styling')">See some styling</a></p>\`,
+
+            Templates: \`<h1>Template Tags Example</h1>
+<p>Snowman uses template tags <code>&lt;% %&gt;</code> for JavaScript execution:</p>
+<p><strong>Random number:</strong> \${Math.floor(Math.random() * 100)}</p>
+<p><strong>Current time:</strong> \${new Date().toLocaleTimeString()}</p>
+<p>You can also use variables:</p>
+<p><strong>Player:</strong> Storyteller</p>
+<p><strong>Score:</strong> 42</p>
+<p><a href="#" onclick="showPassage('Templates')">Try again (refresh)</a></p>
+<p><a href="#" onclick="showPassage('Start')">Back to start</a></p>\`,
+
+            Functions: \`<h1>window.story Functions</h1>
+<p>Here are some core Snowman 1.X functions in action:</p>
+<p><strong>Story name:</strong> Basic Snowman Story</p>
+<p><strong>Current passage:</strong> Functions</p>
+<p><strong>History length:</strong> 2</p>
+<p><strong>Available passages:</strong></p>
+<ul>
+<li>Start</li>
+<li>Templates</li>
+<li>Functions</li>
+<li>Styling</li>
+</ul>
+<p><a href="#" onclick="showPassage('Start')">Back to start</a></p>\`,
+
+            Styling: \`<h1>CSS and Styling</h1>
+<p>Snowman stories can be styled with CSS:</p>
+<div style="background: linear-gradient(45deg, #3498db, #2ecc71); color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+  <h3 style="margin: 0 0 10px 0;">✨ Styled Content Box ✨</h3>
+  <p style="margin: 0;">This demonstrates inline CSS styling in Snowman stories.</p>
+</div>
+<div class="custom-box">
+  This box uses a <span class="highlight">custom CSS class</span> defined above!
+</div>
+<p><a href="#" onclick="showPassage('Start')">Back to start</a></p>\`
+        };
+
+        function showPassage(name) {
+            const passage = document.getElementById('passage');
+            passage.innerHTML = passages[name] || passages.Start;
+        }
+    </script>
+</body>
+</html>`;
+        }
+
+        function reloadStory() {
+            storyLoaded = false;
+            loadStory();
+        }
+
+        function toggleSource() {
+            const sourceCode = document.getElementById('source-code');
+            sourceCode.classList.toggle('show');
+        }
+
+        // Load story on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStory();
+        });
+    </script>
+</body>
+</html>

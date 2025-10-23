@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snowman Live Examples - Interactive Editor</title>
+    
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/scroll/simplescrollbars.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/default.min.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f6fa;
+            color: #2c3e50;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            margin: 0 0 8px 0;
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .toolbar select, .toolbar button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        .toolbar select:focus, .toolbar button:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        .toolbar-help {
+            font-size: 12px;
+            color: #6c757d;
+            font-style: italic;
+            margin-left: 8px;
+            display: inline-block;
+        }
+
+        .btn {
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8, #6a4190);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #0f877d, #32d96a);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #6c9edb, #0870c7);
+            transform: translateY(-1px);
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            background: white;
+            min-height: 0;
+        }
+
+        .editor-panel {
+            flex: 0 0 50%;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-bottom: 1px solid #ddd;
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .preview-tabs {
+            display: flex;
+            gap: 5px;
+        }
+
+        .tab-button {
+            background: #e9ecef;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #6c757d;
+        }
+
+        .tab-button:hover {
+            background: #dee2e6;
+            color: #495057;
+        }
+
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .panel-header .badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .editor-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .CodeMirror {
+            height: 100% !important;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', monospace !important;
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+        }
+        
+        .CodeMirror-scroll {
+            overflow-y: auto !important;
+            overflow-x: auto !important;
+        }
+        
+        .CodeMirror-scrollbar-filler {
+            background-color: transparent;
+        }
+
+        .preview-container {
+            flex: 1;
+            position: relative;
+            background: white;
+        }
+
+        .tab-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .story-graph {
+            width: 100%;
+            height: calc(100% - 50px);
+            background: #fafafa;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .graph-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #ddd;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .graph-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .graph-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .graph-info {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .graph-node {
+            position: absolute;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            max-width: 120px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .graph-node:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+
+        .graph-node.start-passage {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .graph-node.orphan-passage {
+            border-color: #ffc107;
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .graph-connection {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .graph-connection line {
+            stroke: #667eea;
+            stroke-width: 2;
+            marker-end: url(#arrowhead);
+        }
+
+        .graph-connection text {
+            font-size: 10px;
+            fill: #495057;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .status-bar {
+            background: #f8f9fa;
+            padding: 8px 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #6c757d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #28a745;
+        }
+
+        .status-dot.error {
+            background: #dc3545;
+        }
+
+        .status-dot.warning {
+            background: #ffc107;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #6c757d;
+            z-index: 1000;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .error-panel {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 12px 20px;
+            margin: 0;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .examples-dropdown {
+            position: relative;
+        }
+
+        .examples-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            min-width: 250px;
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .examples-menu.show {
+            display: block;
+        }
+
+        .example-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+        }
+
+        .example-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .example-item:last-child {
+            border-bottom: none;
+        }
+
+        .example-item h4 {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .example-item p {
+            margin: 0;
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .format-badge {
+            display: inline-block;
+            background: #e9ecef;
+            color: #495057;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .editor-panel {
+                flex: 1;
+                min-height: 50vh;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+            
+            .preview-panel {
+                flex: 1;
+                min-height: 40vh;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .toolbar-group {
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+            
+            .toolbar-help {
+                font-size: 11px;
+                margin-left: 4px;
+                display: block;
+                margin-top: 2px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .header {
+                padding: 10px 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.3em;
+                margin-bottom: 4px;
+            }
+            
+            .header p {
+                font-size: 0.9em;
+            }
+            
+            .toolbar {
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎮 Snowman Live Examples</h1>
+        <p>Write Twee code and see it compile in real-time using actual Snowman format files</p>
+    </div>
+
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <label for="format-select">Format:</label>
+            <select id="format-select">
+                <option value="2.X">Snowman 2.X (Enhanced)</option>
+                <option value="1.X">Snowman 1.X (Legacy)</option>
+                <option value="3.X">Snowman 3.X (Latest)</option>
+            </select>
+            
+            <div class="examples-dropdown">
+                <button type="button" class="btn btn-secondary" id="examples-btn">📚 Load Example ▼</button>
+                <span class="toolbar-help">Choose pre-built story templates</span>
+                <div class="examples-menu" id="examples-menu">
+                    <!-- Examples will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="toolbar-group">
+            <button type="button" class="btn btn-primary" id="compile-btn">▶️ Compile & Run</button>
+            <span class="toolbar-help">Generate playable story from Twee code</span>
+            <button type="button" class="btn btn-success" id="auto-compile-btn">🔄 Auto-compile: OFF</button>
+            <span class="toolbar-help">Automatically compile as you type</span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="editor-panel">
+            <div class="panel-header">
+                📝 Twee Source Code
+                <span class="badge">Live Editor</span>
+            </div>
+            <div class="editor-container">
+                <textarea id="twee-editor">:: Start
+# Welcome to Snowman!
+
+This is your starting passage. You can edit this code and see the results in real time!
+
+**Try modifying this text** and click "Compile & Run" to see the changes.
+
+<% 
+// You can use JavaScript in template tags
+const currentTime = new Date().toLocaleTimeString();
+print(`<p><strong>Current time:</strong> ${currentTime}</p>`);
+%>
+
+[[Explore more->Second]]
+
+:: Second
+# Second Passage
+
+Great! You've navigated to a second passage.
+
+**Some dynamic content:**
+<%= Math.random() > 0.5 ? "Lucky!" : "Try again!" %>
+
+[[Go back->Start]]
+[[Learn about Snowman features->Features]]
+
+:: Features
+# Snowman Features
+
+Here are some key features you can explore:
+
+## Template Tags
+- `<% code %>` - Execute JavaScript
+- `<%= value %>` - Output a value
+- `<%- html %>` - Output HTML-escaped value
+
+## Functions Available
+<% 
+if (typeof window !== 'undefined' && window.story) {
+    print("<p>✅ window.story is available!</p>");
+    print(`<p><strong>Current passage:</strong> ${window.story.passage}</p>`);
+} else {
+    print("<p>ℹ️ window.story will be available in the compiled story</p>");
+}
+%>
+
+[[Back to start->Start]]</textarea>
+            </div>
+            <div class="loading-overlay hidden" id="editor-loading">
+                <div>🔄 Loading format...</div>
+            </div>
+        </div>
+
+        <div class="preview-panel">
+            <div class="panel-header">
+                <div class="preview-tabs">
+                    <button class="tab-button active" data-tab="preview">🎮 Live Preview</button>
+                    <button class="tab-button" data-tab="graph">📊 Story Graph</button>
+                </div>
+                <span class="badge" id="format-badge">Snowman 2.X</span>
+            </div>
+            <div class="preview-container">
+                <div class="tab-content active" id="preview-tab">
+                    <iframe id="preview-frame" class="preview-frame" src="about:blank" title="Story Preview"></iframe>
+                    <div class="loading-overlay hidden" id="preview-loading">
+                        <div>⚙️ Compiling story...</div>
+                    </div>
+                </div>
+                <div class="tab-content" id="graph-tab">
+                    <div id="story-graph" class="story-graph"></div>
+                    <div class="graph-controls">
+                        <button id="reset-zoom" class="graph-btn">🔍 Reset Zoom</button>
+                        <button id="center-graph" class="graph-btn">🎯 Center Graph</button>
+                        <div class="graph-info">
+                            <span id="graph-stats">0 passages • 0 connections</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="error-panel" id="error-panel" style="display: none;"></div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-indicator">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="status-text">Ready</span>
+        </div>
+        <div id="stats-text">0 passages • 0 words</div>
+    </div>
+
+    <!-- CodeMirror JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/scroll/simplescrollbars.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
+    
+    <!-- Custom Twee mode and Extended Examples -->
+    <script src="lib/codemirror-twee-mode.js"></script>
+    <script src="lib/extended-examples.js"></script>
+    <script src="lib/snowman-twee-compiler.js"></script>
+    
+    <script>
+        // Main application class
+        class SnowmanLiveEditor {
+            constructor() {
+                this.compiler = new SnowmanTweeCompiler();
+                this.editor = null;
+                this.autoCompile = false;
+                this.compileTimeout = null;
+                this.currentFormat = '2.X';
+                
+                this.initializeEditor();
+                this.setupEventHandlers();
+                this.loadExamples();
+                this.loadInitialFormat();
+
+                // Load initial example
+                setTimeout(async () => {
+                    try {
+                        const content = await this.loadTweeFile('basic-story.twee');
+                        this.loadExample({
+                            name: 'Basic Story',
+                            content: content
+                        });
+                    } catch (error) {
+                        console.error('Failed to load initial example:', error);
+                        // Fallback to hardcoded content
+                        this.loadExample({
+                            name: 'Basic Story',
+                            content: this.getExampleContent('basic')
+                        });
+                    }
+                }, 100);
+            }
+
+            initializeEditor() {
+                // Initialize CodeMirror with Twee syntax highlighting
+                const editorOptions = {
+                    mode: 'twee',
+                    theme: 'default',
+                    lineNumbers: true,
+                    lineWrapping: true,
+                    indentUnit: 2,
+                    tabSize: 2,
+                    matchBrackets: true,
+                    autoCloseBrackets: true,
+                    viewportMargin: Infinity
+                };
+                
+                // Always use native scrollbars for better visibility
+                editorOptions.scrollbarStyle = 'native';
+                
+                this.editor = CodeMirror.fromTextArea(document.getElementById('twee-editor'), editorOptions);
+
+                // Auto-compile on changes (with debounce)
+                this.editor.on('change', () => {
+                    this.updateStats();
+                    if (this.autoCompile) {
+                        this.debounceCompile();
+                    }
+                });
+            }
+
+            setupEventHandlers() {
+                // Format selector
+                document.getElementById('format-select').addEventListener('change', (e) => {
+                    this.switchFormat(e.target.value);
+                });
+
+                // Compile button
+                document.getElementById('compile-btn').addEventListener('click', () => {
+                    this.compile();
+                });
+
+                // Auto-compile toggle
+                const autoCompileBtn = document.getElementById('auto-compile-btn');
+                autoCompileBtn.addEventListener('click', () => {
+                    this.autoCompile = !this.autoCompile;
+                    autoCompileBtn.textContent = `🔄 Auto-compile: ${this.autoCompile ? 'ON' : 'OFF'}`;
+                    autoCompileBtn.className = this.autoCompile ? 'btn btn-success' : 'btn btn-secondary';
+                    
+                    if (this.autoCompile) {
+                        this.compile();
+                    }
+                });
+
+                // Examples dropdown
+                document.getElementById('examples-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const menu = document.getElementById('examples-menu');
+                    menu.classList.toggle('show');
+                });
+
+                // Close examples dropdown when clicking outside
+                document.addEventListener('click', () => {
+                    document.getElementById('examples-menu').classList.remove('show');
+                });
+
+                // Tab switching
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        this.switchTab(e.target.dataset.tab);
+                    });
+                });
+
+                // Graph controls
+                document.getElementById('reset-zoom').addEventListener('click', () => {
+                    this.resetGraphZoom();
+                });
+
+                document.getElementById('center-graph').addEventListener('click', () => {
+                    this.centerGraph();
+                });
+            }
+
+            async loadInitialFormat() {
+                await this.switchFormat(this.currentFormat);
+            }
+
+            async switchFormat(version) {
+                this.currentFormat = version;
+                document.getElementById('format-badge').textContent = `Snowman ${version}`;
+                
+                try {
+                    this.showLoading('editor', 'Loading format...');
+                    this.setStatus('loading', `Loading Snowman ${version}...`);
+                    
+                    const formatUrl = `../builds/${version}/format.js`;
+                    await this.compiler.loadFormat(formatUrl);
+                    
+                    this.setStatus('success', 'Format loaded successfully');
+                    
+                    // Auto-compile if enabled
+                    if (this.autoCompile) {
+                        this.compile();
+                    }
+                } catch (error) {
+                    this.setStatus('error', `Failed to load format: ${error.message}`);
+                    this.showError(`Format loading error: ${error.message}`);
+                } finally {
+                    this.hideLoading('editor');
+                }
+            }
+
+            debounceCompile() {
+                if (this.compileTimeout) {
+                    clearTimeout(this.compileTimeout);
+                }
+                this.compileTimeout = setTimeout(() => {
+                    this.compile();
+                }, 1000); // Compile 1 second after user stops typing
+            }
+
+            async compile() {
+                const tweeSource = this.editor.getValue();
+                
+                // Enhanced validation
+                if (!tweeSource.trim()) {
+                    this.showError('No Twee source code to compile');
+                    return;
+                }
+
+                // Check if format is loaded
+                if (!this.compiler.format) {
+                    this.showError('No format loaded. Please wait for the format to load or try switching formats.');
+                    return;
+                }
+
+                try {
+                    this.showLoading('preview', 'Compiling story...');
+                    this.setStatus('loading', 'Compiling...');
+                    this.hideError();
+
+                    // Validate Twee source
+                    const validationResult = this.validateTweeSource(tweeSource);
+                    if (!validationResult.valid) {
+                        throw new Error(`Twee validation failed: ${validationResult.errors.join(', ')}`);
+                    }
+
+                    // Small delay to show loading state
+                    await new Promise(resolve => setTimeout(resolve, 100));
+
+                    const html = this.compiler.compile(tweeSource, {
+                        name: 'Live Example',
+                        startPassage: 'Start'
+                    });
+
+                    // Load compiled HTML into preview iframe
+                    const iframe = document.getElementById('preview-frame');
+                    const blob = new Blob([html], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    iframe.onload = () => {
+                        URL.revokeObjectURL(url);
+                        this.setStatus('success', 'Story compiled successfully');
+                        this.showSuccessMessage('Story compiled and loaded successfully!');
+                    };
+                    
+                    iframe.onerror = () => {
+                        URL.revokeObjectURL(url);
+                        this.setStatus('error', 'Failed to load compiled story');
+                        this.showError('Failed to load the compiled story in the preview frame');
+                    };
+                    
+                    iframe.src = url;
+
+                } catch (error) {
+                    let errorMessage = error.message;
+                    let helpText = '';
+
+                    // Provide helpful error messages
+                    if (error.message.includes('No passages found')) {
+                        helpText = 'Make sure your Twee source contains at least one passage starting with "::"';
+                    } else if (error.message.includes('Format loading')) {
+                        helpText = 'Try switching to a different Snowman version or refresh the page';
+                    } else if (error.message.includes('Twee validation')) {
+                        helpText = 'Check your passage syntax and make sure each passage starts with "::"';
+                    } else if (error.message.includes('JavaScript')) {
+                        helpText = 'Check your template tags (<% %>) for syntax errors';
+                    }
+
+                    this.setStatus('error', `Compilation failed: ${errorMessage}`);
+                    this.showError(errorMessage, helpText);
+                } finally {
+                    this.hideLoading('preview');
+                }
+            }
+
+            async loadExamples() {
+                const basicExamples = [
+                    {
+                        name: 'Basic Story',
+                        description: 'Simple story with navigation',
+                        format: 'All',
+                        file: 'basic-story.twee'
+                    },
+                    {
+                        name: 'Template Tags',
+                        description: 'JavaScript templates and variables',
+                        format: 'All', 
+                        file: 'templates.twee'
+                    },
+                    {
+                        name: 'window.story Functions',
+                        description: 'Using the core API',
+                        format: 'All',
+                        file: 'functions.twee'
+                    },
+                    {
+                        name: 'CSS Styling',
+                        description: 'Custom styles and themes',
+                        format: 'All',
+                        file: 'styling.twee'
+                    },
+                    {
+                        name: 'Utility Functions',
+                        description: 'Global utility functions (2.X only)',
+                        format: '2.X',
+                        file: 'utilities.twee'
+                    }
+                ];
+
+                // Add extended examples from external library
+                const advancedExamples = [];
+                if (typeof SnowmanExamples !== 'undefined') {
+                    // Add advanced examples
+                    Object.values(SnowmanExamples.advanced).forEach(ex => {
+                        advancedExamples.push(ex);
+                    });
+                    
+                    // Add 2.X specific examples
+                    Object.values(SnowmanExamples.version2x).forEach(ex => {
+                        advancedExamples.push(ex);
+                    });
+                }
+
+                const examples = [...basicExamples, ...advancedExamples];
+
+                const menu = document.getElementById('examples-menu');
+                menu.innerHTML = examples.map(ex => `
+                    <div class="example-item" data-example="${ex.name.toLowerCase().replace(/\s+/g, '-')}" ${ex.file ? `data-file="${ex.file}"` : ''}>
+                        <h4>${ex.name} <span class="format-badge">${ex.format}</span></h4>
+                        <p>${ex.description}</p>
+                    </div>
+                `).join('');
+
+                // Add click handlers
+                menu.querySelectorAll('.example-item').forEach(item => {
+                    item.addEventListener('click', async () => {
+                        const exampleId = item.dataset.example;
+                        const fileName = item.dataset.file;
+                        
+                        if (fileName) {
+                            // Load from Twee file
+                            try {
+                                const content = await this.loadTweeFile(fileName);
+                                const example = {
+                                    name: examples.find(ex => ex.name.toLowerCase().replace(/\s+/g, '-') === exampleId)?.name || 'Example',
+                                    content: content
+                                };
+                                this.loadExample(example);
+                            } catch (error) {
+                                console.error('Failed to load example file:', error);
+                                // Fallback to old system
+                                const example = examples.find(ex => 
+                                    ex.name.toLowerCase().replace(/\s+/g, '-') === exampleId
+                                );
+                                if (example) {
+                                    this.loadExample({
+                                        name: example.name,
+                                        content: example.content || this.getExampleContent(exampleId.replace(/-/g, ''))
+                                    });
+                                }
+                            }
+                        } else {
+                            // Load from extended examples
+                            const example = examples.find(ex => 
+                                ex.name.toLowerCase().replace(/\s+/g, '-') === exampleId
+                            );
+                            if (example) {
+                                this.loadExample(example);
+                            }
+                        }
+                        
+                        document.getElementById('examples-menu').classList.remove('show');
+                    });
+                });
+            }
+
+            loadExample(example) {
+                this.editor.setValue(example.content);
+                if (this.autoCompile) {
+                    this.compile();
+                }
+            }
+
+            async loadTweeFile(fileName) {
+                try {
+                    const response = await fetch(`twee/${fileName}`);
+                    if (!response.ok) {
+                        throw new Error(`Failed to load ${fileName}: ${response.status} ${response.statusText}`);
+                    }
+                    return await response.text();
+                } catch (error) {
+                    console.error('Error loading Twee file:', error);
+                    throw error;
+                }
+            }
+
+            getExampleContent(type) {
+                const examples = {
+                    basic: `:: Start
+# Welcome to Snowman!
+
+This is a basic example showing story navigation.
+
+[[Continue to next passage->Next]]
+
+:: Next  
+# Second Passage
+
+You've successfully navigated to the second passage!
+
+[[Go back->Start]]
+[[End the story->End]]
+
+:: End
+# The End
+
+Thanks for trying this example!
+
+[[Start over->Start]]`,
+
+                    templates: `:: Start
+# Template Tags Example
+
+<% 
+// You can execute any JavaScript here
+const playerName = "Hero";
+const score = Math.floor(Math.random() * 100);
+%>
+
+**Player:** <%= playerName %>
+**Score:** <%= score %>
+
+**Current time:** <% print(new Date().toLocaleString()); %>
+
+[[Continue->Next]]
+
+:: Next
+# Dynamic Content
+
+<% 
+const items = ["sword", "shield", "potion", "gold"];
+const randomItem = items[Math.floor(Math.random() * items.length)];
+%>
+
+You found a **<%= randomItem %>**!
+
+<% if (randomItem === "potion") { %>
+The potion glows with magical energy!
+<% } else if (randomItem === "gold") { %>
+Your purse feels heavier...
+<% } %>
+
+[[Try again->Next]]
+[[Go back->Start]]`,
+
+                    functions: `:: Start
+# window.story Functions
+
+Let's explore the Snowman API!
+
+<%
+// Display story information
+print("<p><strong>Story name:</strong> " + window.story.name + "</p>");
+print("<p><strong>Current passage:</strong> " + window.story.passage + "</p>");
+%>
+
+[[Check history->History]]
+[[Show all passages->AllPassages]]
+
+:: History
+# Navigation History
+
+<%
+print("<p><strong>History length:</strong> " + window.story.history.length + "</p>");
+print("<p><strong>Previous passages:</strong></p>");
+print("<ul>");
+window.story.history.forEach((passage, index) => {
+    print("<li>" + (index + 1) + ". " + passage + "</li>");
+});
+print("</ul>");
+%>
+
+[[Back->Start]]
+
+:: AllPassages  
+# All Available Passages
+
+<%
+print("<p>This story contains the following passages:</p>");
+print("<ul>");
+Object.keys(window.story.passages).forEach(name => {
+    print("<li>" + name + "</li>");
+});
+print("</ul>");
+%>
+
+[[Back->Start]]`,
+
+                    styling: `:: Start [styled]
+# CSS Styling Example
+
+<style>
+.highlight-box {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.info-panel {
+    background: #e8f4fd;
+    border-left: 4px solid #2196F3;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.styled-link {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    margin: 5px;
+}
+</style>
+
+<div class="highlight-box">
+    <h2>🎨 Styled Content</h2>
+    <p>This box uses custom CSS styling!</p>
+</div>
+
+<div class="info-panel">
+    <strong>Info:</strong> You can include CSS directly in your passages or use classes defined in the story stylesheet.
+</div>
+
+<a href="#" class="styled-link" onclick="window.story.show('Next')">Styled Link to Next</a>
+
+[[Traditional link->Next]]
+
+:: Next
+# More Styling
+
+<style>
+.stats-bar {
+    background: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: monospace;
+}
+
+.meter {
+    background: #ddd;
+    border-radius: 3px;
+    overflow: hidden;
+    height: 20px;
+    margin: 10px 0;
+}
+
+.meter-fill {
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    height: 100%;
+    transition: width 0.3s ease;
+}
+</style>
+
+<div class="stats-bar">
+    PLAYER STATS | HP: 85/100 | MP: 42/50 | LVL: 7
+</div>
+
+<div class="meter">
+    <div class="meter-fill" style="width: 85%"></div>
+</div>
+
+[[Back to start->Start]]`,
+
+                    utilities: `:: Start
+# Utility Functions (Snowman 2.X)
+
+This example shows utility functions available in Snowman 2.X:
+
+<%
+// Check if we're in 2.X (has utility functions)
+if (typeof either !== 'undefined') {
+    print("<p>✅ Snowman 2.X utility functions are available!</p>");
+} else {
+    print("<p>⚠️ Switch to Snowman 2.X format to see utility functions</p>");
+}
+%>
+
+[[Test either() function->Either]]
+[[Test hasVisited() function->HasVisited]]
+
+:: Either
+# either() Function
+
+<%
+if (typeof either !== 'undefined') {
+    const randomChoice = either("apple", "banana", "cherry", "date");
+    print("<p>Random fruit: <strong>" + randomChoice + "</strong></p>");
+    
+    const randomMessage = either(
+        "Great choice!",
+        "Delicious!",
+        "A healthy option!",
+        "Perfect for a snack!"
+    );
+    print("<p>" + randomMessage + "</p>");
+} else {
+    print("<p>either() function requires Snowman 2.X</p>");
+}
+%>
+
+[[Try again->Either]]
+[[Back->Start]]
+
+:: HasVisited  
+# hasVisited() Function
+
+<%
+if (typeof hasVisited !== 'undefined') {
+    print("<p><strong>Visited passages:</strong></p>");
+    print("<ul>");
+    
+    const passages = ["Start", "Either", "HasVisited"];
+    passages.forEach(passage => {
+        const visited = hasVisited(passage);
+        print("<li>" + passage + ": " + (visited ? "✅ Visited" : "❌ Not visited") + "</li>");
+    });
+    
+    print("</ul>");
+    
+    if (hasVisited("Either")) {
+        print("<p>🎉 You've already tried the either() function!</p>");
+    }
+} else {
+    print("<p>hasVisited() function requires Snowman 2.X</p>");
+}
+%>
+
+[[Back->Start]]`
+                };
+                
+                return examples[type] || examples.basic;
+            }
+
+            updateStats() {
+                const content = this.editor.getValue();
+                const passages = content.split('::').length - 1;
+                const words = content.split(/\s+/).filter(word => word.length > 0).length;
+                
+                document.getElementById('stats-text').textContent = 
+                    `${passages} passages • ${words} words`;
+            }
+
+            setStatus(type, message) {
+                const dot = document.getElementById('status-dot');
+                const text = document.getElementById('status-text');
+                
+                dot.className = `status-dot ${type === 'error' ? 'error' : type === 'loading' ? 'warning' : ''}`;
+                text.textContent = message;
+            }
+
+            showLoading(panel, message = 'Loading...') {
+                const overlay = document.getElementById(`${panel}-loading`);
+                overlay.querySelector('div').textContent = message;
+                overlay.classList.remove('hidden');
+            }
+
+            hideLoading(panel) {
+                document.getElementById(`${panel}-loading`).classList.add('hidden');
+            }
+
+            validateTweeSource(source) {
+                const errors = [];
+                const lines = source.split('\n');
+                let hasPassages = false;
+                let templateTagDepth = 0;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    const lineNum = i + 1;
+
+                    // Check for passage headers
+                    if (line.startsWith('::')) {
+                        hasPassages = true;
+                        
+                        // Validate passage header format
+                        if (!line.match(/^::\s*\w+/)) {
+                            errors.push(`Line ${lineNum}: Invalid passage header format`);
+                        }
+                    }
+
+                    // Track template tags across multiple lines
+                    const openTags = (line.match(/<%/g) || []).length;
+                    const closeTags = (line.match(/%>/g) || []).length;
+                    templateTagDepth += openTags - closeTags;
+
+                    // Check for malformed links (only complete links on single lines)
+                    const linkMatches = line.match(/\[\[[^\]]*\]\]/g);
+                    if (linkMatches) {
+                        linkMatches.forEach(link => {
+                            // Allow [[text]], [[text->target]], and incomplete links that span lines
+                            if (!link.match(/\[\[[^\]]+\]\]/) && !link.match(/\[\[[^\]]+\->[^\]]+\]\]/)) {
+                                // Only flag obviously malformed links, not incomplete ones
+                                if (link.includes('->') && !link.match(/\[\[[^\]]+\->[^\]]+\]\]/)) {
+                                    errors.push(`Line ${lineNum}: Malformed link: ${link}`);
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // Check for unclosed template tags at the end
+                if (templateTagDepth > 0) {
+                    errors.push(`Unclosed template tags detected (${templateTagDepth} unmatched opening tags)`);
+                } else if (templateTagDepth < 0) {
+                    errors.push(`Extra template tag closures detected (${Math.abs(templateTagDepth)} unmatched closing tags)`);
+                }
+
+                if (!hasPassages) {
+                    errors.push('No passages found in Twee source');
+                }
+
+                return {
+                    valid: errors.length === 0,
+                    errors: errors
+                };
+            }
+
+            showError(message, helpText = '') {
+                const errorPanel = document.getElementById('error-panel');
+                let content = `❌ ${message}`;
+                
+                if (helpText) {
+                    content += `\n\n💡 Help: ${helpText}`;
+                }
+                
+                errorPanel.textContent = content;
+                errorPanel.style.display = 'block';
+            }
+
+            showSuccessMessage(message) {
+                // Create a temporary success message
+                const successEl = document.createElement('div');
+                successEl.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #d4edda;
+                    color: #155724;
+                    border: 1px solid #c3e6cb;
+                    padding: 12px 20px;
+                    border-radius: 6px;
+                    z-index: 10000;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    font-size: 14px;
+                    font-weight: 500;
+                `;
+                successEl.textContent = `✅ ${message}`;
+                
+                document.body.appendChild(successEl);
+                
+                // Auto-remove after 3 seconds
+                setTimeout(() => {
+                    if (successEl.parentNode) {
+                        successEl.parentNode.removeChild(successEl);
+                    }
+                }, 3000);
+            }
+
+            hideError() {
+                document.getElementById('error-panel').style.display = 'none';
+            }
+
+            switchTab(tabName) {
+                // Update tab buttons
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+                // Update tab content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+
+                // If switching to graph tab, update the graph
+                if (tabName === 'graph') {
+                    this.updateStoryGraph();
+                }
+            }
+
+            updateStoryGraph() {
+                const tweeSource = this.editor.getValue();
+                const graphData = this.parseTweeToGraph(tweeSource);
+                this.renderGraph(graphData);
+            }
+
+            parseTweeToGraph(tweeSource) {
+                const passages = {};
+                const connections = [];
+                const lines = tweeSource.split('\n');
+                let currentPassage = null;
+
+                // Parse passages and their content
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    
+                    if (line.startsWith('::')) {
+                        // Extract passage name (handle tags too)
+                        const match = line.match(/^::\s*([^\s\[]+)/);
+                        if (match) {
+                            currentPassage = match[1];
+                            passages[currentPassage] = {
+                                name: currentPassage,
+                                content: '',
+                                links: [],
+                                isStart: currentPassage.toLowerCase() === 'start'
+                            };
+                        }
+                    } else if (currentPassage && line) {
+                        passages[currentPassage].content += line + '\n';
+                        
+                        // Find links in this line
+                        const linkMatches = line.match(/\[\[([^\]]+)\]\]/g);
+                        if (linkMatches) {
+                            linkMatches.forEach(link => {
+                                const linkContent = link.slice(2, -2); // Remove [[ ]]
+                                let targetPassage, displayText;
+
+                                if (linkContent.includes('->')) {
+                                    // Format: [[Display Text->Target]]
+                                    const parts = linkContent.split('->');
+                                    displayText = parts[0].trim();
+                                    targetPassage = parts[1].trim();
+                                } else if (linkContent.includes('<-')) {
+                                    // Format: [[Target<-Display Text]]
+                                    const parts = linkContent.split('<-');
+                                    targetPassage = parts[0].trim();
+                                    displayText = parts[1].trim();
+                                } else {
+                                    // Format: [[Target]]
+                                    targetPassage = linkContent.trim();
+                                    displayText = targetPassage;
+                                }
+
+                                if (targetPassage) {
+                                    passages[currentPassage].links.push({
+                                        target: targetPassage,
+                                        display: displayText
+                                    });
+                                    
+                                    connections.push({
+                                        from: currentPassage,
+                                        to: targetPassage,
+                                        label: displayText !== targetPassage ? displayText : ''
+                                    });
+                                }
+                            });
+                        }
+                    }
+                }
+
+                return { passages, connections };
+            }
+
+            renderGraph(graphData) {
+                const container = document.getElementById('story-graph');
+                container.innerHTML = '';
+
+                // Create SVG for connections
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.style.position = 'absolute';
+                svg.style.top = '0';
+                svg.style.left = '0';
+                svg.style.width = '100%';
+                svg.style.height = '100%';
+                svg.style.pointerEvents = 'none';
+                svg.style.zIndex = '1';
+
+                // Add arrow marker definition
+                const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+                marker.setAttribute('id', 'arrowhead');
+                marker.setAttribute('markerWidth', '10');
+                marker.setAttribute('markerHeight', '7');
+                marker.setAttribute('refX', '9');
+                marker.setAttribute('refY', '3.5');
+                marker.setAttribute('orient', 'auto');
+                
+                const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+                polygon.setAttribute('fill', '#667eea');
+                
+                marker.appendChild(polygon);
+                defs.appendChild(marker);
+                svg.appendChild(defs);
+                container.appendChild(svg);
+
+                const passages = Object.values(graphData.passages);
+                const nodePositions = this.calculateNodePositions(passages, graphData.connections);
+
+                // Create nodes
+                passages.forEach(passage => {
+                    const node = document.createElement('div');
+                    node.className = 'graph-node';
+                    node.textContent = passage.name;
+                    node.title = `${passage.name}\n${passage.links.length} outgoing links`;
+                    
+                    if (passage.isStart) {
+                        node.classList.add('start-passage');
+                    } else if (passage.links.length === 0) {
+                        node.classList.add('orphan-passage');
+                    }
+
+                    const pos = nodePositions[passage.name];
+                    node.style.left = pos.x + 'px';
+                    node.style.top = pos.y + 'px';
+                    
+                    container.appendChild(node);
+                });
+
+                // Draw connections after nodes are positioned
+                setTimeout(() => {
+                    this.drawConnections(svg, graphData.connections, nodePositions);
+                }, 10);
+
+                // Update stats
+                const stats = `${passages.length} passages • ${graphData.connections.length} connections`;
+                document.getElementById('graph-stats').textContent = stats;
+            }
+
+            calculateNodePositions(passages, connections) {
+                const positions = {};
+                const containerWidth = 400;
+                const containerHeight = 300;
+                const nodeWidth = 120;
+                const nodeHeight = 40;
+
+                if (passages.length === 0) return positions;
+
+                // Simple circular layout for now
+                const centerX = containerWidth / 2;
+                const centerY = containerHeight / 2;
+                const radius = Math.min(containerWidth, containerHeight) / 3;
+
+                passages.forEach((passage, index) => {
+                    const angle = (index / passages.length) * 2 * Math.PI;
+                    positions[passage.name] = {
+                        x: centerX + Math.cos(angle) * radius - nodeWidth / 2,
+                        y: centerY + Math.sin(angle) * radius - nodeHeight / 2
+                    };
+                });
+
+                return positions;
+            }
+
+            drawConnections(svg, connections, nodePositions) {
+                const nodeWidth = 120;
+                const nodeHeight = 40;
+
+                connections.forEach(conn => {
+                    const fromPos = nodePositions[conn.from];
+                    const toPos = nodePositions[conn.to];
+                    
+                    if (!fromPos || !toPos) return;
+
+                    const fromX = fromPos.x + nodeWidth / 2;
+                    const fromY = fromPos.y + nodeHeight / 2;
+                    const toX = toPos.x + nodeWidth / 2;
+                    const toY = toPos.y + nodeHeight / 2;
+
+                    // Create line
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', fromX);
+                    line.setAttribute('y1', fromY);
+                    line.setAttribute('x2', toX);
+                    line.setAttribute('y2', toY);
+                    line.setAttribute('stroke', '#667eea');
+                    line.setAttribute('stroke-width', '2');
+                    line.setAttribute('marker-end', 'url(#arrowhead)');
+                    
+                    svg.appendChild(line);
+
+                    // Add label if exists
+                    if (conn.label) {
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('x', (fromX + toX) / 2);
+                        text.setAttribute('y', (fromY + toY) / 2);
+                        text.setAttribute('font-size', '10');
+                        text.setAttribute('fill', '#495057');
+                        text.setAttribute('text-anchor', 'middle');
+                        text.setAttribute('dominant-baseline', 'middle');
+                        text.textContent = conn.label;
+                        
+                        // Add background rectangle for readability
+                        const bbox = text.getBBox();
+                        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        rect.setAttribute('x', bbox.x - 2);
+                        rect.setAttribute('y', bbox.y - 1);
+                        rect.setAttribute('width', bbox.width + 4);
+                        rect.setAttribute('height', bbox.height + 2);
+                        rect.setAttribute('fill', 'white');
+                        rect.setAttribute('stroke', '#ddd');
+                        rect.setAttribute('rx', '2');
+                        
+                        svg.appendChild(rect);
+                        svg.appendChild(text);
+                    }
+                });
+            }
+
+            resetGraphZoom() {
+                // Simple reset - just refresh the graph
+                this.updateStoryGraph();
+            }
+
+            centerGraph() {
+                // For now, same as reset
+                this.updateStoryGraph();
+            }
+        }
+
+        // Initialize the editor when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.snowmanEditor = new SnowmanLiveEditor();
+        });
+    </script>
+</body>
+</html>

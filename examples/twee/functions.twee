@@ -1,0 +1,135 @@
+:: Start
+# window.story Functions
+
+Let's explore the Snowman API!
+
+<%
+// Display story information using window.story
+print("<div style='background: #f0f8ff; padding: 15px; border-radius: 8px; margin: 10px 0;'>");
+print("<h3>📊 Story Information</h3>");
+print("<p><strong>Story name:</strong> " + window.story.name + "</p>");
+print("<p><strong>Current passage:</strong> " + window.story.passage + "</p>");
+print("<p><strong>Start passage:</strong> " + window.story.startPassage + "</p>");
+print("</div>");
+%>
+
+**Core API Functions:**
+- `window.story.show(passage)` - Navigate to a passage
+- `window.story.render(passage)` - Get HTML for a passage
+- `window.story.history` - Array of visited passages
+
+[[Check navigation history->History]]
+[[Show all passages->AllPassages]]
+[[Test window.story.show()->ShowTest]]
+
+:: History
+# Navigation History
+
+<%
+print("<div style='background: #fff3e0; padding: 15px; border-radius: 8px;'>");
+print("<h3>📜 Your Journey</h3>");
+print("<p><strong>History length:</strong> " + window.story.history.length + "</p>");
+
+if (window.story.history.length > 0) {
+    print("<p><strong>Passages visited:</strong></p>");
+    print("<ol>");
+    window.story.history.forEach((passage, index) => {
+        const isCurrentPassage = passage === window.story.passage;
+        const style = isCurrentPassage ? "font-weight: bold; color: #2196F3;" : "";
+        print("<li style='" + style + "'>" + passage + (isCurrentPassage ? " (current)" : "") + "</li>");
+    });
+    print("</ol>");
+} else {
+    print("<p><em>No history yet - this is your first passage!</em></p>");
+}
+print("</div>");
+%>
+
+**Try navigating around to build up your history!**
+
+[[Back to start->Start]]
+[[Check all passages->AllPassages]]
+
+:: AllPassages  
+# All Available Passages
+
+<%
+print("<div style='background: #e8f5e8; padding: 15px; border-radius: 8px;'>");
+print("<h3>🗂️ Story Structure</h3>");
+print("<p>This story contains <strong>" + Object.keys(window.story.passages).length + "</strong> passages:</p>");
+print("<ul>");
+
+Object.keys(window.story.passages).forEach(name => {
+    const isCurrentPassage = name === window.story.passage;
+    const isStartPassage = name === window.story.startPassage;
+    const hasVisited = window.story.history.includes(name);
+    
+    let style = "";
+    let badge = "";
+    
+    if (isCurrentPassage) {
+        style = "font-weight: bold; color: #2196F3;";
+        badge = " 👁️";
+    } else if (isStartPassage) {
+        badge = " 🏠";
+    }
+    
+    if (hasVisited && !isCurrentPassage) {
+        style = "color: #666;";
+        badge += " ✓";
+    }
+    
+    print("<li style='" + style + "'>" + name + badge + "</li>");
+});
+
+print("</ul>");
+print("<p><strong>Legend:</strong> 👁️ Current | 🏠 Start | ✓ Visited</p>");
+print("</div>");
+%>
+
+[[Back to start->Start]]
+[[Check history->History]]
+
+:: ShowTest  
+# Testing window.story.show()
+
+This passage demonstrates programmatic navigation using `window.story.show()`.
+
+<%
+print("<div style='background: #ffeaa7; padding: 15px; border-radius: 8px;'>");
+print("<h3>🔧 Programmatic Navigation</h3>");
+print("<p>You can navigate programmatically using JavaScript:</p>");
+print("<pre><code>window.story.show('PassageName');</code></pre>");
+print("</div>");
+%>
+
+**Click the button to navigate using JavaScript:**
+
+<button onclick="window.story.show('JSNavigation')" style="background: #667eea; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+Navigate with JavaScript
+</button>
+
+[[Or use a traditional link->JSNavigation]]
+[[Back to start->Start]]
+
+:: JSNavigation
+# JavaScript Navigation Success!
+
+🎉 **Success!** You navigated here using `window.story.show()`.
+
+<%
+print("<div style='background: #d4edda; padding: 15px; border-radius: 8px; border: 1px solid #c3e6cb;'>");
+print("<h3>✅ Navigation Methods Comparison</h3>");
+print("<p><strong>Traditional links:</strong> <code>[[Link Text->Target]]</code></p>");
+print("<p><strong>JavaScript navigation:</strong> <code>window.story.show('Target')</code></p>");
+print("<p><strong>Button with onclick:</strong> <code>&lt;button onclick=\"window.story.show('Target')\"&gt;</code></p>");
+print("</div>");
+%>
+
+**When to use each method:**
+- **Links**: Standard story navigation, always visible to readers
+- **JavaScript**: Dynamic navigation based on conditions, button clicks, timers
+- **Mixed**: Combine both for rich interactive experiences
+
+[[Test more functions->Start]]
+[[Back to show test->ShowTest]]

@@ -1,0 +1,216 @@
+:: Start
+# Utility Functions (Snowman 2.X)
+
+This example shows utility functions available in Snowman 2.X:
+
+<%
+// Check if we're in 2.X (has utility functions)
+if (typeof either !== 'undefined') {
+    print("<div style='background: #d4edda; padding: 15px; border-radius: 8px; border: 1px solid #c3e6cb;'>");
+    print("<h3>✅ Snowman 2.X Detected!</h3>");
+    print("<p>All utility functions are available and ready to use.</p>");
+    print("</div>");
+} else {
+    print("<div style='background: #f8d7da; padding: 15px; border-radius: 8px; border: 1px solid #f5c6cb;'>");
+    print("<h3>⚠️ Utility Functions Unavailable</h3>");
+    print("<p>Switch to Snowman 2.X format to see utility functions in action.</p>");
+    print("</div>");
+}
+%>
+
+**Available 2.X Utility Functions:**
+- `either(...)` - Random selection from arguments
+- `hasVisited(passage)` - Check if passage was visited
+- `visited(passage)` - Same as hasVisited (alias)
+- `visitedTag(tag)` - Check if any passage with tag was visited
+
+[[Test either() function->Either]]
+[[Test hasVisited() function->HasVisited]]
+[[Test visitedTag() function->VisitedTag]]
+
+:: Either
+# either() Function
+
+The `either()` function randomly selects one argument from those provided.
+
+<%
+if (typeof either !== 'undefined') {
+    print("<div style='background: #fff3e0; padding: 15px; border-radius: 8px;'>");
+    print("<h3>🎲 Random Selection Examples</h3>");
+    
+    const randomFruit = either("apple", "banana", "cherry", "date", "elderberry");
+    print("<p><strong>Random fruit:</strong> " + randomFruit + "</p>");
+    
+    const randomColor = either("red", "blue", "green", "yellow", "purple");
+    print("<p><strong>Random color:</strong> " + randomColor + "</p>");
+    
+    const randomNumber = either(1, 2, 3, 4, 5, 6);
+    print("<p><strong>Random number (1-6):</strong> " + randomNumber + "</p>");
+    
+    const randomMessage = either(
+        "Great choice!",
+        "Excellent selection!",
+        "Perfect pick!",
+        "Wonderful option!",
+        "Outstanding choice!"
+    );
+    print("<p><strong>Random encouragement:</strong> " + randomMessage + "</p>");
+    print("</div>");
+    
+    print("<div style='background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 15px;'>");
+    print("<h4>💡 Usage Examples</h4>");
+    print("<pre><code>");
+    print("// Simple random selection\n");
+    print("const weapon = either('sword', 'bow', 'staff');\n\n");
+    print("// Random weather\n");
+    print("const weather = either('sunny', 'rainy', 'cloudy', 'stormy');\n\n");
+    print("// Random encounter\n");
+    print("const enemy = either('goblin', 'orc', 'dragon', 'skeleton');");
+    print("</code></pre>");
+    print("</div>");
+} else {
+    print("<p style='color: #dc3545;'>❌ either() function requires Snowman 2.X</p>");
+}
+%>
+
+[[Try again (new random values)->Either]]
+[[Test hasVisited()->HasVisited]]
+[[Back to start->Start]]
+
+:: HasVisited
+# hasVisited() Function
+
+The `hasVisited()` function checks whether a specific passage has been visited.
+
+<%
+if (typeof hasVisited !== 'undefined') {
+    print("<div style='background: #f3e5f5; padding: 15px; border-radius: 8px;'>");
+    print("<h3>🔍 Passage Visit Tracking</h3>");
+    
+    const passagesToCheck = ["Start", "Either", "HasVisited", "VisitedTag", "NonExistent"];
+    
+    print("<table style='width: 100%; border-collapse: collapse; margin: 10px 0;'>");
+    print("<tr style='background: #e1bee7;'>");
+    print("<th style='padding: 8px; border: 1px solid #ccc;'>Passage</th>");
+    print("<th style='padding: 8px; border: 1px solid #ccc;'>Visited?</th>");
+    print("<th style='padding: 8px; border: 1px solid #ccc;'>Status</th>");
+    print("</tr>");
+    
+    passagesToCheck.forEach(passage => {
+        const visited = hasVisited(passage);
+        const statusIcon = visited ? "✅" : "❌";
+        const statusText = visited ? "Visited" : "Not visited";
+        const rowColor = visited ? "#c8e6c9" : "#ffcdd2";
+        
+        print("<tr style='background: " + rowColor + ";'>");
+        print("<td style='padding: 8px; border: 1px solid #ccc;'>" + passage + "</td>");
+        print("<td style='padding: 8px; border: 1px solid #ccc; text-align: center;'>" + statusIcon + "</td>");
+        print("<td style='padding: 8px; border: 1px solid #ccc;'>" + statusText + "</td>");
+        print("</tr>");
+    });
+    
+    print("</table>");
+    print("</div>");
+    
+    // Conditional content based on visits
+    if (hasVisited("Either")) {
+        print("<div style='background: #e8f5e8; padding: 15px; border-radius: 8px; margin-top: 15px;'>");
+        print("<h4>🎉 Welcome Back!</h4>");
+        print("<p>I see you've already tried the either() function! You're exploring the utility functions thoroughly.</p>");
+        print("</div>");
+    }
+    
+    if (hasVisited("Start") && hasVisited("Either") && hasVisited("HasVisited")) {
+        print("<div style='background: #fff8e1; padding: 15px; border-radius: 8px; margin-top: 15px;'>");
+        print("<h4>🏆 Explorer Badge</h4>");
+        print("<p>You've visited multiple example passages! You're getting the hang of this.</p>");
+        print("</div>");
+    }
+    
+    print("<div style='background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 15px;'>");
+    print("<h4>💡 Practical Uses</h4>");
+    print("<ul>");
+    print("<li><strong>Conditional content:</strong> Show different text for returning players</li>");
+    print("<li><strong>Achievement systems:</strong> Track which areas players have explored</li>");
+    print("<li><strong>Story branching:</strong> Unlock new options based on previous choices</li>");
+    print("<li><strong>Hint systems:</strong> Provide help only to new players</li>");
+    print("</ul>");
+    print("</div>");
+} else {
+    print("<p style='color: #dc3545;'>❌ hasVisited() function requires Snowman 2.X</p>");
+}
+%>
+
+[[Go to either() examples->Either]]
+[[Test visitedTag()->VisitedTag]]
+[[Back to start->Start]]
+
+:: VisitedTag [exploration]
+# visitedTag() Function
+
+The `visitedTag()` function checks if any passage with a specific tag has been visited.
+
+<%
+if (typeof visitedTag !== 'undefined') {
+    print("<div style='background: #fce4ec; padding: 15px; border-radius: 8px;'>");
+    print("<h3>🏷️ Tag-Based Visit Tracking</h3>");
+    
+    const tagsToCheck = ["exploration", "combat", "puzzle", "story", "nonexistent"];
+    
+    print("<div style='margin: 15px 0;'>");
+    print("<h4>Tag Visit Status:</h4>");
+    
+    tagsToCheck.forEach(tag => {
+        const visited = visitedTag(tag);
+        const statusIcon = visited ? "✅" : "❌";
+        const statusText = visited ? "At least one passage with this tag visited" : "No passages with this tag visited yet";
+        const statusColor = visited ? "#4caf50" : "#f44336";
+        
+        print("<div style='padding: 8px; margin: 5px 0; border-left: 4px solid " + statusColor + "; background: rgba(0,0,0,0.05);'>");
+        print("<strong>" + statusIcon + " Tag: " + tag + "</strong><br>");
+        print("<small style='color: #666;'>" + statusText + "</small>");
+        print("</div>");
+    });
+    print("</div>");
+    
+    // Show passages with tags
+    print("<div style='background: #e8f5e8; padding: 15px; border-radius: 8px; margin-top: 15px;'>");
+    print("<h4>📋 Tagged Passages in This Story</h4>");
+    print("<ul>");
+    print("<li><strong>VisitedTag</strong> - Tagged with: <code>exploration</code></li>");
+    print("<li><em>Note: This is the only tagged passage in this example</em></li>");
+    print("</ul>");
+    print("</div>");
+    
+    if (visitedTag("exploration")) {
+        print("<div style='background: #fff3e0; padding: 15px; border-radius: 8px; margin-top: 15px;'>");
+        print("<h4>🗺️ Explorer Detected!</h4>");
+        print("<p>You've visited at least one exploration-tagged passage. In a larger story, this could unlock special content, achievements, or new story branches.</p>");
+        print("</div>");
+    }
+    
+    print("<div style='background: #e3f2fd; padding: 15px; border-radius: 8px; margin-top: 15px;'>");
+    print("<h4>💡 Advanced Usage</h4>");
+    print("<pre><code>");
+    print("// Check for combat experience\n");
+    print("if (visitedTag('combat')) {\n");
+    print("    // Player has been in battle\n");
+    print("    // Maybe they can intimidate enemies now\n");
+    print("}\n\n");
+    print("// Check for puzzle-solving skills\n");
+    print("if (visitedTag('puzzle')) {\n");
+    print("    // Player has solved puzzles before\n");
+    print("    // Maybe they get hints faster\n");
+    print("}");
+    print("</code></pre>");
+    print("</div>");
+} else {
+    print("<p style='color: #dc3545;'>❌ visitedTag() function requires Snowman 2.X</p>");
+}
+%>
+
+**This passage is tagged with `exploration`!**
+
+[[Test either() function->Either]]
+[[Test hasVisited() function->HasVisited]]
+[[Back to start->Start]]

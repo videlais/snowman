@@ -1,0 +1,119 @@
+:: Start
+# Template Tags Example
+
+<% 
+// You can execute any JavaScript here
+const playerName = "Hero";
+const score = Math.floor(Math.random() * 100);
+const currentTime = new Date().toLocaleTimeString();
+%>
+
+**Welcome, <%= playerName %>!**
+
+**Your current score:** <%= score %> points
+
+**Current time:** <% print(currentTime); %>
+
+Template tags in Snowman:
+- `<% code %>` - Execute JavaScript
+- `<%= value %>` - Output a value 
+- `<%- html %>` - Output raw HTML
+
+[[Continue->Dynamic]]
+[[Learn more about templates->Templates]]
+
+:: Dynamic
+# Dynamic Content Generation
+
+<% 
+const items = ["sword", "shield", "potion", "gold", "map", "key"];
+const randomItem = items[Math.floor(Math.random() * items.length)];
+const playerClass = Math.random() > 0.5 ? "Warrior" : "Mage";
+%>
+
+**Class:** <%= playerClass %>
+
+You found a **<%= randomItem %>**!
+
+<% if (randomItem === "potion") { %>
+The potion glows with magical energy! It might restore your health.
+<% } else if (randomItem === "gold") { %>
+Your purse feels heavier... Gold is always useful!
+<% } else if (randomItem === "sword" && playerClass === "Warrior") { %>
+Perfect! This sword is ideal for a warrior like you.
+<% } else if (randomItem === "map") { %>
+This old map shows the location of a hidden treasure!
+<% } %>
+
+**Conditional logic example:**
+<% 
+if (score > 75) {
+    print("🌟 Excellent score! You're doing great!");
+} else if (score > 50) {
+    print("👍 Good score! Keep it up!");
+} else {
+    print("💪 Room for improvement - try again!");
+}
+%>
+
+[[Try again->Dynamic]]
+[[Go back->Start]]
+
+:: Templates
+# About Template Tags
+
+Template tags let you embed JavaScript directly in your passages:
+
+## Basic Syntax
+
+**Execute Code:** `<% ... %>`
+```
+<% const name = "Player"; %>
+```
+
+**Output Value:** `<%= ... %>`
+```
+<%= name %>  // Outputs: Player
+```
+
+**Print Function:** `<% print(...) %>`
+```
+<% print("Hello " + name); %>
+```
+
+## Variables and Logic
+
+<%
+// Variables persist across template tags in the same passage
+const examples = [
+    "Random numbers: " + Math.floor(Math.random() * 100),
+    "Current date: " + new Date().toDateString(),
+    "Boolean logic: " + (true && false ? "True" : "False")
+];
+%>
+
+<% for (let i = 0; i < examples.length; i++) { %>
+- <%= examples[i] %>
+<% } %>
+
+## Advanced Example
+
+<%
+function generateStatus() {
+    const statuses = ["Healthy", "Tired", "Excited", "Focused"];
+    return statuses[Math.floor(Math.random() * statuses.length)];
+}
+
+const player = {
+    name: "Adventure Seeker",
+    level: Math.ceil(Math.random() * 10),
+    status: generateStatus()
+};
+%>
+
+**Character Sheet:**
+- Name: <%= player.name %>
+- Level: <%= player.level %>
+- Status: <%= player.status %>
+
+[[Back to examples->Start]]

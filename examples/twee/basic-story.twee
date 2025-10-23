@@ -1,0 +1,47 @@
+:: Start
+# Welcome to Snowman!
+
+This is a basic example showing story navigation.
+
+**Click the link below to continue to the next passage:**
+
+[[Continue to next passage->Next]]
+
+:: Next  
+# Second Passage
+
+You've successfully navigated to the second passage!
+
+**Navigation options:**
+- Go back to the beginning
+- Continue to the ending
+- Learn more about Snowman
+
+[[Go back->Start]]
+[[End the story->End]]
+[[Learn about Snowman->About]]
+
+:: End
+# The End
+
+Thanks for trying this basic example!
+
+This example demonstrates:
+- Simple passage creation with `::`
+- Link syntax using `[[text->target]]`
+- Basic story navigation
+
+[[Start over->Start]]
+
+:: About
+# About Snowman
+
+Snowman is a minimal story format for Twine 2 that gives you:
+
+- **Simple syntax**: Write stories in Twee format
+- **JavaScript power**: Use `<% %>` template tags for logic
+- **Flexible styling**: Full control over HTML and CSS
+- **Lightweight**: Small runtime for fast loading
+
+[[Back to story->Next]]
+[[Start over->Start]]

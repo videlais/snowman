@@ -1,0 +1,100 @@
+:: Start
+# Welcome to Snowman 1.X!
+
+This is a simple interactive example demonstrating basic Snowman functionality.
+
+**Current passage:** <%= window.story.passage %>
+
+[[Explore template tags->Templates]]
+[[Learn about functions->Functions]]
+[[See some styling->Styling]]
+
+:: Templates
+# Template Tags Example
+
+Snowman uses template tags `<% %>` for JavaScript execution:
+
+**Random number:** <% print(Math.floor(Math.random() * 100)); %>
+
+**Current time:** <% print(new Date().toLocaleTimeString()); %>
+
+You can also use variables:
+<%
+  const username = "Storyteller";
+  const score = 42;
+%>
+
+**Player:** <%= username %>
+**Score:** <%= score %>
+
+[[Try again (refresh)->Templates]]
+[[Back to start->Start]]
+
+:: Functions
+# window.story Functions
+
+Here are some core Snowman 1.X functions in action:
+
+<% 
+  // Show current story state
+  print("<p><strong>Story name:</strong> " + window.story.name + "</p>");
+  print("<p><strong>Current passage:</strong> " + window.story.passage + "</p>");
+  print("<p><strong>History length:</strong> " + window.story.history.length + "</p>");
+%>
+
+**Available passages:** 
+<%
+  const passages = Object.keys(window.story.passages);
+  print("<ul>");
+  passages.forEach(function(name) {
+    print("<li>" + name + "</li>");
+  });
+  print("</ul>");
+%>
+
+[[See passage content->PassageContent]]
+[[Back to start->Start]]
+
+:: PassageContent
+# Exploring Passage Content
+
+Let's look at the raw content of some passages:
+
+<%
+  print("<h4>Content of 'Start' passage:</h4>");
+  print("<pre>" + window.story.passages.Start.replace(/</g, '&lt;').replace(/>/g, '&gt;') + "</pre>");
+%>
+
+[[Back to functions->Functions]]
+[[Back to start->Start]]
+
+:: Styling
+# CSS and Styling
+
+Snowman stories can be styled with CSS:
+
+<div style="background: linear-gradient(45deg, #3498db, #2ecc71); color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+  <h3 style="margin: 0 0 10px 0;">✨ Styled Content Box ✨</h3>
+  <p style="margin: 0;">This demonstrates inline CSS styling in Snowman stories.</p>
+</div>
+
+<style>
+.custom-box {
+  border: 2px solid #e74c3c;
+  background-color: #fff5f5;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 15px 0;
+}
+.highlight {
+  background-color: #f1c40f;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+</style>
+
+<div class="custom-box">
+  This box uses a <span class="highlight">custom CSS class</span> defined above!
+</div>
+
+[[Back to start->Start]]

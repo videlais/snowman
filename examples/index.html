@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snowman Interactive Examples</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0 0 10px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .live-editor-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            font-size: 1.2em;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .live-editor-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .feature {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .feature p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .legacy-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+        }
+
+        .legacy-note h4 {
+            margin: 0 0 8px 0;
+            font-size: 1em;
+        }
+
+        .legacy-note p {
+            margin: 0;
+            font-size: 0.9em;
+        }
+
+        .legacy-links {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .legacy-link {
+            color: #856404;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 5px 10px;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            font-size: 0.8em;
+            transition: background-color 0.2s ease;
+        }
+
+        .legacy-link:hover {
+            background-color: #ffeaa7;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .live-editor-btn {
+                padding: 15px 30px;
+                font-size: 1.1em;
+            }
+
+            .legacy-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Snowman Interactive Examples</h1>
+            <p>Learn Snowman with hands-on, editable examples</p>
+        </div>
+
+        <a href="live-editor.html" class="live-editor-btn">
+            🚀 Launch Live Editor
+        </a>
+
+        <div class="features">
+            <div class="feature">
+                <h3>📝 Live Code Editor</h3>
+                <p>Write and edit Twee source code with syntax highlighting and real-time feedback.</p>
+            </div>
+            <div class="feature">
+                <h3>⚡ Instant Compilation</h3>
+                <p>See your changes immediately with live compilation using actual Snowman format files.</p>
+            </div>
+            <div class="feature">
+                <h3>📚 Rich Examples</h3>
+                <p>Choose from basic to advanced examples covering all Snowman features and versions.</p>
+            </div>
+            <div class="feature">
+                <h3>📊 Story Graph</h3>
+                <p>Visualize your story structure with an interactive graph showing passage connections.</p>
+            </div>
+        </div>
+
+        <div class="legacy-note">
+            <h4>📁 Looking for individual example files?</h4>
+            <p>The new live editor provides all examples in an interactive format. For reference, legacy HTML examples are still available:</p>
+            <div class="legacy-links">
+                <a href="legacy/" class="legacy-link">Legacy Examples</a>
+                <a href="../1/" class="legacy-link">Snowman 1.X Docs</a>
+                <a href="../2/" class="legacy-link">Snowman 2.X Docs</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-redirect to live editor after 5 seconds if no interaction
+        let redirectTimer = setTimeout(() => {
+            window.location.href = 'live-editor.html';
+        }, 8000);
+
+        // Cancel redirect if user interacts
+        document.addEventListener('click', () => {
+            clearTimeout(redirectTimer);
+        });
+
+        document.addEventListener('keydown', () => {
+            clearTimeout(redirectTimer);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Snowman Examples loaded - redirecting to live editor in 8 seconds...');
+        });
+    </script>
+</body>
+</html>
