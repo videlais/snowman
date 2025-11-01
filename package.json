@@ -47,7 +47,7 @@
     "underscore": "^1.13.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.4",
+    "@babel/core": "^7.28.5",
     "@babel/preset-env": "^7.28.3",
     "@eslint/js": "^9.37.0",
     "@tabler/icons": "^3.19.0",
