@@ -48,7 +48,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.28.4",
-    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-env": "^7.28.5",
     "@eslint/js": "^9.37.0",
     "@tabler/icons": "^3.19.0",
     "babel-jest": "^30.2.0",
