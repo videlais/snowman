@@ -1,4 +1,4 @@
-# Snowman 2.1.0
+# Snowman
 
 [![CI](https://github.com/videlais/snowman/actions/workflows/ci.yml/badge.svg?branch=2.X)](https://github.com/videlais/snowman/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/videlais/snowman/branch/2.X/graph/badge.svg)](https://codecov.io/gh/videlais/snowman)
