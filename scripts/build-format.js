@@ -23,6 +23,19 @@ formatData.version = packageData.version;
 formatData.source = htmlTemplate;
 
 // Step 5: Write the final format JavaScript file to the `dist` directory.
-writeFileSync('dist/format.js', `window.storyFormat(${JSON.stringify(formatData, null, 2)});`, { encoding: 'utf8' });
+// Use a custom JSON.stringify to prevent HTML entity encoding.
+// Double-check all encodings to prevent the issue of 
+//  "!= " becoming &ne; and && to become &amp;&amp;.
+// First apply the HTML entity decoding to the source before JSON.stringify
+formatData.source = formatData.source
+  .replaceAll('&amp;', '&')
+  .replaceAll('&lt;', '<') 
+  .replaceAll('&gt;', '>')
+  .replaceAll('&quot;', '"')
+  .replaceAll('&#x27;', "'");
+
+// Now JSON.stringify should work correctly
+const formatJSON = JSON.stringify(formatData, null, 2);
+writeFileSync('dist/format.js', `window.storyFormat(${formatJSON});`, { encoding: 'utf8' });
 // Also copy the icon file to the dist directory
 cp('lib/src/icon.svg', 'dist/icon.svg');

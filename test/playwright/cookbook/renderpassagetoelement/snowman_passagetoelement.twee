@@ -1,0 +1,21 @@
+:: StoryTitle
+Snowman: Render to Element
+
+:: StoryData
+{
+  "ifid": "123E4567-E89B-12D3-A456-426614174000",
+  "format": "Snowman",
+  "format-version": "2.1.2"
+}
+
+:: Start
+<div id="hudID"></div>
+<script>
+$(document).one('sm.passage.shown', function (ev) {
+	// Render the passage named HUD into the element with id of "hudID"
+		renderToSelector("#hudID", "HUD");
+	});
+</script>
+
+:: HUD
+<h1>This is the HUD!</h1>
