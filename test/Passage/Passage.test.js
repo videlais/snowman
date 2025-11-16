@@ -591,4 +591,58 @@ describe('Passage', () => {
             expect(window.story.state.restoredCharacter.getStat('wisdom')).toBe(12);
         });
     });
+
+    describe('Step 5: Template with shorthand attributes', () => {
+        beforeEach(() => {
+            // Set up test data for template rendering
+            window.story.state = { foo: 'bar', testVar: 'testValue' };
+        });
+
+        it('should process templates in plain text first', () => {
+            // Verify that templates work at all
+            const passage = new Passage(1, 'Test', [], 'Value: <%= s.foo %>');
+            const html = passage.render();
+            expect(html).toContain('Value: bar');
+        });
+
+        it('should process shorthand attributes after template rendering (covers Step 5)', () => {
+            // This test covers lines 172-211 - the Step 5 path that only runs when templates are present
+            // When a passage has <%= %> templates, Step 5 processes HTML shorthand attributes AFTER template rendering
+            const passage = new Passage(1, 'Test', [], '<div#resultDiv.highlight><%= s.foo %></div>');
+            const html = passage.render();
+            
+            // Should have processed both the template AND the shorthand attributes
+            expect(html).toContain('bar'); // Template was processed
+            expect(html).toContain('id="resultDiv"'); // Shorthand id was processed
+            expect(html).toContain('class="highlight"'); // Shorthand class was processed
+        });
+
+        it('should handle mixed standard and shorthand attributes with templates', () => {
+            // Cover Step 5 with mixed attribute types
+            const passage = new Passage(1, 'Test', [], '<span data-value="test" .myClass><%= s.foo %></span>');
+            const html = passage.render();
+            
+            expect(html).toContain('bar'); // Template processed
+            expect(html).toContain('data-value="test"'); // Standard attribute preserved
+            expect(html).toContain('class="myClass"'); // Shorthand processed
+        });
+
+        it('should skip Step 5 when no templates are present', () => {
+            // This ensures Step 5 is skipped for passages without templates
+            // to prevent corrupting markdown-generated HTML (the bug we fixed)
+            const passage = new Passage(1, 'Test', [], `
+# Heading
+
+\`\`\`
+code block
+\`\`\`
+            `);
+            const html = passage.render();
+            
+            // Should render markdown correctly without Step 5 interference
+            expect(html).toContain('<h1>Heading</h1>');
+            expect(html).toContain('<pre><code>');
+            expect(html).toContain('code block');
+        });
+    });
 });
