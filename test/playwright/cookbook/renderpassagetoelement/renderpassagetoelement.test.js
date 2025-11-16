@@ -72,4 +72,28 @@ test.describe('renderpassagetoelement Example', () => {
     
     expect(pageErrors).toHaveLength(0);
   });
+  
+  test('should render HUD passage to custom element', async ({ page }) => {
+    const { consoleErrors, pageErrors } = setupErrorTracking(page);
+    
+    await page.goto(`file://${compiledHtmlPath}`);
+    await page.waitForSelector('tw-passage', { timeout: 5000 });
+    
+    // Wait for the HUD to be rendered into the custom element
+    await page.waitForSelector('tw-passage #hudID h1', { timeout: 5000 });
+    
+    logErrors(consoleErrors, pageErrors);
+    
+    // Verify the HUD element exists in the passage (not in tw-storydata)
+    const hudElement = page.locator('tw-passage #hudID');
+    await expect(hudElement).toBeVisible();
+    
+    // Verify the HUD content is rendered correctly
+    const hudHeading = hudElement.locator('h1');
+    await expect(hudHeading).toBeVisible();
+    await expect(hudHeading).toHaveText('This is the HUD!');
+    
+    expect(pageErrors).toHaveLength(0);
+    expect(consoleErrors).toHaveLength(0);
+  });
 });
