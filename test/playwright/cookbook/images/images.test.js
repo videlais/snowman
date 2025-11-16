@@ -65,7 +65,7 @@ test.describe('Images Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const imgElement = page.locator('img');
+    const imgElement = page.locator('tw-passage img').first();
     await expect(imgElement).toBeVisible();
     
     logErrors(consoleErrors, pageErrors);
@@ -78,7 +78,7 @@ test.describe('Images Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const imgElement = page.locator('img');
+    const imgElement = page.locator('tw-passage img').first();
     
     // Check src attribute
     const src = await imgElement.getAttribute('src');
@@ -98,7 +98,7 @@ test.describe('Images Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const base64Div = page.locator('.base64image');
+    const base64Div = page.locator('tw-passage .base64image').first();
     await expect(base64Div).toBeVisible();
     
     // Check that it has background-image style
@@ -118,7 +118,7 @@ test.describe('Images Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const base64Div = page.locator('.base64image');
+    const base64Div = page.locator('tw-passage .base64image').first();
     
     const width = await base64Div.evaluate(el => {
       return window.getComputedStyle(el).width;
@@ -145,8 +145,8 @@ test.describe('Images Example', () => {
     
     await expect(page.locator('tw-storydata')).toBeAttached();
     await expect(page.locator('tw-passage')).toBeVisible();
-    await expect(page.locator('img')).toBeAttached();
-    await expect(page.locator('.base64image')).toBeAttached();
+    await expect(page.locator('tw-passage img')).toBeAttached();
+    await expect(page.locator('tw-passage .base64image')).toBeAttached();
     
     expect(pageErrors).toHaveLength(0);
   });

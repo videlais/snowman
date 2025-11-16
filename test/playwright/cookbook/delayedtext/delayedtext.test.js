@@ -65,7 +65,7 @@ test.describe('Delayed Text Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('#results', { state: 'attached', timeout: 5000 });
     
-    const resultsDiv = page.locator('#results');
+    const resultsDiv = page.locator('tw-passage #results').first();
     await expect(resultsDiv).toBeEmpty();
     
     logErrors(consoleErrors, pageErrors);
@@ -79,7 +79,7 @@ test.describe('Delayed Text Example', () => {
     await page.waitForSelector('#results', { state: 'attached', timeout: 5000 });
     
     // Wait for the delayed text to appear (5 seconds + buffer)
-    const resultsDiv = page.locator('#results');
+    const resultsDiv = page.locator('tw-passage #results').first();
     await expect(resultsDiv).toHaveText('It has been 5 seconds. Show the text!', { timeout: 6000 });
     
     logErrors(consoleErrors, pageErrors);
@@ -96,7 +96,7 @@ test.describe('Delayed Text Example', () => {
     
     await expect(page.locator('tw-storydata')).toBeAttached();
     await expect(page.locator('tw-passage')).toBeAttached();
-    await expect(page.locator('#results')).toBeAttached();
+    await expect(page.locator('tw-passage #results')).toBeAttached();
     
     expect(pageErrors).toHaveLength(0);
   });

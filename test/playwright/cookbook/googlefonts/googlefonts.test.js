@@ -65,7 +65,7 @@ test.describe('Google Fonts Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const messageDiv = page.locator('.message');
+    const messageDiv = page.locator('tw-passage .message').first();
     await expect(messageDiv).toBeVisible();
     await expect(messageDiv).toHaveText('This text is styled using a Google Font');
     
@@ -79,7 +79,7 @@ test.describe('Google Fonts Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const fontFamily = await page.locator('.message').evaluate(el => {
+    const fontFamily = await page.locator('tw-passage .message').first().evaluate(el => {
       return window.getComputedStyle(el).fontFamily;
     });
     
@@ -128,7 +128,7 @@ test.describe('Google Fonts Example', () => {
     
     await expect(page.locator('tw-storydata')).toBeAttached();
     await expect(page.locator('tw-passage')).toBeVisible();
-    await expect(page.locator('.message')).toBeAttached();
+    await expect(page.locator('tw-passage .message')).toBeAttached();
     
     expect(pageErrors).toHaveLength(0);
   });

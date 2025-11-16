@@ -66,9 +66,9 @@ test.describe('Hidden Link Example', () => {
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
     // There are 3 .hidden elements: one always-hidden, and two that get .hidden class added by JavaScript
-    await expect(page.locator('.hidden')).toHaveCount(3);
-    await expect(page.locator('.hides')).toHaveCount(1);
-    await expect(page.locator('.reveals')).toHaveCount(1);
+    await expect(page.locator('tw-passage .hidden')).toHaveCount(3);
+    await expect(page.locator('tw-passage .hides')).toHaveCount(1);
+    await expect(page.locator('tw-passage .reveals')).toHaveCount(1);
     
     logErrors(consoleErrors, pageErrors);
     expect(pageErrors).toHaveLength(0);
@@ -80,7 +80,7 @@ test.describe('Hidden Link Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const linkColor = await page.locator('.hidden a').evaluate(el => {
+    const linkColor = await page.locator('tw-passage .hidden a').first().evaluate(el => {
       return window.getComputedStyle(el).color;
     });
     
@@ -97,7 +97,7 @@ test.describe('Hidden Link Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const hidesSpan = page.locator('.hides');
+    const hidesSpan = page.locator('tw-passage .hides').first();
     
     // Initially should have 'hidden' class
     await expect(hidesSpan).toHaveClass(/hidden/);
@@ -118,7 +118,7 @@ test.describe('Hidden Link Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const revealsSpan = page.locator('.reveals');
+    const revealsSpan = page.locator('tw-passage .reveals').first();
     
     // Initially should have 'hidden' class
     await expect(revealsSpan).toHaveClass(/hidden/);
@@ -146,7 +146,7 @@ test.describe('Hidden Link Example', () => {
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
     // Reveal the "reveals" link first
-    const revealsSpan = page.locator('.reveals');
+    const revealsSpan = page.locator('tw-passage .reveals').first();
     await revealsSpan.hover();
     
     // Click the link inside

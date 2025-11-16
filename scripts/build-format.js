@@ -35,24 +35,15 @@ const htmlTemplate = render(ejsTemplate, {script: PLACEHOLDER});
 const escapedBundledJS = bundledJS.replace(/\$/g, '$$$$'); // Replace $ with $$
 
 // CRITICAL FIX for GitHub issue #1112:
-// Escape HTML entities that would be decoded by the browser's HTML parser.
-// When JavaScript is embedded in <script> tags, the browser's HTML parser runs FIRST  
-// and decodes entities like &amp; to &, breaking JavaScript string literals.
-// For example, the Underscore.js code: {"&":"&amp;"} would become {"&":"&"}
-// causing a syntax error (duplicate key).
+// JavaScript embedded in <script> tags doesn't need HTML entity escaping.
+// The browser's HTML parser will not decode entities inside <script> tags
+// when the script contains actual JavaScript code (not HTML).
+// 
+// The bundled JavaScript from webpack is already properly escaped for JavaScript.
+// Adding HTML entity escaping would corrupt the JavaScript syntax.
 //
-// Solution: Only escape HTML entity patterns (like &amp;, &lt;, etc.) by replacing
-// them with their HTML numeric entity equivalents, which browsers decode correctly
-// but don't conflict with JavaScript syntax.
-const htmlSafeJS = escapedBundledJS
-  .replace(/&amp;/g, '&#38;amp;')   // &amp; -> &#38;amp; (&#38; = &)
-  .replace(/&lt;/g, '&#38;lt;')      // &lt; -> &#38;lt;
-  .replace(/&gt;/g, '&#38;gt;')      // &gt; -> &#38;gt;
-  .replace(/&quot;/g, '&#38;quot;')  // &quot; -> &#38;quot;
-  .replace(/&#x27;/g, '&#38;#x27;'); // &#x27; -> &#38;#x27;
-
-// Use replaceAll with the escaped bundledJS
-const finalHTML = htmlTemplate.replaceAll(PLACEHOLDER, htmlSafeJS);
+// Use the $ escaped version directly without additional HTML escaping
+const finalHTML = htmlTemplate.replaceAll(PLACEHOLDER, escapedBundledJS);
 
 // Step 2: Create the format data object with metadata from `format.json` and the generated source.
 const formatData = JSON.parse(readFileSync('format.json', { encoding: 'utf8' }));

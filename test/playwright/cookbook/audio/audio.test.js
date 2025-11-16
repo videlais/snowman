@@ -81,8 +81,8 @@ test.describe('Audio Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    // Verify audio element exists
-    const audioElement = page.locator('audio');
+    // Verify audio element exists in tw-passage (visible one)
+    const audioElement = page.locator('tw-passage audio').first();
     await expect(audioElement).toBeAttached();
     
     // Verify audio has controls attribute
@@ -98,12 +98,12 @@ test.describe('Audio Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    // Verify audio element exists
-    const audioElement = page.locator('audio');
+    // Verify audio element exists in tw-passage
+    const audioElement = page.locator('tw-passage audio').first();
     await expect(audioElement).toBeAttached();
     
     // Verify source elements exist
-    const sources = page.locator('audio source');
+    const sources = page.locator('tw-passage audio source');
     const sourceCount = await sources.count();
     expect(sourceCount, 'Should have multiple audio source elements').toBeGreaterThanOrEqual(1);
     
@@ -117,8 +117,8 @@ test.describe('Audio Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    // Get all source elements
-    const sources = page.locator('audio source');
+    // Get all source elements from tw-passage
+    const sources = page.locator('tw-passage audio source');
     const sourceCount = await sources.count();
     
     // Verify each source has src and type attributes

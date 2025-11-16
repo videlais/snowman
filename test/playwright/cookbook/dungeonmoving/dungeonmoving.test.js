@@ -66,13 +66,13 @@ test.describe('Dungeon Moving Example', () => {
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
     // Check for maze div
-    await expect(page.locator('.maze')).toBeVisible();
+    await expect(page.locator('tw-passage .maze').first()).toBeVisible();
     
     // Check for movement buttons
-    await expect(page.locator('button[data-move="n"]')).toBeVisible();
-    await expect(page.locator('button[data-move="s"]')).toBeVisible();
-    await expect(page.locator('button[data-move="e"]')).toBeVisible();
-    await expect(page.locator('button[data-move="w"]')).toBeVisible();
+    await expect(page.locator('tw-passage button[data-move="n"]').first()).toBeVisible();
+    await expect(page.locator('tw-passage button[data-move="s"]').first()).toBeVisible();
+    await expect(page.locator('tw-passage button[data-move="e"]').first()).toBeVisible();
+    await expect(page.locator('tw-passage button[data-move="w"]').first()).toBeVisible();
     
     logErrors(consoleErrors, pageErrors);
     expect(pageErrors).toHaveLength(0);
@@ -104,8 +104,8 @@ test.describe('Dungeon Moving Example', () => {
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
     // At starting position (1,1), north and west should be disabled (walls)
-    const northButton = page.locator('button[data-move="n"]');
-    const westButton = page.locator('button[data-move="w"]');
+    const northButton = page.locator('tw-passage button[data-move="n"]').first();
+    const westButton = page.locator('tw-passage button[data-move="w"]').first();
     
     await expect(northButton).toBeDisabled();
     await expect(westButton).toBeDisabled();
@@ -120,16 +120,16 @@ test.describe('Dungeon Moving Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const initialMaze = await page.textContent('.maze');
+    const initialMaze = await page.textContent('tw-passage .maze');
     
-    // Click south button to move down
-    const southButton = page.locator('button[data-move="s"]');
-    await southButton.click();
+    // Click east button to move right (should be enabled from starting position)
+    const eastButton = page.locator('tw-passage button[data-move="e"]').first();
+    await eastButton.click();
     
     // Wait a moment for update
     await page.waitForTimeout(100);
     
-    const updatedMaze = await page.textContent('.maze');
+    const updatedMaze = await page.textContent('tw-passage .maze');
     
     // Maze should have changed (player moved)
     expect(updatedMaze).not.toEqual(initialMaze);
@@ -167,7 +167,7 @@ test.describe('Dungeon Moving Example', () => {
     
     await expect(page.locator('tw-storydata')).toBeAttached();
     await expect(page.locator('tw-passage')).toBeVisible();
-    await expect(page.locator('.maze')).toBeAttached();
+    await expect(page.locator('tw-passage .maze')).toBeAttached();
     
     expect(pageErrors).toHaveLength(0);
   });

@@ -1,0 +1,37 @@
+::StoryData
+{
+	"ifid":"A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D"
+}
+
+:: StoryTitle
+Extwee Quote Test
+
+:: Start
+<div id="test1" data-json='["One", "Two", "Three"]'>Test 1: Double quotes in single-quoted attribute</div>
+
+<div id="test2" data-json="['One', 'Two', 'Three']">Test 2: Single quotes in double-quoted attribute</div>
+
+<div id="test3" data-json='[&quot;One&quot;, &quot;Two&quot;, &quot;Three&quot;]'>Test 3: HTML entities in single-quoted attribute</div>
+
+<div id="test4" data-json="[&quot;One&quot;, &quot;Two&quot;, &quot;Three&quot;]">Test 4: HTML entities in double-quoted attribute</div>
+
+<script>
+// Test parsing each version
+$(function() {
+	console.log("=== EXTWEE QUOTE ENCODING TEST ===");
+	
+	for (let i = 1; i <= 4; i++) {
+		const elem = $('#test' + i);
+		const attrValue = elem.attr('data-json');
+		console.log(`Test ${i} raw attribute value:`, attrValue);
+		
+		try {
+			const parsed = JSON.parse(attrValue);
+			console.log(`Test ${i} parsed successfully:`, parsed);
+		} catch (e) {
+			console.error(`Test ${i} FAILED to parse:`, e.message);
+		}
+		console.log('---');
+	}
+});
+</script>

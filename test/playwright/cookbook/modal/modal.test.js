@@ -65,7 +65,7 @@ test.describe('Modal Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const modal = page.locator('#myModal');
+    const modal = page.locator('tw-passage #myModal');
     await expect(modal).not.toBeVisible();
     
     logErrors(consoleErrors, pageErrors);
@@ -78,7 +78,7 @@ test.describe('Modal Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const button = page.locator('#myBtn');
+    const button = page.locator('tw-passage #myBtn');
     await expect(button).toBeVisible();
     await expect(button).toHaveText('Open Modal');
     
@@ -92,8 +92,8 @@ test.describe('Modal Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const modal = page.locator('#myModal');
-    const button = page.locator('#myBtn');
+    const modal = page.locator('tw-passage #myModal');
+    const button = page.locator('tw-passage #myBtn');
     
     // Initially hidden
     await expect(modal).not.toBeVisible();
@@ -114,9 +114,9 @@ test.describe('Modal Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const modal = page.locator('#myModal');
-    const button = page.locator('#myBtn');
-    const closeButton = page.locator('.close');
+    const modal = page.locator('tw-passage #myModal');
+    const button = page.locator('tw-passage #myBtn');
+    const closeButton = page.locator('tw-passage .close');
     
     // Open modal
     await button.click();
@@ -136,7 +136,7 @@ test.describe('Modal Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const button = page.locator('#myBtn');
+    const button = page.locator('tw-passage #myBtn');
     
     // Open modal
     await button.click();
@@ -158,8 +158,8 @@ test.describe('Modal Example', () => {
     
     await expect(page.locator('tw-storydata')).toBeAttached();
     await expect(page.locator('tw-passage')).toBeVisible();
-    await expect(page.locator('#myBtn')).toBeAttached();
-    await expect(page.locator('#myModal')).toBeAttached();
+    await expect(page.locator('tw-passage #myBtn')).toBeAttached();
+    await expect(page.locator('tw-passage #myModal')).toBeAttached();
     
     expect(pageErrors).toHaveLength(0);
   });

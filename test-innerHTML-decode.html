@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Entity Decoding Test</title>
+</head>
+<body>
+    <h1>HTML Entity Decoding Test</h1>
+    
+    <div id="test1"><a data-json='[&#34;One&#34;, &#34;Two&#34;]'>Test 1</a></div>
+    
+    <script>
+        const elem = document.getElementById('test1');
+        console.log("=== HTML Entity Decoding Test ===");
+        console.log("innerHTML:", elem.innerHTML);
+        console.log("getAttribute on the <a>:", elem.querySelector('a').getAttribute('data-json'));
+    </script>
+</body>
+</html>

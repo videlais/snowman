@@ -1,9 +1,5 @@
 # Page snapshot
 
 ```yaml
-- generic [ref=e3]:
-  - link "One" [ref=e4] [cursor=pointer]:
-    - /url: javascript:void(0)
-  - link "Results" [ref=e5] [cursor=pointer]:
-    - /url: javascript:void(0)
+- generic [ref=e2]: "In Browser: SyntaxError: Unexpected end of JSON input"
 ```

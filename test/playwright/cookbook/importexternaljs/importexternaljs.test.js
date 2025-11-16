@@ -65,7 +65,7 @@ test.describe('Import External JavaScript Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const box = page.locator('#box');
+    const box = page.locator('tw-passage #box');
     await expect(box).toBeVisible();
     
     logErrors(consoleErrors, pageErrors);
@@ -77,21 +77,21 @@ test.describe('Import External JavaScript Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const box = page.locator('#box');
+    const box = page.locator('tw-passage #box');
     
     const styles = await box.evaluate(el => {
       const computed = window.getComputedStyle(el);
       return {
         width: computed.width,
         height: computed.height,
-        background: computed.backgroundColor
+        backgroundColor: computed.backgroundColor
       };
     });
-    
+
     expect(styles.width).toBe('100px');
     expect(styles.height).toBe('100px');
     // Background should be grey (#ccc)
-    expect(styles.background).toMatch(/rgb\(204,\s*204,\s*204\)/);
+    expect(styles.backgroundColor).toMatch(/rgb\(204,\s*204,\s*204\)/);
     
     logErrors(consoleErrors, pageErrors);
   });
@@ -118,6 +118,6 @@ test.describe('Import External JavaScript Example', () => {
     
     await expect(page.locator('tw-storydata')).toBeAttached();
     await expect(page.locator('tw-passage')).toBeVisible();
-    await expect(page.locator('#box')).toBeAttached();
+    await expect(page.locator('tw-passage #box')).toBeAttached();
   });
 });

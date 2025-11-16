@@ -5,9 +5,9 @@
   "license": "MIT",
   "repository": "https://github.com/videlais/snowman/",
   "scripts": {
-    "test": "jest test/**/*.test.js test/*.test.js --coverage --testPathIgnorePatterns='test/integration/html-comparison.test.js|test/integration/complete-html-comparison.test.js|test/integration/reference-comparison.test.js|test/integration/cookbook-examples.test.js'",
+    "test": "jest --config jest.config.cjs",
     "test:html": "jest --config jest.config.extended.cjs",
-    "test:playwright": "playwright test test/playwright/cookbook/**/*.test.js",
+    "test:playwright": "playwright test test/playwright/cookbook/**/*.test.js --reporter=list",
     "test:playwright:all": "playwright test test/playwright/cookbook/**/*.test.js --project=chromium --project=firefox --project=webkit --project='Mobile Chrome' --project='Mobile Safari'",
     "test:full": "npm run test && npm run test:html && npm run test:playwright",
     "compare": "node scripts/compare-html.js",
@@ -31,6 +31,7 @@
     "jsdom": "^27.2.0",
     "lz-string": "^1.5.0",
     "markdown-it": "^14.1.0",
+    "marked": "^17.0.0",
     "underscore": "^1.13.7"
   },
   "devDependencies": {
@@ -41,6 +42,7 @@
     "@eslint/json": "^0.14.0",
     "@playwright/test": "^1.56.1",
     "babel-loader": "^10.0.0",
+    "babel-plugin-transform-import-meta": "^2.3.3",
     "css-loader": "^7.1.2",
     "diff": "^8.0.2",
     "ejs": "^3.1.10",

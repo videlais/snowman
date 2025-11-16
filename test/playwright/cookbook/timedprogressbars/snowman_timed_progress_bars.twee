@@ -39,18 +39,16 @@ setup.timedprogressbars = function(duration, width, functionToRun) {
 		// Create an inner ID
 		var innerId = "inner_" + hash;
 		
-		// Create an outer div, 
-		// add an ID,
-		// add a class,
-		// change the CSS width, and
-		// append to the output
-		var progressbar = $("<div>")
-		.attr("id", outerId)
-		.addClass("progress-bar")
-		.css('width', width)
-		.appendTo("#passage");
-		
-		// Create an inner div, 
+	// Create an outer div, 
+	// add an ID,
+	// add a class,
+	// change the CSS width, and
+	// append to the output
+	var progressbar = $("<div>")
+	.attr("id", outerId)
+	.addClass("progress-bar")
+	.css('width', width)
+	.appendTo($("tw-passage"));		// Create an inner div, 
 		// add an ID,
 		// add a class,
 		// change the CSS width, and
@@ -67,8 +65,8 @@ setup.timedprogressbars = function(duration, width, functionToRun) {
 			return (res.length === 1 ? "0" + res : res);
 		};
 		
-		// Watch for the :passagedisplay event once
-		jQuery(document).one("showpassage:after", function() {
+		// Watch for the sm.passage.shown event once
+		jQuery(document).one("sm.passage.shown", function() {
 			
 			// Get the current time
 			var timeStarted = (new Date()).getTime();
@@ -143,11 +141,13 @@ setup.timedprogressbars = function(duration, width, functionToRun) {
 :: Start
 <script>
 
-	setup.timedprogressbars(5, "20em", function(){
-		// Hide the progress bar
-		$(".progress-bar").css("display", "none");
-		// Display the result
-		$("#results").text("Too late!");
+	jQuery(function() {
+		setup.timedprogressbars(1, "20em", function(){
+			// Hide the progress bar
+			$(".progress-bar").css("display", "none");
+			// Display the result
+			$("#results").text("Too late!");
+		});
 	});
 
 </script>
