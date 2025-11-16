@@ -1,3 +1,8 @@
+:: StoryData
+{
+	"ifid":"C96B2DBB-6DA4-4D17-B379-B8FC142B3E3F"
+}
+
 :: Start
 <div class="maze"></div>
 

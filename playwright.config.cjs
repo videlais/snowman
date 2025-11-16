@@ -6,7 +6,10 @@ const { defineConfig, devices } = require('@playwright/test');
  */
 module.exports = defineConfig({
   testDir: './test/playwright',
-  testMatch: ['**/*.spec.cjs', '**/cookbook/**/*.spec.cjs'],
+  testMatch: ['**/cookbook/**/*.test.js'],
+  
+  /* Global setup script to compile Twee files before tests */
+  globalSetup: './test/playwright/global-setup.js',
   
   /* Run tests in files in parallel */
   fullyParallel: true,
