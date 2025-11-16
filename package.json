@@ -1,21 +1,18 @@
 {
   "name": "snowman",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "An advanced story format for authors more experienced with HTML, CSS, and JavaScript. See its <a href='https://videlais.github.io/snowman/2/' target='_blank' rel='noopener noreferrer'>documentation</a>.",
   "license": "MIT",
   "repository": "https://github.com/videlais/snowman/",
   "scripts": {
-    "test": "jest test/**/*.test.js test/*.test.js --coverage --testPathIgnorePatterns='test/integration/html-comparison.test.js|test/integration/complete-html-comparison.test.js|test/integration/reference-comparison.test.js|test/integration/cookbook-examples.test.js'",
+    "test": "jest --config jest.config.cjs",
     "test:html": "jest --config jest.config.extended.cjs",
-    "test:all": "npm run test && npm run test:html",
-    "compare": "node scripts/compare-html.js",
-    "compare:visual": "npm run compare -- --browser",
+    "test:playwright": "playwright test test/playwright/cookbook/**/*.test.js --reporter=list",
+    "test:full": "npm run test && npm run test:html && npm run test:playwright",
     "lint": "eslint lib/*.js lib/**/*.js test/**/*.js scripts/**/*.js --fix",
     "build": "webpack --config webpack.config.cjs",
-    "build:analyze": "npm run build -- --analyze",
     "compile": "node scripts/build-format.js",
-    "dev": "npm run lint && npm run test && npm run build && npm run compile",
-    "all": "npm run lint && npm run test:all && npm run build && npm run compile"
+    "all": "npm run lint && npm run test && npm run build && npm run compile"
   },
   "keywords": [
     "twine",
@@ -24,9 +21,10 @@
   "author": "Dan Cox",
   "dependencies": {
     "jquery": "^3.7.1",
-    "jsdom": "^27.1.0",
+    "jsdom": "^27.2.0",
     "lz-string": "^1.5.0",
     "markdown-it": "^14.1.0",
+    "marked": "^17.0.0",
     "underscore": "^1.13.7"
   },
   "devDependencies": {
@@ -35,13 +33,15 @@
     "@babel/preset-env": "^7.28.5",
     "@eslint/js": "^9.39.1",
     "@eslint/json": "^0.14.0",
+    "@playwright/test": "^1.56.1",
     "babel-loader": "^10.0.0",
+    "babel-plugin-transform-import-meta": "^2.3.3",
     "css-loader": "^7.1.2",
     "diff": "^8.0.2",
     "ejs": "^3.1.10",
     "eslint": "^9.39.1",
-    "eslint-plugin-jest": "^29.0.1",
-    "extwee": "^2.3.7",
+    "eslint-plugin-jest": "^29.1.0",
+    "extwee": "^2.3.9",
     "globals": "^16.5.0",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",

@@ -3,7 +3,7 @@
  * Discovers and categorizes all Twine Cookbook examples for testing
  */
 
-const fs = require('fs');
+const fs = require('node:fs');
 const path = require('path');
 
 class CookbookDiscovery {

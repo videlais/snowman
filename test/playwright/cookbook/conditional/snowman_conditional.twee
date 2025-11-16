@@ -1,0 +1,18 @@
+:: StoryData
+{
+	"ifid":"310743A3-BC33-45BB-9797-67840A4A569E"
+}
+
+:: StoryTitle
+Conditional Statements in Snowman
+
+:: Start
+<%
+  s.animal = "horse";
+%>
+
+<% if(s.animal == "dog"){ %>
+It's a dog!
+<% } else { %>
+It's a horse!
+<% } %>

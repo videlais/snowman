@@ -1,0 +1,291 @@
+{
+  "config": {
+    "configFile": "/Users/dancox/Projects/snowman/playwright.config.cjs",
+    "rootDir": "/Users/dancox/Projects/snowman/test/playwright",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "/Users/dancox/Projects/snowman/test/playwright/global-setup.js",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 5
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "html",
+        {
+          "outputFolder": "test/playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test/playwright-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/dancox/Projects/snowman/test/playwright-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 5
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/dancox/Projects/snowman/test/playwright",
+        "testIgnore": [],
+        "testMatch": [
+          "**/cookbook/**/*.test.js"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 6,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "cookbook/cycling/cycling.test.js",
+      "file": "cookbook/cycling/cycling.test.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Cycling Choices Example",
+          "file": "cookbook/cycling/cycling.test.js",
+          "line": 49,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load without errors",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 244,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-16T06:14:33.622Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f42002c2f62babe2c4f4-d2f108af52bd33009803",
+              "file": "cookbook/cycling/cycling.test.js",
+              "line": 50,
+              "column": 3
+            },
+            {
+              "title": "should display initial cycling choice",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 245,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-16T06:14:33.620Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f42002c2f62babe2c4f4-6b04e0bc7c28a6726460",
+              "file": "cookbook/cycling/cycling.test.js",
+              "line": 62,
+              "column": 3
+            },
+            {
+              "title": "should cycle through choices on click",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 376,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-16T06:14:33.623Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f42002c2f62babe2c4f4-55f7dc7e1a1fbdb65fe7",
+              "file": "cookbook/cycling/cycling.test.js",
+              "line": 76,
+              "column": 3
+            },
+            {
+              "title": "should preserve selection when navigating to results",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "timedOut",
+                      "duration": 30563,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/cycling/cycling.test.js",
+                            "column": 16,
+                            "line": 116
+                          },
+                          "message": "Error: page.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('tw-passage a:has-text(\"Submit\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 114 |\u001b[39m     \n \u001b[90m 115 |\u001b[39m     \u001b[90m// Navigate to Results\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 116 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'tw-passage a:has-text(\"Submit\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 117 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'tw-passage'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 118 |\u001b[39m     \n \u001b[90m 119 |\u001b[39m     \u001b[90m// Results passage should display \"Two\"\u001b[39m\u001b[0m\n\u001b[2m    at /Users/dancox/Projects/snowman/test/playwright/cookbook/cycling/cycling.test.js:116:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-16T06:14:33.622Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-cycling-cycling-C-14d4c--when-navigating-to-results-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-cycling-cycling-C-14d4c--when-navigating-to-results-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-cycling-cycling-C-14d4c--when-navigating-to-results-chromium/error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "f42002c2f62babe2c4f4-813e6b94109f9decfa30",
+              "file": "cookbook/cycling/cycling.test.js",
+              "line": 103,
+              "column": 3
+            },
+            {
+              "title": "should render passage element with correct structure",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 4,
+                      "status": "passed",
+                      "duration": 245,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-11-16T06:14:33.625Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "f42002c2f62babe2c4f4-fa44e5b01c5a98252813",
+              "file": "cookbook/cycling/cycling.test.js",
+              "line": 127,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-11-16T06:14:20.323Z",
+    "duration": 44034.106,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

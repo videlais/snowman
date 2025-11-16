@@ -23,7 +23,7 @@ describe('Passage', () => {
             expect(passage.id).toBe(1);
             expect(passage.name).toBe('Default');
             expect(passage.tags).toEqual([]);
-            expect(passage.source).toBe('');
+            expect(passage.source).toBeUndefined();
         });
 
         it('should set provided values', () => {
@@ -34,9 +34,13 @@ describe('Passage', () => {
             expect(passage.source).toBe('source text');
         });
 
-        it('should unescape the source', () => {
+        it('should store source with entities intact (unescape in render)', () => {
             const passage = new Passage(1, 'Test', [], '&lt;b&gt;bold&lt;/b&gt;');
-            expect(passage.source).toBe('<b>bold</b>');
+            // Source stored as-is with entities
+            expect(passage.source).toBe('&lt;b&gt;bold&lt;/b&gt;');
+            // Entities unescaped during render
+            const rendered = passage.render();
+            expect(rendered).toContain('<b>bold</b>');
         });
     });
 
