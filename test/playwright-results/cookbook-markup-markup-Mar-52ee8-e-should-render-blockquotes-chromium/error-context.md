@@ -1,0 +1,46 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - paragraph [ref=e4]:
+    - emphasis [ref=e5]: Emphasis
+    - text: or
+    - emphasis [ref=e6]: Emphasis
+    - text: .
+  - paragraph [ref=e7]:
+    - strong [ref=e8]: Strong emphasis
+    - text: or
+    - strong [ref=e9]: Strong emphasis
+    - text: .
+  - paragraph [ref=e10]: Strikethrough
+  - list [ref=e11]:
+    - listitem [ref=e12]: First ordered list item
+    - listitem [ref=e13]: Another item
+  - heading "H1" [level=1] [ref=e14]
+  - heading "H2" [level=2] [ref=e15]
+  - heading "H3" [level=3] [ref=e16]
+  - heading "H4" [level=4] [ref=e17]
+  - heading "H5" [level=5] [ref=e18]
+  - heading "H6" [level=6] [ref=e19]
+  - code [ref=e21]: Escaped code line. Another line of code.
+  - table [ref=e22]:
+    - rowgroup [ref=e23]:
+      - row "Tables Are Cool" [ref=e24]:
+        - cell "Tables" [ref=e25]
+        - cell "Are" [ref=e26]
+        - cell "Cool" [ref=e27]
+    - rowgroup [ref=e28]:
+      - row "col 3 is right-aligned" [ref=e29]:
+        - cell "col 3" [ref=e30]
+        - cell "is" [ref=e31]
+        - cell "right-aligned" [ref=e32]
+      - row "col 2 is centered" [ref=e33]:
+        - cell "col 2" [ref=e34]
+        - cell "is" [ref=e35]
+        - cell "centered" [ref=e36]
+      - row "col 1 is left-aligned" [ref=e37]:
+        - cell "col 1" [ref=e38]
+        - cell "is" [ref=e39]
+        - cell "left-aligned" [ref=e40]
+  - paragraph [ref=e41]: "&gt; Blockquotes are useful. &gt; This line is part of the same quote."
+```

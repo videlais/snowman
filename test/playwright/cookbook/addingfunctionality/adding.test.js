@@ -8,8 +8,12 @@ const __dirname = dirname(__filename);
 // Path to the compiled HTML file (created by global-setup.js)
 const compiledHtmlPath = join(__dirname, 'snowman_adding_functionality.html');
 
-test('Adding functionality to display current time', async ({ page }) => {
-  // Capture console errors and page errors with full details
+/**
+ * Set up error tracking for a page
+ * @param {import('@playwright/test').Page} page 
+ * @returns {{consoleErrors: string[], pageErrors: Array<{message: string, stack: string, name: string}>}}
+ */
+function setupErrorTracking(page) {
   const consoleErrors = [];
   const pageErrors = [];
   
@@ -20,23 +24,29 @@ test('Adding functionality to display current time', async ({ page }) => {
   });
   
   page.on('pageerror', error => {
-    // Capture full error details including stack trace
     const errorDetails = {
       message: error.message,
       stack: error.stack,
       name: error.name
     };
     pageErrors.push(errorDetails);
-    console.log('Page Error Details:', JSON.stringify(errorDetails, null, 2));
-  });  await page.goto(`file://${compiledHtmlPath}`);
+  });
   
-  // Log any errors for debugging
+  return { consoleErrors, pageErrors };
+}
+
+/**
+ * Log captured errors with detailed information
+ * @param {string[]} consoleErrors 
+ * @param {Array<{message: string, stack: string, name: string}>} pageErrors 
+ */
+function logErrors(consoleErrors, pageErrors) {
   if (consoleErrors.length > 0) {
     console.log('Console errors:', consoleErrors);
   }
+  
   if (pageErrors.length > 0) {
     console.log('Page errors:', pageErrors);
-    // Print detailed error information
     pageErrors.forEach((err, idx) => {
       console.log(`\nError ${idx + 1}:`);
       console.log(`  Name: ${err.name}`);
@@ -46,18 +56,46 @@ test('Adding functionality to display current time', async ({ page }) => {
       }
     });
   }
+}
+
+test.describe('Adding Functionality Example', () => {
+  test('should display current time without errors', async ({ page }) => {
+    const { consoleErrors, pageErrors } = setupErrorTracking(page);
+    
+    await page.goto(`file://${compiledHtmlPath}`);
+    
+    // Wait for Snowman to initialize
+    await page.waitForSelector('tw-passage', { timeout: 5000 });
+    
+    // Log any captured errors
+    logErrors(consoleErrors, pageErrors);
+    
+    // Verify no JavaScript errors occurred
+    expect(pageErrors, 'Page should load without JavaScript errors').toHaveLength(0);
+    expect(consoleErrors, 'Page should load without console errors').toHaveLength(0);
+    
+    // Verify passage content
+    const passageContent = await page.textContent('tw-passage');
+    expect(passageContent).toContain('The current time is');
+    
+    // Verify time format appears
+    const timePattern = /\d{1,2}:\d{2}(:\d{2})?(\s*(AM|PM))?/i;
+    expect(passageContent).toMatch(timePattern);
+  });
   
-  // Give Snowman a moment to initialize (it runs on DOMContentLoaded)
-  await page.waitForTimeout(1000);
-  
-  // Check if there are JavaScript errors preventing execution
-  expect(pageErrors.length).toBe(0);
-  
-  // Check for the passage content
-  const passageContent = await page.textContent('tw-passage');
-  expect(passageContent).toContain('The current time is');
-  
-  // Check for time-like data pattern
-  const timePattern = /\d{1,2}:\d{2}(:\d{2})?(\s*(AM|PM))?/i;
-  expect(passageContent).toMatch(timePattern);
+  test('should render passage element with correct structure', async ({ page }) => {
+    const { consoleErrors, pageErrors } = setupErrorTracking(page);
+    
+    await page.goto(`file://${compiledHtmlPath}`);
+    await page.waitForSelector('tw-passage', { timeout: 5000 });
+    
+    logErrors(consoleErrors, pageErrors);
+    
+    // Verify Snowman story structure
+    await expect(page.locator('tw-storydata')).toBeAttached();
+    await expect(page.locator('tw-passage')).toBeVisible();
+    
+    // Verify no errors
+    expect(pageErrors).toHaveLength(0);
+  });
 });

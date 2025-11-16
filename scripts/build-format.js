@@ -34,8 +34,25 @@ const htmlTemplate = render(ejsTemplate, {script: PLACEHOLDER});
 // would insert our PLACEHOLDER back into the output!
 const escapedBundledJS = bundledJS.replace(/\$/g, '$$$$'); // Replace $ with $$
 
+// CRITICAL FIX for GitHub issue #1112:
+// Escape HTML entities that would be decoded by the browser's HTML parser.
+// When JavaScript is embedded in <script> tags, the browser's HTML parser runs FIRST  
+// and decodes entities like &amp; to &, breaking JavaScript string literals.
+// For example, the Underscore.js code: {"&":"&amp;"} would become {"&":"&"}
+// causing a syntax error (duplicate key).
+//
+// Solution: Only escape HTML entity patterns (like &amp;, &lt;, etc.) by replacing
+// them with their HTML numeric entity equivalents, which browsers decode correctly
+// but don't conflict with JavaScript syntax.
+const htmlSafeJS = escapedBundledJS
+  .replace(/&amp;/g, '&#38;amp;')   // &amp; -> &#38;amp; (&#38; = &)
+  .replace(/&lt;/g, '&#38;lt;')      // &lt; -> &#38;lt;
+  .replace(/&gt;/g, '&#38;gt;')      // &gt; -> &#38;gt;
+  .replace(/&quot;/g, '&#38;quot;')  // &quot; -> &#38;quot;
+  .replace(/&#x27;/g, '&#38;#x27;'); // &#x27; -> &#38;#x27;
+
 // Use replaceAll with the escaped bundledJS
-const finalHTML = htmlTemplate.replaceAll(PLACEHOLDER, escapedBundledJS);
+const finalHTML = htmlTemplate.replaceAll(PLACEHOLDER, htmlSafeJS);
 
 // Step 2: Create the format data object with metadata from `format.json` and the generated source.
 const formatData = JSON.parse(readFileSync('format.json', { encoding: 'utf8' }));

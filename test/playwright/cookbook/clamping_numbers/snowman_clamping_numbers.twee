@@ -68,9 +68,9 @@ Limiting the range of a number in Snowman
 
 
 :: Start
-Initialise the numeric variable to a value with the range you want.<br>
+Initialize the numeric variable to a value with the range you want.<br>
 eg. between <b>1</b> and <b>10</b> inclusive.<br>
-&#40;note: You don't need to use the <i>Math.clamp()</i> funtion at this point.&#41;<br>
+&#40;note: You don't need to use the <i>Math.clamp()</i> function at this point.&#41;<br>
 
 <% s.valueToClamp = 5 %>
 <b>Current value</b>: <%= s.valueToClamp %>
