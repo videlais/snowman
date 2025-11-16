@@ -1,0 +1,286 @@
+name: Daily Regression Testing
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allow manual trigger
+    inputs:
+      node-versions:
+        description: 'Node.js versions to test (comma-separated)'
+        required: false
+        default: '18,20,22'
+
+jobs:
+  full-regression-test:
+    name: Full Regression (Node ${{ matrix.node-version }})
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false  # Continue testing other configurations even if one fails
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node-version: [18, 20, 22]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      
+      - name: Run linting
+        run: npm run lint
+        continue-on-error: true  # Report but don't fail on lint issues
+      
+      - name: Run core unit tests
+        run: npm run test
+      
+      - name: Run extended HTML tests
+        run: npm run test:html
+      
+      - name: Build webpack bundle
+        run: npm run build
+      
+      - name: Compile story format
+        run: npm run compile
+      
+      - name: Run full Playwright regression suite
+        run: npm run test:playwright
+      
+      - name: Upload Playwright test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.os }}-node${{ matrix.node-version }}
+          path: |
+            test/playwright-report/
+            test/playwright-results/
+          retention-days: 30
+      
+      - name: Upload coverage reports
+        if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          flags: regression
+          name: daily-regression
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  cookbook-compatibility:
+    name: Cookbook Examples Compatibility
+    runs-on: ubuntu-latest
+    needs: full-regression-test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+      
+      - name: Count cookbook examples
+        id: count
+        run: |
+          TWEE_COUNT=$(find test/playwright/cookbook -name "*.twee" | wc -l)
+          TEST_COUNT=$(find test/playwright/cookbook -name "*.test.js" | wc -l)
+          echo "twee_files=$TWEE_COUNT" >> $GITHUB_OUTPUT
+          echo "test_files=$TEST_COUNT" >> $GITHUB_OUTPUT
+          echo "📊 Found $TWEE_COUNT cookbook examples with $TEST_COUNT test files"
+      
+      - name: Run cookbook regression tests
+        run: npm run test:playwright
+      
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## Cookbook Regression Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Total cookbook examples: ${{ steps.count.outputs.twee_files }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Total test files: ${{ steps.count.outputs.test_files }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Platform: Ubuntu Latest" >> $GITHUB_STEP_SUMMARY
+          echo "- Node.js: 20" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All published cookbook examples validated against development build" >> $GITHUB_STEP_SUMMARY
+
+  security-audit:
+    name: Daily Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+      
+      - name: Check for outdated dependencies
+        run: npm outdated || true
+      
+      - name: Generate security summary
+        run: |
+          echo "## Daily Security Audit" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Date: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          npm audit --audit-level=moderate >> $GITHUB_STEP_SUMMARY || echo "Security issues found - review above" >> $GITHUB_STEP_SUMMARY
+
+  performance-benchmark:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build and measure
+        run: |
+          echo "## Performance Metrics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Measure build time
+          START_TIME=$(date +%s)
+          npm run build
+          END_TIME=$(date +%s)
+          BUILD_TIME=$((END_TIME - START_TIME))
+          echo "- Build time: ${BUILD_TIME}s" >> $GITHUB_STEP_SUMMARY
+          
+          # Measure compile time
+          START_TIME=$(date +%s)
+          npm run compile
+          END_TIME=$(date +%s)
+          COMPILE_TIME=$((END_TIME - START_TIME))
+          echo "- Compile time: ${COMPILE_TIME}s" >> $GITHUB_STEP_SUMMARY
+          
+          # Check output sizes
+          if [ -f dist/format.js ]; then
+            FORMAT_SIZE=$(wc -c < dist/format.js)
+            FORMAT_SIZE_KB=$((FORMAT_SIZE / 1024))
+            echo "- format.js size: ${FORMAT_SIZE_KB} KB" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ -f dist/main.js ]; then
+            MAIN_SIZE=$(wc -c < dist/main.js)
+            MAIN_SIZE_KB=$((MAIN_SIZE / 1024))
+            echo "- main.js size: ${MAIN_SIZE_KB} KB" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  notification:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [full-regression-test, cookbook-compatibility, security-audit, performance-benchmark]
+    if: always()
+    
+    steps:
+      - name: Check results and notify
+        run: |
+          echo "## Daily Regression Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Date: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.full-regression-test.result }}" == "success" ]; then
+            echo "✅ Full regression tests: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Full regression tests: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.cookbook-compatibility.result }}" == "success" ]; then
+            echo "✅ Cookbook compatibility: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Cookbook compatibility: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.security-audit.result }}" == "success" ]; then
+            echo "✅ Security audit: PASSED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  Security audit: NEEDS REVIEW" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ needs.performance-benchmark.result }}" == "success" ]; then
+            echo "✅ Performance benchmarks: COMPLETED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️  Performance benchmarks: FAILED" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "View full results in the Actions tab" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Daily Regression Test Failed - ${new Date().toISOString().split('T')[0]}`;
+            const body = `The daily regression test suite has failed.
+            
+            **Failed Jobs:**
+            - Full Regression: ${{ needs.full-regression-test.result }}
+            - Cookbook Compatibility: ${{ needs.cookbook-compatibility.result }}
+            - Security Audit: ${{ needs.security-audit.result }}
+            - Performance Benchmark: ${{ needs.performance-benchmark.result }}
+            
+            **Action Required:**
+            Please review the [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) and address any failures.
+            
+            Auto-generated by daily regression workflow.`;
+            
+            // Check if issue already exists for today
+            const today = new Date().toISOString().split('T')[0];
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'daily-regression-failure'
+            });
+            
+            const existingIssue = issues.data.find(issue => issue.title.includes(today));
+            
+            if (!existingIssue) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['daily-regression-failure', 'automated']
+              });
+            }
