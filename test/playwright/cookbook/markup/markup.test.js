@@ -89,8 +89,8 @@ test.describe('Markdown Markup Example', () => {
     expect(pageErrors).toHaveLength(0);
   });
   
-  test.skip('should render strikethrough elements', async ({ page }) => {
-    // Note: Snowman's markdown processor doesn't support ~~strikethrough~~ syntax
+  test('should render strikethrough elements', async ({ page }) => {
+    // Snowman uses marked with GFM enabled, which supports ~~strikethrough~~
     const { consoleErrors, pageErrors } = setupErrorTracking(page);
     
     await page.goto(`file://${compiledHtmlPath}`);

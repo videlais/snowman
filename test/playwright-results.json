@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 6
+      "actualWorkers": 5
     },
     "preserveOutput": "always",
     "reporter": [
@@ -39,7 +39,7 @@
         "repeatEach": 1,
         "retries": 0,
         "metadata": {
-          "actualWorkers": 6
+          "actualWorkers": 5
         },
         "id": "chromium",
         "name": "chromium",
@@ -48,7 +48,7 @@
         "testMatch": [
           "**/cookbook/**/*.test.js"
         ],
-        "timeout": 10000
+        "timeout": 30000
       }
     ],
     "shard": null,
@@ -60,168 +60,15 @@
   },
   "suites": [
     {
-      "title": "cookbook/conditional/conditional.test.js",
-      "file": "cookbook/conditional/conditional.test.js",
+      "title": "cookbook/cycling/cycling.test.js",
+      "file": "cookbook/cycling/cycling.test.js",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Conditional Statements Example",
-          "file": "cookbook/conditional/conditional.test.js",
-          "line": 61,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should load without errors",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 268,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:48.965Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "c6fc6bbdb05b81cbb301-f57a2aa0d10136b1a955",
-              "file": "cookbook/conditional/conditional.test.js",
-              "line": 62,
-              "column": 3
-            },
-            {
-              "title": "should display correct conditional output",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 263,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:48.968Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "c6fc6bbdb05b81cbb301-ab88b79f8870efc6c35b",
-              "file": "cookbook/conditional/conditional.test.js",
-              "line": 78,
-              "column": 3
-            },
-            {
-              "title": "should execute conditional statement based on variable",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
-                      "status": "passed",
-                      "duration": 268,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:48.970Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "c6fc6bbdb05b81cbb301-b552015e593fe2e44a4a",
-              "file": "cookbook/conditional/conditional.test.js",
-              "line": 93,
-              "column": 3
-            },
-            {
-              "title": "should render passage element with correct structure",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
-                      "status": "passed",
-                      "duration": 265,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:48.969Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "c6fc6bbdb05b81cbb301-1439df236f33f14e5df4",
-              "file": "cookbook/conditional/conditional.test.js",
-              "line": 109,
-              "column": 3
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "cookbook/keyboard/keyboard.test.js",
-      "file": "cookbook/keyboard/keyboard.test.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Keyboard Example",
-          "file": "cookbook/keyboard/keyboard.test.js",
+          "title": "Cycling Choices Example",
+          "file": "cookbook/cycling/cycling.test.js",
           "line": 49,
           "column": 6,
           "specs": [
@@ -231,22 +78,22 @@
               "tags": [],
               "tests": [
                 {
-                  "timeout": 10000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 4,
-                      "parallelIndex": 4,
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 270,
+                      "duration": 244,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-16T05:13:48.971Z",
+                      "startTime": "2025-11-16T06:14:33.622Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -254,33 +101,33 @@
                   "status": "expected"
                 }
               ],
-              "id": "3a11a624f49d603a5bca-0d6aa7070f5282a870b6",
-              "file": "cookbook/keyboard/keyboard.test.js",
+              "id": "f42002c2f62babe2c4f4-d2f108af52bd33009803",
+              "file": "cookbook/cycling/cycling.test.js",
               "line": 50,
               "column": 3
             },
             {
-              "title": "should display instruction text",
+              "title": "should display initial cycling choice",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 10000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 5,
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
                       "status": "passed",
-                      "duration": 259,
+                      "duration": 245,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-16T05:13:48.970Z",
+                      "startTime": "2025-11-16T06:14:33.620Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -288,33 +135,33 @@
                   "status": "expected"
                 }
               ],
-              "id": "3a11a624f49d603a5bca-2710523d3f57666dfd17",
-              "file": "cookbook/keyboard/keyboard.test.js",
+              "id": "f42002c2f62babe2c4f4-6b04e0bc7c28a6726460",
+              "file": "cookbook/cycling/cycling.test.js",
               "line": 62,
               "column": 3
             },
             {
-              "title": "should show alert when \"a\" key is pressed",
+              "title": "should cycle through choices on click",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 10000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
                   "projectName": "chromium",
                   "results": [
                     {
-                      "workerIndex": 5,
-                      "parallelIndex": 5,
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 632,
+                      "duration": 376,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.372Z",
+                      "startTime": "2025-11-16T06:14:33.623Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -322,137 +169,18 @@
                   "status": "expected"
                 }
               ],
-              "id": "3a11a624f49d603a5bca-9a33486442454d3c2b03",
-              "file": "cookbook/keyboard/keyboard.test.js",
+              "id": "f42002c2f62babe2c4f4-55f7dc7e1a1fbdb65fe7",
+              "file": "cookbook/cycling/cycling.test.js",
               "line": 76,
               "column": 3
             },
             {
-              "title": "should not show alert for other keys",
-              "ok": true,
+              "title": "should preserve selection when navigating to results",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 637,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.380Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "3a11a624f49d603a5bca-2dc735cde71b9baa5134",
-              "file": "cookbook/keyboard/keyboard.test.js",
-              "line": 98,
-              "column": 3
-            },
-            {
-              "title": "should render passage element with correct structure",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
-                      "status": "passed",
-                      "duration": 116,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.382Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "3a11a624f49d603a5bca-1c0cae0cf22f2c3773c7",
-              "file": "cookbook/keyboard/keyboard.test.js",
-              "line": 122,
-              "column": 3
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "cookbook/looping/looping.test.js",
-      "file": "cookbook/looping/looping.test.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Looping Example",
-          "file": "cookbook/looping/looping.test.js",
-          "line": 49,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should load without errors",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 138,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.381Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "d542ede10036de1bcb25-4492bae9c9eeff34a8e1",
-              "file": "cookbook/looping/looping.test.js",
-              "line": 50,
-              "column": 3
-            },
-            {
-              "title": "should display items using JavaScript for loop",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -461,32 +189,64 @@
                     {
                       "workerIndex": 3,
                       "parallelIndex": 3,
-                      "status": "passed",
-                      "duration": 152,
-                      "errors": [],
+                      "status": "timedOut",
+                      "duration": 30563,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/cycling/cycling.test.js",
+                            "column": 16,
+                            "line": 116
+                          },
+                          "message": "Error: page.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('tw-passage a:has-text(\"Submit\")')\u001b[22m\n\n\n\u001b[0m \u001b[90m 114 |\u001b[39m     \n \u001b[90m 115 |\u001b[39m     \u001b[90m// Navigate to Results\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 116 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'tw-passage a:has-text(\"Submit\")'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 117 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForSelector(\u001b[32m'tw-passage'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m5000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 118 |\u001b[39m     \n \u001b[90m 119 |\u001b[39m     \u001b[90m// Results passage should display \"Two\"\u001b[39m\u001b[0m\n\u001b[2m    at /Users/dancox/Projects/snowman/test/playwright/cookbook/cycling/cycling.test.js:116:16\u001b[22m"
+                        }
+                      ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.380Z",
+                      "startTime": "2025-11-16T06:14:33.622Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-cycling-cycling-C-14d4c--when-navigating-to-results-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-cycling-cycling-C-14d4c--when-navigating-to-results-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-cycling-cycling-C-14d4c--when-navigating-to-results-chromium/error-context.md"
+                        }
+                      ]
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
-              "id": "d542ede10036de1bcb25-86c050de3db865340a40",
-              "file": "cookbook/looping/looping.test.js",
-              "line": 62,
+              "id": "f42002c2f62babe2c4f4-813e6b94109f9decfa30",
+              "file": "cookbook/cycling/cycling.test.js",
+              "line": 103,
               "column": 3
             },
             {
-              "title": "should display items using Underscore.js",
+              "title": "should render passage element with correct structure",
               "ok": true,
               "tags": [],
               "tests": [
                 {
-                  "timeout": 10000,
+                  "timeout": 30000,
                   "annotations": [],
                   "expectedStatus": "passed",
                   "projectId": "chromium",
@@ -496,12 +256,12 @@
                       "workerIndex": 4,
                       "parallelIndex": 4,
                       "status": "passed",
-                      "duration": 149,
+                      "duration": 245,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.385Z",
+                      "startTime": "2025-11-16T06:14:33.625Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -509,572 +269,9 @@
                   "status": "expected"
                 }
               ],
-              "id": "d542ede10036de1bcb25-8af50c16220ed67031cd",
-              "file": "cookbook/looping/looping.test.js",
-              "line": 79,
-              "column": 3
-            },
-            {
-              "title": "should display items using jQuery.each",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
-                      "status": "passed",
-                      "duration": 115,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.506Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "d542ede10036de1bcb25-09330afda6ff2fcb0c90",
-              "file": "cookbook/looping/looping.test.js",
-              "line": 100,
-              "column": 3
-            },
-            {
-              "title": "should render passage element with correct structure",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 113,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.523Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "d542ede10036de1bcb25-dca48591133783f35f97",
-              "file": "cookbook/looping/looping.test.js",
-              "line": 116,
-              "column": 3
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "cookbook/modal/modal.test.js",
-      "file": "cookbook/modal/modal.test.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Modal Example",
-          "file": "cookbook/modal/modal.test.js",
-          "line": 49,
-          "column": 6,
-          "specs": [
-            {
-              "title": "should load without errors",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
-                      "status": "passed",
-                      "duration": 108,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.540Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "fe3d777da35dc5349ff5-20e155e45abac6cd1816",
-              "file": "cookbook/modal/modal.test.js",
-              "line": 50,
-              "column": 3
-            },
-            {
-              "title": "should have modal hidden by default",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 4,
-                      "parallelIndex": 4,
-                      "status": "failed",
-                      "duration": 145,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myModal')\nExpected: not visible\nError: strict mode violation: locator('#myModal') resolved to 2 elements:\n    1) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-passage #myModal')\n    2) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-storydata #myModal')\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myModal')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myModal')\nExpected: not visible\nError: strict mode violation: locator('#myModal') resolved to 2 elements:\n    1) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-passage #myModal')\n    2) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-storydata #myModal')\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myModal')\u001b[22m\n\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:69:29",
-                        "location": {
-                          "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                          "column": 29,
-                          "line": 69
-                        },
-                        "snippet": "  67 |     \n  68 |     const modal = page.locator('#myModal');\n> 69 |     await expect(modal).not.toBeVisible();\n     |                             ^\n  70 |     \n  71 |     logErrors(consoleErrors, pageErrors);\n  72 |     expect(pageErrors).toHaveLength(0);"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                            "column": 29,
-                            "line": 69
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myModal')\nExpected: not visible\nError: strict mode violation: locator('#myModal') resolved to 2 elements:\n    1) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-passage #myModal')\n    2) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-storydata #myModal')\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myModal')\u001b[22m\n\n\n  67 |     \n  68 |     const modal = page.locator('#myModal');\n> 69 |     await expect(modal).not.toBeVisible();\n     |                             ^\n  70 |     \n  71 |     logErrors(consoleErrors, pageErrors);\n  72 |     expect(pageErrors).toHaveLength(0);\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:69:29"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.542Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-b11e5-ave-modal-hidden-by-default-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-b11e5-ave-modal-hidden-by-default-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-b11e5-ave-modal-hidden-by-default-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                        "column": 29,
-                        "line": 69
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "fe3d777da35dc5349ff5-8f6390d056c0940c0b35",
-              "file": "cookbook/modal/modal.test.js",
-              "line": 62,
-              "column": 3
-            },
-            {
-              "title": "should display button to open modal",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
-                      "status": "failed",
-                      "duration": 106,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myBtn')\nExpected: visible\nError: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myBtn')\nExpected: visible\nError: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:82:26",
-                        "location": {
-                          "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                          "column": 26,
-                          "line": 82
-                        },
-                        "snippet": "  80 |     \n  81 |     const button = page.locator('#myBtn');\n> 82 |     await expect(button).toBeVisible();\n     |                          ^\n  83 |     await expect(button).toHaveText('Open Modal');\n  84 |     \n  85 |     logErrors(consoleErrors, pageErrors);"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                            "column": 26,
-                            "line": 82
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myBtn')\nExpected: visible\nError: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n\n\n  80 |     \n  81 |     const button = page.locator('#myBtn');\n> 82 |     await expect(button).toBeVisible();\n     |                          ^\n  83 |     await expect(button).toHaveText('Open Modal');\n  84 |     \n  85 |     logErrors(consoleErrors, pageErrors);\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:82:26"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.628Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-a0f1c-isplay-button-to-open-modal-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-a0f1c-isplay-button-to-open-modal-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-a0f1c-isplay-button-to-open-modal-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                        "column": 26,
-                        "line": 82
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "fe3d777da35dc5349ff5-ca6901a1a8e44efe6e05",
-              "file": "cookbook/modal/modal.test.js",
-              "line": 75,
-              "column": 3
-            },
-            {
-              "title": "should show modal when button is clicked",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 0,
-                      "parallelIndex": 0,
-                      "status": "failed",
-                      "duration": 106,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myModal')\nExpected: not visible\nError: strict mode violation: locator('#myModal') resolved to 2 elements:\n    1) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-passage #myModal')\n    2) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-storydata #myModal')\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myModal')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myModal')\nExpected: not visible\nError: strict mode violation: locator('#myModal') resolved to 2 elements:\n    1) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-passage #myModal')\n    2) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-storydata #myModal')\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myModal')\u001b[22m\n\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:99:29",
-                        "location": {
-                          "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                          "column": 29,
-                          "line": 99
-                        },
-                        "snippet": "   97 |     \n   98 |     // Initially hidden\n>  99 |     await expect(modal).not.toBeVisible();\n      |                             ^\n  100 |     \n  101 |     // Click button\n  102 |     await button.click();"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                            "column": 29,
-                            "line": 99
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).not.\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myModal')\nExpected: not visible\nError: strict mode violation: locator('#myModal') resolved to 2 elements:\n    1) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-passage #myModal')\n    2) <div id=\"myModal\" class=\"modal\">…</div> aka locator('tw-storydata #myModal')\n\nCall log:\n\u001b[2m  - Expect \"not toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myModal')\u001b[22m\n\n\n   97 |     \n   98 |     // Initially hidden\n>  99 |     await expect(modal).not.toBeVisible();\n      |                             ^\n  100 |     \n  101 |     // Click button\n  102 |     await button.click();\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:99:29"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.643Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-70ba4-odal-when-button-is-clicked-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-70ba4-odal-when-button-is-clicked-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-70ba4-odal-when-button-is-clicked-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                        "column": 29,
-                        "line": 99
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "fe3d777da35dc5349ff5-7da59b32d7a3d24a1bd4",
-              "file": "cookbook/modal/modal.test.js",
-              "line": 89,
-              "column": 3
-            },
-            {
-              "title": "should hide modal when close button is clicked",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
-                      "status": "failed",
-                      "duration": 113,
-                      "error": {
-                        "message": "Error: locator.click: Error: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n",
-                        "stack": "Error: locator.click: Error: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:122:18",
-                        "location": {
-                          "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                          "column": 18,
-                          "line": 122
-                        },
-                        "snippet": "  120 |     \n  121 |     // Open modal\n> 122 |     await button.click();\n      |                  ^\n  123 |     await expect(modal).toBeVisible();\n  124 |     \n  125 |     // Close modal"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                            "column": 18,
-                            "line": 122
-                          },
-                          "message": "Error: locator.click: Error: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n\n\n  120 |     \n  121 |     // Open modal\n> 122 |     await button.click();\n      |                  ^\n  123 |     await expect(modal).toBeVisible();\n  124 |     \n  125 |     // Close modal\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:122:18"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.654Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-7e0fc-hen-close-button-is-clicked-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-7e0fc-hen-close-button-is-clicked-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-7e0fc-hen-close-button-is-clicked-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                        "column": 18,
-                        "line": 122
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "fe3d777da35dc5349ff5-0ef66c5f8b690d3f972b",
-              "file": "cookbook/modal/modal.test.js",
-              "line": 111,
-              "column": 3
-            },
-            {
-              "title": "should display modal content",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 6,
-                      "parallelIndex": 4,
-                      "status": "failed",
-                      "duration": 134,
-                      "error": {
-                        "message": "Error: locator.click: Error: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n",
-                        "stack": "Error: locator.click: Error: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:142:18",
-                        "location": {
-                          "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                          "column": 18,
-                          "line": 142
-                        },
-                        "snippet": "  140 |     \n  141 |     // Open modal\n> 142 |     await button.click();\n      |                  ^\n  143 |     \n  144 |     const modalContent = await page.textContent('.modal-content');\n  145 |     expect(modalContent).toContain('Example text in the modal');"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                            "column": 18,
-                            "line": 142
-                          },
-                          "message": "Error: locator.click: Error: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n\n\n  140 |     \n  141 |     // Open modal\n> 142 |     await button.click();\n      |                  ^\n  143 |     \n  144 |     const modalContent = await page.textContent('.modal-content');\n  145 |     expect(modalContent).toContain('Example text in the modal');\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:142:18"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.940Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-ff32c-hould-display-modal-content-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-ff32c-hould-display-modal-content-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-ff32c-hould-display-modal-content-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                        "column": 18,
-                        "line": 142
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "fe3d777da35dc5349ff5-03fddeef5b0c37006c97",
-              "file": "cookbook/modal/modal.test.js",
-              "line": 133,
-              "column": 3
-            },
-            {
-              "title": "should render passage element with correct structure",
-              "ok": false,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 10000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 7,
-                      "parallelIndex": 2,
-                      "status": "failed",
-                      "duration": 130,
-                      "error": {
-                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myBtn')\nExpected: attached\nError: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n",
-                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myBtn')\nExpected: attached\nError: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:161:42",
-                        "location": {
-                          "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                          "column": 42,
-                          "line": 161
-                        },
-                        "snippet": "  159 |     await expect(page.locator('tw-storydata')).toBeAttached();\n  160 |     await expect(page.locator('tw-passage')).toBeVisible();\n> 161 |     await expect(page.locator('#myBtn')).toBeAttached();\n      |                                          ^\n  162 |     await expect(page.locator('#myModal')).toBeAttached();\n  163 |     \n  164 |     expect(pageErrors).toHaveLength(0);"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                            "column": 42,
-                            "line": 161
-                          },
-                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeAttached\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('#myBtn')\nExpected: attached\nError: strict mode violation: locator('#myBtn') resolved to 2 elements:\n    1) <button id=\"myBtn\">Open Modal</button> aka getByRole('button', { name: 'Open Modal' })\n    2) <button id=\"myBtn\">Open Modal</button> aka locator('tw-storydata').getByText('Open Modal')\n\nCall log:\n\u001b[2m  - Expect \"toBeAttached\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('#myBtn')\u001b[22m\n\n\n  159 |     await expect(page.locator('tw-storydata')).toBeAttached();\n  160 |     await expect(page.locator('tw-passage')).toBeVisible();\n> 161 |     await expect(page.locator('#myBtn')).toBeAttached();\n      |                                          ^\n  162 |     await expect(page.locator('#myModal')).toBeAttached();\n  163 |     \n  164 |     expect(pageErrors).toHaveLength(0);\n    at /Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js:161:42"
-                        }
-                      ],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-11-16T05:13:49.978Z",
-                      "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-d9787-ment-with-correct-structure-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-d9787-ment-with-correct-structure-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/Users/dancox/Projects/snowman/test/playwright-results/cookbook-modal-modal-Modal-d9787-ment-with-correct-structure-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/Users/dancox/Projects/snowman/test/playwright/cookbook/modal/modal.test.js",
-                        "column": 42,
-                        "line": 161
-                      }
-                    }
-                  ],
-                  "status": "unexpected"
-                }
-              ],
-              "id": "fe3d777da35dc5349ff5-0ed6c34938604d89cec9",
-              "file": "cookbook/modal/modal.test.js",
-              "line": 151,
+              "id": "f42002c2f62babe2c4f4-fa44e5b01c5a98252813",
+              "file": "cookbook/cycling/cycling.test.js",
+              "line": 127,
               "column": 3
             }
           ]
@@ -1084,11 +281,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-11-16T05:13:35.795Z",
-    "duration": 14427.856,
-    "expected": 15,
+    "startTime": "2025-11-16T06:14:20.323Z",
+    "duration": 44034.106,
+    "expected": 4,
     "skipped": 0,
-    "unexpected": 6,
+    "unexpected": 1,
     "flaky": 0
   }
 }

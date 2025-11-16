@@ -65,7 +65,7 @@ test.describe('Cycling Choices Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const cycleElement = page.locator('#cycleOne');
+    const cycleElement = page.locator('tw-passage #cycleOne');
     await expect(cycleElement).toBeVisible();
     await expect(cycleElement).toHaveText('One');
     
@@ -79,7 +79,7 @@ test.describe('Cycling Choices Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const cycleElement = page.locator('#cycleOne');
+    const cycleElement = page.locator('tw-passage #cycleOne');
     
     // Initial state: "One"
     await expect(cycleElement).toHaveText('One');
@@ -106,14 +106,14 @@ test.describe('Cycling Choices Example', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    const cycleElement = page.locator('#cycleOne');
+    const cycleElement = page.locator('tw-passage #cycleOne');
     
     // Cycle to "Two"
     await cycleElement.click();
     await expect(cycleElement).toHaveText('Two');
     
     // Navigate to Results
-    await page.click('a:has-text("Submit")');
+    await page.click('tw-passage a:has-text("Submit")');
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
     // Results passage should display "Two"

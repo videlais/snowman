@@ -81,8 +81,8 @@ test.describe('Arrays Example - Inventory System', () => {
     expect(passageContent).toContain('You find yourself inside a small room.');
     expect(passageContent).toContain('In the corner, you see a sword, and decide to pick it up.');
     
-    // Verify link is present
-    await expect(page.locator('a', { hasText: 'hallway' })).toBeVisible();
+    // Verify link is present (displays 'Continue', links to 'hallway')
+    await expect(page.locator('tw-passage a[data-passage="hallway"]')).toBeVisible();
   });
   
   test('should update inventory after picking up sword', async ({ page }) => {
@@ -91,8 +91,8 @@ test.describe('Arrays Example - Inventory System', () => {
     await page.goto(`file://${compiledHtmlPath}`);
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    // Click the link to hallway (labeled "Continue" in the passage, but links to "hallway")
-    const hallwayLink = page.locator('a', { hasText: 'hallway' });
+    // Click the link to hallway (labeled "Continue" in the passage, links to "hallway")
+    const hallwayLink = page.locator('tw-passage a[data-passage="hallway"]');
     await expect(hallwayLink).toBeVisible();
     await hallwayLink.click();
     
@@ -117,11 +117,11 @@ test.describe('Arrays Example - Inventory System', () => {
     await page.waitForSelector('tw-passage', { timeout: 5000 });
     
     // Navigate to the hallway
-    await page.click('a:has-text("hallway")');
+    await page.click('tw-passage a[data-passage="hallway"]');
     await page.waitForSelector('tw-passage:has-text("You see a chest")', { timeout: 5000 });
     
     // Open the chest
-    const chestLink = page.locator('a:has-text("chest")');
+    const chestLink = page.locator('tw-passage a[data-passage="chest"]');
     await expect(chestLink).toBeVisible();
     await chestLink.click();
     
@@ -149,14 +149,14 @@ test.describe('Arrays Example - Inventory System', () => {
     expect(passageContent).toContain('nothing');
     
     // Step 2: Pick up sword and go to hallway
-    await page.click('a:has-text("hallway")');
+    await page.click('tw-passage a[data-passage="hallway"]');
     await page.waitForSelector('tw-passage:has-text("You see a chest")', { timeout: 5000 });
     passageContent = await page.textContent('tw-passage');
     expect(passageContent).toContain('a sword');
     expect(passageContent).not.toContain('a shield');
     
     // Step 3: Open chest and get shield and armor
-    await page.click('a:has-text("chest")');
+    await page.click('tw-passage a[data-passage="chest"]');
     await page.waitForSelector('tw-passage:has-text("You open the chest")', { timeout: 5000 });
     passageContent = await page.textContent('tw-passage');
     expect(passageContent).toContain('a sword, a shield, a suit of armor');

@@ -11,6 +11,9 @@ module.exports = defineConfig({
   /* Global setup script to compile Twee files before tests */
   globalSetup: './test/playwright/global-setup.js',
   
+  /* Global teardown script to remove compiled HTML files after tests */
+  globalTeardown: './test/playwright/global-teardown.cjs',
+  
   /* Run tests in files in parallel */
   fullyParallel: true,
   
