@@ -8,18 +8,11 @@
     "test": "jest --config jest.config.cjs",
     "test:html": "jest --config jest.config.extended.cjs",
     "test:playwright": "playwright test test/playwright/cookbook/**/*.test.js --reporter=list",
-    "test:playwright:all": "playwright test test/playwright/cookbook/**/*.test.js --project=chromium --project=firefox --project=webkit --project='Mobile Chrome' --project='Mobile Safari'",
     "test:full": "npm run test && npm run test:html && npm run test:playwright",
-    "compare": "node scripts/compare-html.js",
-    "compare:visual": "npm run compare -- --browser",
     "lint": "eslint lib/*.js lib/**/*.js test/**/*.js scripts/**/*.js --fix",
     "build": "webpack --config webpack.config.cjs",
-    "build:dev": "webpack --config webpack.dev.config.cjs",
-    "build:analyze": "npm run build -- --analyze",
     "compile": "node scripts/build-format.js",
-    "compile:dev": "node scripts/build-format.js --dev",
-    "dev": "npm run lint && npm run test && npm run build && npm run compile",
-    "all": "npm run lint && npm run test:all && npm run build && npm run compile"
+    "all": "npm run lint && npm run test && npm run build && npm run compile"
   },
   "keywords": [
     "twine",
