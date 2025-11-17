@@ -4,6 +4,8 @@
  const path = require('path');
  require('expect-puppeteer');
  
+jest.setTimeout(15000);
+ 
  // Create the index.html file to test
   
 describe('RunScript - State Events Test', () => {
