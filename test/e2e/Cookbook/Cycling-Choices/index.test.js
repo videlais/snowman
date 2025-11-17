@@ -12,6 +12,7 @@ describe('Cookbook - Cycling choices', () => {
 
  
   it('Should display "Two" after link is clicked once', async () => {
+    await page.waitForSelector('[class="cycle"]');
     await page.click('[class="cycle"]');
     await expect(page).toMatchTextContent("Two");
   });

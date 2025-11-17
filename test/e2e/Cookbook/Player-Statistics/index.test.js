@@ -12,6 +12,7 @@ describe('Cookbook - Player Statistics', () => {
  
   
     it('Should display increased empathy value', async () => {
+        await page.waitForSelector('[id="empathyIncrease"]');
         await page.click('[id="empathyIncrease"]');
         await expect(page).toMatchTextContent('Empathy: 11');
     });

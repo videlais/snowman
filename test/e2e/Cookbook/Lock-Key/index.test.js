@@ -12,9 +12,13 @@ describe('Cookbook - Lock and Key: Variable', () => {
 
  
     it('Should display result', async () => {
+        await page.waitForSelector('[data-passage="Back Room"]');
         await page.click('[data-passage="Back Room"]');
+        await page.waitForSelector('[class="key-item"]');
         await page.click('[class="key-item"]');
+        await page.waitForSelector('[data-passage="Front Room"]');
         await page.click('[data-passage="Front Room"]');
+        await page.waitForSelector('[data-passage="Exit"]');
         await page.click('[data-passage="Exit"]');
         await expect(page).toMatchTextContent('You found the key and went through the door!');
    });

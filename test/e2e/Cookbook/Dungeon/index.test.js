@@ -12,6 +12,7 @@ describe('Cookbook - Moving through a dungeon', () => {
  
   
     it('Should display "#.P.#.....#"', async () => {
+        await page.waitForSelector('[data-move="e"]');
         await page.click('[data-move="e"]');
         await expect(page).toMatchTextContent("#.P.#.....#");
     });

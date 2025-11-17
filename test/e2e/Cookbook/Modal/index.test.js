@@ -12,7 +12,9 @@ describe('Cookbook - Modal', () => {
  
   
     it('Should display and close modal', async () => {
+        await page.waitForSelector('[id="myBtn"]');
         await page.click('[id="myBtn"]');
+        await page.waitForSelector('[class="close"]');
         await page.click('[class="close"]');
         await expect(page).toMatchTextContent('Example text in the modal');
     });

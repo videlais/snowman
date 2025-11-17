@@ -12,7 +12,9 @@ describe('Cookbook - Programmatic Undo', () => {
    
     
     it('Should display "Ready to enter the darkness?"', async () => {
+        await page.waitForSelector('[data-passage="Enter the Darkness"]');
         await page.click('[data-passage="Enter the Darkness"]');
+        await page.waitForSelector('[id="return"]');
         await page.click('[id="return"]');
         await expect(page).toMatchTextContent("Ready to enter the darkness?");
     });

@@ -12,6 +12,7 @@ describe('Cookbook - Space Exploration', () => {
  
   
     it('Should display health', async () => {
+        await page.waitForSelector('[data-passage="Space"]');
         await page.click('[data-passage="Space"]');
         // Check for the text before it.
         await expect(page).toMatchTextContent('Health: 20');
