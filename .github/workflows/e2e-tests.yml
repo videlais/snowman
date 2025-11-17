@@ -22,15 +22,6 @@ jobs:
         node-version: 22.x
         cache: 'npm'
         
-    - name: Restore compiled e2e files cache
-      uses: actions/cache@v4
-      with:
-        path: |
-          test/e2e/**/*.html
-        key: e2e-compiled-${{ hashFiles('test/e2e/**/*.twee', 'dist/format.js') }}
-        restore-keys: |
-          e2e-compiled-
-        
     - name: Install dependencies
       run: npm install
       
@@ -39,6 +30,9 @@ jobs:
       
     - name: Install ExTwee for e2e tests
       run: npm install -g extwee
+      
+    - name: Clean old compiled e2e files
+      run: find test/e2e -name "*.html" -type f -delete
       
     - name: Compile all e2e test files (including slow tests)
       run: ./compile-e2e-tests.sh
