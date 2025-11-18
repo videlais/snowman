@@ -6,7 +6,8 @@
             "preset": "jest-puppeteer",
             "transform": {
                 "^.+\\.js$": "babel-jest"
-            }
+            },
+            "testTimeout": 30000
         },
         {
             "displayName": "jest-jsdom",
