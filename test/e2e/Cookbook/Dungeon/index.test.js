@@ -1,19 +1,10 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-   
-describe('Cookbook - Moving through a dungeon', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/Cookbook/Dungeon/index.html');
-    });
- 
-  
-    it('Should display "#.P.#.....#"', async () => {
-        await page.waitForSelector('[data-move="e"]', { visible: true });
-        await page.click('[data-move="e"]');
-        await expect(page).toMatchTextContent("#.P.#.....#");
-    });
+import { test, expect } from '@playwright/test';
+
+test.describe('Cookbook - Moving through a dungeon', () => {
+  test('Should display "#.P.#.....#"', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Dungeon/index.html');
+    await page.waitForSelector('[data-move="e"]');
+    await page.click('[data-move="e"]');
+    await expect(page.locator('body')).toContainText("#.P.#.....#");
+  });
 });

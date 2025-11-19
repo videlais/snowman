@@ -1,22 +1,13 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Dropdown', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/Cookbook/Dropdown/index.html');
-    });
+import { test, expect } from '@playwright/test';
 
- 
-    it('Should display up', async () => {
-        // Select an option.
-        await page.select('select#directions', 'up');
-        // Go to next passage.
-        await page.click('[data-passage="Show Direction"]');
-        // Expect to see "up".
-        await expect(page).toMatchTextContent('The direction was up.');
-    });
- });
+test.describe('Cookbook - Dropdown', () => {
+  test('Should display up', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Dropdown/index.html');
+    // Select an option.
+    await page.selectOption('select#directions', 'up');
+    // Go to next passage.
+    await page.click('[data-passage="Show Direction"]');
+    // Expect to see "up".
+    await expect(page.locator('body')).toContainText('The direction was up.');
+  });
+});

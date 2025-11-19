@@ -1,17 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Headers and Footers', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Headers-Footers/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should display footer', async () => {
-    await expect(page).toMatchTextContent('This is the footer!');
+test.describe('Cookbook - Headers and Footers', () => {
+  test('Should display footer', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Headers-Footers/index.html');
+    await expect(page.locator('body')).toContainText('This is the footer!');
   });
 });

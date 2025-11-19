@@ -1,17 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Fairmath System', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Fairmath-System/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should display "50"', async () => {
-    await expect(page).toMatchTextContent(/Decrease 100 by 50% using Fairmath: \d\d/g);
+test.describe('Cookbook - Fairmath System', () => {
+  test('Should display "50"', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Fairmath-System/index.html');
+    await expect(page.locator('body')).toContainText(/Decrease 100 by 50% using Fairmath: \d\d/g);
   });
 });

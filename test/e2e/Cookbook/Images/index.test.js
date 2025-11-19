@@ -1,17 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Images', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Images/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should display result', async () => {
-    await expect(page).toMatchTextContent('This is a Base64-encoded CSS image background:');
+test.describe('Cookbook - Images', () => {
+  test('Should display result', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Images/index.html');
+    await expect(page.locator('body')).toContainText('This is a Base64-encoded CSS image background:');
   });
 });

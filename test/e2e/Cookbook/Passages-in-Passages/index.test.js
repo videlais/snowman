@@ -1,17 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
+import { test, expect } from '@playwright/test';
 
-  
-describe('Cookbook - Passages in Passages', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/Cookbook/Passages-in-Passages/index.html');
-    });
-
- 
-    it('Should display "And this is Another passage!"', async () => {
-        await expect(page).toMatchTextContent('And this is Another passage!');
-   });
- });
+test.describe('Cookbook - Passages in Passages', () => {
+  test('Should display "And this is Another passage!"', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Passages-in-Passages/index.html');
+    await expect(page.locator('body')).toContainText('And this is Another passage!');
+  });
+});

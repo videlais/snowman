@@ -1,17 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Modularity', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Modularity/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should display "Drop some knowledge"', async () => {
-    await expect(page).toMatchTextContent('Drop some knowledge');
+test.describe('Cookbook - Modularity', () => {
+  test('Should display "Drop some knowledge"', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Modularity/index.html');
+    await expect(page.locator('body')).toContainText('Drop some knowledge');
   });
 });

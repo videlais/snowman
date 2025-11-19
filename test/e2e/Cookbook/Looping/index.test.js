@@ -1,17 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
-  
-   
-describe('Cookbook - Looping', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/Cookbook/Looping/index.html');
-    });
- 
-  
-    it('Should display inventory', async () => {
-        await expect(page).toMatchTextContent('You have Bread');
-    });
+import { test, expect } from '@playwright/test';
+
+test.describe('Cookbook - Looping', () => {
+  test('Should display inventory', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Looping/index.html');
+    await expect(page.locator('body')).toContainText('You have Bread');
   });
+});

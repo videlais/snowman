@@ -1,17 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Audio', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Audio/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should not load audio', async () => {
-    await expect(page).toMatchTextContent("Your browser does not support the audio element.");
+test.describe('Cookbook - Audio', () => {
+  test('Should not load audio', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Audio/index.html');
+    await expect(page.locator('body')).toContainText("Your browser does not support the audio element.");
   });
 });

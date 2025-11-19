@@ -1,21 +1,12 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
-    
-      
-describe('Cookbook - Saving Games', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/Cookbook/Saving-Games/index.html');
-    });
-    
-     
-    it('Should display session messages', async () => {
-        await page.click('[data-passage="Save the session"]');
-        await expect(page).toMatchTextContent('Session has been saved!');
-        await page.click('[data-passage="Start"]');
-        await page.click('[data-passage="Delete previous session?"]');
-        await expect(page).toMatchTextContent('Save removed!');
-    });
+import { test, expect } from '@playwright/test';
+
+test.describe('Cookbook - Saving Games', () => {
+  test('Should display session messages', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Saving-Games/index.html');
+    await page.click('[data-passage="Save the session"]');
+    await expect(page.locator('body')).toContainText('Session has been saved!');
+    await page.click('[data-passage="Start"]');
+    await page.click('[data-passage="Delete previous session?"]');
+    await expect(page.locator('body')).toContainText('Save removed!');
+  });
 });

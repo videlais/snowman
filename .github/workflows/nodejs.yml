@@ -22,6 +22,9 @@ jobs:
     - name: Install dependencies
       run: npm install
       
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+      
     - name: Run linting
       run: npm run lint:check
       
@@ -52,6 +55,6 @@ jobs:
         done
       
     - name: Run quick e2e tests (excludes slow timing tests)
-      run: npm run test:e2e -- --testPathIgnorePatterns="Timed-Passages|Loading-Screen|Typewriter-Effect"
+      run: npm run test:e2e:fast
       env:
         CI: true

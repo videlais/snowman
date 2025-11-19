@@ -1,17 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
-  
-    
-describe('Cookbook - Render Passage to Element', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/Cookbook/RenderPassageToElement/index.html');
-    });
-  
-   
-    it('Should display "This is the HUD!"', async () => {
-        await expect(page).toMatchTextContent('This is the HUD!');
-    });
+import { test, expect } from '@playwright/test';
+
+test.describe('Cookbook - Render Passage to Element', () => {
+  test('Should display "This is the HUD!"', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/RenderPassageToElement/index.html');
+    await expect(page.locator('body')).toContainText('This is the HUD!');
+  });
 });

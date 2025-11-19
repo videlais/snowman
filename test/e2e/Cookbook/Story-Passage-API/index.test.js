@@ -1,17 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Story and Passage API', () => {
-   beforeAll(async () => {
-     await page.goto('http://localhost:3000/e2e/Cookbook/Story-Passage-API/index.html');
-   });
+import { test, expect } from '@playwright/test';
 
- 
-    it('Should display storage passage content', async () => {
-        await expect(page).toMatchTextContent('This is content in the storage passage!');
-   });
- });
+test.describe('Cookbook - Story and Passage API', () => {
+  test('Should display storage passage content', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Story-Passage-API/index.html');
+    await expect(page.locator('body')).toContainText('This is content in the storage passage!');
+  });
+});

@@ -1,18 +1,10 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('node:path');
-require('expect-puppeteer');
- 
- 
-describe('Cookbook - Loading Screen', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/RunScript/Loading_Test/index.html');
-    });
-    
-    it('Should display message', async () => {
+import { test, expect } from '@playwright/test';
+
+test.describe('Cookbook - Loading Screen', () => {
+    test('Should display message', async ({ page }) => {
+        await page.goto('/e2e/RunScript/Loading_Test/index.html');
         // Wait for seven seconds.
-        await new Promise(resolve => setTimeout(resolve, 7000));
-        await expect(page).toMatchTextContent("You can now see this after the long pause!");
+        await page.waitForTimeout(7000);
+        await expect(page.locator('body')).toContainText("You can now see this after the long pause!");
     });
 });

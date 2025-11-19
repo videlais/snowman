@@ -1,14 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
+import { test, expect } from '@playwright/test';
 
-   
-describe('RunScript - Goto Test', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/RunScript/Goto_Test/index.html');
-    });    it('Should display paragraph', async () => {
-        await expect(page).toMatchTextContent('Show me!');
-    });
+test.describe('RunScript - Goto Test', () => {
+  test('Should display paragraph', async ({ page }) => {
+    await page.goto('/e2e/RunScript/Goto_Test/index.html');
+    await expect(page.locator('body')).toContainText('Show me!');
+  });
 });

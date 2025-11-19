@@ -1,15 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
- const path = require('path');
- require('expect-puppeteer');
- 
- // Create the index.html file to test
-  
-describe('RunScript - Single Global Property Test', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/RunScript/Single_Global_Property/index.html');
-  });   it('Should display 5', async () => {
-        await expect(page).toMatchTextContent('Value is 5');
-   });
- });
+import { test, expect } from '@playwright/test';
+
+test.describe('RunScript - Single Global Property Test', () => {
+  test('Should display 5', async ({ page }) => {
+    await page.goto('/e2e/RunScript/Single_Global_Property/index.html');
+    await expect(page.locator('body')).toContainText('Value is 5');
+  });
+});

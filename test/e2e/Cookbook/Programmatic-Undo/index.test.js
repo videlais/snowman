@@ -1,21 +1,12 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
-   
-     
-describe('Cookbook - Programmatic Undo', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/Cookbook/Programmatic-Undo/index.html');
-    });
-   
-    
-    it('Should display "Ready to enter the darkness?"', async () => {
-        await page.waitForSelector('[data-passage="Enter the Darkness"]', { visible: true });
-        await page.click('[data-passage="Enter the Darkness"]');
-        await page.waitForSelector('[id="return"]', { visible: true });
-        await page.click('[id="return"]');
-        await expect(page).toMatchTextContent("Ready to enter the darkness?");
-    });
- });
+import { test, expect } from '@playwright/test';
+
+test.describe('Cookbook - Programmatic Undo', () => {
+  test('Should display "Ready to enter the darkness?"', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Programmatic-Undo/index.html');
+    await page.waitForSelector('[data-passage="Enter the Darkness"]');
+    await page.click('[data-passage="Enter the Darkness"]');
+    await page.waitForSelector('[id="return"]');
+    await page.click('[id="return"]');
+    await expect(page.locator('body')).toContainText("Ready to enter the darkness?");
+  });
+});

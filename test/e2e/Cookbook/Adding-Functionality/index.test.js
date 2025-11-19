@@ -1,15 +1,9 @@
-const ShellJS = require('shelljs');
-const path = require('path');
-require('expect-puppeteer');
- 
-describe('Cookbook - Adding Functionality', () => {
-  beforeAll(async () => {
+import { test, expect } from '@playwright/test';
 
-    await page.goto('http://localhost:3000/e2e/Cookbook/Adding-Functionality/index.html');
-  });
-
-  it('Should display current year on page', async () => {
+test.describe('Cookbook - Adding Functionality', () => {
+  test('Should display current year on page', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Adding-Functionality/index.html');
     const year = new Date().getFullYear().toString();
-    await expect(page).toMatchTextContent(year);
+    await expect(page.locator('body')).toContainText(year);
   });
 });

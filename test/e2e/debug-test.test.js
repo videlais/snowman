@@ -1,14 +1,7 @@
-/**
- * @jest-environment puppeteer
- */
-require('expect-puppeteer');
+import { test, expect } from '@playwright/test';
 
-describe('Debug Test', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Arrays/index.html');
-  });
- 
-  it('Should debug what is rendered on the page', async () => {
+test.describe('Debug Test', () => {
+  test('Should debug what is rendered on the page', async ({ page }) => {
     // Check for JavaScript errors
     const errors = [];
     page.on('console', msg => {
@@ -21,11 +14,13 @@ describe('Debug Test', () => {
       errors.push(error.message);
     });
     
+    await page.goto('/e2e/Cookbook/Arrays/index.html');
+    
     // Wait for the page to load
     await page.waitForSelector('tw-story', { timeout: 5000 });
     
     // Wait a bit more to see if anything gets loaded
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await page.waitForTimeout(2000);
     
     console.log('JavaScript errors:', errors);
     

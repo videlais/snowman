@@ -1,14 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
-   
-    
-describe('RunScript - SidebarShow Test', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/RunScript/SidebarShow_Test/index.html');
-    });    it('Should display paragraph', async () => {
-        await expect(page).toMatchTextContent('Show me!');
-    });
- });
+import { test, expect } from '@playwright/test';
+
+test.describe('RunScript - SidebarShow Test', () => {
+  test('Should display paragraph', async ({ page }) => {
+    await page.goto('/e2e/RunScript/SidebarShow_Test/index.html');
+    await expect(page.locator('body')).toContainText('Show me!');
+  });
+});

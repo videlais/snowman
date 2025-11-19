@@ -1,20 +1,11 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Static Healthbars', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/Cookbook/Static-Healthbars/index.html');
-    });
+import { test, expect } from '@playwright/test';
 
- 
-    it('Should display meter', async () => {
-        // Wait for the <meter>.
-        await page.waitForSelector('meter');
-        // Check for the text before it.
-        await expect(page).toMatchTextContent('Show a healthbar using a Meter element:');
-    });
+test.describe('Cookbook - Static Healthbars', () => {
+  test('Should display meter', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Static-Healthbars/index.html');
+    // Wait for the <meter>.
+    await page.waitForSelector('meter');
+    // Check for the text before it.
+    await expect(page.locator('body')).toContainText('Show a healthbar using a Meter element:');
+  });
 });

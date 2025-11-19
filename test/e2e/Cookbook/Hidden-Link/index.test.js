@@ -1,18 +1,9 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Hidden Link', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Hidden-Link/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should display result', async () => {
+test.describe('Cookbook - Hidden Link', () => {
+  test('Should display result', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Hidden-Link/index.html');
     await page.click('[data-passage="A hidden link"]');
-    await expect(page).toMatchTextContent('You found it!');
+    await expect(page.locator('body')).toContainText('You found it!');
   });
 });

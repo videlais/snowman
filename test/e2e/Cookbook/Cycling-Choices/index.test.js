@@ -1,19 +1,10 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Cycling choices', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Cycling-Choices/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should display "Two" after link is clicked once', async () => {
-    await page.waitForSelector('[class="cycle"]', { visible: true });
+test.describe('Cookbook - Cycling choices', () => {
+  test('Should display "Two" after link is clicked once', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Cycling-Choices/index.html');
+    await page.waitForSelector('[class="cycle"]');
     await page.click('[class="cycle"]');
-    await expect(page).toMatchTextContent("Two");
+    await expect(page.locator('body')).toContainText("Two");
   });
 });

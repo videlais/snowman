@@ -1,23 +1,26 @@
-describe('Snowman CodeMirror Extensions', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/extensions/codemirror/index.html');
-    await page.waitForSelector('.CodeMirror', { timeout: 10000 });
-  });
+import { test, expect } from '@playwright/test';
 
-  describe('CodeMirror Integration', () => {
-    test('should load CodeMirror successfully', async () => {
+test.describe('Snowman CodeMirror Extensions', () => {
+  test.describe('CodeMirror Integration', () => {
+    test('should load CodeMirror successfully', async ({ page }) => {
+      await page.goto('/e2e/extensions/codemirror/index.html');
+      await page.waitForSelector('.CodeMirror', { timeout: 10000 });
       const codeMirror = await page.$('.CodeMirror');
       expect(codeMirror).toBeTruthy();
     });
 
-    test('should have Snowman mode defined', async () => {
+    test('should have Snowman mode defined', async ({ page }) => {
+      await page.goto('/e2e/extensions/codemirror/index.html');
+      await page.waitForSelector('.CodeMirror', { timeout: 10000 });
       const cmExists = await page.evaluate(() => {
         return typeof window.cm !== 'undefined';
       });
       expect(cmExists).toBe(true);
     });
 
-    test.skip('should highlight Snowman syntax', async () => {
+    test.skip('should highlight Snowman syntax', async ({ page }) => {
+      await page.goto('/e2e/extensions/codemirror/index.html');
+      await page.waitForSelector('.CodeMirror', { timeout: 10000 });
       // Clear and set test content
       await page.evaluate(() => {
         window.cm.setValue('<% s.test = "value" %>');
@@ -29,14 +32,16 @@ describe('Snowman CodeMirror Extensions', () => {
     });
   });
 
-  describe('Reference Parser', () => {
-    test('should parse passage references from links', async () => {
+  test.describe('Reference Parser', () => {
+    test('should parse passage references from links', async ({ page }) => {
+      await page.goto('/e2e/extensions/codemirror/index.html');
+      await page.waitForSelector('.CodeMirror', { timeout: 10000 });
       await page.evaluate(() => {
         window.cm.setValue('[[Link Text->Target Passage]]\\n[[Another Passage]]');
       });
 
       // Wait for references to update
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await page.waitForTimeout(100);
 
       const references = await page.$$eval('#references li', els => 
         els.map(el => el.textContent)
@@ -46,12 +51,14 @@ describe('Snowman CodeMirror Extensions', () => {
       expect(references).toContain('Another Passage');
     });
 
-    test('should parse Story.render references', async () => {
+    test('should parse Story.render references', async ({ page }) => {
+      await page.goto('/e2e/extensions/codemirror/index.html');
+      await page.waitForSelector('.CodeMirror', { timeout: 10000 });
       await page.evaluate(() => {
         window.cm.setValue('<% window.Story.render("Helper Passage") %>');
       });
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await page.waitForTimeout(100);
 
       const references = await page.$$eval('#references li', els => 
         els.map(el => el.textContent)
@@ -60,12 +67,14 @@ describe('Snowman CodeMirror Extensions', () => {
       expect(references).toContain('Helper Passage');
     });
 
-    test('should parse Story.goTo references', async () => {
+    test('should parse Story.goTo references', async ({ page }) => {
+      await page.goto('/e2e/extensions/codemirror/index.html');
+      await page.waitForSelector('.CodeMirror', { timeout: 10000 });
       await page.evaluate(() => {
         window.cm.setValue('<% Story.goTo("Next Scene") %>');
       });
 
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await page.waitForTimeout(100);
 
       const references = await page.$$eval('#references li', els => 
         els.map(el => el.textContent)
@@ -75,8 +84,10 @@ describe('Snowman CodeMirror Extensions', () => {
     });
   });
 
-  describe('Syntax Highlighting', () => {
-    test.skip('should highlight JavaScript expressions', async () => {
+  test.describe('Syntax Highlighting', () => {
+    test.skip('should highlight JavaScript expressions', async ({ page }) => {
+      await page.goto('/e2e/extensions/codemirror/index.html');
+      await page.waitForSelector('.CodeMirror', { timeout: 10000 });
       await page.evaluate(() => {
         window.cm.setValue('<%= s.playerName %>');
       });
@@ -85,7 +96,9 @@ describe('Snowman CodeMirror Extensions', () => {
       expect(keywordElements.length).toBeGreaterThan(0);
     });
 
-    test.skip('should highlight Twine links', async () => {
+    test.skip('should highlight Twine links', async ({ page }) => {
+      await page.goto('/e2e/extensions/codemirror/index.html');
+      await page.waitForSelector('.CodeMirror', { timeout: 10000 });
       await page.evaluate(() => {
         window.cm.setValue('[[Test Link->Target]]');
       });
@@ -94,7 +107,9 @@ describe('Snowman CodeMirror Extensions', () => {
       expect(linkElements.length).toBeGreaterThan(0);
     });
 
-    test.skip('should highlight HTML tags', async () => {
+    test.skip('should highlight HTML tags', async ({ page }) => {
+      await page.goto('/e2e/extensions/codemirror/index.html');
+      await page.waitForSelector('.CodeMirror', { timeout: 10000 });
       await page.evaluate(() => {
         window.cm.setValue('<div class="test">Content</div>');
       });

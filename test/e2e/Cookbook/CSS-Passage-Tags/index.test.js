@@ -1,19 +1,10 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - CSS and Passage Tags', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/CSS-Passage-Tags/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should use "tags="yellow"', async () => {
+test.describe('Cookbook - CSS and Passage Tags', () => {
+  test('Should use "tags="yellow"', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/CSS-Passage-Tags/index.html');
     await page.click('[data-passage="Second"]');
     await page.waitForSelector('[tags="yellow"]');
-    await expect(page).toMatchTextContent("black text");
+    await expect(page.locator('body')).toContainText("black text");
   });
 });

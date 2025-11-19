@@ -1,18 +1,9 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - CSS Selectors', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/CSS-Selectors/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should have border color of red', async () => {
+test.describe('Cookbook - CSS Selectors', () => {
+  test('Should have border color of red', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/CSS-Selectors/index.html');
     await page.click('[data-passage="Second"]');
-    await expect(page).toMatchTextContent('This passage also has a red border.');
+    await expect(page.locator('body')).toContainText('This passage also has a red border.');
   });
 });

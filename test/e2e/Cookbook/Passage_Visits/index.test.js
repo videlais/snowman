@@ -1,19 +1,10 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Passage Visits', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Passage_Visits/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should display 1 visit count', async () => {
+test.describe('Cookbook - Passage Visits', () => {
+  test('Should display 1 visit count', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Passage_Visits/index.html');
     await page.click('[data-passage="Another Passage"]');
     await page.click('[data-passage="Start"]');
-    await expect(page).toMatchTextContent("been visited? 1");
+    await expect(page.locator('body')).toContainText("been visited? 1");
   });
 });

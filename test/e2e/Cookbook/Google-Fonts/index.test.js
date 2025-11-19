@@ -1,17 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Google Fonts', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Google-Fonts/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should display message', async () => {
-    await expect(page).toMatchTextContent('This text is styled using a Google Font');
+test.describe('Cookbook - Google Fonts', () => {
+  test('Should display message', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Google-Fonts/index.html');
+    await expect(page.locator('body')).toContainText('This text is styled using a Google Font');
   });
 });

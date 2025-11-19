@@ -1,18 +1,9 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Turn Counter', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Turn-Counter/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should display "It is morning." after opening chest', async () => {
+test.describe('Cookbook - Turn Counter', () => {
+  test('Should display "It is morning." after opening chest', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Turn-Counter/index.html');
     await page.click('[data-passage="Left Room"]');
-    await expect(page).toMatchTextContent("It is morning.");
+    await expect(page.locator('body')).toContainText("It is morning.");
   });
 });

@@ -1,18 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
+import { test, expect } from '@playwright/test';
 
-  
-describe('Cookbook - Setting and Showing Variables', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Setting-Showing/index.html');
-  });
-
- 
-  it('Should display result', async () => {
-    await expect(page).toMatchTextContent('The value is 6 and five.');
+test.describe('Cookbook - Setting and Showing Variables', () => {
+  test('Should display result', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Setting-Showing/index.html');
+    await expect(page.locator('body')).toContainText('The value is 6 and five.');
   });
 });

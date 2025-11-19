@@ -1,18 +1,9 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-  
-describe('Cookbook - Date and Time', () => {
-  beforeAll(async () => {
-    await page.goto('http://localhost:3000/e2e/Cookbook/Date-Time/index.html');
-  });
+import { test, expect } from '@playwright/test';
 
- 
-  it('Should display current year on page', async () => {
+test.describe('Cookbook - Date and Time', () => {
+  test('Should display current year on page', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Date-Time/index.html');
     const year = new Date().getFullYear().toString();
-    await expect(page).toMatchTextContent(year);
+    await expect(page.locator('body')).toContainText(year);
   });
 });

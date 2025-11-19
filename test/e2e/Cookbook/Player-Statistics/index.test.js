@@ -1,19 +1,10 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-   
-describe('Cookbook - Player Statistics', () => {
-     beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/Cookbook/Player-Statistics/index.html');
-     });
- 
-  
-    it('Should display increased empathy value', async () => {
-        await page.waitForSelector('[id="empathyIncrease"]', { visible: true });
-        await page.click('[id="empathyIncrease"]');
-        await expect(page).toMatchTextContent('Empathy: 11');
-    });
+import { test, expect } from '@playwright/test';
+
+test.describe('Cookbook - Player Statistics', () => {
+  test('Should display increased empathy value', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Player-Statistics/index.html');
+    await page.waitForSelector('[id="empathyIncrease"]');
+    await page.click('[id="empathyIncrease"]');
+    await expect(page.locator('body')).toContainText('Empathy: 11');
+  });
 });

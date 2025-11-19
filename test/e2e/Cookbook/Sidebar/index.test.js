@@ -1,17 +1,8 @@
-/**
- * @jest-environment puppeteer
- */
-const path = require('path');
-require('expect-puppeteer');
- 
-   
-describe('Cookbook - Left Sidebar', () => {
-    beforeAll(async () => {
-        await page.goto('http://localhost:3000/e2e/Cookbook/Sidebar/index.html');
-    });
- 
-  
-    it('Should display "Name: Jane Doe" after story start', async () => {
-        await expect(page).toMatchTextContent('Name: Jane Doe');
-    });
- });
+import { test, expect } from '@playwright/test';
+
+test.describe('Cookbook - Left Sidebar', () => {
+  test('Should display "Name: Jane Doe" after story start', async ({ page }) => {
+    await page.goto('/e2e/Cookbook/Sidebar/index.html');
+    await expect(page.locator('body')).toContainText('Name: Jane Doe');
+  });
+});
