@@ -14,3 +14,34 @@ setDefaultOptions({
   timeout: 30000  // 30 seconds for all expect-puppeteer matchers
 });
 
+// Set up global configuration for all Puppeteer pages
+// This sets the default timeout for page.waitForSelector, page.waitForFunction, etc.
+beforeEach(async () => {
+  if (page) {
+    page.setDefaultTimeout(30000);
+    page.setDefaultNavigationTimeout(30000);
+  }
+});
+
+// Clean up after each test to prevent state leakage
+afterEach(async () => {
+  if (page) {
+    // Clear any dialogs
+    try {
+      await page.evaluate(() => {
+        // Clear any timers
+        const highestTimeoutId = setTimeout(() => {}, 0);
+        for (let i = 0; i < highestTimeoutId; i++) {
+          clearTimeout(i);
+        }
+        const highestIntervalId = setInterval(() => {}, 0);
+        for (let i = 0; i < highestIntervalId; i++) {
+          clearInterval(i);
+        }
+      });
+    } catch (e) {
+      // Page might be closed, ignore
+    }
+  }
+});
+
