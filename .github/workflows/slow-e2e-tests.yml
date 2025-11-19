@@ -1,0 +1,92 @@
+name: Slow E2E Tests
+
+# Run these tests separately as they require compilation and take longer
+on:
+  schedule:
+    # Run weekly on Sundays at 3 AM UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  slow-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+      
+    - name: Build and package
+      run: npm run package
+      
+    - name: Install ExTwee for e2e tests
+      run: npm install -g extwee
+      
+    - name: Compile problematic e2e test files
+      run: |
+        # Compile only the tests that require specific HTML compilation
+        test_dirs=(
+          "Cookbook/Cycling-Choices"
+          "Cookbook/Delayed-Text"
+          "Cookbook/Dropdown"
+          "Cookbook/Dungeon"
+          "Cookbook/Lock-Key"
+          "Cookbook/Modal"
+          "Cookbook/Player-Statistics"
+          "Cookbook/Programmatic-Undo"
+          "Cookbook/Space-Exploration"
+          "Cookbook/Static-Healthbars"
+          "RunScript/State_Events_Test"
+          "Cookbook/Timed-Passages"
+          "Cookbook/Loading-Screen"
+          "Cookbook/Typewriter-Effect"
+        )
+        
+        for dir in "${test_dirs[@]}"; do
+          if [ -f "test/e2e/$dir/index.twee" ]; then
+            echo "Compiling test/e2e/$dir/index.twee"
+            extwee -s dist/format.js -i "test/e2e/$dir/index.twee" -c -o "test/e2e/$dir/index.html"
+          fi
+        done
+      
+    - name: Run slow/problematic e2e tests
+      run: |
+        npx playwright test \
+          test/e2e/Cookbook/Cycling-Choices \
+          test/e2e/Cookbook/Delayed-Text \
+          test/e2e/Cookbook/Dropdown \
+          test/e2e/Cookbook/Dungeon \
+          test/e2e/Cookbook/Lock-Key \
+          test/e2e/Cookbook/Modal \
+          test/e2e/Cookbook/Player-Statistics \
+          test/e2e/Cookbook/Programmatic-Undo \
+          test/e2e/Cookbook/Space-Exploration \
+          test/e2e/Cookbook/Static-Healthbars \
+          test/e2e/RunScript/State_Events_Test \
+          test/e2e/Cookbook/Timed-Passages \
+          test/e2e/Cookbook/Loading-Screen \
+          test/e2e/Cookbook/Typewriter-Effect
+      env:
+        CI: true
+        
+    - name: Upload test artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: slow-e2e-test-artifacts
+        path: |
+          test/e2e/**/*.html
+          playwright-report/
+          test-results/
+        retention-days: 7
