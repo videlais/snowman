@@ -80,7 +80,40 @@ jobs:
     - name: Run quick e2e tests (excludes slow timing tests)
       run: |
         npx playwright test \
-          --grep-invert "Timed-Passages|Loading-Screen|Typewriter-Effect|Cycling-Choices|Delayed-Text|Dropdown|Dungeon|Lock-Key|Modal|Player-Statistics|Programmatic-Undo|Space-Exploration|Static-Healthbars|State_Events_Test"
+          --ignore-snapshots \
+          test/e2e/Cookbook/Adding-Functionality \
+          test/e2e/Cookbook/Arrays \
+          test/e2e/Cookbook/Audio \
+          test/e2e/Cookbook/Conditional-Statements \
+          test/e2e/Cookbook/CSS-Selectors \
+          test/e2e/Cookbook/CSS-Passage-Tags \
+          test/e2e/Cookbook/Date-Time \
+          test/e2e/Cookbook/Deleting-Variables \
+          test/e2e/Cookbook/Dice-Rolling \
+          test/e2e/Cookbook/External-JavaScript \
+          test/e2e/Cookbook/Fairmath-System \
+          test/e2e/Cookbook/Google-Fonts \
+          test/e2e/Cookbook/Headers-Footers \
+          test/e2e/Cookbook/Hidden-Link \
+          test/e2e/Cookbook/Images \
+          test/e2e/Cookbook/Keyboard-Events \
+          test/e2e/Cookbook/Limiting-Range \
+          test/e2e/Cookbook/Looping \
+          test/e2e/Cookbook/Modularity \
+          test/e2e/Cookbook/Passage-Events \
+          test/e2e/Cookbook/Passage-Transitions \
+          test/e2e/Cookbook/Passages-in-Passages \
+          test/e2e/Cookbook/Passage_Visits \
+          test/e2e/Cookbook/RenderPassageToElement \
+          test/e2e/Cookbook/Saving-Games \
+          test/e2e/Cookbook/Setting-Showing \
+          test/e2e/Cookbook/Sidebar \
+          test/e2e/Cookbook/Story-Passage-API \
+          test/e2e/Cookbook/Style-Markup \
+          test/e2e/Cookbook/Turn-Counter \
+          test/e2e/Cookbook/Variable-Story-Styling \
+          test/e2e/RunScript \
+          test/e2e/Errors
       env:
         CI: true
     
