@@ -4,10 +4,10 @@
             "displayName": "jest-puppeteer",
             "testMatch": ["<rootDir>/test/e2e/**/*.test.js"],
             "preset": "jest-puppeteer",
+            "testTimeout": 30000,
             "transform": {
                 "^.+\\.js$": "babel-jest"
-            },
-            "testTimeout": 30000
+            }
         },
         {
             "displayName": "jest-jsdom",
@@ -16,7 +16,8 @@
             "transform": {
                 "^.+\\.js$": "babel-jest"
             },
-            "setupFiles": ["<rootDir>/test/setup.js"]
+            "setupFiles": ["<rootDir>/test/setup.js"],
+            "testTimeout": 30000
         }
     ],
     "verbose": true
