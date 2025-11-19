@@ -5,6 +5,7 @@
             "testMatch": ["<rootDir>/test/e2e/**/*.test.js"],
             "preset": "jest-puppeteer",
             "testTimeout": 30000,
+            "setupFilesAfterEnv": ["<rootDir>/test/setupPuppeteer.js"],
             "transform": {
                 "^.+\\.js$": "babel-jest"
             }
