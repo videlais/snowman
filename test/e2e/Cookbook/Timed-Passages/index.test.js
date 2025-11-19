@@ -3,9 +3,6 @@
  */
 const path = require('path');
 require('expect-puppeteer');
-
-// 15 seconds
-jest.setTimeout(15000);
   
    
 describe('Cookbook - Timed Passages', () => {

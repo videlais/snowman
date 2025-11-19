@@ -2,12 +2,7 @@
  * @jest-environment puppeteer
  */
 const path = require('path');
-require('expect-puppeteer');
- 
-// 10 seconds
-jest.setTimeout(10000);
-   
-    
+require('expect-puppeteer');    
 describe('Cookbook - Timed Progress Bars', () => {
     beforeAll(async () => {
         await page.goto('http://localhost:3000/e2e/Cookbook/Timed-Progress-Bars/index.html');

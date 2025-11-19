@@ -3,11 +3,6 @@
  */
 const path = require('path');
 require('expect-puppeteer');
-  
-// Extend timeout to 10 seconds.
-jest.setTimeout(10000);
-
-
 describe('Cookbook - Loading Screen', () => {
     beforeAll(async () => {
         await page.goto('http://localhost:3000/e2e/Cookbook/Loading-Screen/index.html');

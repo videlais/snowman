@@ -2,12 +2,7 @@
  * @jest-environment puppeteer
  */
 const path = require('path');
-require('expect-puppeteer');
- 
-// 15 seconds
-jest.setTimeout(15000);
-   
-    
+require('expect-puppeteer');    
 describe('Cookbook - Typewriter Effect', () => {
     beforeAll(async () => {
         await page.goto('http://localhost:3000/e2e/Cookbook/Typewriter-Effect/index.html');

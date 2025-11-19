@@ -4,8 +4,6 @@
 const path = require('path');
 require('expect-puppeteer');
 
-jest.setTimeout(15000);
-
   
 describe('Cookbook - Delayed Text', () => {
   beforeAll(async () => {
