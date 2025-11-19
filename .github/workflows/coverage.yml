@@ -35,6 +35,9 @@ jobs:
     - name: Install dependencies
       run: npm install
       
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+      
     - name: Install ExTwee for e2e tests
       run: npm install -g extwee
 
@@ -61,7 +64,7 @@ jobs:
         done
       
     - name: Run quick e2e tests (excludes slow timing tests)
-      run: npm run test:e2e -- --testPathIgnorePatterns="Timed-Passages|Loading-Screen|Typewriter-Effect"
+      run: npm run test:e2e:fast
       env:
         CI: true
     
