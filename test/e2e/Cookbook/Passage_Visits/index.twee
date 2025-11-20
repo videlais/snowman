@@ -6,6 +6,8 @@ Snowman: Passage Visits
 {
     "ifid": "98B91017-1E00-4C5F-B425-6E6C93657BD1"
 }
+
+
 :: Start
 How many times has the passage "Another Passage" been visited? <%= History.visited("Another Passage") %>
 

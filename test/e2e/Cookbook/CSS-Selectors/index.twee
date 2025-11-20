@@ -6,6 +6,8 @@ CSS Selectors in Snowman
 {
     "ifid": "0888512C-5C4D-4D14-B960-9BF524083ABD"
 }
+
+
 :: UserStylesheet [stylesheet]
 body {
     background-color: lightgreen;

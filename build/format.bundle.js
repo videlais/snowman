@@ -22727,7 +22727,8 @@ class Script {
           }
         },
         {
-          outputFunctionName: 'print'
+          outputFunctionName: 'print',
+          escape: false
         }
       );
     } catch (e) {
@@ -23190,7 +23191,7 @@ class Story {
       this.passages.push(new src_Passage(
         this.domUtils.attr(element, 'name'),
         tags,
-        this.markdown.unescape(this.domUtils.html(element))
+        this.domUtils.html(element)
       ));
     });
 

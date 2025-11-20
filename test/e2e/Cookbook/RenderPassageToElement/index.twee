@@ -6,6 +6,8 @@ Snowman: Render to Element
 {
     "ifid": "B35605FB-B847-40D4-BECD-0669DA852F79"
 }
+
+
 :: UserScript[script]
 Story.events.on('show', () => {
 	Story.renderPassageToSelector("HUD", "#hudID");

@@ -48,7 +48,8 @@ class Script {
           }
         },
         {
-          outputFunctionName: 'print'
+          outputFunctionName: 'print',
+          escape: false
         }
       );
     } catch (e) {

@@ -1,0 +1,51 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - paragraph [ref=e5]:
+    - button "North" [ref=e6]
+    - button "South" [ref=e7]
+    - button "East" [ref=e8]
+    - button "West" [ref=e9]
+  - paragraph [ref=e10]:
+    - text: <%
+    - text: /* 0s are walls, 1 are spaces, 2 is the goal. */
+    - text: var maze =
+    - text: "["
+    - text: "[0,0,0,0,0,0,0,0,0,0,0],"
+    - text: "[0,1,1,1,0,1,1,1,1,1,0],"
+    - text: "[0,0,0,1,0,0,0,0,0,1,0],"
+    - text: "[0,1,0,1,1,1,1,1,0,1,0],"
+    - text: "[0,1,0,0,0,0,0,1,0,1,0],"
+    - text: "[0,1,1,1,1,1,1,1,0,1,0],"
+    - text: "[0,0,0,0,0,0,0,1,0,1,0],"
+    - text: "[0,1,0,1,1,1,1,1,1,1,0],"
+    - text: "[0,1,0,1,0,0,0,1,0,0,0],"
+    - text: "[0,1,1,1,0,1,1,1,1,2,0],"
+    - text: "[0,0,0,0,0,0,0,0,0,0,0]"
+    - text: "];"
+  - paragraph [ref=e11]: /* Where the player starts. The top left is (0, 0). */
+  - paragraph [ref=e12]: var positionX = 1, positionY = 1;
+  - paragraph [ref=e13]:
+    - text: "function renderMaze() {"
+    - text: /* Transform the maze into ASCII art. */
+  - code [ref=e15]: "/* What characters we use to display the maze. */ var displayChars = ['#', '.', 'E']; $('.maze').html(maze.map(function(row, renderY) { return row.reduceRight(function(html, cell, renderX) { if (renderX === positionX &amp;&amp; renderY === positionY) { return 'P' + html; } return displayChars[cell] + html; }, '<br>'); }));"
+  - paragraph [ref=e16]: "}"
+  - paragraph [ref=e17]:
+    - text: "function updateMoves() {"
+    - text: /*
+    - text: Enable/disable buttons to move based on what's allowed.
+    - text: We take advantage of the fact that both 0 and undefined
+    - text: (outside the maze) are converted to false by JavaScript by the
+    - text: "! operator."
+    - text: "*/"
+  - code [ref=e19]: $('[data-move="n"]').attr('disabled', !maze[positionY - 1][positionX]); $('[data-move="s"]').attr('disabled', !maze[positionY + 1][positionX]); $('[data-move="e"]').attr('disabled', !maze[positionY][positionX + 1]); $('[data-move="w"]').attr('disabled', !maze[positionY][positionX - 1]);
+  - paragraph [ref=e20]: "}"
+  - paragraph [ref=e21]:
+    - text: "$(function() {"
+    - text: renderMaze();
+    - text: updateMoves();
+  - code [ref=e23]: "/* Change position when the user clicks an appropriate link. We depend on updateMoves() to prevent the user from walking through a wall. */ $('[data-move]').click(function() { var direction = $(this).data('move'); switch (direction) { case 'n': positionY--; break; case 's': positionY++; break; case 'e': positionX++; break; case 'w': positionX--; break; default: throw new Error('Don\\'t know how to move ' + direction); } if (maze[positionY][positionX] === 2) { story.show('Exit'); } else { renderMaze(); updateMoves(); } });"
+  - paragraph [ref=e24]: "});"
+  - paragraph [ref=e25]: "%>"
+```

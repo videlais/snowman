@@ -6,6 +6,7 @@ Adding Functionality in Snowman
 {
     "ifid": "ECA7E5F9-8879-45DB-87D6-A47A5D76096C"
 }
+
 :: UserScript[script]
 // Create global function
 s.showCurrentTime = function() {

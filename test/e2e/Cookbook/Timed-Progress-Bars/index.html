@@ -7,7 +7,7 @@
 		<style>/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}[hidden],template{display:none}body{color:#222;font:1.5em Helvetica Neue,Helvetica,Arial,sans-serif;margin-right:1em}tw-icon{cursor:pointer;font-size:2em}tw-story{box-sizing:border-box;display:flex;flex-direction:row;font-size:1.5em;line-height:1.5em;margin-top:1em;min-height:100%;width:100%}tw-passage{display:block;width:90%}a,tw-link{color:#222;cursor:pointer;text-decoration-color:#ccc}a,a:hover,tw-icon:hover,tw-link,tw-link:hover{text-decoration:underline}tw-sidebar{margin-left:1em;width:10%}a:hover{color:#cc8929}a:active,a:hover{text-decoration-color:#cc8929}a:active{color:#ffb040}tw-storydata{display:none}tw-screenlock{align-items:center;background-color:#fff;display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:100000}.loading{-webkit-animation:spin 2s linear infinite;animation:spin 2s linear infinite;border:16px solid #f3f3f3;border-radius:50%;border-top-color:#3498db;height:250px;width:250px}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(1turn)}}@keyframes spin{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}</style>
 	</head>
 	<body>
-		<tw-storydata name="Timed Progress Bars in Snowman" ifid="DDF84F38-4757-400B-A486-744544D65F7F" startnode="3" creator="extwee" creator-version="2.3.6" options hidden>
+		<tw-storydata name="Timed Progress Bars in Snowman" ifid="DDF84F38-4757-400B-A486-744544D65F7F" startnode="1" creator="extwee" creator-version="2.3.10" options hidden>
 	<style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">.progress-bar {
 	position: relative;
 	border: 1px solid #777;
@@ -127,137 +127,18 @@ s.timedprogressbars = function(dur, wid, func) {
 			}, 40);
 		});
 };</script>
-	<tw-passagedata pid="1" name="UserScript" tags="script" >/*
-		
-	Description: Show a dynamically-created &quot;progress bar&quot; 
-	that changes colors as its timer runs down.
-		
-	Arguments:
-		dur: time in seconds
-		wid: CSS width
-		func: the function to execute when the timer runs out
-		
-*/
-s.timedprogressbars = function(dur, wid, func) {
-	
-		// Save or generate a default duration
-		let duration = (Number(dur) || 60) * 1000;
-		
-		// Save or generate a width
-		let width = wid || &quot;100%&quot;;
-		
-		// Generate a unique hash
-		let hash = Math.floor(Math.random() * 0x100000000).toString(16);
-		
-		//  Create an outer ID
-		let outerId = &quot;outer_&quot; + hash;
-		
-		// Create an inner ID
-		let innerId = &quot;inner_&quot; + hash;
-		
-		// Create an outer div, 
-		// add an ID,
-		// add a class,
-		// change the CSS width, and
-		// append to the output
-		let progressbar = $(&quot;&lt;div&gt;&quot;)
-		.attr(&quot;id&quot;, outerId)
-		.addClass(&quot;progress-bar&quot;)
-		.css(&apos;width&apos;, width)
-		.appendTo(&quot;tw-passage&quot;);
-		
-		// Create an inner div, 
-		// add an ID,
-		// add a class,
-		// change the CSS width, and
-		// append to the progressbar
-		let progressvalue = $(&quot;&lt;div&gt;&quot;)
-		.attr(&quot;id&quot;, innerId)
-		.addClass(&quot;progress-value&quot;)
-		.css(&apos;width&apos;, &quot;100%&quot;)
-		.appendTo(progressbar);
-		
-		// Create a function to convert into hexadecimal
-		let toHex = function(num) {
-			let res = Math.round(Number(num)).toString(16);
-			return (res.length === 1 ? &quot;0&quot; + res : res);
-		};
-		
-		// Watch for story show event
-		Story.events.once(&quot;start&quot;, () =&gt; {
-			
-			// Get the current time
-			let timeStarted = (new Date()).getTime();
-			
-			// Save a reference to the setInterval function
-			let workFunction = setInterval(() =&gt; {
-				
-				// Check if the element is still &apos;connected&apos;
-				if(! progressbar.prop(&quot;isConnected&quot;) ) {
-					
-					// Navigated away from the passage
-					clearInterval(workFunction);
-					return;
-				}
-				
-				// Figure out how much time has passed
-				let timePassed = (new Date()).getTime() - timeStarted;
-				
-				// Check if the timer has run out
-				if(timePassed &gt;= duration) {
-					
-					// Reduce the inner width to 0
-					progressvalue.css(&apos;width&apos;, &quot;0&quot;);
-					
-					// Clear interval
-					clearInterval(workFunction);
-					
-					// Run the inner function (if set)
-					setTimeout(func, 40);
-					return;
-				}
-				
-				// Update the progress percentage
-				let percentage = 100 - 100 * timePassed / duration;
-				
-				// Save the new color
-				let color = &quot;#&quot;
-					+ toHex(Math.min(255, 510 -  5.1 * percentage))
-					+ toHex(Math.min(255, 5.1 * percentage)) + &quot;00&quot;;
-				
-				// Update the background color of the inner div
-				progressvalue.css(&quot;backgroundColor&quot;, color);
-				
-				// Update the inner div width
-				progressvalue.css(&quot;width&quot;, (100 - 100 * timePassed / duration) + &quot;%&quot;);
-			}, 40);
-		});
-};</tw-passagedata>
-	<tw-passagedata pid="2" name="UserStylesheet" tags="stylesheet" >.progress-bar {
-	position: relative;
-	border: 1px solid #777;
-	background: black;
-	height: 1em;
-}
-.progress-value {
-	position: absolute;
-	top: 0;
-	left: 0;
-	height: 100%;
-	background: #00ff00;
-}</tw-passagedata>
-	<tw-passagedata pid="3" name="Start" tags="" >&lt;div id=&quot;results&quot;&gt;&lt;/div&gt;
+	<tw-passagedata pid="1" name="Start" tags="" ><div id="results"></div>
 
-&lt;%
-	$(() =&gt; {
-		s.timedprogressbars(5, &quot;20em&quot;, () =&gt; {
+<%
+	$(() => {
+		s.timedprogressbars(5, "20em", () => {
 			// Hide the progress bar
-			$(&quot;.progress-bar&quot;).css(&quot;display&quot;, &quot;none&quot;);
+			$(".progress-bar").css("display", "none");
 			// Display the result
-			$(&quot;#results&quot;).text(&quot;Too late!&quot;);
+			$("#results").text("Too late!");
 		});
 	});
-%&gt;</tw-passagedata>
+%></tw-passagedata>
 </tw-storydata>
 		<tw-story>
 			<tw-sidebar>
@@ -22995,7 +22876,8 @@ class Script {
           }
         },
         {
-          outputFunctionName: 'print'
+          outputFunctionName: 'print',
+          escape: false
         }
       );
     } catch (e) {
@@ -23458,7 +23340,7 @@ class Story {
       this.passages.push(new src_Passage(
         this.domUtils.attr(element, 'name'),
         tags,
-        this.markdown.unescape(this.domUtils.html(element))
+        this.domUtils.html(element)
       ));
     });
 

@@ -6,6 +6,8 @@ Variable Story Styling in Snowman
 {
     "ifid": "3394284D-8AF0-4A52-AFA9-307EC541939C"
 }
+
+
 :: UserStylesheet[stylesheet]
 .green {
 	background: white;

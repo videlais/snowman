@@ -6,6 +6,8 @@ Space Exploration in Snowman 2.0
 {
     "ifid": "6BC194EC-A846-4C8C-BEF1-C5429036A739"
 }
+
+
 :: UserScript[script]
 // Use the existing global store, s:
 s.health = 20;

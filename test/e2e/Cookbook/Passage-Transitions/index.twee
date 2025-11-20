@@ -6,6 +6,8 @@ Snowman 2: Passage Transitions
 {
     "ifid": "7529297D-0CCA-4AA4-B646-CDAA497C36EC"
 }
+
+
 :: UserScript[script]
 Story.events.on('show', () => {
 	$("tw-passage").hide(0).fadeIn(2000);

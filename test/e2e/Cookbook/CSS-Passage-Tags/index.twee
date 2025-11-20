@@ -6,6 +6,8 @@ CSS and Passage Tags in Snowman
 {
     "ifid": "2A7B3B0F-FFD0-4A13-81E9-F47E780068A5"
 }
+
+
 :: UserStylesheet[stylesheet]
 [tags="grey"] {
 	background: grey;

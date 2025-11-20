@@ -6,6 +6,8 @@ Images in Snowman
 {
     "ifid": "1BE9B10C-D3B8-4FB0-936E-094A88DD6694"
 }
+
+
 :: UserStylesheet[stylesheet]
 .base64image {
   width: 256px;

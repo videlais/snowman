@@ -60,10 +60,14 @@ class Story {
       }
 
       // Push the new passage.
+      // Only unescape EJS template delimiters, not all HTML
+      let source = this.domUtils.html(element);
+      source = source.replaceAll('&lt;%', '<%').replaceAll('%&gt;', '%>');
+      
       this.passages.push(new Passage(
         this.domUtils.attr(element, 'name'),
         tags,
-        this.markdown.unescape(this.domUtils.html(element))
+        source
       ));
     });
 

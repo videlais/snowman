@@ -6,6 +6,8 @@ Setting and Showing Variables in Snowman
 {
     "ifid": "CC0BC19C-BF79-41C3-8520-410D3C07FAAA"
 }
+
+
 :: Start
 <%
 	s.numberVariable = 5;

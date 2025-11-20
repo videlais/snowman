@@ -7,7 +7,7 @@
 		<style>/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:.35em .75em .625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}[hidden],template{display:none}body{color:#222;font:1.5em Helvetica Neue,Helvetica,Arial,sans-serif;margin-right:1em}tw-icon{cursor:pointer;font-size:2em}tw-story{box-sizing:border-box;display:flex;flex-direction:row;font-size:1.5em;line-height:1.5em;margin-top:1em;min-height:100%;width:100%}tw-passage{display:block;width:90%}a,tw-link{color:#222;cursor:pointer;text-decoration-color:#ccc}a,a:hover,tw-icon:hover,tw-link,tw-link:hover{text-decoration:underline}tw-sidebar{margin-left:1em;width:10%}a:hover{color:#cc8929}a:active,a:hover{text-decoration-color:#cc8929}a:active{color:#ffb040}tw-storydata{display:none}tw-screenlock{align-items:center;background-color:#fff;display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:100000}.loading{-webkit-animation:spin 2s linear infinite;animation:spin 2s linear infinite;border:16px solid #f3f3f3;border-radius:50%;border-top-color:#3498db;height:250px;width:250px}@-webkit-keyframes spin{0%{-webkit-transform:rotate(0deg)}to{-webkit-transform:rotate(1turn)}}@keyframes spin{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}</style>
 	</head>
 	<body>
-		<tw-storydata name="Space Exploration in Snowman 2.0" ifid="6BC194EC-A846-4C8C-BEF1-C5429036A739" startnode="2" creator="extwee" creator-version="2.3.5" options hidden>
+		<tw-storydata name="Space Exploration in Snowman 2.0" ifid="6BC194EC-A846-4C8C-BEF1-C5429036A739" startnode="1" creator="extwee" creator-version="2.3.10" options hidden>
 	<script role="script" id="twine-user-script" type="text/twine-javascript">// Use the existing global store, s:
 s.health = 20;
 s.fuel = 4;
@@ -76,128 +76,60 @@ s.checkStatus = () => {
 		Story.show("Safe");
 	}
 }</script>
-	<tw-passagedata pid="1" name="UserScript" tags="script" >// Use the existing global store, s:
-s.health = 20;
-s.fuel = 4;
-s.numberOfJumpsLeft = 10;
-
-s.riskyOutcome = () =&gt; {
-	const percentage = Utils.randomInt(1, 10);
-	let response = &quot;&quot;;
-	
-	if( percentage &gt;= 6) {
-		const foundHealth = Utils.randomInt( 1, 5);
-	 	const foundFuel = Utils.randomInt( 1, 3);	 
-		response = `The hostile environment damaged the ship, but extra fuel was found. -${foundHealth} to health and +${foundFuel} to fuel.`;
-	  	s.health -= foundHealth;
-	  	s.fuel += foundFuel;
-	} else {
-	  	if( percentage &lt;= 3) {
-	  		const foundHealth = Utils.randomInt(2, 7);
-	  		response = `A hostile ship attacked. -${foundHealth} to health`;
-	 		s.health -= foundHealth;
-		} else {
-			response = &quot;Nothing happened.&quot;
-		}
-	}
-		
-	return response;
-};
-	
-s.saferOutcome = () =&gt; {
-	const percentage = Utils.randomInt(1, 10);
-	let response = &quot;&quot;;
-	
-	if( percentage == 1) {
-		const foundFuel = Utils.randomInt( 1, 2);
-		response = `Fuel was found in some wreckage. +${foundFuel} to fuel`;
-	  	s.fuel += foundFuel;
-	} else {
-	  	if( percentage &gt;= 6) {
-	  		const foundHealth = Utils.randomInt(1, 3);
-			response = `During a brief pause, the ship was able to be repaired. +${foundHealth} to health`;
-	 		s.health += foundHealth;
-		} else {
-			response = &quot;Nothing happened.&quot;
-		}
-	}
-		
-	return response;
-};
-
-s.checkStatus = () =&gt; {
-    // If health is less than or equal to zero,
-    //  show the &quot;Destoryed&quot; passage.
-	if(s.health &lt;= 0) {
-		Story.show(&quot;Destroyed&quot;);
-	}
-
-    // If fuel is less than or equal to zero,
-    //  show the &quot;Lost in Space&quot; passage.
-	if(s.fuel &lt;= 0) {
-        Story.show(&quot;Lost in Space&quot;);
-	}
-
-    // If numberOfJumpsLeft is less than or equal to zero,
-    //  show the &quot;Safe&quot; passage.
-	if(s.numberOfJumpsLeft &lt;= 0) {
-		Story.show(&quot;Safe&quot;);
-	}
-}</tw-passagedata>
-	<tw-passagedata pid="2" name="Start" tags="" >&lt;p&gt;You are running low on supplies, but know you can call for help after 10 hyperjumps.&lt;/p&gt;
-&lt;p&gt;Each hyperjump will land you in a new system of planets to explore.&lt;/p&gt;
-&lt;p&gt;Some planets will be safer and others risky to explore for more supplies.&lt;/p&gt;
+	<tw-passagedata pid="1" name="Start" tags="" ><p>You are running low on supplies, but know you can call for help after 10 hyperjumps.</p>
+<p>Each hyperjump will land you in a new system of planets to explore.</p>
+<p>Some planets will be safer and others risky to explore for more supplies.</p>
 [[Hyperjump|Space]]</tw-passagedata>
-	<tw-passagedata pid="3" name="Space" tags="" >&lt;%
+	<tw-passagedata pid="2" name="Space" tags="" ><%
     // Adjust the fuel and jumps left.
     s.fuel -= 1;
 	s.numberOfJumpsLeft -= 1;
-%&gt;
-&lt;h2&gt;Statistics&lt;/h2&gt;
-&lt;div id=&quot;HUD&quot;&gt;&lt;/div&gt;
-&lt;h2&gt;System Planets:&lt;/h2&gt;
-&lt;div id=&quot;system&quot;&gt;&lt;/div&gt;
-&lt;h2&gt;Ship Controls&lt;/h2&gt;
-&lt;p&gt;[[Hyperjump|Space]]&lt;/p&gt;
-&lt;%
+%>
+<h2>Statistics</h2>
+<div id="HUD"></div>
+<h2>System Planets:</h2>
+<div id="system"></div>
+<h2>Ship Controls</h2>
+<p>[[Hyperjump|Space]]</p>
+<%
     // Wait for elements to load.
-    $(() =&gt; {
+    $(() => {
         // Update HUD.
-        Story.renderPassageToSelector(&quot;HUD&quot;, &quot;#HUD&quot;);
+        Story.renderPassageToSelector("HUD", "#HUD");
         // Update system.
-        Story.include(&quot;System&quot;);
+        Story.include("System");
     });
-%&gt;</tw-passagedata>
-	<tw-passagedata pid="4" name="System" tags="" >&lt;%
+%></tw-passagedata>
+	<tw-passagedata pid="3" name="System" tags="" ><%
     // Create a new array of a random size between 1 and 4.
     const system = new Array(Utils.randomInt(1, 4));
 	
     // Set each entry in new array to either 0 or 1.
-	for(let i = 0; i &lt; system.length; i++) {
+	for(let i = 0; i < system.length; i++) {
 		system[i] = Utils.either(0, 1);
 	}
 	
     // Create list of planets.
-    let list = $(&apos;&lt;ul&gt;&apos;);
+    let list = $('<ul>');
 
     // For each planet in system,
     //  create line item and hyperlink with Risky or Safer text.
 	for(let planet in system) {
         if(planet == 0) {
             // Create a line item and hyperlink.
-		    link = $(&apos;&lt;li&gt;&lt;a role=&quot;link&quot;&gt;Risky&lt;/a&gt;&lt;/li&gt;&apos;);
-            // Listen for &apos;click&apos; event.
-			link.on(&apos;click&apos;, function() {
-                // If a reader clicks, replace content with &quot;Risky&quot; passage.
-    			$( this ).replaceWith( Story.include(&quot;Risky&quot;) );
+		    link = $('<li><a role="link">Risky</a></li>');
+            // Listen for 'click' event.
+			link.on('click', function() {
+                // If a reader clicks, replace content with "Risky" passage.
+    			$( this ).replaceWith( Story.include("Risky") );
 			});
 	    } else {
             // Create a line item and hyperlink.
-		    link = $(&apos;&lt;li&gt;&lt;a role=&quot;link&quot;&gt;Safer&lt;/a&gt;&lt;/li&gt;&apos;);
-            // Listen for &apos;click&apos; event.
-			link.on(&apos;click&apos;, function() {
-                // If a reader clicks, replace content with &quot;Safer&quot; passage.
-    			$( this ).replaceWith( Story.include(&quot;Safer&quot;) );
+		    link = $('<li><a role="link">Safer</a></li>');
+            // Listen for 'click' event.
+			link.on('click', function() {
+                // If a reader clicks, replace content with "Safer" passage.
+    			$( this ).replaceWith( Story.include("Safer") );
 			});
         }
 
@@ -206,35 +138,35 @@ s.checkStatus = () =&gt; {
 	}
 
     // Wait for all content to be loaded.
-    $(() =&gt; {
+    $(() => {
         // Overwrite #system with unordered list.
-        $(&apos;#system&apos;).html(list);
+        $('#system').html(list);
     });
-%&gt;</tw-passagedata>
-	<tw-passagedata pid="5" name="Risky" tags="" >&lt;p&gt;
-    &lt;%- s.riskyOutcome() %&gt;
-    &lt;% Story.renderPassageToSelector(&quot;HUD&quot;, &quot;#HUD&quot;) %&gt;
-&lt;/p&gt;</tw-passagedata>
-	<tw-passagedata pid="6" name="Safer" tags="" >&lt;p&gt;
-    &lt;%- s.saferOutcome() %&gt;
-    &lt;% Story.renderPassageToSelector(&quot;HUD&quot;, &quot;#HUD&quot;) %&gt;
-&lt;/p&gt;</tw-passagedata>
-	<tw-passagedata pid="7" name="HUD" tags="" >&lt;%
+%></tw-passagedata>
+	<tw-passagedata pid="4" name="Risky" tags="" ><p>
+    <%- s.riskyOutcome() %>
+    <% Story.renderPassageToSelector("HUD", "#HUD") %>
+</p></tw-passagedata>
+	<tw-passagedata pid="5" name="Safer" tags="" ><p>
+    <%- s.saferOutcome() %>
+    <% Story.renderPassageToSelector("HUD", "#HUD") %>
+</p></tw-passagedata>
+	<tw-passagedata pid="6" name="HUD" tags="" ><%
 // Check status before displaying HUD.
     s.checkStatus();
-%&gt;
-Health: &lt;%- s.health %&gt; &lt;br&gt;
-Fuel: &lt;%- s.fuel %&gt; &lt;br&gt;
-Number of Jumps Left to Safety: &lt;%- s.numberOfJumpsLeft %&gt; &lt;br&gt;</tw-passagedata>
-	<tw-passagedata pid="8" name="Destroyed" tags="" >The ship exploded in flight.
+%>
+Health: <%- s.health %> <br>
+Fuel: <%- s.fuel %> <br>
+Number of Jumps Left to Safety: <%- s.numberOfJumpsLeft %> <br></tw-passagedata>
+	<tw-passagedata pid="7" name="Destroyed" tags="" >The ship exploded in flight.
 
-&lt;h2&gt;Game Over&lt;/h2&gt;</tw-passagedata>
-	<tw-passagedata pid="9" name="Lost in Space" tags="" >Without fuel, the ship tumbled and spun in the endless black.
+<h2>Game Over</h2></tw-passagedata>
+	<tw-passagedata pid="8" name="Lost in Space" tags="" >Without fuel, the ship tumbled and spun in the endless black.
 
-&lt;h2&gt;Game Over&lt;/h2&gt;</tw-passagedata>
-	<tw-passagedata pid="10" name="Safe" tags="" >After 10 hyperjumps, the ship left the hazardous area and called for help.
+<h2>Game Over</h2></tw-passagedata>
+	<tw-passagedata pid="9" name="Safe" tags="" >After 10 hyperjumps, the ship left the hazardous area and called for help.
 
-&lt;h2&gt;Success!&lt;/h2&gt;</tw-passagedata>
+<h2>Success!</h2></tw-passagedata>
 </tw-storydata>
 		<tw-story>
 			<tw-sidebar>
@@ -22972,7 +22904,8 @@ class Script {
           }
         },
         {
-          outputFunctionName: 'print'
+          outputFunctionName: 'print',
+          escape: false
         }
       );
     } catch (e) {
@@ -23435,7 +23368,7 @@ class Story {
       this.passages.push(new src_Passage(
         this.domUtils.attr(element, 'name'),
         tags,
-        this.markdown.unescape(this.domUtils.html(element))
+        this.domUtils.html(element)
       ));
     });
 

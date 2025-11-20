@@ -6,6 +6,8 @@ Story and Passage API in Snowman
 {
     "ifid": "4E0AA009-F3F6-4296-8ED1-8B7E5287A43E"
 }
+
+
 :: Start
 The title of this story is "<%- Story.name %>."
 
