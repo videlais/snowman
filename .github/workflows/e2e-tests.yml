@@ -1,0 +1,55 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+      
+    - name: Build and package
+      run: npm run package
+      
+    - name: Install Extwee
+      run: npm install -g extwee
+      
+    - name: Clean old compiled e2e files
+      run: find test/e2e -name "*.html" -type f -delete
+      
+    - name: Run all e2e tests (with compilation)
+      run: npm run test:e2e
+      env:
+        CI: true
+        
+    - name: Upload test artifacts on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: e2e-test-artifacts-node-${{ matrix.node-version }}
+        path: |
+          playwright-report/
+          test-results/
+        retention-days: 7
