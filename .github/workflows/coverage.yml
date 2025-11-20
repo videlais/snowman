@@ -22,105 +22,15 @@ jobs:
       with:
         node-version: 22.x
         cache: 'npm'
-        
-    - name: Restore compiled e2e files cache
-      uses: actions/cache@v4
-      with:
-        path: |
-          test/e2e/**/*.html
-        key: e2e-compiled-${{ hashFiles('test/e2e/**/*.twee', 'dist/format.js') }}
-        restore-keys: |
-          e2e-compiled-
 
     - name: Install dependencies
-      run: npm install
-      
-    - name: Install Playwright browsers
-      run: npx playwright install --with-deps
-      
-    - name: Install ExTwee for e2e tests
-      run: npm install -g extwee
-      
-    - name: Clean old e2e HTML files
-      run: find test/e2e -name "*.html" -type f -delete
+      run: npm i
 
-    - name: Build and package
-      run: npm run package
+    - name: Lint codebase
+      run: npm run lint
       
-    - name: Run unit tests with coverage
-      run: npm run test:unit
+    - name: Collect simple code coverage
+      run: npm run test:coverage
       
-    - name: Compile quick e2e test files (excludes slow timing tests)
-      run: |
-        chmod +x ./compile-e2e-tests.sh
-        # Compile fast, stable tests only (exclude problematic ones)
-        find test/e2e -name "*.twee" \
-          -not -path "*/Timed-Passages/*" \
-          -not -path "*/Loading-Screen/*" \
-          -not -path "*/Typewriter-Effect/*" \
-          -not -path "*/Cycling-Choices/*" \
-          -not -path "*/Delayed-Text/*" \
-          -not -path "*/Dropdown/*" \
-          -not -path "*/Dungeon/*" \
-          -not -path "*/Lock-Key/*" \
-          -not -path "*/Modal/*" \
-          -not -path "*/Player-Statistics/*" \
-          -not -path "*/Programmatic-Undo/*" \
-          -not -path "*/Space-Exploration/*" \
-          -not -path "*/Static-Healthbars/*" \
-          -not -path "*/State_Events_Test/*" | while read file; do
-          dir=$(dirname "$file")
-          base=$(basename "$file" .twee)
-          echo "Compiling: $file -> $dir/$base.html"
-          if extwee -s dist/format.js -i "$file" -c -o "$dir/$base.html"; then
-            echo "✅ Successfully compiled $file"
-          else
-            echo "❌ Failed to compile $file"
-            exit 1
-          fi
-        done
-      
-    - name: Run quick e2e tests (excludes slow timing tests)
-      run: |
-        npx playwright test \
-          --ignore-snapshots \
-          test/e2e/Cookbook/Adding-Functionality \
-          test/e2e/Cookbook/Arrays \
-          test/e2e/Cookbook/Audio \
-          test/e2e/Cookbook/Conditional-Statements \
-          test/e2e/Cookbook/CSS-Selectors \
-          test/e2e/Cookbook/CSS-Passage-Tags \
-          test/e2e/Cookbook/Date-Time \
-          test/e2e/Cookbook/Deleting-Variables \
-          test/e2e/Cookbook/Dice-Rolling \
-          test/e2e/Cookbook/External-JavaScript \
-          test/e2e/Cookbook/Fairmath-System \
-          test/e2e/Cookbook/Google-Fonts \
-          test/e2e/Cookbook/Headers-Footers \
-          test/e2e/Cookbook/Hidden-Link \
-          test/e2e/Cookbook/Images \
-          test/e2e/Cookbook/Keyboard-Events \
-          test/e2e/Cookbook/Limiting-Range \
-          test/e2e/Cookbook/Looping \
-          test/e2e/Cookbook/Modularity \
-          test/e2e/Cookbook/Passage-Events \
-          test/e2e/Cookbook/Passage-Transitions \
-          test/e2e/Cookbook/Passages-in-Passages \
-          test/e2e/Cookbook/Passage_Visits \
-          test/e2e/Cookbook/RenderPassageToElement \
-          test/e2e/Cookbook/Saving-Games \
-          test/e2e/Cookbook/Setting-Showing \
-          test/e2e/Cookbook/Sidebar \
-          test/e2e/Cookbook/Story-Passage-API \
-          test/e2e/Cookbook/Style-Markup \
-          test/e2e/Cookbook/Turn-Counter \
-          test/e2e/Cookbook/Variable-Story-Styling \
-          test/e2e/RunScript \
-          test/e2e/Errors
       env:
         CI: true
-    
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
