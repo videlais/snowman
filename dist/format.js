@@ -1,6 +1,6 @@
 window.storyFormat({
   "name": "Snowman",
-  "version": "3.0.0",
+  "version": "3.0.0-beta",
   "description": "An advanced story format for authors more experienced with HTML, CSS, and JavaScript. See its <a href='https://videlais.github.io/snowman/#/' target='_blank' rel='noopener noreferrer'>documentation</a>.",
   "proofing": false,
   "license": "MIT",
