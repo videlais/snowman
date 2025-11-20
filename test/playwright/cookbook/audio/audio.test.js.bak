@@ -64,6 +64,38 @@ test.describe('Audio Example', () => {
     
     await page.goto(`file://${compiledHtmlPath}`);
     
+    // Wait a moment for JS to execute
+    await page.waitForTimeout(1000);
+    
+    // Log any captured errors BEFORE waiting for elements
+    logErrors(consoleErrors, pageErrors);
+    
+    // Check if tw-passage exists at all
+    const passageCount = await page.locator('tw-passage').count();
+    console.log(`Found ${passageCount} tw-passage elements`);
+    
+    // Check if it's visible
+    if (passageCount > 0) {
+      const isVisible = await page.locator('tw-passage').first().isVisible();
+      console.log(`tw-passage visible: ${isVisible}`);
+      
+      // Get computed style
+      const display = await page.locator('tw-passage').first().evaluate(el => window.getComputedStyle(el).display);
+      const visibility = await page.locator('tw-passage').first().evaluate(el => window.getComputedStyle(el).visibility);
+      const opacity = await page.locator('tw-passage').first().evaluate(el => window.getComputedStyle(el).opacity);
+      const boundingBox = await page.locator('tw-passage').first().boundingBox();
+      
+      console.log(`tw-passage display: ${display}`);
+      console.log(`tw-passage visibility: ${visibility}`);
+      console.log(`tw-passage opacity: ${opacity}`);
+      console.log(`tw-passage boundingBox:`, boundingBox);
+      
+      // Get content
+      const content = await page.locator('tw-passage').first().innerHTML();
+      console.log(`tw-passage content length: ${content.length}`);
+      console.log(`tw-passage content: ${content.substring(0, 200)}`);
+    }
+    
     // Wait for Snowman to initialize and content to be rendered
     // Note: audio elements with controls should have height, but if sources don't exist
     // the element might have zero height. We just need to wait for the element to exist
@@ -74,8 +106,6 @@ test.describe('Audio Example', () => {
     const audioElement = await page.locator('tw-passage audio').first();
     await expect(audioElement).toBeAttached();
     
-    logErrors(consoleErrors, pageErrors);
-    
     // Verify no JavaScript errors occurred
     expect(pageErrors, 'Page should load without JavaScript errors').toHaveLength(0);
     expect(consoleErrors, 'Page should load without console errors').toHaveLength(0);
@@ -85,9 +115,9 @@ test.describe('Audio Example', () => {
     const { consoleErrors, pageErrors } = setupErrorTracking(page);
     
     await page.goto(`file://${compiledHtmlPath}`);
-    await page.waitForSelector('tw-passage', { state: 'attached', timeout: 5000 });
+    await page.waitForSelector('tw-passage', { timeout: 5000 });
     
-    // Verify audio element exists in tw-passage
+    // Verify audio element exists in tw-passage (visible one)
     const audioElement = page.locator('tw-passage audio').first();
     await expect(audioElement).toBeAttached();
     
@@ -102,7 +132,7 @@ test.describe('Audio Example', () => {
     const { consoleErrors, pageErrors } = setupErrorTracking(page);
     
     await page.goto(`file://${compiledHtmlPath}`);
-    await page.waitForSelector('tw-passage', { state: 'attached', timeout: 5000 });
+    await page.waitForSelector('tw-passage', { timeout: 5000 });
     
     // Verify audio element exists in tw-passage
     const audioElement = page.locator('tw-passage audio').first();
@@ -121,7 +151,7 @@ test.describe('Audio Example', () => {
     const { consoleErrors, pageErrors } = setupErrorTracking(page);
     
     await page.goto(`file://${compiledHtmlPath}`);
-    await page.waitForSelector('tw-passage', { state: 'attached', timeout: 5000 });
+    await page.waitForSelector('tw-passage', { timeout: 5000 });
     
     // Get all source elements from tw-passage
     const sources = page.locator('tw-passage audio source');
@@ -142,15 +172,13 @@ test.describe('Audio Example', () => {
     const { consoleErrors, pageErrors } = setupErrorTracking(page);
     
     await page.goto(`file://${compiledHtmlPath}`);
-    await page.waitForSelector('tw-passage', { state: 'attached', timeout: 5000 });
+    await page.waitForSelector('tw-passage', { timeout: 5000 });
     
     logErrors(consoleErrors, pageErrors);
     
     // Verify Snowman story structure
     await expect(page.locator('tw-storydata')).toBeAttached();
-    // Note: Don't use toBeVisible() for passages with only audio elements
-    // Audio elements with non-existent sources may have zero height
-    await expect(page.locator('tw-passage')).toBeAttached();
+    await expect(page.locator('tw-passage')).toBeVisible();
     
     // Verify audio element is within the passage
     const audioInPassage = page.locator('tw-passage audio');
