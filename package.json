@@ -31,7 +31,7 @@
     "@babel/preset-env": "^7.28.5",
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.57.0",
-    "@tabler/icons": "^3.35.0",
+    "@tabler/icons": "^3.36.0",
     "babel-jest": "^30.2.0",
     "codemirror": "^6.0.2",
     "css-loader": "^7.1.2",
