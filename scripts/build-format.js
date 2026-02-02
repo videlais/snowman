@@ -1,4 +1,4 @@
-import { render } from 'ejs';
+import ejs from 'ejs';
 import { readFileSync, writeFileSync } from 'node:fs';
 import pkg from 'shelljs';
 const { cp } = pkg;
@@ -19,7 +19,7 @@ const ejsTemplate = readFileSync('lib/src/index.ejs', { encoding: 'utf8' });
 // Render the template with a unique placeholder to avoid conflicts
 // This prevents EJS from interpreting JavaScript code patterns like <%, etc.
 const PLACEHOLDER = '__SNOWMAN_INJECT_SCRIPT_b8f3e2a1c4d6__';
-const htmlTemplate = render(ejsTemplate, { script: PLACEHOLDER });
+const htmlTemplate = ejs.render(ejsTemplate, { script: PLACEHOLDER });
 
 // Escape dollar signs in the bundled JavaScript to prevent replacement pattern interpretation
 // In JavaScript replace/replaceAll, $& $` $' $n are special patterns - we need $$ to get literal $

@@ -1,1 +1,1 @@
-/*! jQuery v3.7.1 | (c) OpenJS Foundation and other contributors | jquery.org/license */
+/*! jQuery v4.0.0 | (c) OpenJS Foundation and other contributors | jquery.com/license */
