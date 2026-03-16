@@ -1,0 +1,82 @@
+name: Dependabot Auto-merge
+
+on:
+  pull_request:
+    branches: [1.X]
+
+# Write permissions are required to approve and merge PRs.
+# GitHub grants these explicitly so Dependabot PRs are not limited
+# to the default read-only token.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Check Coverage and Auto-merge
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: pr-code
+
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+          path: base-code
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      # Run the PR branch tests first so its node_modules cache is warm.
+      # --coverageReporters=json-summary writes coverage/coverage-summary.json
+      # which is the easiest format to parse without extra tooling.
+      - name: Run tests on PR branch
+        id: pr_coverage
+        working-directory: pr-code
+        run: |
+          npm ci
+          npm test -- --coverage --coverageReporters=json-summary
+          PCT=$(node -e "const s=require('./coverage/coverage-summary.json');console.log(s.total.lines.pct)")
+          echo "percentage=$PCT" >> $GITHUB_OUTPUT
+          echo "PR branch line coverage: $PCT%"
+
+      - name: Run tests on base branch
+        id: base_coverage
+        working-directory: base-code
+        run: |
+          npm ci
+          npm test -- --coverage --coverageReporters=json-summary
+          PCT=$(node -e "const s=require('./coverage/coverage-summary.json');console.log(s.total.lines.pct)")
+          echo "percentage=$PCT" >> $GITHUB_OUTPUT
+          echo "Base branch line coverage: $PCT%"
+
+      - name: Compare coverage and auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUM: ${{ github.event.pull_request.number }}
+          BASE_PCT: ${{ steps.base_coverage.outputs.percentage }}
+          PR_PCT: ${{ steps.pr_coverage.outputs.percentage }}
+        run: |
+          echo "Base branch coverage: $BASE_PCT%"
+          echo "PR branch coverage:   $PR_PCT%"
+
+          # awk is used for floating-point comparison since bash only handles integers.
+          if awk "BEGIN { exit !($PR_PCT >= $BASE_PCT) }"; then
+            echo "Coverage maintained ($PR_PCT% >= $BASE_PCT%). Approving and enabling auto-merge..."
+            gh pr review "$PR_NUM" \
+              --approve \
+              --body "Coverage maintained at ${PR_PCT}% (base: ${BASE_PCT}%). Auto-approving Dependabot PR."
+            # --auto waits for all required status checks before merging,
+            # respecting any branch protection rules.
+            # Requires "Allow auto-merge" to be enabled in repository Settings.
+            gh pr merge "$PR_NUM" --auto --squash
+          else
+            echo "::warning::Coverage dropped from $BASE_PCT% to $PR_PCT%. Skipping auto-merge."
+          fi
