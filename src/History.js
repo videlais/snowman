@@ -76,7 +76,7 @@ class History {
    * @returns {boolean} True if passage(s) in history; false otherwise.
    */
   static hasVisited (passageName = null) {
-    let result = false;
+    let result;
 
     if (Array.isArray(passageName)) {
       result = passageName.every((passageName) => {
@@ -100,8 +100,7 @@ class History {
    * @returns {number}              Number of visits to passage.
    */
   static visited (passageName) {
-    let searchResults = [];
-    searchResults = this.history.filter(entry => entry.passageName === passageName);
+    const searchResults = this.history.filter(entry => entry.passageName === passageName);
     return searchResults.length;
   }
 

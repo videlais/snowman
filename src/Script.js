@@ -18,7 +18,7 @@ class Script {
    * @returns {string} Any output, if produced.
    */
   static run (script, story) {
-    let result = '';
+    let result;
 
     try {
       // Send in pseudo-global properties.
@@ -53,7 +53,7 @@ class Script {
       );
     } catch (e) {
       // Throw error if rendering fails.
-      throw new Error(`Error compiling template code: ${e}`);
+      throw new Error(`Error compiling template code: ${e}`, { cause: e });
     }
 
     return result;
