@@ -48,7 +48,7 @@
     "open-cli": "^9.0.0",
     "shelljs": "^0.10.0",
     "style-loader": "^4.0.0",
-    "webpack": "^5.105.4",
+    "webpack": "^5.106.2",
     "webpack-cli": "^7.0.2",
     "webpack-dev-server": "^5.2.3"
   },
