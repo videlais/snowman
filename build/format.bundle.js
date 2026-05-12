@@ -7905,6 +7905,7 @@ ParserInline.prototype.State = state_inline
 /* harmony default export */ const parser_inline = (ParserInline);
 
 ;// ./node_modules/linkify-it/lib/re.mjs
+Object.defineProperty(lib_re, "name", { value: "default", configurable: true });
 
 
 /* harmony default export */ function lib_re(opts) {
@@ -10616,6 +10617,7 @@ const utils = {};
 var regExpChars = /[|\\{}()[\]^$+*?.]/g;
 var utils_hasOwnProperty = Object.prototype.hasOwnProperty;
 var hasOwn = function (obj, key) { return utils_hasOwnProperty.apply(obj, [key]); };
+utils.hasOwn = hasOwn;
 
 /**
  * Escape characters reserved in regular expressions.
@@ -11307,7 +11309,7 @@ ejs.renderFile = function () {
     // Special casing for Express (settings + opts-in-data)
     else {
       // Express 3 and 4
-      if (data.settings) {
+      if (esm_utils.hasOwn(data, 'settings') && data.settings) {
         // Pull a few things from known locations
         if (data.settings.views) {
           opts.views = data.settings.views;
