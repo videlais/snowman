@@ -575,6 +575,14 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
 /******/ 		};
 /******/ 	})();
 /******/ 	
+/******/ 	/* webpack/runtime/set anonymous default export name */
+/******/ 	(() => {
+/******/ 		// set .name for anonymous default exports per ES spec
+/******/ 		__webpack_require__.dn = (x) => {
+/******/ 			(Object.getOwnPropertyDescriptor(x, "name") || {}).writable || Object.defineProperty(x, "name", { value: "default", configurable: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /************************************************************************/
 // This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
 (() => {
@@ -7905,7 +7913,7 @@ ParserInline.prototype.State = state_inline
 /* harmony default export */ const parser_inline = (ParserInline);
 
 ;// ./node_modules/linkify-it/lib/re.mjs
-Object.defineProperty(lib_re, "name", { value: "default", configurable: true });
+__webpack_require__.dn(lib_re);
 
 
 /* harmony default export */ function lib_re(opts) {
@@ -22040,12 +22048,12 @@ function resetServiceContainer() {
   globalContainer = null;
 }
 
-/* harmony default export */ const ServiceRegistry = ({
+/* harmony default export */ const ServiceRegistry = ((/* unused pure expression or super */ null && ({
   createServiceContainer,
   getServiceContainer,
   setServiceContainer,
   resetServiceContainer
-});
+})));
 ;// ./src/Story.js
 /**
  * @external Element
