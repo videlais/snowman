@@ -30,11 +30,9 @@ module.exports = {
             presets: [
               ['@babel/preset-env', {
                 targets: {
-                  browsers: ['> 1%', 'last 2 versions', 'ie >= 11']
+                  browsers: ['> 1%', 'last 2 versions']
                 },
                 modules: false, // Keep ES modules for better tree shaking
-                useBuiltIns: 'usage',
-                corejs: false, // Don't include polyfills
               }]
             ],
             compact: true, // Compact output
