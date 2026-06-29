@@ -523,17 +523,17 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
 /******/ 	});
 /************************************************************************/
 /******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
+/******/ 	const __webpack_module_cache__ = {};
 /******/ 	
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		const cachedModule = __webpack_module_cache__[moduleId];
 /******/ 		if (cachedModule !== undefined) {
 /******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 		const module = __webpack_module_cache__[moduleId] = {
 /******/ 			// no module.id needed
 /******/ 			// no module.loaded needed
 /******/ 			exports: {}
@@ -549,11 +549,26 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
 /************************************************************************/
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
+/******/ 		// define getter/value functions for harmony exports
 /******/ 		__webpack_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 			if(Array.isArray(definition)) {
+/******/ 				var i = 0;
+/******/ 				while(i < definition.length) {
+/******/ 					var key = definition[i++];
+/******/ 					var binding = definition[i++];
+/******/ 					if(!__webpack_require__.o(exports, key)) {
+/******/ 						if(binding === 0) {
+/******/ 							Object.defineProperty(exports, key, { enumerable: true, value: definition[i++] });
+/******/ 						} else {
+/******/ 							Object.defineProperty(exports, key, { enumerable: true, get: binding });
+/******/ 						}
+/******/ 					} else if(binding === 0) { i++; }
+/******/ 				}
+/******/ 			} else {
+/******/ 				for(var key in definition) {
+/******/ 					if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 					}
 /******/ 				}
 /******/ 			}
 /******/ 		};
@@ -568,7 +583,7 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
 /******/ 	(() => {
 /******/ 		// define __esModule on exports
 /******/ 		__webpack_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			if(Symbol.toStringTag) {
 /******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 /******/ 			}
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
@@ -588,7 +603,7 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
 (() => {
 "use strict";
 
-// NAMESPACE OBJECT: ./node_modules/mdurl/index.mjs
+// NAMESPACE OBJECT (decoupled): ./node_modules/mdurl/index.mjs
 var mdurl_namespaceObject = {};
 __webpack_require__.r(mdurl_namespaceObject);
 __webpack_require__.d(mdurl_namespaceObject, {
@@ -598,7 +613,7 @@ __webpack_require__.d(mdurl_namespaceObject, {
   parse: () => (parse)
 });
 
-// NAMESPACE OBJECT: ./node_modules/uc.micro/index.mjs
+// NAMESPACE OBJECT (decoupled): ./node_modules/uc.micro/index.mjs
 var uc_micro_namespaceObject = {};
 __webpack_require__.r(uc_micro_namespaceObject);
 __webpack_require__.d(uc_micro_namespaceObject, {
@@ -610,7 +625,7 @@ __webpack_require__.d(uc_micro_namespaceObject, {
   Z: () => (Z_regex)
 });
 
-// NAMESPACE OBJECT: ./node_modules/markdown-it/lib/common/utils.mjs
+// NAMESPACE OBJECT (decoupled): ./node_modules/markdown-it/lib/common/utils.mjs
 var utils_namespaceObject = {};
 __webpack_require__.r(utils_namespaceObject);
 __webpack_require__.d(utils_namespaceObject, {
@@ -634,7 +649,7 @@ __webpack_require__.d(utils_namespaceObject, {
   unescapeMd: () => (unescapeMd)
 });
 
-// NAMESPACE OBJECT: ./node_modules/markdown-it/lib/helpers/index.mjs
+// NAMESPACE OBJECT (decoupled): ./node_modules/markdown-it/lib/helpers/index.mjs
 var helpers_namespaceObject = {};
 __webpack_require__.r(helpers_namespaceObject);
 __webpack_require__.d(helpers_namespaceObject, {
