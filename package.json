@@ -37,7 +37,7 @@
     "css-loader": "^7.1.4",
     "css-minimizer-webpack-plugin": "^8.0.0",
     "eslint": "^10.6.0",
-    "eslint-plugin-jest": "^29.15.3",
+    "eslint-plugin-jest": "^29.15.4",
     "eslint-plugin-jsdoc": "^63.0.10",
     "extwee": "^2.3.18",
     "globals": "^17.7.0",
