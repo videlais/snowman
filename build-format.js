@@ -34,6 +34,17 @@ const formatSource = fs.readFileSync('build/format.bundle.js', { encoding: 'utf8
 
 console.log(`\t ✅Reading format bundle`);
 
+// Neutralize HTML-significant sequences before embedding the bundle in an inline
+// `<script>`. Bundled dependencies (e.g. markdown-it) contain literal `<!--` and
+// `<script` strings; when `<!--` precedes `<script` inside an inline script, the
+// HTML parser enters the "script data double escaped" state and the real
+// `</script>` no longer closes the tag, so the entire bundle fails to execute.
+// Inserting a backslash is a no-op inside JS string and regex literals
+// (`\!` === `!`, `\/` === `/`), so the executed code is unchanged.
+const safeFormatSource = formatSource
+  .replace(/<!--/g, '<\\!--')
+  .replace(/<\/script/gi, '<\\/script');
+
 // Read bundled CSS.
 const storyCSS = fs.readFileSync('build/format.css', { encoding: 'utf8' });
 
@@ -41,7 +52,7 @@ console.log(`\t ✅Reading story CSS bundle`);
 
 // Replace the bundles in the format HTML template.
 const indexSource = ejs.render(srcIndex, {
-  format: `<script>${formatSource}</script>`,
+  format: `<script>${safeFormatSource}</script>`,
   story_css: `<style>${storyCSS}</style>`
 });
 
