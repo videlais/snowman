@@ -1,4 +1,4 @@
-import { parse } from 'quis';
+import { evaluate } from 'quis';
 import State from './State.js';
 import { normalizeRequirements } from './MingoQuisConverter.js';
 
@@ -100,7 +100,7 @@ class Storylets {
         return; // Skip this passage if requirements are invalid
       }
       
-      // Create values function for Quis
+      // Values escape hatch for Quis: resolve variables from State.store.
       const values = (name) => {
         // Remove $ prefix if present (Quis expects $variableName, but we store variableName)
         const cleanName = name.startsWith('$') ? name.slice(1) : name;
@@ -113,7 +113,8 @@ class Storylets {
         // Only test if there are actual requirements (not empty object/string)
         if ((typeof requirements === 'object' && Object.keys(requirements).length > 0) ||
             (typeof requirements === 'string' && requirements.trim() !== '' && requirements !== 'true')) {
-          isAvailable = parse(quisExpression, { values });
+          // Quis 1.4+: parse() only returns an AST; evaluate() parses and evaluates.
+          isAvailable = evaluate(quisExpression, State.store, { values });
         }
       } catch (error) {
         console.warn('Failed to evaluate requirements for passage:', entry.passage.name, error);
