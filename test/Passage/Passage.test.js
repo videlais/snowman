@@ -645,4 +645,47 @@ code block
             expect(html).toContain('code block');
         });
     });
+
+    describe('boolean HTML attributes (Step 1)', () => {
+        it('preserves a boolean attribute alongside a standard attribute', () => {
+            // Covers line 116: booleanAttrs branch when standard "=" attrs are also present
+            const passage = new Passage(1, 'Test', [], '<video src="movie.mp4" controls>Clip</video>');
+            const html = passage.render();
+            expect(html).toContain('src="movie.mp4"');
+            expect(html).toContain('controls');
+            expect(html).toContain('>Clip</video>');
+        });
+
+        it('preserves a boolean attribute combined with a shorthand attribute', () => {
+            // Covers line 148: booleanAttrs branch in the no-"=" path
+            const passage = new Passage(1, 'Test', [], '<video controls .myClass>Clip</video>');
+            const html = passage.render();
+            expect(html).toContain('controls');
+            expect(html).toContain('class="myClass"');
+            expect(html).toContain('>Clip</video>');
+        });
+    });
+
+    describe('Step 5 re-processing edge cases', () => {
+        beforeEach(() => {
+            window.story.state = { foo: 'bar', testVar: 'testValue' };
+        });
+
+        it('leaves a tag with no attributes untouched when templates are present', () => {
+            // Covers line 205: empty-attrs return inside the templates-present re-processing path
+            const passage = new Passage(1, 'Test', [], '<div><%= s.foo %></div>');
+            const html = passage.render();
+            expect(html).toContain('<div>');
+            expect(html).toContain('bar');
+            expect(html).toContain('</div>');
+        });
+
+        it('drops attributes that render to nothing when templates are present', () => {
+            // Covers line 244: shorthand renders empty in the templates-present re-processing path
+            const passage = new Passage(1, 'Test', [], '<div xyz><%= s.foo %></div>');
+            const html = passage.render();
+            // "xyz" has no shorthand markers, so it renders empty and the tag has no attributes
+            expect(html).toContain('<div>bar</div>');
+        });
+    });
 });

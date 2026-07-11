@@ -140,4 +140,17 @@ describe('getStyles', () => {
         expect(styles.length).toBe(0);
     });
 
+    it('rejects via the .fail() callback when the request fails', async () => {
+        // This covers line 34: the reject() inside the chained .fail() handler.
+        // jquery.get returns a chainable object whose .fail() invokes its callback.
+        jquery.get = jest.fn(() => ({
+            fail: (cb) => { cb(); }
+        }));
+        const files = ['file1.css'];
+        const result = await getStyles(files);
+        expect(result).toBeNull();
+        const styles = document.head.querySelectorAll('style');
+        expect(styles.length).toBe(0);
+    });
+
 });

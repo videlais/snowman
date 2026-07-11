@@ -210,6 +210,14 @@ describe('Story', () => {
       expect(story.passage('Start')).toBe(story.passages[1]);
       expect(story.passage('Second')).toBe(story.passages[2]);
     });
+
+    test('returns null when the argument is neither a number nor a string', () => {
+      // Covers line 253: the branch where _.isString is also false
+      const story = new Story();
+      expect(story.passage(null)).toBeNull();
+      expect(story.passage({})).toBeNull();
+      expect(story.passage(undefined)).toBeNull();
+    });
   });
 
   describe('render method', () => {
@@ -569,6 +577,40 @@ describe('Story', () => {
         }, 10);
       });
     });
+
+    test('sm.story.error handler skips DOM update when ignoreErrors is true', () => {
+      // Covers line 145: the false branch of `if (this.ignoreErrors == false)`
+      const htmlMock = jest.fn();
+      global.$ = jest.fn((selector) => {
+        if (selector === 'tw-story') {
+          return { html: htmlMock };
+        }
+        return {
+          html: jest.fn().mockReturnValue('body { color: red; }'),
+          trigger: jest.fn(),
+          on: jest.fn((event, handler) => {
+            if (selector === window) {
+              windowEventHandlers[event] = handler;
+            }
+          }),
+          append: jest.fn(),
+          closest: jest.fn(() => ({ data: jest.fn(() => 'testpassage') })),
+        };
+      });
+      global.$.event = { trigger: jest.fn() };
+
+      const story = new Story();
+      story.ignoreErrors = true;
+
+      const errorHandler = windowEventHandlers['sm.story.error'];
+      expect(errorHandler).toBeDefined();
+
+      errorHandler.call(story, { type: 'sm.story.error' }, { name: 'TestError', message: 'test message' }, 'TestSource');
+
+      // Error message is still recorded, but the DOM is not updated
+      expect(story.errorMessage).toBe('In TestSource: TestError: test message');
+      expect(htmlMock).not.toHaveBeenCalled();
+    });
   });
 
   describe('event handlers', () => {
@@ -618,6 +660,30 @@ describe('Story', () => {
       expect(story.history).toEqual([]);
       expect(story.checkpointName).toBe('');
       expect(story.show).toHaveBeenCalledWith(1, true);
+    });
+
+    test('popstate event handler without state and short history does nothing', () => {
+      // Covers line 178: the branch where there is no state AND history.length <= 1
+      const story = new Story();
+      story.show = jest.fn();
+      story.start();
+
+      const popstateHandler = windowEventHandlers['popstate'];
+      expect(popstateHandler).toBeDefined();
+
+      // Short history means neither restore branch runs
+      story.history = [1];
+      story.state = { untouched: true };
+      story.checkpointName = 'keep';
+      story.show.mockClear();
+
+      popstateHandler.call(story, { originalEvent: { state: null } });
+
+      // State is left untouched because no branch executed
+      expect(story.state).toEqual({ untouched: true });
+      expect(story.history).toEqual([1]);
+      expect(story.checkpointName).toBe('keep');
+      expect(story.show).not.toHaveBeenCalled();
     });
 
     test('hashchange event handler calls restore with hash', () => {
