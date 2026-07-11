@@ -29,7 +29,7 @@ describe('parse', () => {
     });
 
     it('parses [[destination<-rename]]', () => {
-        expect(parse('Go to [[Home<-Click here]]')).toBe('Go to <a href="javascript:void(0)" data-passage="Click here">Home</a>');
+        expect(parse('Go to [[Home<-Click here]]')).toBe('Go to <a href="javascript:void(0)" data-passage="Home">Click here</a>');
     });
 
     it('parses multiple links in one string', () => {
