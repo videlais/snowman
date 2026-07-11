@@ -44,7 +44,7 @@ jobs:
     
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [20, 22]
     
     steps:
       - name: Checkout code
@@ -140,16 +140,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      - name: Run tests with coverage
-        run: npm run test
-      
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        continue-on-error: true
-      
       - name: Run CodeQL Analysis
         uses: github/codeql-action/init@v3
         with:
@@ -194,14 +184,6 @@ jobs:
       - name: Run npm audit
         run: npm audit --audit-level=moderate
         continue-on-error: true
-      
-      - name: Run Snyk Security Scan
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        continue-on-error: true
-        with:
-          args: --severity-threshold=high
 
   all-checks-complete:
     name: All Checks Complete

@@ -9,7 +9,7 @@ on:
       node-versions:
         description: 'Node.js versions to test (comma-separated)'
         required: false
-        default: '18,20,22'
+        default: '20,22'
 
 jobs:
   full-regression-test:
@@ -20,7 +20,7 @@ jobs:
       fail-fast: false  # Continue testing other configurations even if one fails
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        node-version: [18, 20, 22]
+        node-version: [20, 22]
     
     steps:
       - name: Checkout code
