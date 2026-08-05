@@ -58,4 +58,20 @@ describe('parse', () => {
     it('should return empty string when given empty string', () => {
         expect(parse('')).toBe('');
     });
+
+    it('parses [[destination]] with a dash in the passage name', () => {
+        expect(parse('[[abc-def]]')).toBe('<a href="javascript:void(0)" data-passage="abc-def">abc-def</a>');
+    });
+
+    it('parses [[rename|destination]] with dashes in both names', () => {
+        expect(parse('[[start-here|end-there]]')).toBe('<a href="javascript:void(0)" data-passage="end-there">start-here</a>');
+    });
+
+    it('parses [[rename->destination]] with dashes in both names', () => {
+        expect(parse('[[start-here->end-there]]')).toBe('<a href="javascript:void(0)" data-passage="end-there">start-here</a>');
+    });
+
+    it('parses [[destination<-rename]] with dashes in both names', () => {
+        expect(parse('[[end-there<-start-here]]')).toBe('<a href="javascript:void(0)" data-passage="end-there">start-here</a>');
+    });
 });
