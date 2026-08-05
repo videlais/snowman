@@ -24,9 +24,9 @@
   "author": "Dan Cox",
   "dependencies": {
     "jquery": "^4.0.0",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.0.1",
     "lz-string": "^1.5.0",
-    "markdown-it": "^14.3.0",
+    "markdown-it": "^15.0.0",
     "marked": "^18.0.6",
     "underscore": "^1.13.8"
   },
