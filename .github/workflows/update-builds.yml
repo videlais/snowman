@@ -32,6 +32,10 @@ jobs:
       run: |
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+    - name: Fetch source branches
+      run: |
+        git fetch origin 1.X 2.X main --depth=1
     
     - name: Setup worktrees and copy build files
       run: |
@@ -45,18 +49,18 @@ jobs:
         echo "Copying build files from branches..."
         
         # Copy from 1.X branch
-        git show 1.X:dist/format.js > builds/1.X/format.js 2>/dev/null || echo "No format.js in 1.X"
-        git show 1.X:dist/icon.svg > builds/1.X/icon.svg 2>/dev/null || echo "No icon.svg in 1.X"
+        git show origin/1.X:dist/format.js > builds/1.X/format.js 2>/dev/null || echo "No format.js in 1.X"
+        git show origin/1.X:dist/icon.svg > builds/1.X/icon.svg 2>/dev/null || echo "No icon.svg in 1.X"
         
         # Copy from 2.X branch  
-        git show 2.X:dist/format.js > builds/2.X/format.js 2>/dev/null || echo "No format.js in 2.X"
-        git show 2.X:dist/icon.svg > builds/2.X/icon.svg 2>/dev/null || echo "No icon.svg in 2.X"
-        git show 2.X:dist/main.js > builds/2.X/main.js 2>/dev/null || echo "No main.js in 2.X"
-        git show 2.X:dist/main.js.LICENSE.txt > builds/2.X/main.js.LICENSE.txt 2>/dev/null || echo "No license file in 2.X"
+        git show origin/2.X:dist/format.js > builds/2.X/format.js 2>/dev/null || echo "No format.js in 2.X"
+        git show origin/2.X:dist/icon.svg > builds/2.X/icon.svg 2>/dev/null || echo "No icon.svg in 2.X"
+        git show origin/2.X:dist/main.js > builds/2.X/main.js 2>/dev/null || echo "No main.js in 2.X"
+        git show origin/2.X:dist/main.js.LICENSE.txt > builds/2.X/main.js.LICENSE.txt 2>/dev/null || echo "No license file in 2.X"
         
         # Copy from main branch (3.X)
-        git show main:dist/format.js > builds/3.X/format.js 2>/dev/null || echo "No format.js in main"
-        git show main:dist/icon.svg > builds/3.X/icon.svg 2>/dev/null || echo "No icon.svg in main"
+        git show origin/main:dist/format.js > builds/3.X/format.js 2>/dev/null || echo "No format.js in main"
+        git show origin/main:dist/icon.svg > builds/3.X/icon.svg 2>/dev/null || echo "No icon.svg in main"
         
         echo "Build files copied successfully"
     
