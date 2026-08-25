@@ -38,6 +38,10 @@ formatData.version = packageData.version;
 // Add the generated HTML as the source property
 formatData.source = finalHTML;
 
+// Add Twine 2.4+ editor extensions via hydrate.
+// Hydrate is executed by Twine with `this` bound to a format extension object.
+formatData.hydrate = readFileSync('lib/editor-extensions/hydrate.js', { encoding: 'utf8' });
+
 // Write the final format JavaScript file
 const formatJSON = JSON.stringify(formatData, null, 2);
 writeFileSync(outputFile, `window.storyFormat(${formatJSON});`, { encoding: 'utf8' });
