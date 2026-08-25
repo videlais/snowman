@@ -646,6 +646,54 @@ code block
         });
     });
 
+    describe('markdown and template code in the same passage', () => {
+        beforeEach(() => {
+            window.story.state = { foo: 'bar', test: null };
+        });
+
+        it('renders a link, emphasis, strong, and a header alongside an arbitrary template block', () => {
+            const passage = new Passage(1, 'Test', [], `<% s.test = 1; %>
+
+[[This is a passage link]]
+
+*Emphasis*
+
+**Story emphasis**
+
+# Header1`);
+            const html = passage.render();
+
+            expect(window.story.state.test).toBe(1);
+            expect(html).toContain('data-passage="This is a passage link"');
+            expect(html).toContain('<em>Emphasis</em>');
+            expect(html).toContain('<strong>Story emphasis</strong>');
+            expect(html).toContain('<h1>Header1</h1>');
+        });
+
+        it('does not let markdown-special characters inside a template block affect markdown parsing', () => {
+            const passage = new Passage(1, 'Test', [], '<% let a = 1 < 2; let b = "a * b"; %>\n\n*Emphasis*');
+            const html = passage.render();
+
+            expect(html).toContain('<em>Emphasis</em>');
+            expect(html).not.toContain('&lt;%');
+        });
+
+        it('preserves an interpolated value inside a header', () => {
+            const passage = new Passage(1, 'Test', [], '# <%= s.foo %>');
+            const html = passage.render();
+
+            expect(html).toContain('<h1>bar</h1>');
+        });
+
+        it('still hides print() output from markdown processing', () => {
+            const passage = new Passage(1, 'Test', [], '<% print("*not emphasis*"); %>');
+            const html = passage.render();
+
+            expect(html).toContain('*not emphasis*');
+            expect(html).not.toContain('<em>not emphasis</em>');
+        });
+    });
+
     describe('boolean HTML attributes (Step 1)', () => {
         it('preserves a boolean attribute alongside a standard attribute', () => {
             // Covers line 116: booleanAttrs branch when standard "=" attrs are also present
