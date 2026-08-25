@@ -13,4 +13,4 @@ title: "Snowman 2.X Documentation"
 
 *Return Type*: {String} HTML source
 
-*Description*: Returns an HTML-rendered version of the passage's source. This first runs the source code through the Underscore template parser, then runs the result through a Markdown renderer, and then finally converts bracketed links to passage links.
+*Description*: Returns an HTML-rendered version of the passage's source. This first converts bracketed links to passage links, then runs the result through a Markdown renderer, and finally runs the source code through the Underscore template parser. Template code is protected from the Markdown step, so Markdown and template syntax can be freely combined in the same passage.

@@ -15,12 +15,18 @@ The main difference for most users is that 2.X uses different event names than 1
 
 Snowman does not use macros like Harlowe, SugarCube, and other story formats. Instead, it has two global objects, `window.story` and `window.passage`, that expose functionality for working with the overall story and current passage respectively through JavaScript.
 
-The libraries [jQuery](https://jquery.com/), [Underscore](https://underscorejs.org/), and [Marked](https://github.com/markedjs/marked) are also included and available globally as `window.$`, `window._`, and `window.marked`.
+The libraries [jQuery](https://jquery.com/) and [Underscore](https://underscorejs.org/) are also included and available globally as `window.$` and `window._`.
 
-Starting with 2.0, Snowman now also uses the full [Babel Polyfill](https://babeljs.io/docs/en/babel-polyfill) to simulate any missing JavaScript ES2015 functionality in the browser.
+Snowman uses the [Marked](https://github.com/markedjs/marked) library internally to parse Markdown, but does not expose it as a global. To parse Markdown directly, call `processMarkdown()` on a `Passage` instance, which uses the same Markdown engine and configuration as passage rendering and has no dependency on the DOM or `window.story`:
+
+```javascript
+new Passage().processMarkdown('*Emphasis*'); // "<em>Emphasis</em>"
+```
+
+Alternatively, `window.passage.render(source)` runs arbitrary source through the full rendering pipeline (see [render()](window_passage/functions/render.md)).
 
 ## License
 
 This work is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
 
-Documentation Version 2.1.0 (Current)
+Documentation Version 2.1.5 (Current)

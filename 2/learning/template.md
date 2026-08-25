@@ -29,3 +29,7 @@ To write a value to the passage in the current position, the interpolation synta
 In those cases where a value should be both interpolated (written to the passage in the current position) and HTML-escaped, the minus symbol (`-`) can be used after the opening tag, `<%`. This is most useful in working with functions or with values that may contain HTML.
 
 `<%- escapeReturnValue() %>`
+
+## Combining with Markdown
+
+Template code and Markdown styling can be used in the same passage. Template blocks are protected during Markdown processing, so JavaScript containing characters like `<`, `>`, `*`, `_`, or backticks is never misinterpreted as Markdown.
