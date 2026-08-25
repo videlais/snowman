@@ -61,6 +61,7 @@
     "./lib/index.js"
   ],
   "overrides": {
-    "js-yaml": "^4.1.2"
+    "js-yaml": "^4.3.1",
+    "nanoid": "^3.3.18"
   }
 }
