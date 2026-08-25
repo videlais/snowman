@@ -9,7 +9,7 @@ on:
       node-versions:
         description: 'Node.js versions to test (comma-separated)'
         required: false
-        default: '20,22'
+        default: '22,24'
 
 jobs:
   full-regression-test:
@@ -20,7 +20,7 @@ jobs:
       fail-fast: false  # Continue testing other configurations even if one fails
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        node-version: [20, 22]
+        node-version: [22, 24]
     
     steps:
       - name: Checkout code
@@ -68,7 +68,7 @@ jobs:
           retention-days: 30
       
       - name: Upload coverage reports
-        if: matrix.node-version == 20 && matrix.os == 'ubuntu-latest'
+        if: matrix.node-version == 22 && matrix.os == 'ubuntu-latest'
         uses: codecov/codecov-action@v4
         with:
           files: ./coverage/lcov.info
@@ -90,7 +90,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies
@@ -119,7 +119,7 @@ jobs:
           echo "- Total cookbook examples: ${{ steps.count.outputs.twee_files }}" >> $GITHUB_STEP_SUMMARY
           echo "- Total test files: ${{ steps.count.outputs.test_files }}" >> $GITHUB_STEP_SUMMARY
           echo "- Platform: Ubuntu Latest" >> $GITHUB_STEP_SUMMARY
-          echo "- Node.js: 20" >> $GITHUB_STEP_SUMMARY
+          echo "- Node.js: 22" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ All published cookbook examples validated against development build" >> $GITHUB_STEP_SUMMARY
 
@@ -134,7 +134,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies
@@ -166,7 +166,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
       
       - name: Install dependencies
