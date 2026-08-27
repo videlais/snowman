@@ -1,0 +1,25 @@
+:: StoryData
+{
+	"ifid":"A698AA1C-4344-4C23-9001-E14E4A12742F"
+}
+
+:: StoryTitle
+Restarting the Story in Snowman
+
+:: UserScript[script]
+window.story.state.visits = 0;
+
+// Bound once, on the document, so it keeps working no matter which passage is showing.
+$(document).on('click', '#restart-link', function () {
+	window.story.state = {};
+	window.story.show(window.story.startPassage);
+});
+
+:: Start
+<% s.visits = (s.visits || 0) + 1; %>
+
+You have visited this passage <%= s.visits %> time(s).
+
+[[Visit again->Start]]
+
+<a href="javascript:void(0)" id="restart-link">Restart the story</a>

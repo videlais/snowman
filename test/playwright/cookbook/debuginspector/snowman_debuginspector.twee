@@ -1,0 +1,50 @@
+:: StoryData
+{
+	"ifid":"EF6A2057-4534-4180-9896-D762B8F2F0B8"
+}
+
+:: StoryTitle
+Debug State Inspector Panel in Snowman
+
+:: UserScript[script]
+// The DOM is already ready by the time this script runs, so this can run
+// synchronously instead of waiting on $(document).ready() -- otherwise the
+// panel wouldn't exist yet when the very first sm.passage.shown fires.
+$('<div id="debug-panel"><button id="debug-toggle" type="button">Toggle Debug Panel</button><pre id="debug-panel-content" class="hidden"></pre></div>')
+	.appendTo('body');
+
+$(document).on('click', '#debug-toggle', function() {
+	$('#debug-panel-content').toggleClass('hidden');
+});
+
+$(document).on('sm.passage.shown', function() {
+	$('#debug-panel-content').text(JSON.stringify(window.story.state, null, 2));
+});
+
+:: UserStylesheet[stylesheet]
+#debug-panel {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	background: #222;
+	color: #0f0;
+	font-family: monospace;
+	padding: 0.5em;
+	z-index: 9999;
+}
+
+#debug-panel-content.hidden {
+	display: none;
+}
+
+:: Start
+<% s.health = 100; s.gold = 20; %>
+Health: <%= s.health %>, Gold: <%= s.gold %>
+
+[[Take damage->Damaged]]
+
+:: Damaged
+<% s.health -= 10; %>
+Health: <%= s.health %>
+
+[[Back->Start]]

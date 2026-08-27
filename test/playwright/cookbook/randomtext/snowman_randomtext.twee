@@ -1,0 +1,20 @@
+:: StoryData
+{
+	"ifid":"66B5222B-5ED9-4148-8672-E793A6F90A61"
+}
+
+:: StoryTitle
+Random Flavor Text in Snowman
+
+:: UserScript[script]
+window.setup = window.setup || {};
+window.setup.flavorTexts = [
+	"The wind howls through the trees.",
+	"A distant bell tolls somewhere in the village.",
+	"You hear footsteps behind you, but no one is there."
+];
+
+:: Start
+<%= _.sample(window.setup.flavorTexts) %>
+
+[[Listen again->Start]]

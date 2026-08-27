@@ -1,0 +1,32 @@
+:: StoryData
+{
+	"ifid":"27CEDDC2-49D2-4601-9D8E-5F375F37C08A"
+}
+
+:: StoryTitle
+Custom CSS Keyframe Animations in Snowman
+
+:: UserStylesheet[stylesheet]
+@keyframes shake {
+	0%, 100% { transform: translateX(0); }
+	25% { transform: translateX(-8px); }
+	75% { transform: translateX(8px); }
+}
+
+.shake {
+	animation: shake 0.4s ease-in-out;
+}
+
+:: Start
+<a href="javascript:void(0)" id="danger-link">Touch the cursed idol</a>
+
+<%
+$(function() {
+	$('#danger-link').on('click', function() {
+		$('tw-passage').addClass('shake');
+		setTimeout(function() {
+			$('tw-passage').removeClass('shake');
+		}, 400);
+	});
+});
+%>

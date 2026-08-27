@@ -1,0 +1,31 @@
+:: StoryData
+{
+	"ifid":"EDEDBB61-DA0B-4C03-8B73-B3422C31542C"
+}
+
+:: StoryTitle
+Simple Image Gallery in Snowman
+
+:: UserScript[script]
+window.setup = window.setup || {};
+window.setup.galleryImages = {
+	red: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='red'/%3E%3C/svg%3E",
+	blue: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='blue'/%3E%3C/svg%3E"
+};
+
+:: Start
+<img id="gallery-image" src="<%= window.setup.galleryImages.red %>" data-current="red" width="60" height="60">
+
+<p><a href="javascript:void(0)" id="swap-image-link">Click to swap the image</a></p>
+
+<%
+$(function() {
+	$('#swap-image-link').on('click', function() {
+		var img = $('#gallery-image');
+		// Read and write the data-current attribute directly so the DOM stays in sync
+		// (jQuery's .data() cache does not write back to the data-* attribute).
+		var next = img.attr('data-current') === 'red' ? 'blue' : 'red';
+		img.attr('src', window.setup.galleryImages[next]).attr('data-current', next);
+	});
+});
+%>

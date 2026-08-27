@@ -1,0 +1,12 @@
+:: StoryData
+{
+	"ifid":"D2177F39-E48B-4D6F-92E0-9BFA9BB0948A"
+}
+
+:: StoryTitle
+External Links in Snowman
+
+:: Start
+Visit the <a href="https://github.com/videlais/snowman" target="_blank" rel="noopener noreferrer">Snowman GitHub repository</a> to learn more about this story format.
+
+Notice two things about that link's HTML: `target="_blank"` opens it in a new tab, and `rel="noopener noreferrer"` keeps the new tab from being able to access or control this page.

@@ -1,0 +1,62 @@
+:: StoryData
+{
+	"ifid":"723A714A-03AA-4E02-85F7-C3E900384342"
+}
+
+:: StoryTitle
+Drag-and-Drop Inventory in Snowman
+
+:: UserStylesheet[stylesheet]
+.item {
+	display: inline-block;
+	padding: 0.5em 1em;
+	margin: 0.25em;
+	background: #ddd;
+	cursor: grab;
+}
+
+#equip-slot {
+	display: inline-block;
+	min-width: 150px;
+	height: 50px;
+	border: 2px dashed #888;
+	vertical-align: top;
+	padding: 0.5em;
+}
+
+#equip-slot.drag-over {
+	border-color: #333;
+	background: #eef;
+}
+
+:: Start
+Drag an item into the equipment slot below.
+
+<div class="item" draggable="true" id="item-sword">Sword</div>
+<div class="item" draggable="true" id="item-shield">Shield</div>
+
+<div id="equip-slot">Drop an item here</div>
+
+<%
+$(function() {
+	$('.item').on('dragstart', function(e) {
+		e.originalEvent.dataTransfer.setData('text/plain', e.target.id);
+	});
+
+	$('#equip-slot')
+		.on('dragover', function(e) {
+			e.preventDefault();
+			$(this).addClass('drag-over');
+		})
+		.on('dragleave', function() {
+			$(this).removeClass('drag-over');
+		})
+		.on('drop', function(e) {
+			e.preventDefault();
+			$(this).removeClass('drag-over');
+			var id = e.originalEvent.dataTransfer.getData('text/plain');
+			var label = document.getElementById(id).textContent;
+			$(this).text('Equipped: ' + label);
+		});
+});
+%>

@@ -1,0 +1,19 @@
+:: StoryData
+{
+	"ifid":"5E3CD126-999E-4CDE-944D-8C222FAFBFAD"
+}
+
+:: StoryTitle
+Organizing Passages with Tags in Snowman
+
+:: Start [important journal]
+This passage is tagged "important" and "journal" purely for organizational purposes. Twine's editor lets authors filter, color-code, or group passages by tag. Snowman itself does nothing with tags unless your own code reads them, as shown below.
+
+This passage's tags are: <%= window.story.passage("Start").tags.join(', ') %>
+
+[[See another tagged passage->Side Note]]
+
+:: Side Note [aside]
+This passage is tagged "aside". Its tags are: <%= window.story.passage("Side Note").tags.join(', ') %>
+
+[[Back to start->Start]]

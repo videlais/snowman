@@ -1,0 +1,37 @@
+:: StoryData
+{
+	"ifid":"651BD45A-183B-4778-BEA4-B0CFF706A2F9"
+}
+
+:: StoryTitle
+Two-Column Layout with CSS Grid in Snowman
+
+:: UserScript[script]
+/*
+	Add a persistent sidebar as a sibling of tw-passage inside tw-story, then
+	lay both of them out with CSS Grid instead of fixed positioning.
+*/
+$('<aside id="sidebar"><h2>Quick Facts</h2><p>This sidebar is a CSS Grid column, not a fixed-position element.</p></aside>')
+	.appendTo('tw-story');
+
+:: UserStylesheet[stylesheet]
+tw-story {
+	display: grid;
+	grid-template-columns: 3fr 1fr;
+	gap: 1em;
+}
+
+#sidebar {
+	background: #eee;
+	padding: 1em;
+}
+
+:: Start
+Welcome to the main story column. The sidebar to the right is laid out using CSS Grid.
+
+[[Continue->Next]]
+
+:: Next
+The layout stays in place as you move between passages, since the sidebar lives outside tw-passage.
+
+[[Back->Start]]

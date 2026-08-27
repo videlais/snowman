@@ -1,0 +1,22 @@
+:: StoryData
+{
+	"ifid":"3566FCD7-4DB8-41E1-AE00-3BF56517B813"
+}
+
+:: StoryTitle
+Simple Score Counter in Snowman
+
+:: UserScript[script]
+window.story.state.score = 0;
+
+:: Start
+Your score: <%= s.score %>
+
+[[Earn a point->Earn]]
+
+:: Earn
+<% s.score++; %>
+Your score is now <%= s.score %>.
+
+[[Earn another point->Earn]]
+[[Back to start->Start]]

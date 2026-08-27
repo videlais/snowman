@@ -1,0 +1,57 @@
+:: StoryData
+{
+	"ifid":"DA2AD291-48C8-4B4C-B0E8-DB11BF51698C"
+}
+
+:: StoryTitle
+Multiple Save Slots in Snowman
+
+:: UserScript[script]
+window.saveSlots = {
+	save: function (slot) {
+		window.localStorage.setItem('snowman-demo-slot-' + slot, JSON.stringify(window.story.state));
+	},
+	load: function (slot) {
+		var raw = window.localStorage.getItem('snowman-demo-slot-' + slot);
+		if (raw === null) {
+			return false;
+		}
+		window.story.state = JSON.parse(raw);
+		return true;
+	}
+};
+
+:: Start
+<% s.progress = s.progress || 0; %>
+Progress: <%= s.progress %>
+
+[[Increase progress->Increase]]
+
+<p>Save your progress:
+<a href="javascript:void(0)" id="save-slot-1">Save to Slot 1</a> |
+<a href="javascript:void(0)" id="save-slot-2">Save to Slot 2</a></p>
+
+<p>Load a save:
+<a href="javascript:void(0)" id="load-slot-1">Load Slot 1</a> |
+<a href="javascript:void(0)" id="load-slot-2">Load Slot 2</a></p>
+
+<%
+$(function() {
+	$('#save-slot-1').on('click', function() { window.saveSlots.save(1); });
+	$('#save-slot-2').on('click', function() { window.saveSlots.save(2); });
+	$('#load-slot-1').on('click', function() {
+		if (window.saveSlots.load(1)) {
+			window.story.show(window.story.startPassage);
+		}
+	});
+	$('#load-slot-2').on('click', function() {
+		if (window.saveSlots.load(2)) {
+			window.story.show(window.story.startPassage);
+		}
+	});
+});
+%>
+
+:: Increase
+<% s.progress = (s.progress || 0) + 1; %>
+[[Back to start->Start]]
