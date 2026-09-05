@@ -1,0 +1,49 @@
+:: StoryData
+{
+	"ifid":"E555EE51-1B18-40FA-9A0E-2E52FE08F12A"
+}
+
+:: StoryTitle
+Gauntlet Structure
+
+:: UserScript[script]
+window.story.state.attempts = window.story.state.attempts || 1;
+
+:: Start
+**Attempt #<%= s.attempts %>**
+
+Three trials stand between you and the summit. Fail any one and you begin again.
+
+[[Approach the first trial->Trial One]]
+
+:: Trial One
+A narrow ledge above a long drop. One wrong step is fatal.
+
+[[Hug the wall->Trial Two]]
+[[Leap across->Fall]]
+
+:: Trial Two
+A riddle gate bars the path. "What has roots as nobody sees?"
+
+[[Answer: a mountain->Trial Three]]
+[[Answer: a river->Fall]]
+
+:: Trial Three
+The final climb. Your grip is everything.
+
+[[Climb steadily->Summit]]
+[[Rush the top->Fall]]
+
+:: Fall
+You fail — and the mountain sends you back to the bottom.
+
+<% s.attempts++; %>
+
+[[Begin again->Start]]
+
+:: Summit
+You clear the last trial and stand atop the peak. There was only ever one way up; the challenge was surviving it.
+
+**The End**
+
+[[Climb again->Start]]

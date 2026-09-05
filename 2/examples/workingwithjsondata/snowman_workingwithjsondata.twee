@@ -1,0 +1,31 @@
+:: StoryData
+{
+	"ifid":"B5116666-1EC7-4B27-B48D-28E3F7DC26F1"
+}
+
+:: StoryTitle
+Working with JSON Data in Snowman
+
+:: UserScript[script]
+window.setup = window.setup || {};
+
+/*
+	This simulates data that, in a real project served over http(s), you might
+	load with fetch() from an external .json file. fetch() cannot load local
+	files when a story is opened directly via the file:// protocol, so this
+	example embeds the same kind of JSON text and parses it with JSON.parse()
+	to demonstrate working with structured data either way.
+*/
+window.setup.charactersJSON = '[{"name":"Ari","class":"Ranger"},{"name":"Bex","class":"Mage"},{"name":"Cato","class":"Warrior"}]';
+
+:: Start
+<%
+	var characters = JSON.parse(window.setup.charactersJSON);
+%>
+<ul id="character-list">
+<% _.each(characters, function(c) { %>
+<li><%= c.name %> the <%= c.class %></li>
+<% }); %>
+</ul>
+
+There are <%= characters.length %> characters available.

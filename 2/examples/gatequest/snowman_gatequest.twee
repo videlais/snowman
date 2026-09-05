@@ -1,0 +1,52 @@
+:: StoryData
+{
+	"ifid":"45830947-8992-4F18-9F1F-92A1848C94DB"
+}
+
+:: StoryTitle
+Gate / Quest Structure
+
+:: UserScript[script]
+window.story.state.keys = window.story.state.keys || [];
+
+:: Start
+A sealed gate blocks the road. It needs **two keys** to open — and you may find them in any order.
+
+Keys found: <%= s.keys.length %> / 2
+
+<% if (s.keys.length >= 2) { %>
+[[Open the gate->Gate]]
+<% } %>
+
+[[Search the forest->Forest]]
+[[Search the ruins->Ruins]]
+[[Search the shore->Shore]]
+
+:: Forest
+<% if (!_.contains(s.keys, 'iron')) { s.keys.push('iron'); } %>
+Among the tree roots you dig out the **iron key**.
+
+[[Return to the gate->Start]]
+
+:: Ruins
+<% if (!_.contains(s.keys, 'bone')) { s.keys.push('bone'); } %>
+In the rubble you uncover the **bone key**.
+
+[[Return to the gate->Start]]
+
+:: Shore
+<% if (!_.contains(s.keys, 'glass')) { s.keys.push('glass'); } %>
+Half-buried in the sand lies the **glass key**.
+
+[[Return to the gate->Start]]
+
+:: Gate
+Two keys turn in the ancient locks and the gate grinds open. It never mattered *which* two you brought — only that the count was met.
+
+**The End**
+
+[[Play again->Restart]]
+
+:: Restart
+<% s.keys = []; %>
+[[Begin again->Start]]

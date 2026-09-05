@@ -1,0 +1,59 @@
+:: StoryData
+{
+	"ifid":"DEC80C5F-99E7-4AC7-8662-1571183EB84D"
+}
+
+:: StoryTitle
+Hub and Spoke Structure
+
+:: UserScript[script]
+window.story.state.done = window.story.state.done || {};
+
+:: Start
+You board the ship as its new commander.
+
+[[Go to the bridge->Hub]]
+
+:: Hub
+**The bridge.** Choose where to go next. You return here after each visit, in whatever order you like.
+
+Tasks complete: <%= _.size(s.done) %> / 3
+
+<% if (!s.done.engine) { %>[[Visit the Engine Room->Engine]]<% } else { %>Engine Room — done<% } %>
+
+<% if (!s.done.medbay) { %>[[Visit the Med Bay->MedBay]]<% } else { %>Med Bay — done<% } %>
+
+<% if (!s.done.deck) { %>[[Visit the Gun Deck->Deck]]<% } else { %>Gun Deck — done<% } %>
+
+<% if (_.size(s.done) >= 3) { %>
+[[Set course for the finale->Finale]]
+<% } %>
+
+:: Engine
+<% s.done.engine = true; %>
+The engineer needs a coolant line rerouted. You handle it together.
+
+[[Return to the bridge->Hub]]
+
+:: MedBay
+<% s.done.medbay = true; %>
+The doctor is stumped by a stubborn diagnosis. Your fresh eyes help.
+
+[[Return to the bridge->Hub]]
+
+:: Deck
+<% s.done.deck = true; %>
+The gunner wants the targeting array recalibrated. Done.
+
+[[Return to the bridge->Hub]]
+
+:: Finale
+With the crew's trust earned — in whatever order you chose — the ship is ready for what comes next.
+
+**The End**
+
+[[Play again->Restart]]
+
+:: Restart
+<% s.done = {}; %>
+[[Board the ship->Hub]]

@@ -1,0 +1,53 @@
+:: StoryData
+{
+	"ifid":"CCCA09D6-1494-41E3-A331-5A876B46C859"
+}
+
+:: StoryTitle
+Branching Structure
+
+:: Start
+The cave mouth splits in two. Whatever you choose, there is no coming back to this spot.
+
+[[Take the left tunnel->Left]]
+[[Take the right tunnel->Right]]
+
+:: Left
+Water drips in the dark. The passage forks again.
+
+[[Wade into the stream->LeftStream]]
+[[Climb the wet rocks->LeftRocks]]
+
+:: Right
+Warm air rises from below. The passage forks again.
+
+[[Follow the distant light->RightLight]]
+[[Follow the low sound->RightSound]]
+
+:: LeftStream
+The current carries you into a flooded hall with no exit.
+
+**Ending: The Drowned Hall**
+
+[[Start over->Start]]
+
+:: LeftRocks
+You haul yourself up into a cavern of glittering crystal.
+
+**Ending: The Crystal Vault**
+
+[[Start over->Start]]
+
+:: RightLight
+The light is daylight — a hidden door in the cliffside.
+
+**Ending: The Cliffside Door**
+
+[[Start over->Start]]
+
+:: RightSound
+The sound is breathing. You have found a sleeping dragon. Unwisely.
+
+**Ending: The Dragon's Den**
+
+[[Start over->Start]]

@@ -1,0 +1,46 @@
+:: StoryData
+{
+	"ifid":"8DE1B491-0BF8-49DF-94FA-85244B272BEB"
+}
+
+:: StoryTitle
+Custom Events for Notifications in Snowman
+
+:: UserScript[script]
+/*
+	Listen for a custom "game.achievement" event anywhere in the document and
+	show a short-lived toast message in response. Any passage can trigger this
+	event with $(document).trigger('game.achievement', { title: '...' }).
+*/
+$(document).on('game.achievement', function (event, data) {
+	$('<div class="achievement-toast"></div>')
+		.text('Achievement unlocked: ' + data.title)
+		.appendTo('body')
+		.delay(300)
+		.fadeOut(200, function () {
+			$(this).remove();
+		});
+});
+
+:: UserStylesheet[stylesheet]
+.achievement-toast {
+	position: fixed;
+	top: 1em;
+	right: 1em;
+	background: #222;
+	color: #fff;
+	padding: 0.75em 1em;
+	border-radius: 4px;
+	font-family: sans-serif;
+}
+
+:: Start
+<a href="javascript:void(0)" id="unlock-btn">Pick up the ancient sword</a>
+
+<%
+$(function() {
+	$('#unlock-btn').on('click', function() {
+		$(document).trigger('game.achievement', { title: 'Sword Collector' });
+	});
+});
+%>

@@ -1,0 +1,49 @@
+:: StoryData
+{
+	"ifid":"05BC25BA-547E-456F-9E57-89582F206B94"
+}
+
+:: StoryTitle
+Yes or No Quiz in Snowman
+
+:: UserScript[script]
+window.story.state.correctAnswers = 0;
+
+:: Start
+Is the sky blue?
+
+[[Yes->Question1Yes]]
+[[No->Question1No]]
+
+:: Question1Yes
+<% s.correctAnswers++; %>
+Correct!
+
+[[Next question->Question2]]
+
+:: Question1No
+That's incorrect.
+
+[[Next question->Question2]]
+
+:: Question2
+Is fire cold?
+
+[[Yes->Question2Yes]]
+[[No->Question2No]]
+
+:: Question2Yes
+That's incorrect.
+
+[[See results->Results]]
+
+:: Question2No
+<% s.correctAnswers++; %>
+Correct!
+
+[[See results->Results]]
+
+:: Results
+You answered <%= s.correctAnswers %> out of 2 questions correctly.
+
+[[Try again->Start]]

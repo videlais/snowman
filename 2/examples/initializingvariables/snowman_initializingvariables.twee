@@ -1,0 +1,25 @@
+:: StoryData
+{
+	"ifid":"A610836B-1798-438B-8042-5631E4D323D3"
+}
+
+:: StoryTitle
+Initializing Story Variables in Snowman
+
+:: UserScript[script]
+/*
+	Code in a passage tagged "script" only runs once, when the story starts.
+	This makes it a good place to set up the starting values of your story variables.
+*/
+window.story.state.playerName = "Adventurer";
+window.story.state.gold = 10;
+window.story.state.hasMap = false;
+
+:: Start
+Welcome, <%= s.playerName %>! You start with <%= s.gold %> gold.
+
+<% if (s.hasMap) { %>
+You already have a map.
+<% } else { %>
+You do not have a map yet.
+<% } %>

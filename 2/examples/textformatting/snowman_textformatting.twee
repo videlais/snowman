@@ -1,0 +1,14 @@
+:: StoryData
+{
+	"ifid":"F1D16045-587C-4664-B5A7-E3E56D876740"
+}
+
+:: StoryTitle
+Basic Text Formatting in Snowman
+
+:: Start
+This is **bold** text and this is *italic* text, written using Markdown.
+
+This is <strong>bold</strong> and this is <em>italic</em>, written using raw HTML tags instead.
+
+<span style="color: blue;">This sentence is styled blue using an inline CSS style attribute.</span>

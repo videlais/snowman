@@ -1,0 +1,48 @@
+:: StoryData
+{
+	"ifid":"C40A70F3-EBA8-41C6-8720-2249C9E232E2"
+}
+
+:: StoryTitle
+Accessible Passage Announcements in Snowman
+
+:: UserScript[script]
+/*
+	Snowman's own tw-passage element already has aria-live="polite" built in,
+	so screen readers announce new passage content automatically. This example
+	adds two more accessibility techniques on top of that:
+	1) A persistent, visually-hidden status region (outside tw-passage, so it
+	   survives passage changes) that announces which passage is now showing.
+	2) Moving keyboard focus into the passage content after each transition,
+	   which helps sighted keyboard users know the page changed.
+*/
+// The DOM is already ready by the time this script runs, so this can run
+// synchronously instead of waiting on $(document).ready() -- otherwise the
+// element wouldn't exist yet when the very first sm.passage.shown fires.
+$('<div role="status" aria-live="polite" id="status-region" class="visually-hidden"></div>')
+	.prependTo('body');
+
+$(document).on('sm.passage.shown', function (event, data) {
+	$('#status-region').text('Now showing: ' + data.passage.name);
+	$('tw-passage').attr('tabindex', '-1').trigger('focus');
+});
+
+:: UserStylesheet[stylesheet]
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+}
+
+:: Start
+Welcome to the story.
+
+[[Continue->Next]]
+
+:: Next
+You arrived at the next passage.
+
+[[Back->Start]]

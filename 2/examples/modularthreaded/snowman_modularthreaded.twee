@@ -1,0 +1,59 @@
+:: StoryData
+{
+	"ifid":"7F4845FA-ECFC-4D3C-A9D2-5931850E5033"
+}
+
+:: StoryTitle
+Modular / Threaded Structure
+
+:: UserScript[script]
+window.story.state.read = window.story.state.read || {};
+
+:: Start
+**The Cold Case.** Four pieces of evidence sit on the desk. Read them in any order — the story is yours to assemble.
+
+Evidence examined: <%= _.size(s.read) %> / 4
+
+[[The half-burned letter->Letter]]
+[[The bank ledger->Ledger]]
+[[The witness statement->Witness]]
+[[The photograph->Photo]]
+
+<% if (_.size(s.read) >= 4) { %>
+[[Name the culprit->Solve]]
+<% } %>
+
+:: Letter
+<% s.read.letter = true; %>
+A letter, half-burned: *"Meet me at the pier at midnight. Bring the money."*
+
+[[Back to the desk->Start]]
+
+:: Ledger
+<% s.read.ledger = true; %>
+The ledger shows a large, secret withdrawal on the night of the crime.
+
+[[Back to the desk->Start]]
+
+:: Witness
+<% s.read.witness = true; %>
+A witness recalls a tall figure limping away from the pier, leaning on a cane.
+
+[[Back to the desk->Start]]
+
+:: Photo
+<% s.read.photo = true; %>
+A photograph from the gala: the banker — tall, and carrying a silver-topped cane.
+
+[[Back to the desk->Start]]
+
+:: Solve
+No single file told the story. Read together — in any order — they point to the banker. You assembled the meaning yourself.
+
+**The End**
+
+[[Open a new case->Restart]]
+
+:: Restart
+<% s.read = {}; %>
+[[Open the case file->Start]]

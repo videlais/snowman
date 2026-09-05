@@ -1,0 +1,48 @@
+:: StoryData
+{
+	"ifid":"23E75994-D259-44AF-AF5F-E35D1A1CC310"
+}
+
+:: StoryTitle
+Branch and Bottleneck Structure
+
+:: Start
+The heist begins. How do you get inside?
+
+[[Pick the side-door lock->LockRoute]]
+[[Bribe the front guard->BribeRoute]]
+
+:: LockRoute
+You slip in silently through the side door.
+
+[[Continue->Vault]]
+
+:: BribeRoute
+A few coins later, the guard waves you through the front.
+
+[[Continue->Vault]]
+
+:: Vault
+**Bottleneck.** However you got in, you now stand before the vault. The story guarantees this beat happens for every player.
+
+How do you crack it?
+
+[[Drill the lock->DrillRoute]]
+[[Guess the code->CodeRoute]]
+
+:: DrillRoute
+Sparks fly, the bit screams — and the vault swings open.
+
+[[Continue->Escape]]
+
+:: CodeRoute
+The code was the founder's birthday. Of course it was.
+
+[[Continue->Escape]]
+
+:: Escape
+**Bottleneck.** The vault is open and the alarm is ringing. Every path converges here for the finale.
+
+**The End: The score is yours**
+
+[[Run it again->Start]]

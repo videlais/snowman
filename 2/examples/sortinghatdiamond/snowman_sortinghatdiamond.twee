@@ -1,0 +1,53 @@
+:: StoryData
+{
+	"ifid":"2B264004-D167-481C-8851-C2C5428F69C4"
+}
+
+:: StoryTitle
+Sorting Hat / Diamond Structure
+
+:: UserScript[script]
+window.story.state.origin = window.story.state.origin || '';
+
+:: Start
+Before the journey begins, who are you?
+
+[[The Knight->Knight]]
+[[The Scholar->Scholar]]
+[[The Thief->Thief]]
+
+:: Knight
+<% s.origin = 'Knight'; %>
+You trained with sword and shield, sworn to the crown.
+
+[[Leave home->MainQuest]]
+
+:: Scholar
+<% s.origin = 'Scholar'; %>
+You studied forbidden books by candlelight.
+
+[[Leave home->MainQuest]]
+
+:: Thief
+<% s.origin = 'Thief'; %>
+You learned to move unseen through crowded markets.
+
+[[Leave home->MainQuest]]
+
+:: MainQuest
+From here, the road to the capital is the same for everyone.
+
+As a **<%= s.origin %>**, you notice details others miss — but the quest ahead is shared by all three origins.
+
+[[Enter the capital->Ending]]
+
+:: Ending
+The main story unfolds identically from this point on. Your early choice colored the opening and flavors the telling, but it did not change the course.
+
+**The End**
+
+[[Choose a new origin->Restart]]
+
+:: Restart
+<% s.origin = ''; %>
+[[Begin->Start]]

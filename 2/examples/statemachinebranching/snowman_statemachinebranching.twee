@@ -1,0 +1,38 @@
+:: StoryData
+{
+	"ifid":"2A940332-85B5-4B68-A521-55E933F7A5D3"
+}
+
+:: StoryTitle
+Finite-State Machine Branching in Snowman
+
+:: UserScript[script]
+window.setup = window.setup || {};
+
+// A lookup table describing valid transitions: { currentState: { action: nextState } }
+window.setup.moodMachine = {
+	calm: { provoke: 'annoyed', compliment: 'happy' },
+	annoyed: { provoke: 'angry', compliment: 'calm' },
+	angry: { provoke: 'angry', compliment: 'annoyed' },
+	happy: { provoke: 'annoyed', compliment: 'happy' }
+};
+
+window.setup.transition = function (state, action) {
+	var transitions = window.setup.moodMachine[state];
+	return (transitions && transitions[action]) || state;
+};
+
+:: Start
+<% s.mood = s.mood || 'calm'; %>
+The NPC's mood is: <%= s.mood %>
+
+[[Provoke them->Provoke]]
+[[Compliment them->Compliment]]
+
+:: Provoke
+<% s.mood = window.setup.transition(s.mood, 'provoke'); %>
+[[Continue->Start]]
+
+:: Compliment
+<% s.mood = window.setup.transition(s.mood, 'compliment'); %>
+[[Continue->Start]]

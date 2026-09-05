@@ -1,0 +1,33 @@
+:: StoryData
+{
+	"ifid":"C860097C-8F04-4476-91CB-6ABBB26A5598"
+}
+
+:: StoryTitle
+Basic Links in Snowman
+
+:: Start
+You stand at a fork in the road.
+
+[[Take the left path->Left Path]]
+[[Take the right path->Right Path]]
+
+:: Left Path
+You found a treasure chest!
+
+[[Continue->Good Ending]]
+
+:: Right Path
+You fall into a pit trap.
+
+[[Continue->Bad Ending]]
+
+:: Good Ending
+**The End: Treasure Found**
+
+[[Play again->Start]]
+
+:: Bad Ending
+**The End: You Lost**
+
+[[Play again->Start]]
