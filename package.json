@@ -21,7 +21,7 @@
   "dependencies": {
     "ejs": "^6.0.1",
     "jquery": "^4.0.0",
-    "markdown-it": "^14.3.0",
+    "markdown-it": "^14.3.1",
     "normalize.css": "^8.0.1",
     "quis": "^1.4.1",
     "underscore": "^1.13.8"
