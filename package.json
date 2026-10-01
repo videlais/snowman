@@ -42,7 +42,7 @@
     "extwee": "^2.3.18",
     "globals": "^17.8.0",
     "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1",
+    "jest-environment-jsdom": "^30.5.2",
     "mini-css-extract-plugin": "^2.10.2",
     "open": "^11.0.0",
     "open-cli": "^9.0.0",
