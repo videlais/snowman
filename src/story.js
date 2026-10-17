@@ -476,8 +476,25 @@ _.extend(Story.prototype, {
 
 		$.event.trigger('restore.sm.story');
 
+		var originalState = this.state;
+		var originalHistory = this.history;
+		var originalCheckpointName = this.checkpointName;
+		var originalPassage = window.passage;
+		var originalAtCheckpoint = this.atCheckpoint;
+
 		try {
 			var save = JSON.parse(LZString.decompressFromBase64(hash));
+
+			if (!save || typeof save !== 'object' || Array.isArray(save) ||
+				!save.state || typeof save.state !== 'object' ||
+				Array.isArray(save.state) ||
+				!Array.isArray(save.history) || save.history.length === 0 ||
+				!save.history.every(function(id) {
+					return Number.isInteger(id) && this.passage(id);
+				}, this) ||
+				typeof save.checkpointName !== 'string') {
+				throw new Error('Invalid save data');
+			}
 
 			this.state = save.state;
 			this.history = save.history;
@@ -485,7 +502,11 @@ _.extend(Story.prototype, {
 			this.show(this.history[this.history.length - 1], true);
 		}
 		catch (e) {
-			/* Swallow the error. */
+			this.state = originalState;
+			this.history = originalHistory;
+			this.checkpointName = originalCheckpointName;
+			window.passage = originalPassage;
+			this.atCheckpoint = originalAtCheckpoint;
 
 			/**
 			 Triggered if there was an error with restoring from a hash.
