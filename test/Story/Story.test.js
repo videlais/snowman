@@ -364,6 +364,29 @@ describe('Story', () => {
       expect(result).toBe(false);
       expect($.event.trigger).toHaveBeenCalledWith('sm.restore.failed', expect.any(Object));
     });
+
+    test('restore() leaves the current story unchanged when save history is invalid', () => {
+      const story = new Story();
+      story.state = { current: 'state' };
+      story.history = [1];
+      story.checkpointName = 'current checkpoint';
+      require('lz-string').decompressFromBase64.mockImplementationOnce(() =>
+        JSON.stringify({
+          state: { invalid: 'state' },
+          history: [],
+          checkpointName: 'invalid checkpoint'
+        })
+      );
+
+      const result = story.restore('invalid-save');
+
+      expect(result).toBe(false);
+      expect(story.state).toEqual({ current: 'state' });
+      expect(story.history).toEqual([1]);
+      expect(story.checkpointName).toBe('current checkpoint');
+      expect($.event.trigger).toHaveBeenCalledWith('sm.restore.failed', expect.any(Object));
+      expect($.event.trigger).not.toHaveBeenCalledWith('sm.restore.success');
+    });
   });
 
   describe('start method', () => {
