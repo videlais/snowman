@@ -2,7 +2,6 @@ import ejs from 'ejs';
 import { execa } from 'execa';
 import fs from 'fs';
 import pkg from '../package.json' with { type: 'json' };
-import shell from 'shelljs';
 import path from 'path';
 
 var encoding = { encoding: 'utf8' };
@@ -35,17 +34,16 @@ buildWithWebpack().then(function(result) {
 		version: pkg.version
 	};
 
-	shell.mkdir('-p', distPath);
+	fs.mkdirSync(distPath, { recursive: true });
 	fs.writeFileSync(
 		distPath + '/format.js',
 		'window.storyFormat(' + JSON.stringify(formatData) + ');'
 	);
 	
-	// Copy icon.svg using shell instead of cpx
-	shell.cp('src/icon.svg', distPath);
+	fs.copyFileSync('src/icon.svg', path.join(distPath, 'icon.svg'));
 
 	// Clean up
-	shell.rm('-R', tempPath);
+	fs.rmSync(tempPath, { recursive: true, force: true });
 
 }).catch(function(error) {
 	console.error('Build failed:', error);

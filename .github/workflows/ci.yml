@@ -13,12 +13,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         
     - name: Install dependencies
@@ -33,14 +33,14 @@ jobs:
     
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [22, 24]
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       
     - name: Setup Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
@@ -52,8 +52,8 @@ jobs:
       run: npm test
       
     - name: Upload coverage reports
-      if: matrix.node-version == '18'
-      uses: codecov/codecov-action@v3
+      if: matrix.node-version == '22'
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: false
@@ -65,12 +65,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         
     - name: Install dependencies
@@ -80,7 +80,7 @@ jobs:
       run: npm run build
       
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: build-artifacts
         path: dist/

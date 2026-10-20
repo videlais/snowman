@@ -13,14 +13,14 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0  # Shallow clones should be disabled for better analysis
       
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         
     - name: Install dependencies
@@ -30,7 +30,7 @@ jobs:
       run: npm test -- --coverage --coverageReporters=lcov
       
     - name: SonarCloud Scan
-      uses: SonarSource/sonarcloud-github-action@master
+      uses: SonarSource/sonarcloud-github-action@v5
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -42,12 +42,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         
     - name: Install dependencies
@@ -71,12 +71,12 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
-        node-version: '18'
+        node-version: '22'
         cache: 'npm'
         
     - name: Install dependencies
@@ -94,7 +94,7 @@ jobs:
         
     - name: Create issue for outdated dependencies
       if: steps.outdated-check.outputs.has_outdated == 'true'
-      uses: actions/github-script@v6
+      uses: actions/github-script@v9
       with:
         script: |
           const fs = require('fs');
