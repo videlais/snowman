@@ -1,5 +1,6 @@
 import Story from '../src/story.js';
 import $ from 'jquery';
+import LZString from 'lz-string';
 
 var $storyEl = $('<tw-storydata name="Test" startnode="1" creator="jasmine" creator-version="1.2.3"><tw-passagedata pid="1" name="Test Passage" tags="tag1 tag2">Hello world</tw-passagedata><tw-passagedata pid="2" name="Test Passage 2" tags="tag1 tag2">Hello world 2</tw-passagedata><tw-passagedata pid="3" name="Script" tags=""><div><script>console.log("Hello world")</script></div></tw-passagedata><script type="text/twine-javascript">window.scriptRan = true;</script><style type="text/twine-css">body { color: blue }</style></tw-storydata>');
 var story = new Story($storyEl);
@@ -490,6 +491,22 @@ describe('#saveHash() and #restore()', function() {
 		expect(failListener).toHaveBeenCalled();
 		
 		$(window).off('restorefail.sm.story', failListener);
+	});
+
+	it('Should not mutate story state when a save contains invalid data', function() {
+		var originalState = story.state;
+		var originalHistory = story.history;
+		var originalCheckpointName = story.checkpointName;
+		var invalidHash = LZString.compressToBase64(JSON.stringify({
+			state: null,
+			history: [999],
+			checkpointName: 'invalid checkpoint'
+		}));
+
+		expect(story.restore(invalidHash)).toBe(false);
+		expect(story.state).toBe(originalState);
+		expect(story.history).toBe(originalHistory);
+		expect(story.checkpointName).toBe(originalCheckpointName);
 	});
 
 });
